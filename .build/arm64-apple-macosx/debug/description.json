@@ -1,0 +1,252 @@
+{
+  "builtTestProducts" : [
+
+  ],
+  "copyCommands" : {
+
+  },
+  "explicitTargetDependencyImportCheckingMode" : {
+    "none" : {
+
+    }
+  },
+  "generatedSourceTargetSet" : [
+
+  ],
+  "pluginDescriptions" : [
+
+  ],
+  "swiftCommands" : {
+    "C.ComfyNotch-arm64-apple-macosx15.0-debug.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/sources",
+      "importPath" : "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/Sources/ComfyNotch/AppDelegate.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/Sources/ComfyNotch/main.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/sources"
+        }
+      ],
+      "isLibrary" : false,
+      "moduleName" : "ComfyNotch",
+      "moduleOutputPath" : "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/Modules/ComfyNotch.swiftmodule",
+      "objects" : [
+        "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/AppDelegate.swift.o",
+        "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/main.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx12.0",
+        "-enable-batch-mode",
+        "-index-store-path",
+        "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/index/store",
+        "-Onone",
+        "-enable-testing",
+        "-j11",
+        "-DSWIFT_PACKAGE",
+        "-DDEBUG",
+        "-module-cache-path",
+        "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ModuleCache",
+        "-parseable-output",
+        "-Xfrontend",
+        "-entry-point-function-name",
+        "-Xfrontend",
+        "ComfyNotch_main",
+        "-color-diagnostics",
+        "-swift-version",
+        "5",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g"
+      ],
+      "outputFileMapPath" : "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/AppDelegate.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/main.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/Modules/ComfyNotch.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/Sources/ComfyNotch/AppDelegate.swift",
+        "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/Sources/ComfyNotch/main.swift"
+      ],
+      "tempsPath" : "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build",
+      "wholeModuleOptimization" : false
+    }
+  },
+  "swiftFrontendCommands" : {
+
+  },
+  "swiftTargetScanArgs" : {
+    "ComfyNotch" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "ComfyNotch",
+      "-incremental",
+      "-c",
+      "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/Sources/ComfyNotch/AppDelegate.swift",
+      "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/Sources/ComfyNotch/main.swift",
+      "-I",
+      "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/Modules",
+      "-target",
+      "arm64-apple-macosx12.0",
+      "-enable-batch-mode",
+      "-index-store-path",
+      "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/index/store",
+      "-Onone",
+      "-enable-testing",
+      "-j11",
+      "-DSWIFT_PACKAGE",
+      "-DDEBUG",
+      "-module-cache-path",
+      "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ModuleCache",
+      "-parseable-output",
+      "-Xfrontend",
+      "-entry-point-function-name",
+      "-Xfrontend",
+      "ComfyNotch_main",
+      "-color-diagnostics",
+      "-swift-version",
+      "5",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ]
+  },
+  "targetDependencyMap" : {
+    "ComfyNotch" : [
+
+    ]
+  },
+  "testDiscoveryCommands" : {
+
+  },
+  "testEntryPointCommands" : {
+
+  },
+  "writeCommands" : {
+    "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch-entitlement.plist" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<entitlement-plist>"
+        },
+        {
+          "kind" : "virtual",
+          "name" : "<com.apple.security.get-task-allow>"
+        }
+      ],
+      "outputFilePath" : "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch-entitlement.plist"
+    },
+    "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/Sources/ComfyNotch/AppDelegate.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/Sources/ComfyNotch/main.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/sources"
+    },
+    "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.product/Objects.LinkFileList" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<link-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/AppDelegate.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/main.swift.o"
+        }
+      ],
+      "outputFilePath" : "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.product/Objects.LinkFileList"
+    },
+    "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt" : {
+      "alwaysOutOfDate" : true,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<swift-get-version>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+        }
+      ],
+      "outputFilePath" : "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+    }
+  }
+}

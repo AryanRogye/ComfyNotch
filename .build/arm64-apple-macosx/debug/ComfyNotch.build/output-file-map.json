@@ -1,0 +1,17 @@
+{
+  "": {
+    "swift-dependencies": "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/master.swiftdeps"
+  },
+  "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/Sources/ComfyNotch/AppDelegate.swift": {
+    "dependencies": "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/AppDelegate.d",
+    "object": "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/AppDelegate.swift.o",
+    "swiftmodule": "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/AppDelegate~partial.swiftmodule",
+    "swift-dependencies": "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/AppDelegate.swiftdeps"
+  },
+  "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/Sources/ComfyNotch/main.swift": {
+    "dependencies": "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/main.d",
+    "object": "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/main.swift.o",
+    "swiftmodule": "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/main~partial.swiftmodule",
+    "swift-dependencies": "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/main.swiftdeps"
+  }
+}

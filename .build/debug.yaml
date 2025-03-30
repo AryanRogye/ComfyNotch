@@ -1,0 +1,81 @@
+client:
+  name: basic
+  file-system: device-agnostic
+tools: {}
+targets:
+  "ComfyNotch-arm64-apple-macosx15.0-debug.exe": ["<ComfyNotch-arm64-apple-macosx15.0-debug.exe>"]
+  "ComfyNotch-arm64-apple-macosx15.0-debug.module": ["<ComfyNotch-arm64-apple-macosx15.0-debug.module>"]
+  "PackageStructure": ["<PackageStructure>"]
+  "main": ["<ComfyNotch-arm64-apple-macosx15.0-debug.exe>","<ComfyNotch-arm64-apple-macosx15.0-debug.module>"]
+  "test": ["<ComfyNotch-arm64-apple-macosx15.0-debug.exe>","<ComfyNotch-arm64-apple-macosx15.0-debug.module>"]
+default: "main"
+nodes:
+  "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/Sources/ComfyNotch/":
+    is-directory-structure: true
+    content-exclusion-patterns: [".git",".build"]
+  "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch":
+    is-mutated: true
+commands:
+  "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch-entitlement.plist":
+    tool: write-auxiliary-file
+    inputs: ["<entitlement-plist>","<com.apple.security.get-task-allow>"]
+    outputs: ["/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch-entitlement.plist"]
+    description: "Write auxiliary file /Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch-entitlement.plist"
+
+  "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/sources":
+    tool: write-auxiliary-file
+    inputs: ["<sources-file-list>","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/Sources/ComfyNotch/AppDelegate.swift","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/Sources/ComfyNotch/main.swift"]
+    outputs: ["/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/sources"]
+    description: "Write auxiliary file /Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/sources"
+
+  "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.product/Objects.LinkFileList":
+    tool: write-auxiliary-file
+    inputs: ["<link-file-list>","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/AppDelegate.swift.o","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/main.swift.o"]
+    outputs: ["/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.product/Objects.LinkFileList"]
+    description: "Write auxiliary file /Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.product/Objects.LinkFileList"
+
+  "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt":
+    tool: write-auxiliary-file
+    inputs: ["<swift-get-version>","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"]
+    outputs: ["/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"]
+    always-out-of-date: "true"
+    description: "Write auxiliary file /Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+
+  "<ComfyNotch-arm64-apple-macosx15.0-debug.exe>":
+    tool: phony
+    inputs: ["<ComfyNotch-arm64-apple-macosx15.0-debug.exe-CodeSigning>"]
+    outputs: ["<ComfyNotch-arm64-apple-macosx15.0-debug.exe>"]
+
+  "<ComfyNotch-arm64-apple-macosx15.0-debug.module>":
+    tool: phony
+    inputs: ["/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/AppDelegate.swift.o","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/main.swift.o","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/Modules/ComfyNotch.swiftmodule"]
+    outputs: ["<ComfyNotch-arm64-apple-macosx15.0-debug.module>"]
+
+  "C.ComfyNotch-arm64-apple-macosx15.0-debug.exe":
+    tool: shell
+    inputs: ["/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/AppDelegate.swift.o","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/main.swift.o","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.product/Objects.LinkFileList"]
+    outputs: ["/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch"]
+    description: "Linking ./.build/arm64-apple-macosx/debug/ComfyNotch"
+    args: ["/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc","-L","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug","-o","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch","-module-name","ComfyNotch","-Xlinker","-no_warn_duplicate_libraries","-emit-executable","-Xlinker","-alias","-Xlinker","_ComfyNotch_main","-Xlinker","_main","-Xlinker","-rpath","-Xlinker","@loader_path","@/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.product/Objects.LinkFileList","-target","arm64-apple-macosx12.0","-Xlinker","-add_ast_path","-Xlinker","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/Modules/ComfyNotch.swiftmodule","-sdk","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-I","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-L","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-g"]
+
+  "C.ComfyNotch-arm64-apple-macosx15.0-debug.exe-entitlements":
+    tool: shell
+    inputs: ["/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch-entitlement.plist"]
+    outputs: ["<ComfyNotch-arm64-apple-macosx15.0-debug.exe-CodeSigning>"]
+    description: "Applying debug entitlements to ./.build/arm64-apple-macosx/debug/ComfyNotch"
+    args: ["codesign","--force","--sign","-","--entitlements","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch-entitlement.plist","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch"]
+
+  "C.ComfyNotch-arm64-apple-macosx15.0-debug.module":
+    tool: shell
+    inputs: ["/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/Sources/ComfyNotch/AppDelegate.swift","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/Sources/ComfyNotch/main.swift","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/sources"]
+    outputs: ["/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/AppDelegate.swift.o","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/main.swift.o","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/Modules/ComfyNotch.swiftmodule"]
+    description: "Compiling Swift Module 'ComfyNotch' (2 sources)"
+    args: ["/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc","-module-name","ComfyNotch","-emit-dependencies","-emit-module","-emit-module-path","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/Modules/ComfyNotch.swiftmodule","-output-file-map","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/output-file-map.json","-incremental","-c","@/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ComfyNotch.build/sources","-I","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/Modules","-target","arm64-apple-macosx12.0","-enable-batch-mode","-index-store-path","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/index/store","-Onone","-enable-testing","-j11","-DSWIFT_PACKAGE","-DDEBUG","-module-cache-path","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/.build/arm64-apple-macosx/debug/ModuleCache","-parseable-output","-Xfrontend","-entry-point-function-name","-Xfrontend","ComfyNotch_main","-color-diagnostics","-swift-version","5","-sdk","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-I","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-L","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-g","-Xcc","-isysroot","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk","-Xcc","-F","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-Xcc","-fPIC","-Xcc","-g"]
+
+  "PackageStructure":
+    tool: package-structure-tool
+    inputs: ["/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/Sources/ComfyNotch/","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/Package.swift","/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/Package.resolved"]
+    outputs: ["<PackageStructure>"]
+    description: "Planning build"
+    allow-missing-inputs: true
+

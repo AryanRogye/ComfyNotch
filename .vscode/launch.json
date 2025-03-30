@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:ComfyNotch}",
+            "name": "Debug ComfyNotch",
+            "program": "${workspaceFolder:ComfyNotch}/.build/debug/ComfyNotch",
+            "preLaunchTask": "swift: Build Debug ComfyNotch"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:ComfyNotch}",
+            "name": "Release ComfyNotch",
+            "program": "${workspaceFolder:ComfyNotch}/.build/release/ComfyNotch",
+            "preLaunchTask": "swift: Build Release ComfyNotch"
+        }
+    ]
+}
