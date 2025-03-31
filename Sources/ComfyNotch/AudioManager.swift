@@ -6,6 +6,8 @@ class AudioManager {
     static let shared = AudioManager()
 
     var currentSongText: String = "Nothing Currently Playing"
+    var currentArtistText: String = "Unknown Artist"
+    var currentAlbumText: String = "Unknown Album"
 
     private init() {}
 
@@ -48,12 +50,19 @@ class AudioManager {
                 let title = info["kMRMediaRemoteNowPlayingInfoTitle"] as? String ?? "Unknown Title"
                 let album = info["kMRMediaRemoteNowPlayingInfoAlbum"] as? String ?? "Unknown Album"
                 
-                self.currentSongText = "\(artist) - \(title) [\(album)]"
+                self.currentSongText = title
+                self.currentArtistText = artist
+                self.currentAlbumText = album
 
                 // Update UIManager's textField immediately
                 DispatchQueue.main.async {
-                    UIManager.shared.currentSongText = self.currentSongText
-                    UIManager.shared.currentSongTextField?.stringValue = self.currentSongText
+                    UIManager.shared.currentSongNameText = self.currentSongText
+                    UIManager.shared.currentArtistText = self.currentArtistText
+                    UIManager.shared.currentAlbumText = self.currentAlbumText
+
+                    UIManager.shared.currentSongNameTextField?.stringValue = self.currentSongText
+                    UIManager.shared.currentArtistTextField?.stringValue = self.currentArtistText
+                    UIManager.shared.currentAlbumTextField?.stringValue = self.currentAlbumText
                 }
 
                 if let artworkData = info["kMRMediaRemoteNowPlayingInfoArtworkData"] as? Data,
@@ -66,10 +75,17 @@ class AudioManager {
                 }
 
             } else {
-                self.currentSongText = "Nothing Currently Playing"
+                self.currentSongText = "No Song Playing"
+                self.currentArtistText = "Unknown Artist"
+                self.currentAlbumText = "Unknown Album"
+
                 DispatchQueue.main.async {
-                    UIManager.shared.currentSongText = self.currentSongText
-                    UIManager.shared.currentSongTextField?.stringValue = self.currentSongText
+                    UIManager.shared.currentSongNameText = self.currentSongText
+                    UIManager.shared.currentArtistText = self.currentArtistText
+                    UIManager.shared.currentAlbumText = self.currentAlbumText
+                    UIManager.shared.currentSongNameTextField?.stringValue = self.currentSongText
+                    UIManager.shared.currentArtistTextField?.stringValue = self.currentArtistText
+                    UIManager.shared.currentAlbumTextField?.stringValue = self.currentAlbumText
                 }
             }
         }

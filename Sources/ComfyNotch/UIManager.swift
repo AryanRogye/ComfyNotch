@@ -18,8 +18,13 @@ class UIManager {
     var startPanelWidth: CGFloat = 300
 
     // Buttons 
-    var currentSongText: String = "Nothing Currently Playing"
-    var currentSongTextField: NSTextField!
+    var currentSongNameText: String = "Nothing Currently Playing"
+    var currentArtistText: String = "Unknown Artist"
+    var currentAlbumText: String = "Unknown Album"
+
+    var currentSongNameTextField: NSTextField!
+    var currentArtistTextField: NSTextField!
+    var currentAlbumTextField: NSTextField!
 
     // 4 buttons, previous, next, play/pause
     // only 3 show
@@ -38,7 +43,11 @@ class UIManager {
     var albumArtWidthConstraint: NSLayoutConstraint!
     var albumArtHeightConstraint: NSLayoutConstraint!
 
+    var musicInfoView: NSView!
 
+    let buttonWidth: CGFloat = 20
+    let buttonHeight: CGFloat = 20
+    let buttonSpacing: CGFloat = 10
 
     
     private init() {
@@ -71,11 +80,12 @@ class UIManager {
         panel.level = .screenSaver  // Stays visible even over fullscreen apps
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         panel.isMovableByWindowBackground = false
-        panel.backgroundColor = .yellow.withAlphaComponent(1)
+        panel.backgroundColor = .black.withAlphaComponent(0.9)
         panel.ignoresMouseEvents = false  // Allow interaction
         panel.hasShadow = false  // Remove shadow to make it seamless
 
         setupAlbumArtImage()
+        setupMusicInfoView()
 
         panel.makeKeyAndOrderFront(nil)
     }
@@ -132,12 +142,129 @@ class UIManager {
         ])
     }
 
-    func hideButtons() {
-        previousButton?.isHidden = true
-        nextButton?.isHidden = true
-        playPauseButton?.isHidden = true
-        currentSongTextField?.isHidden = true
+    func setupMusicInfoView() {
+        musicInfoView = NSView()
+        musicInfoView.translatesAutoresizingMaskIntoConstraints = false
+        musicInfoView.isHidden = true // Start hidden (only show when OPEN)
+        panel.contentView?.addSubview(musicInfoView)
+
+        // Update the text values from AudioManager
+        currentSongNameText = AudioManager.shared.currentSongText
+        currentArtistText = AudioManager.shared.currentArtistText
+        currentAlbumText = AudioManager.shared.currentAlbumText
+
+        currentSongNameTextField = NSTextField(labelWithString: currentSongNameText)
+        currentArtistTextField = NSTextField(labelWithString: currentArtistText)
+        currentAlbumTextField = NSTextField(labelWithString: currentAlbumText)
+        
+        // More visible styling for the song title
+        currentSongNameTextField.font = NSFont.boldSystemFont(ofSize: 12)
+        
+        // Style for artist and album
+        currentArtistTextField.font = NSFont.systemFont(ofSize: 11)
+        currentAlbumTextField.font = NSFont.systemFont(ofSize: 11)
+        currentAlbumTextField.textColor = NSColor.lightGray
+        currentArtistTextField.textColor = NSColor.lightGray
+        
+        [currentSongNameTextField, currentArtistTextField, currentAlbumTextField].forEach { label in
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.isEditable = false
+            label.isBordered = false
+            label.backgroundColor = .clear
+            label.lineBreakMode = .byTruncatingTail
+            label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+            musicInfoView.addSubview(label)
+        }
+
+        // Add Buttons to musicInfoView
+        addButtons(to: musicInfoView)
+
+
+        // Position the musicInfoView to the right of the album art with some spacing
+        NSLayoutConstraint.activate([
+            // pushes to the right of the album art
+            musicInfoView.leadingAnchor.constraint(equalTo: albumArtImage.trailingAnchor, constant: 6),
+            // bringing it closer to the top
+            musicInfoView.centerYAnchor.constraint(equalTo: albumArtImage.centerYAnchor, constant: -10),
+
+            // Increase width constraint to give more space for text
+            musicInfoView.widthAnchor.constraint(greaterThanOrEqualToConstant: 125),
+
+            // Allow it to expand towards the right edge of the panel
+            musicInfoView.trailingAnchor.constraint(lessThanOrEqualTo: panel.contentView!.trailingAnchor, constant: -15)
+        ])
+
+        // Position the text fields within the musicInfoView
+        NSLayoutConstraint.activate([
+            // Song title at the top
+            currentSongNameTextField.topAnchor.constraint(equalTo: musicInfoView.topAnchor),
+            currentSongNameTextField.leadingAnchor.constraint(equalTo: musicInfoView.leadingAnchor),
+            currentSongNameTextField.trailingAnchor.constraint(equalTo: musicInfoView.trailingAnchor),
+            currentSongNameTextField.heightAnchor.constraint(equalToConstant: 16), // Explicit height
+    
+            // Album in the middle
+            currentAlbumTextField.topAnchor.constraint(equalTo: currentSongNameTextField.bottomAnchor, constant: 4),
+            currentAlbumTextField.leadingAnchor.constraint(equalTo: musicInfoView.leadingAnchor),
+            currentAlbumTextField.trailingAnchor.constraint(equalTo: musicInfoView.trailingAnchor),
+            currentAlbumTextField.heightAnchor.constraint(equalToConstant: 14), // Explicit height
+    
+            // Artist at the bottom
+            currentArtistTextField.topAnchor.constraint(equalTo: currentAlbumTextField.bottomAnchor, constant: 4),
+            currentArtistTextField.leadingAnchor.constraint(equalTo: musicInfoView.leadingAnchor),
+            currentArtistTextField.trailingAnchor.constraint(equalTo: musicInfoView.trailingAnchor),
+            currentArtistTextField.heightAnchor.constraint(equalToConstant: 14), // Explicit height
+            currentArtistTextField.bottomAnchor.constraint(equalTo: musicInfoView.bottomAnchor)
+        ])
     }
+
+    func addButtons(to parentView: NSView) {
+
+        previousButton = createStyledButton(symbolName: "backward.fill", action: #selector(previousButtonTapped))
+        playPauseButton = createStyledButton(symbolName: "playpause.fill", action: #selector(playPauseButtonTapped))
+        nextButton = createStyledButton(symbolName: "forward.fill", action: #selector(nextButtonTapped))
+        
+        [previousButton, playPauseButton, nextButton].forEach { button in
+            button.translatesAutoresizingMaskIntoConstraints = false
+            parentView.addSubview(button)
+        }
+
+        NSLayoutConstraint.activate([
+            previousButton.topAnchor.constraint(equalTo: currentArtistTextField.bottomAnchor, constant: 5),
+            previousButton.leadingAnchor.constraint(equalTo: parentView.leadingAnchor),
+            previousButton.widthAnchor.constraint(equalToConstant: buttonWidth),
+            previousButton.heightAnchor.constraint(equalToConstant: buttonHeight),
+
+            playPauseButton.topAnchor.constraint(equalTo: currentArtistTextField.bottomAnchor, constant: 5),
+            playPauseButton.leadingAnchor.constraint(equalTo: previousButton.trailingAnchor, constant: buttonSpacing),
+            playPauseButton.widthAnchor.constraint(equalToConstant: buttonWidth),
+            playPauseButton.heightAnchor.constraint(equalToConstant: buttonHeight),
+
+            nextButton.topAnchor.constraint(equalTo: currentArtistTextField.bottomAnchor, constant: 5),
+            nextButton.leadingAnchor.constraint(equalTo: playPauseButton.trailingAnchor, constant: buttonSpacing),
+            nextButton.widthAnchor.constraint(equalToConstant: buttonWidth),
+            nextButton.heightAnchor.constraint(equalToConstant: buttonHeight)
+        ])
+    }
+
+    func createStyledButton(symbolName: String, action: Selector) -> NSButton {
+        let button = NSButton()
+        button.image = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil)
+        button.target = self
+        button.action = action
+        button.wantsLayer = true
+        button.isBordered = false
+        button.layer?.cornerRadius = 8
+        button.layer?.backgroundColor = NSColor.green.cgColor  // ✅ Apply the background color here
+        button.contentTintColor = .white
+        button.imagePosition = .imageOnly
+        button.imageScaling = .scaleProportionallyDown
+        button.image?.size = NSSize(width: 10, height: 10) // Adjust as needed
+        button.isEnabled = true
+        button.setButtonType(.momentaryPushIn)
+
+        return button
+    }
+
 
     func showAlbumArtAtOpenPosition() {
         // Deactivate Closed Constraints
@@ -149,6 +276,13 @@ class UIManager {
         albumArtOpenYConstraint.isActive = true
 
         self.updateAlbumArtConstraints(isOpen: true)
+        // Show the music info view when the panel is open
+        musicInfoView.isHidden = false
+
+        currentSongNameTextField.stringValue = AudioManager.shared.currentSongText
+        currentArtistTextField.stringValue = AudioManager.shared.currentArtistText
+        currentAlbumTextField.stringValue = AudioManager.shared.currentAlbumText
+
     }
 
     func showAlbumArtAtClosedPosition() {
@@ -161,6 +295,8 @@ class UIManager {
         albumArtClosedYConstraint.isActive = true
 
         self.updateAlbumArtConstraints(isOpen: false)
+        // Hide the music info view when the panel is closed
+        musicInfoView.isHidden = true
     }
 
     func updateAlbumArtConstraints(isOpen: Bool) {
@@ -182,73 +318,38 @@ class UIManager {
     }
 
     func showButtons() {
-        if previousButton == nil {
-            addButtons()
-        }
         previousButton.isHidden = false
         nextButton.isHidden = false
         playPauseButton.isHidden = false
-        currentSongTextField.isHidden = false
+
+        currentSongNameTextField.isHidden = false
+        currentAlbumTextField.isHidden = false
+        currentArtistTextField.isHidden = false
     }
 
-    func addButtons() {
-        let panelWidth = panel.frame.width
-        // Remove previous UI components if they exist
-        currentSongTextField?.removeFromSuperview()
-        previousButton?.removeFromSuperview()
-        playPauseButton?.removeFromSuperview()
-        nextButton?.removeFromSuperview()
+    func hideButtons() {
+        previousButton?.isHidden = true
+        nextButton?.isHidden = true
+        playPauseButton?.isHidden = true
 
-        // Song Title / Artist Name Label
-        currentSongTextField = NSTextField(labelWithString: AudioManager.shared.currentSongText)
-        currentSongTextField.frame = NSRect(
-            x: 0,
-            y: 30, // Slightly higher to make space for buttons below
-            width: panelWidth,
-            height: 30
-        )
-        currentSongTextField.alignment = .center
-        currentSongTextField.isEditable = false
-        currentSongTextField.isBordered = false
-        currentSongTextField.backgroundColor = .clear
-        currentSongTextField.textColor = .white
-        panel.contentView?.addSubview(currentSongTextField)
-
-        // Button Sizes and Spacing
-        let buttonWidth: CGFloat = 40
-        let buttonHeight: CGFloat = 30
-        let buttonSpacing: CGFloat = 20
-        
-        let totalButtonWidth = (buttonWidth * 3) + (buttonSpacing * 2)
-        let buttonOriginX = (panelWidth - totalButtonWidth) / 2
-        let buttonOriginY: CGFloat = 10  // Space between label and buttons
-
-        // Previous Button
-        previousButton = NSButton(title: "⏮️", target: self, action: #selector(previousButtonTapped))
-        previousButton.frame = NSRect(x: buttonOriginX, y: buttonOriginY, width: buttonWidth, height: buttonHeight)
-        panel.contentView?.addSubview(previousButton)
-
-        // Play/Pause Button
-        playPauseButton = NSButton(title: "⏯️", target: self, action: #selector(playPauseButtonTapped))
-        playPauseButton.frame = NSRect(x: buttonOriginX + buttonWidth + buttonSpacing, y: buttonOriginY, width: buttonWidth, height: buttonHeight)
-        panel.contentView?.addSubview(playPauseButton)
-
-        // Next Button
-        nextButton = NSButton(title: "⏭️", target: self, action: #selector(nextButtonTapped))
-        nextButton.frame = NSRect(x: buttonOriginX + (buttonWidth + buttonSpacing) * 2, y: buttonOriginY, width: buttonWidth, height: buttonHeight)
-        panel.contentView?.addSubview(nextButton)
+        currentSongNameTextField?.isHidden = true
+        currentAlbumTextField?.isHidden = true
+        currentArtistTextField?.isHidden = true
     }
 
 
     @objc private func previousButtonTapped() {
+        print("Previous button tapped")
         AudioManager.shared.playPreviousTrack()
     }
 
     @objc private func nextButtonTapped() {
+        print("Next button tapped")
         AudioManager.shared.playNextTrack()
     }
 
     @objc private func playPauseButtonTapped() {
+        print("Play/Pause button tapped")
         AudioManager.shared.togglePlayPause()
     }
 

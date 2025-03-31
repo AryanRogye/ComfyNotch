@@ -10,11 +10,14 @@ class ScrollManager {
     var maxPanelHeight: CGFloat = 100
 
     var minPanelWidth: CGFloat = 300
-    var maxPanelWidth: CGFloat = 600
+    var maxPanelWidth: CGFloat = 650
 
-    private init() {
+    // TODO: Add a way to set these values in the UI
+    var snapThreshold: CGFloat = 0.5 // The percentage of max height where snapping occurs
+    var snapPadding: CGFloat = 10 // Small padding to make the snapping feel more natural
 
-    }
+
+    private init() {}
 
     func start() {
         // Register for two-finger scroll events
@@ -30,7 +33,18 @@ class ScrollManager {
             if self.isMouseInPanelRegion() {
                 self.handleTwoFingerScroll(event)
             }
+            self.handleScrollHaptics(event)
             return event
+        }
+    }
+
+    private func handleScrollHaptics(_ event: NSEvent) -> Void {
+        let hapticManager = NSHapticFeedbackManager.defaultPerformer
+
+        let scrollSpeed = abs(event.scrollingDeltaY)
+        
+        if scrollSpeed > 5.0 { // Higher threshold = less frequent, softer feedback
+            hapticManager.perform(.levelChange, performanceTime: .now)
         }
     }
 
@@ -63,9 +77,9 @@ class ScrollManager {
             // Calculate new width proportionally to height change
             let heightPercentage = (clampedHeight - minPanelHeight) / (maxPanelHeight - minPanelHeight)
             let newWidth = minPanelWidth + (heightPercentage * (maxPanelWidth - minPanelWidth))
-    
-            // Apply clamping to width
             let clampedWidth = max(minPanelWidth, min(maxPanelWidth, newWidth))
+
+            // SNAP HANDLING LOGIC
 
             // Update the panel's size smoothly
             updatePanelSize(toHeight: clampedHeight, toWidth: clampedWidth)
@@ -100,7 +114,7 @@ class ScrollManager {
         } else {
             UIManager.shared.panel_state = .PARTIALLY_OPEN
             UIManager.shared.hideButtons()
-            UIManager.shared.showAlbumArtAtOpenPosition()
+            UIManager.shared.showAlbumArtAtClosedPosition()
         }
     }
 }
