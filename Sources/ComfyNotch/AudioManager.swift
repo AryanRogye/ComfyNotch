@@ -8,6 +8,11 @@ class AudioManager {
     var currentSongText: String = "Nothing Currently Playing"
     var currentArtistText: String = "Unknown Artist"
     var currentAlbumText: String = "Unknown Album"
+    var currentArtworkImage: NSImage? = nil
+
+    private var timer: Timer?
+    var onNowPlayingInfoUpdated: (() -> Void)?
+
 
     private init() {}
 
@@ -47,46 +52,29 @@ class AudioManager {
         MRMediaRemoteGetNowPlayingInfo(DispatchQueue.main) { (info) in
             if let info = info {
                 let artist = info["kMRMediaRemoteNowPlayingInfoArtist"] as? String ?? "Unknown Artist"
-                let title = info["kMRMediaRemoteNowPlayingInfoTitle"] as? String ?? "Unknown Title"
+                let title = info["kMRMediaRemoteNowPlayingInfoTitle"] as? String ?? "Nothing Currently Playing"
                 let album = info["kMRMediaRemoteNowPlayingInfoAlbum"] as? String ?? "Unknown Album"
                 
                 self.currentSongText = title
                 self.currentArtistText = artist
                 self.currentAlbumText = album
 
-                // Update UIManager's textField immediately
-                DispatchQueue.main.async {
-                    UIManager.shared.currentSongNameText = self.currentSongText
-                    UIManager.shared.currentArtistText = self.currentArtistText
-                    UIManager.shared.currentAlbumText = self.currentAlbumText
-
-                    UIManager.shared.currentSongNameTextField?.stringValue = self.currentSongText
-                    UIManager.shared.currentArtistTextField?.stringValue = self.currentArtistText
-                    UIManager.shared.currentAlbumTextField?.stringValue = self.currentAlbumText
-                }
-
+                // print("Current Song: \(self.currentSongText) by \(self.currentArtistText) from \(self.currentAlbumText)")
+                
                 if let artworkData = info["kMRMediaRemoteNowPlayingInfoArtworkData"] as? Data,
-                    let artworkImage = NSImage(data: artworkData) {
-                    
-                    DispatchQueue.main.async {
-                        UIManager.shared.albumArtImage?.image = artworkImage
-                        ScrollManager.shared.updatePanelState(for: UIManager.shared.panel.frame.height)
-                    }
+                   let artworkImage = NSImage(data: artworkData) {
+                    self.currentArtworkImage = artworkImage
                 }
 
+                // Call the callback to notify the UI about the update
+                self.onNowPlayingInfoUpdated?()
             } else {
                 self.currentSongText = "No Song Playing"
                 self.currentArtistText = "Unknown Artist"
                 self.currentAlbumText = "Unknown Album"
-
-                DispatchQueue.main.async {
-                    UIManager.shared.currentSongNameText = self.currentSongText
-                    UIManager.shared.currentArtistText = self.currentArtistText
-                    UIManager.shared.currentAlbumText = self.currentAlbumText
-                    UIManager.shared.currentSongNameTextField?.stringValue = self.currentSongText
-                    UIManager.shared.currentArtistTextField?.stringValue = self.currentArtistText
-                    UIManager.shared.currentAlbumTextField?.stringValue = self.currentAlbumText
-                }
+                
+                // Notify about the update
+                self.onNowPlayingInfoUpdated?()
             }
         }
     }
@@ -110,11 +98,20 @@ class AudioManager {
     }
 
     func startMediaTimer() {
-        self.getNowPlayingInfo()
-        let timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
-            self.getNowPlayingInfo()
+        self.getNowPlayingInfo()  // Initial call
+        print("Started Media Timer")
+
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            self?.getNowPlayingInfo()
+            print("Fetching Now Playing Info...")
         }
-        RunLoop.current.add(timer, forMode: .common)
+
+        RunLoop.main.add(timer!, forMode: .common)
     }
 
+    func stopMediaTimer() {
+        timer?.invalidate()
+        timer = nil
+    }
 }

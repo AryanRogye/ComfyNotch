@@ -67,6 +67,50 @@ class ScrollManager {
     }
 
     private func handleTwoFingerScroll(_ event: NSEvent) {
+        guard let panel = UIManager.shared.panel else { return }
+
+        // The direction of scrollDeltaY can be inverted by "Natural" scrolling settings.
+        // If it feels backward, flip the sign:
+        let scrollDeltaY = event.scrollingDeltaY
+        // let scrollDeltaY = -event.scrollingDeltaY  // <-- If you need to invert
+
+        // Current panel height
+        let currentHeight = panel.frame.height
+        // Proposed new height
+        let newHeight = currentHeight + scrollDeltaY
+
+        // Clamp the new height
+        let clampedHeight = max(minPanelHeight, min(maxPanelHeight, newHeight))
+
+        // Compute a ratio from 0.0 (closed) to 1.0 (open)
+        let ratio = (clampedHeight - minPanelHeight) / (maxPanelHeight - minPanelHeight)
+
+        // Calculate new width proportionally
+        let newWidth = minPanelWidth + ratio * (maxPanelWidth - minPanelWidth)
+
+        // Snap thresholds
+        let snapOpenThreshold: CGFloat = 0.8  // 80% open
+        let snapClosedThreshold: CGFloat = 0.2 // 20% open
+
+        // Check snapping
+        if ratio >= snapOpenThreshold {
+            // Snap to fully open
+            updatePanelSize(toHeight: maxPanelHeight, toWidth: maxPanelWidth)
+            updatePanelState(for: maxPanelHeight)
+        } 
+        else if ratio <= snapClosedThreshold {
+            // Snap to fully closed
+            updatePanelSize(toHeight: minPanelHeight, toWidth: minPanelWidth)
+            updatePanelState(for: minPanelHeight)
+        } 
+        else {
+            // Smoothly interpolate
+            updatePanelSize(toHeight: clampedHeight, toWidth: newWidth)
+            updatePanelState(for: clampedHeight)
+        }
+    }
+
+    private func handleTwoFingerScroll_(_ event: NSEvent) {
         let scrollDeltaY = event.scrollingDeltaY
 
         if let panel = UIManager.shared.panel {
@@ -105,16 +149,13 @@ class ScrollManager {
     public func updatePanelState(for height: CGFloat) {
         if height >= maxPanelHeight {
             UIManager.shared.panel_state = .OPEN
-            UIManager.shared.showButtons()
-            UIManager.shared.showAlbumArtAtOpenPosition()
+            UIManager.shared.showWidgets()
         } else if height <= minPanelHeight {
             UIManager.shared.panel_state = .CLOSED
-            UIManager.shared.hideButtons()
-            UIManager.shared.showAlbumArtAtClosedPosition()
+            UIManager.shared.hideWidgets()
         } else {
             UIManager.shared.panel_state = .PARTIALLY_OPEN
-            UIManager.shared.hideButtons()
-            UIManager.shared.showAlbumArtAtClosedPosition()
+            UIManager.shared.showWidgets()
         }
     }
 }
