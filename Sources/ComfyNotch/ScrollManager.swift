@@ -10,7 +10,7 @@ class ScrollManager {
     var maxPanelHeight: CGFloat = 100
 
     var minPanelWidth: CGFloat = 300
-    var maxPanelWidth: CGFloat = 400
+    var maxPanelWidth: CGFloat = 600
 
     private init() {
 
@@ -92,15 +92,15 @@ class ScrollManager {
         if height >= maxPanelHeight {
             UIManager.shared.panel_state = .OPEN
             UIManager.shared.showButtons()
-            UIManager.shared.hideAlbumArtPanelView()
+            UIManager.shared.showAlbumArtAtOpenPosition()
         } else if height <= minPanelHeight {
             UIManager.shared.panel_state = .CLOSED
             UIManager.shared.hideButtons()
-            UIManager.shared.showAlbumArtPanelView()
+            UIManager.shared.showAlbumArtAtClosedPosition()
         } else {
             UIManager.shared.panel_state = .PARTIALLY_OPEN
             UIManager.shared.hideButtons()
-            UIManager.shared.hideAlbumArtPanelView()
+            UIManager.shared.showAlbumArtAtOpenPosition()
         }
     }
 }

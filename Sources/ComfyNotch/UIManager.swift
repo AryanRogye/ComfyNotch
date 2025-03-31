@@ -29,6 +29,17 @@ class UIManager {
 
     var albumArtImage: NSImageView!
 
+    var albumArtClosedXConstraint: NSLayoutConstraint!
+    var albumArtClosedYConstraint: NSLayoutConstraint!
+
+    var albumArtOpenXConstraint: NSLayoutConstraint!
+    var albumArtOpenYConstraint: NSLayoutConstraint!
+
+    var albumArtWidthConstraint: NSLayoutConstraint!
+    var albumArtHeightConstraint: NSLayoutConstraint!
+
+
+
     
     private init() {
         startPanelHeight = getNotchHeight()
@@ -60,7 +71,7 @@ class UIManager {
         panel.level = .screenSaver  // Stays visible even over fullscreen apps
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         panel.isMovableByWindowBackground = false
-        panel.backgroundColor = .black.withAlphaComponent(0.7)
+        panel.backgroundColor = .yellow.withAlphaComponent(1)
         panel.ignoresMouseEvents = false  // Allow interaction
         panel.hasShadow = false  // Remove shadow to make it seamless
 
@@ -78,11 +89,47 @@ class UIManager {
     }
 
     func setupAlbumArtImage() {
-        albumArtImage = NSImageView(frame: NSRect(x: 10, y: 5, width: 30, height: 30))
+        albumArtImage = NSImageView()
+        albumArtImage.translatesAutoresizingMaskIntoConstraints = false
         albumArtImage.imageScaling = .scaleProportionallyUpOrDown
-        albumArtImage.isHidden = true // Start hidden
-
+        albumArtImage.isHidden = false // Keep it visible
+    
         panel.contentView?.addSubview(albumArtImage)
+    
+        // Closed State Position (Left side, closer to the notch)
+        albumArtClosedXConstraint = albumArtImage.leadingAnchor.constraint(
+            equalTo: panel.contentView!.leadingAnchor, 
+            constant: 10
+        )
+        albumArtClosedYConstraint = albumArtImage.topAnchor.constraint(
+            equalTo: panel.contentView!.topAnchor, 
+            constant: 3.5
+        )
+
+        // Open State Position
+        albumArtOpenXConstraint = albumArtImage.leadingAnchor.constraint(
+            equalTo: panel.contentView!.leadingAnchor,
+            constant: 5
+        )
+        albumArtOpenYConstraint = albumArtImage.centerYAnchor.constraint(
+            equalTo: panel.contentView!.centerYAnchor
+        )
+
+        // SIZE
+        albumArtWidthConstraint = albumArtImage.widthAnchor.constraint(
+            equalToConstant: 30
+        )
+        albumArtHeightConstraint = albumArtImage.heightAnchor.constraint(
+            equalToConstant: getNotchHeight() - 10
+        )
+
+    
+        NSLayoutConstraint.activate([
+            albumArtClosedXConstraint, // Start with this active
+            albumArtClosedYConstraint,
+            albumArtWidthConstraint,
+            albumArtHeightConstraint
+        ])
     }
 
     func hideButtons() {
@@ -92,12 +139,46 @@ class UIManager {
         currentSongTextField?.isHidden = true
     }
 
-    func hideAlbumArtPanelView() {
-        albumArtImage.isHidden = true
+    func showAlbumArtAtOpenPosition() {
+        // Deactivate Closed Constraints
+        albumArtClosedXConstraint.isActive = false
+        albumArtClosedYConstraint.isActive = false
+
+        // Activate Open Constraints
+        albumArtOpenXConstraint.isActive = true
+        albumArtOpenYConstraint.isActive = true
+
+        self.updateAlbumArtConstraints(isOpen: true)
     }
 
-    func showAlbumArtPanelView() {
-        albumArtImage.isHidden = false
+    func showAlbumArtAtClosedPosition() {
+        // Deactivate Open Constraints
+        albumArtOpenXConstraint.isActive = false
+        albumArtOpenYConstraint.isActive = false
+
+        // Activate Closed Constraints
+        albumArtClosedXConstraint.isActive = true
+        albumArtClosedYConstraint.isActive = true
+
+        self.updateAlbumArtConstraints(isOpen: false)
+    }
+
+    func updateAlbumArtConstraints(isOpen: Bool) {
+        if isOpen {
+            // Make it bigger when open
+            albumArtWidthConstraint.constant = 90 
+            albumArtHeightConstraint.constant = 90
+        } else {
+            // Keep it small when closed
+            albumArtWidthConstraint.constant = 30
+            albumArtHeightConstraint.constant = getNotchHeight() - 10
+        }
+        
+        // Animate the changes for smooth transition
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.3
+            panel.contentView?.animator().layoutSubtreeIfNeeded()
+        }
     }
 
     func showButtons() {
