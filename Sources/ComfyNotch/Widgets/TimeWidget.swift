@@ -34,7 +34,6 @@ class TimeWidget : Widget {
 
         view.translatesAutoresizingMaskIntoConstraints = false
         view.wantsLayer = true
-        view.layer?.backgroundColor = NSColor.red.cgColor
 
         startTimer()
     }

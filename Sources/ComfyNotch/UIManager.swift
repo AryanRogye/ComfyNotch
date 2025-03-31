@@ -9,12 +9,16 @@ enum PanelState {
 
 class UIManager {
     static let shared = UIManager()
+
+    var small_panel : NSPanel!
+    var big_panel : NSPanel!
     
-    var panel: NSPanel!
     var panel_state : PanelState = .CLOSED
 
     var startPanelHeight: CGFloat = 0
     var startPanelWidth: CGFloat = 300
+
+    var startPanelYOffset: CGFloat = 0
     
     private init() {
         startPanelHeight = getNotchHeight()
@@ -22,45 +26,90 @@ class UIManager {
     }
 
     func setupFrame() {
+        setupBigPanel()
+        setupSmallPanel()
+    }
+
+    func setupSmallPanel() {
         guard let screen = NSScreen.main else { return }
-        // Full screen, not visibleFrame
         let screenFrame = screen.frame
         let notchHeight = getNotchHeight()
 
         let panelRect = NSRect(
-            // Position it near the top of the screen
             x: (screenFrame.width - startPanelWidth) / 2,
-            y: screenFrame.height - startPanelHeight - 2,
+            y: screenFrame.height - notchHeight - startPanelYOffset,
             width: startPanelWidth,
-            height: notchHeight 
+            height: notchHeight
         )
 
-        panel = NSPanel(
+        small_panel = NSPanel(
             contentRect: panelRect,
-            styleMask: [.borderless, .nonactivatingPanel],  // Completely frameless
+            styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
         )
 
-        panel.title = "ComfyNotch"
-        panel.level = .screenSaver  // Stays visible even over fullscreen apps
-        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-        panel.isMovableByWindowBackground = false
-        panel.backgroundColor = .black.withAlphaComponent(0.9)
-        panel.ignoresMouseEvents = false  // Allow interaction
-        panel.hasShadow = false  // Remove shadow to make it seamless
+        small_panel.title = "ComfyNotch"
+        small_panel.level = .screenSaver
+        small_panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        small_panel.isMovableByWindowBackground = false
+        small_panel.backgroundColor = .black.withAlphaComponent(1)
+        small_panel.isOpaque = false
+        small_panel.hasShadow = false
 
-        panel.makeKeyAndOrderFront(nil)
+        if let contentView = small_panel.contentView {
+            contentView.wantsLayer = true
+            contentView.layer?.cornerRadius = 12
+            contentView.layer?.masksToBounds = true
+        }
 
-        // Set the WidgetManager's panel content view
-        if let contentView = panel.contentView {
+        small_panel.makeKeyAndOrderFront(nil)
+    }
+
+    func setupBigPanel() {
+        guard let screen = NSScreen.main else { return }
+        let screenFrame = screen.frame
+        let notchHeight = getNotchHeight()  // Same height as small_panel
+
+        let panelRect = NSRect(
+            x: (screenFrame.width - startPanelWidth) / 2,
+            y: screenFrame.height - notchHeight - startPanelYOffset,
+            width: startPanelWidth,
+            height: notchHeight  // Same starting height as small_panel
+        )
+
+        big_panel = NSPanel(
+            contentRect: panelRect,
+            styleMask: [.borderless, .nonactivatingPanel],
+            backing: .buffered,
+            defer: false
+        )
+
+        big_panel.title = "ComfyNotch Big Panel"
+        big_panel.level = .screenSaver
+        big_panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        big_panel.isMovableByWindowBackground = false
+        big_panel.backgroundColor = .black.withAlphaComponent(1)
+        big_panel.isOpaque = false
+        big_panel.hasShadow = false
+
+        if let contentView = big_panel.contentView {
+            contentView.wantsLayer = true
+            contentView.layer?.cornerRadius = 12
+            contentView.layer?.masksToBounds = true
+
+            // border color of grey
+
+            // THIS IS WHERE THE WIDGETS GO
             WidgetManager.shared.setPanelContentView(contentView)
         }
+
+        big_panel.makeKeyAndOrderFront(nil)
     }
 
     func hideWidgets() {
         WidgetManager.shared.hideWidgets()
-        panel.contentView?.layoutSubtreeIfNeeded() // Force layout update
+        big_panel.contentView?.layoutSubtreeIfNeeded() // Force layout update
     }
 
     func showWidgets() {

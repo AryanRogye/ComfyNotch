@@ -4,6 +4,7 @@ class MusicPlayerWidget : Widget {
     var name : String = "MusicPlayerWidget"
     var view : NSView
 
+    // Labels for song, artist, and album
     private var songLabel: NSTextField
     private var artistLabel: NSTextField
     private var albumLabel: NSTextField
@@ -15,16 +16,30 @@ class MusicPlayerWidget : Widget {
     private let buttonHeight: CGFloat = 20
     private let buttonSpacing: CGFloat = 10
 
-
     private var albumArtImage: NSImageView!
 
     init() {
         view = NSView()
         view.isHidden = true
+        view.wantsLayer = true
+        view.layer?.borderWidth = 1.5
+        view.layer?.borderColor = NSColor.darkGray.cgColor
+        view.layer?.cornerRadius = 12
 
         songLabel = NSTextField(labelWithString: AudioManager.shared.currentSongText)
+        songLabel.lineBreakMode = .byTruncatingTail
+        songLabel.usesSingleLineMode = true
+        songLabel.cell?.truncatesLastVisibleLine = true
+
         artistLabel = NSTextField(labelWithString: AudioManager.shared.currentArtistText)
+        artistLabel.lineBreakMode = .byTruncatingTail
+        artistLabel.usesSingleLineMode = true
+        artistLabel.cell?.truncatesLastVisibleLine = true
+
         albumLabel = NSTextField(labelWithString: AudioManager.shared.currentAlbumText)
+        albumLabel.lineBreakMode = .byTruncatingTail
+        albumLabel.usesSingleLineMode = true
+        albumLabel.cell?.truncatesLastVisibleLine = true
 
         // Need to do this to create buttons with symbols
         previousButton = NSButton()
@@ -39,6 +54,7 @@ class MusicPlayerWidget : Widget {
         albumArtImage.translatesAutoresizingMaskIntoConstraints = false
         albumArtImage.imageScaling = .scaleProportionallyUpOrDown
         albumArtImage.isHidden = false
+
         
         [songLabel, artistLabel, albumLabel, previousButton, playPauseButton, nextButton, albumArtImage].forEach { view.addSubview($0) }
         
@@ -124,10 +140,6 @@ class MusicPlayerWidget : Widget {
     }
 
     func show() {
-        print("MusicPlayerWidget: show() called")
-        print("Song: " + songLabel.stringValue)
-        print("Artist: " + artistLabel.stringValue)
-        print("Album: " + albumLabel.stringValue)
         view.isHidden = false
     }
 

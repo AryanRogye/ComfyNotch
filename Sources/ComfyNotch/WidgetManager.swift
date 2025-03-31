@@ -3,6 +3,7 @@ import AppKit
 class WidgetManager {
     static let shared = WidgetManager()
     
+    // For how we store the apps widgets
     private var widgets: [Widget] = []
     private var panelContentView: NSView? = nil
 
