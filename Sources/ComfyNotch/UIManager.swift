@@ -146,6 +146,7 @@ class UIManager {
         musicInfoView = NSView()
         musicInfoView.translatesAutoresizingMaskIntoConstraints = false
         musicInfoView.isHidden = true // Start hidden (only show when OPEN)
+
         panel.contentView?.addSubview(musicInfoView)
 
         // Update the text values from AudioManager
@@ -185,7 +186,7 @@ class UIManager {
             // pushes to the right of the album art
             musicInfoView.leadingAnchor.constraint(equalTo: albumArtImage.trailingAnchor, constant: 6),
             // bringing it closer to the top
-            musicInfoView.centerYAnchor.constraint(equalTo: albumArtImage.centerYAnchor, constant: -10),
+            musicInfoView.centerYAnchor.constraint(equalTo: albumArtImage.centerYAnchor, constant: -5),
 
             // Increase width constraint to give more space for text
             musicInfoView.widthAnchor.constraint(greaterThanOrEqualToConstant: 125),
@@ -213,7 +214,7 @@ class UIManager {
             currentArtistTextField.leadingAnchor.constraint(equalTo: musicInfoView.leadingAnchor),
             currentArtistTextField.trailingAnchor.constraint(equalTo: musicInfoView.trailingAnchor),
             currentArtistTextField.heightAnchor.constraint(equalToConstant: 14), // Explicit height
-            currentArtistTextField.bottomAnchor.constraint(equalTo: musicInfoView.bottomAnchor)
+            // currentArtistTextField.bottomAnchor.constraint(equalTo: musicInfoView.bottomAnchor)
         ])
     }
 
@@ -233,16 +234,22 @@ class UIManager {
             previousButton.leadingAnchor.constraint(equalTo: parentView.leadingAnchor),
             previousButton.widthAnchor.constraint(equalToConstant: buttonWidth),
             previousButton.heightAnchor.constraint(equalToConstant: buttonHeight),
+            previousButton.bottomAnchor.constraint(equalTo: parentView.bottomAnchor, constant: -5), // Add padding at the bottom
+
 
             playPauseButton.topAnchor.constraint(equalTo: currentArtistTextField.bottomAnchor, constant: 5),
             playPauseButton.leadingAnchor.constraint(equalTo: previousButton.trailingAnchor, constant: buttonSpacing),
             playPauseButton.widthAnchor.constraint(equalToConstant: buttonWidth),
             playPauseButton.heightAnchor.constraint(equalToConstant: buttonHeight),
+            playPauseButton.bottomAnchor.constraint(equalTo: parentView.bottomAnchor, constant: -5),
+
 
             nextButton.topAnchor.constraint(equalTo: currentArtistTextField.bottomAnchor, constant: 5),
             nextButton.leadingAnchor.constraint(equalTo: playPauseButton.trailingAnchor, constant: buttonSpacing),
             nextButton.widthAnchor.constraint(equalToConstant: buttonWidth),
-            nextButton.heightAnchor.constraint(equalToConstant: buttonHeight)
+            nextButton.heightAnchor.constraint(equalToConstant: buttonHeight),
+            nextButton.bottomAnchor.constraint(equalTo: parentView.bottomAnchor, constant: -5),
+
         ])
     }
 
@@ -254,7 +261,6 @@ class UIManager {
         button.wantsLayer = true
         button.isBordered = false
         button.layer?.cornerRadius = 8
-        button.layer?.backgroundColor = NSColor.green.cgColor  // ✅ Apply the background color here
         button.contentTintColor = .white
         button.imagePosition = .imageOnly
         button.imageScaling = .scaleProportionallyDown
@@ -339,17 +345,14 @@ class UIManager {
 
 
     @objc private func previousButtonTapped() {
-        print("Previous button tapped")
         AudioManager.shared.playPreviousTrack()
     }
 
     @objc private func nextButtonTapped() {
-        print("Next button tapped")
         AudioManager.shared.playNextTrack()
     }
 
     @objc private func playPauseButtonTapped() {
-        print("Play/Pause button tapped")
         AudioManager.shared.togglePlayPause()
     }
 
