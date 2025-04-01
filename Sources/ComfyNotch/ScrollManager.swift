@@ -19,8 +19,6 @@ class ScrollManager {
     var snapPadding: CGFloat = 10 // Small padding to make the snapping feel more natural
     var isSnapping: Bool = false
 
-
-
     private init() {
         if let panel = UIManager.shared.small_panel {
             smallPanelRect = panel.frame  // Store the initial position of the small panel

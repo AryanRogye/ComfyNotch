@@ -1,6 +1,11 @@
 import SwiftUI
 
+class SettingsModel: ObservableObject {
+    static let shared = SettingsModel() // Singleton for global access
+}
 struct SettingsView: View {
+    @ObservedObject var settings = SettingsModel.shared
+
     var body: some View {
         VStack(spacing: 20) {
             Text("Settings")
@@ -9,6 +14,8 @@ struct SettingsView: View {
 
             Text("Adjust your settings here.")
                 .padding()
+
+            .padding()
 
             Button(action: {
                 NSApplication.shared.keyWindow?.close()

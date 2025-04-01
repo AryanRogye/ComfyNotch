@@ -66,21 +66,40 @@ class BigPanelWidgetManager: WidgetManager {
     override func layoutWidgets() {
         guard let panelContentView = panelContentView else { return }
 
+        // Remove all existing constraints first
         panelContentView.constraints.forEach { panelContentView.removeConstraint($0) }
 
-        var currentX: CGFloat = 0
-        let widgetSpacing: CGFloat = 10
+        // Limit the number of widgets displayed
+        let visibleWidgets = widgets.prefix(3) // Only take the first 3 widgets
+        
+        let totalWidth: CGFloat = 650 // The total width of the big_panel
+        let widgetWidth = totalWidth / CGFloat(visibleWidgets.count) // Divide width evenly
+        let widgetHeight: CGFloat = 100
 
-        for widget in widgets {
-            widget.view.translatesAutoresizingMaskIntoConstraints = false
+        var currentX: CGFloat = 0
+
+        // Calculate total width of the visible widgets
+        let totalWidgetWidth = widgetWidth * CGFloat(visibleWidgets.count)
+
+        // Calculate the padding needed to center the widgets
+        let paddingX = (totalWidth - totalWidgetWidth) / 2
+
+        for widget in visibleWidgets {
+            let widgetView = widget.view
+            widgetView.translatesAutoresizingMaskIntoConstraints = false
+
             NSLayoutConstraint.activate([
-                widget.view.leadingAnchor.constraint(equalTo: panelContentView.leadingAnchor, constant: currentX),
-                widget.view.topAnchor.constraint(equalTo: panelContentView.topAnchor),
-                widget.view.bottomAnchor.constraint(equalTo: panelContentView.bottomAnchor),
-                widget.view.widthAnchor.constraint(equalToConstant: 200) // Original big panel layout
+                widgetView.leadingAnchor.constraint(equalTo: panelContentView.leadingAnchor, constant: currentX + paddingX), // Apply padding to center
+                widgetView.topAnchor.constraint(equalTo: panelContentView.topAnchor),
+                widgetView.widthAnchor.constraint(equalToConstant: widgetWidth),
+                widgetView.heightAnchor.constraint(equalToConstant: widgetHeight)
             ])
-            currentX += 200 + widgetSpacing
+
+            currentX += widgetWidth
         }
+
+        // Force layout update
+        panelContentView.layoutSubtreeIfNeeded()
     }
 }
 

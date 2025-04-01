@@ -1,5 +1,4 @@
 import AppKit
-
 class TimeWidget : Widget {
 
     var name: String = "TimeWidget"
