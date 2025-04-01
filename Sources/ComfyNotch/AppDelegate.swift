@@ -16,7 +16,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         loadWidgetsFromSettings()
 
-        AudioManager.shared.startMediaTimer()
 
         NotificationCenter.default.addObserver(
             self,
@@ -41,14 +40,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             UIManager.shared.bigPanelWidgetManager.removeWidget(widget)
         }
 
+        var usesMusicPlayer = false;
         for widgetName in settings.selectedWidgets {
             if let widget = settings.mappedWidgets[widgetName] {
-                print("Adding widget: \(widgetName)")
                 UIManager.shared.addWidgetToBigPanel(widget)
+                if (widget.name == "MusicPlayerWidget") {
+                    usesMusicPlayer = true
+                }
                 widget.show()  // Make sure the widget is not hidden
             } else {
                 print("Widget \(widgetName) not found in mappedWidgets")
             }
+        }
+
+        if usesMusicPlayer {
+            AudioManager.shared.startMediaTimer()
         }
 
         // Force layout refresh
