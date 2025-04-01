@@ -19,8 +19,18 @@ struct SettingsView: View {
                     .foregroundColor(.white)
                     .cornerRadius(10)
             }
+
+            Button(action: closeWindow) {
+                Text("Close ComfyNotch")
+            }
         }
         .padding()
         .frame(width: 400, height: 300)
+    }
+
+    // close the entire running app
+    func closeWindow() {
+        NSApplication.shared.keyWindow?.close()
+        NSApp.terminate(nil)
     }
 }
