@@ -1,4 +1,5 @@
 import AppKit
+import SwiftUI
 
 
 class SettingsWidget : NSObject, Widget {
@@ -8,6 +9,9 @@ class SettingsWidget : NSObject, Widget {
 
     var settingsButton: NSButton
     private var _alignment: WidgetAlignment = .right
+
+    private var settingsWindow: NSWindow?
+
 
 
     var alignment: WidgetAlignment? {
@@ -58,6 +62,43 @@ class SettingsWidget : NSObject, Widget {
 
     @objc func openSettings() {
         print("Opening settings")
+
+        // Check if the window is already open to prevent multiple instances
+        if settingsWindow != nil {
+            settingsWindow?.makeKeyAndOrderFront(nil)
+            settingsWindow?.orderFrontRegardless() // Ensures it appears above everything else
+            return
+        }
+
+        // Create a new SwiftUI window
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 400, height: 300),
+            styleMask: [.titled, .closable, .resizable],
+            backing: .buffered,
+            defer: false
+        )
+        window.title = "Settings"
+        window.center()
+        window.isReleasedWhenClosed = false
+
+        // Make sure the window is displayed above your fullscreen app
+        window.level = .floating  // This ensures it shows on top
+
+        // Set SwiftUI view as the window's content using NSHostingController
+        let settingsView = SettingsView()
+        let hostingController = NSHostingController(rootView: settingsView)
+        window.contentViewController = hostingController
+
+        // Store a reference to the window so it's not immediately deallocated
+        self.settingsWindow = window
+
+        // Add the window to the app's windows to retain it properly
+        NSApp.addWindowsItem(window, title: window.title, filename: false)
+
+        // Show the window
+        window.makeKeyAndOrderFront(nil)
+        window.orderFrontRegardless() // Ensures it appears above everything else
+        print("Settings window opened")
     }
 
     private func createStyledButton(symbolName: String, action: Selector) -> NSButton {
