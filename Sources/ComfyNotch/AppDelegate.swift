@@ -20,8 +20,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         let musicPlayerWidget = MusicPlayerWidget()
         let timeWidget = TimeWidget()
+        let notesWidget = NotesWidget()
 
         UIManager.shared.addWidgetToBigPanel(musicPlayerWidget)
+        UIManager.shared.addWidgetToBigPanel(notesWidget) // Add the NotesWidget to the panel
         UIManager.shared.addWidgetToBigPanel(timeWidget) // Add the TimeWidget to the panel
 
         AudioManager.shared.startMediaTimer()

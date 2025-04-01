@@ -7,6 +7,15 @@ enum PanelState {
     case OPEN
 }
 
+class FocusablePanel: NSPanel {
+    override var canBecomeKey: Bool {
+        return true
+    }
+    override var canBecomeMain: Bool {
+        return true
+    }
+}
+
 class UIManager {
     static let shared = UIManager()
 
@@ -90,7 +99,7 @@ class UIManager {
             height: notchHeight  // Same starting height as small_panel
         )
 
-        big_panel = NSPanel(
+        big_panel = FocusablePanel(
             contentRect: panelRect,
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
