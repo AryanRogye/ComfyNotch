@@ -25,7 +25,7 @@ class SettingsWidget : NSObject, Widget {
     private var hostingController: NSHostingController<SettingsButtonView>
 
     private var _alignment: WidgetAlignment = .right
-    private var settingsWindow: NSWindow?
+    var settingsWindow: NSWindow?
 
 
 
@@ -60,9 +60,10 @@ class SettingsWidget : NSObject, Widget {
         print("Opening settings")
 
         // Check if the window is already open to prevent multiple instances
-        if settingsWindow != nil {
-            settingsWindow?.makeKeyAndOrderFront(nil)
-            settingsWindow?.orderFrontRegardless() // Ensures it appears above everything else
+        if let existingWindow = settingsWindow {
+            existingWindow.makeKeyAndOrderFront(nil)
+            existingWindow.orderFrontRegardless()
+            SettingsModel.shared.isSettingsOpen = true
             return
         }
 
@@ -75,25 +76,23 @@ class SettingsWidget : NSObject, Widget {
         )
         window.title = "Settings"
         window.center()
-        window.isReleasedWhenClosed = false
+        window.isReleasedWhenClosed = false // Keep it in memory even after closing
 
-        // Make sure the window is displayed above your fullscreen app
-        window.level = .floating  // This ensures it shows on top
+        // ✅ Assign the delegate to this class (make sure your class conforms to NSWindowDelegate)
+        window.delegate = self
 
-        // Set SwiftUI view as the window's content using NSHostingController
+        window.level = .floating
+
         let settingsView = SettingsView()
         let hostingController = NSHostingController(rootView: settingsView)
         window.contentViewController = hostingController
 
-        // Store a reference to the window so it's not immediately deallocated
         self.settingsWindow = window
-
-        // Add the window to the app's windows to retain it properly
         NSApp.addWindowsItem(window, title: window.title, filename: false)
-
-        // Show the window
         window.makeKeyAndOrderFront(nil)
-        window.orderFrontRegardless() // Ensures it appears above everything else
+        window.orderFrontRegardless()
+        
+        SettingsModel.shared.isSettingsOpen = true
         print("Settings window opened")
     }
 
@@ -132,4 +131,15 @@ class SettingsWidget : NSObject, Widget {
         view.isHidden = true
     }
 
+}
+
+
+extension SettingsWidget: NSWindowDelegate {
+    func windowWillClose(_ notification: Notification) {
+        if notification.object as? NSWindow == self.settingsWindow {
+            SettingsModel.shared.isSettingsOpen = false
+            self.settingsWindow = nil // Clear the reference to the settings window
+            print("Settings window closed via red X button")
+        }
+    }
 }

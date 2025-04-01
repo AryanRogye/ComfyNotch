@@ -5,6 +5,7 @@ class SettingsModel: ObservableObject {
     static let shared = SettingsModel() // Singleton for global access
 
     @Published var open_state_y_offset: CGFloat = 35
+    @Published var isSettingsOpen: Bool = false
 
 
     @Published var mappedWidgets: [String: Widget] = [
@@ -255,6 +256,8 @@ struct SettingsView: View {
         NSApplication.shared.keyWindow?.close()
         NSApp.terminate(nil)
     }
+
+    
 }
 
 struct DropViewDelegate: DropDelegate {

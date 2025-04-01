@@ -9,7 +9,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         UIManager.shared.setupFrame()
-        SettingsModel.shared
         ScrollManager.shared.start()
         if let smallPanel = UIManager.shared.small_panel {
             self.hoverHandler = HoverHandler(panel: smallPanel)
