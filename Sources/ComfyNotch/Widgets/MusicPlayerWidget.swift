@@ -82,11 +82,13 @@ class MusicPlayerWidget : Widget {
         albumArtImage.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            // Album art pinned to top left, fixed size
-            albumArtImage.topAnchor.constraint(equalTo: view.topAnchor, constant: 3.5),
-            albumArtImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 5),
-            albumArtImage.widthAnchor.constraint(equalToConstant: 90),
-            albumArtImage.heightAnchor.constraint(equalToConstant: 90),
+
+            // album art pinned to top
+            albumArtImage.topAnchor.constraint(equalTo: view.topAnchor, constant: 7.5),
+            // album art pinned to left
+            albumArtImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 7.5),
+            albumArtImage.widthAnchor.constraint(equalToConstant: 85),
+            albumArtImage.heightAnchor.constraint(equalToConstant: 85),
 
             // songLabel to the right of album art
             songLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 3.5),
@@ -104,20 +106,22 @@ class MusicPlayerWidget : Widget {
             albumLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -5),
 
             // Buttons pinned below the album art (if you still want them)
-            previousButton.topAnchor.constraint(equalTo: albumArtImage.bottomAnchor, constant: 5),
-            previousButton.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            previousButton.widthAnchor.constraint(equalToConstant: buttonWidth),
-            previousButton.heightAnchor.constraint(equalToConstant: 20),
+            nextButton.topAnchor.constraint(equalTo: albumLabel.bottomAnchor, constant: 10),
+            nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -2), // Was -5, now -2
+            nextButton.widthAnchor.constraint(equalToConstant: 30),
+            nextButton.heightAnchor.constraint(equalToConstant: 30),
 
-            playPauseButton.topAnchor.constraint(equalTo: albumArtImage.bottomAnchor, constant: 5),
-            playPauseButton.leadingAnchor.constraint(equalTo: previousButton.trailingAnchor, constant: buttonSpacing),
-            playPauseButton.widthAnchor.constraint(equalToConstant: buttonWidth),
-            playPauseButton.heightAnchor.constraint(equalToConstant: 20),
+            // Play/Pause button, with less spacing:
+            playPauseButton.topAnchor.constraint(equalTo: albumLabel.bottomAnchor, constant: 10),
+            playPauseButton.trailingAnchor.constraint(equalTo: nextButton.leadingAnchor, constant: -5), // Was -10, now -5
+            playPauseButton.widthAnchor.constraint(equalToConstant: 30),
+            playPauseButton.heightAnchor.constraint(equalToConstant: 30),
 
-            nextButton.topAnchor.constraint(equalTo: albumArtImage.bottomAnchor, constant: 5),
-            nextButton.leadingAnchor.constraint(equalTo: playPauseButton.trailingAnchor, constant: buttonSpacing),
-            nextButton.widthAnchor.constraint(equalToConstant: buttonWidth),
-            nextButton.heightAnchor.constraint(equalToConstant: 20),
+            // Previous button, similarly adjusted:
+            previousButton.topAnchor.constraint(equalTo: albumLabel.bottomAnchor, constant: 10),
+            previousButton.trailingAnchor.constraint(equalTo: playPauseButton.leadingAnchor, constant: -5), // Was -10, now -5
+            previousButton.widthAnchor.constraint(equalToConstant: 30),
+            previousButton.heightAnchor.constraint(equalToConstant: 30)
         ])
     }
     

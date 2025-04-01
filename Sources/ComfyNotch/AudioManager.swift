@@ -99,12 +99,10 @@ class AudioManager {
 
     func startMediaTimer() {
         self.getNowPlayingInfo()  // Initial call
-        print("Started Media Timer")
 
         timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             self?.getNowPlayingInfo()
-            print("Fetching Now Playing Info...")
         }
 
         RunLoop.main.add(timer!, forMode: .common)

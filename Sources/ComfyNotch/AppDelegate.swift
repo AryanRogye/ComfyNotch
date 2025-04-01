@@ -18,5 +18,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         UIManager.shared.addWidget(musicPlayerWidget)
         UIManager.shared.addWidget(timeWidget) // Add the TimeWidget to the panel
+
+        AudioManager.shared.startMediaTimer()
     }
 }

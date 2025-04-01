@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Name of the app
-APP_NAME="ComfyNotch"
+APP_NAME="ComfyNotch_Intel"
 
-# Build directory
-BUILD_DIR=".build/release"
+# Build directory for Intel (x86_64)
+BUILD_DIR=".build/x86_64-apple-macosx/release"
 
 # Ensure we're in the correct directory
 if [ ! -f Package.swift ]; then
@@ -12,14 +12,20 @@ if [ ! -f Package.swift ]; then
     exit 1
 fi
 
-# Build the Swift package (Release mode)
-echo "Building $APP_NAME..."
-swift build -c release
+# Build the Swift package (Release mode) for Intel (x86_64)
+echo "Building $APP_NAME for Intel (x86_64)..."
+swift build -c release --arch x86_64
 
 # Check if build was successful
 if [ ! -f "$BUILD_DIR/$APP_NAME" ]; then
-    echo "Error: Build failed. Executable not found in $BUILD_DIR."
-    exit 1
+    # Check if a binary exists in the build directory with a different name
+    if [ -f "$BUILD_DIR/ComfyNotch" ]; then
+        echo "Found executable named 'ComfyNotch'. Renaming to '$APP_NAME'."
+        mv "$BUILD_DIR/ComfyNotch" "$BUILD_DIR/$APP_NAME"
+    else
+        echo "Error: Build failed. Executable not found in $BUILD_DIR."
+        exit 1
+    fi
 fi
 
 # Clean previous build if it exists
