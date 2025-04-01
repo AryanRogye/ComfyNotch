@@ -102,3 +102,11 @@ echo "Removing Icns file..."
 rm -rf "$ICNS_FILE"
 
 echo "App bundle created successfully!"
+
+# ✅ 1. Sign the app (Ad-Hoc Signing) - Just copy-paste this command
+codesign --deep --force --sign - ComfyNotch.app
+
+# ✅ 2. Zip the app properly - This command keeps everything intact
+ditto -c -k --sequesterRsrc --keepParent ComfyNotch.app ComfyNotch.app.zip
+
+echo "Build complete! Upload ComfyNotch.app.zip to GitHub Releases."
