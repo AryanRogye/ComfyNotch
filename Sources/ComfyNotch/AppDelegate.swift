@@ -14,18 +14,45 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             self.hoverHandler = HoverHandler(panel: smallPanel)
         }
 
-        // FOR NOW WE ARE GOING TO ADD THE WIDGETS HERE
-        // Later on i want to add a easier way to add widgets, maybe a settings in a toolbar,
-        // obv will have to exit out of appkit and move to swiftui for that
-
-        let musicPlayerWidget = MusicPlayerWidget()
-        let timeWidget = TimeWidget()
-        let notesWidget = NotesWidget()
-
-        UIManager.shared.addWidgetToBigPanel(musicPlayerWidget)
-        UIManager.shared.addWidgetToBigPanel(notesWidget) // Add the NotesWidget to the panel
-        UIManager.shared.addWidgetToBigPanel(timeWidget) // Add the TimeWidget to the panel
+        loadWidgetsFromSettings()
 
         AudioManager.shared.startMediaTimer()
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(reloadWidgets),
+            name: NSNotification.Name("ReloadWidgets"),
+            object: nil
+        )
+    }
+
+    @objc private func reloadWidgets() {
+        loadWidgetsFromSettings()
+        UIManager.shared.big_panel.contentView?.layoutSubtreeIfNeeded()
+        UIManager.shared.bigPanelWidgetManager.layoutWidgets()
+    }
+
+    private func loadWidgetsFromSettings() {
+        let settings = SettingsModel.shared
+
+        // Clear existing widgets
+        UIManager.shared.bigPanelWidgetManager.widgets.forEach { widget in
+            print("Removing widget: \(widget.name)")
+            UIManager.shared.bigPanelWidgetManager.removeWidget(widget)
+        }
+
+        for widgetName in settings.selectedWidgets {
+            if let widget = settings.mappedWidgets[widgetName] {
+                print("Adding widget: \(widgetName)")
+                UIManager.shared.addWidgetToBigPanel(widget)
+                widget.show()  // Make sure the widget is not hidden
+            } else {
+                print("Widget \(widgetName) not found in mappedWidgets")
+            }
+        }
+
+        // Force layout refresh
+        UIManager.shared.bigPanelWidgetManager.layoutWidgets()
+        UIManager.shared.big_panel.contentView?.layoutSubtreeIfNeeded()
     }
 }
