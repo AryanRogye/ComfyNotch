@@ -10,6 +10,7 @@ struct NotesTextView: View {
             .font(.system(size: 14))
             .foregroundColor(.white)
             .background(Color.black)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
