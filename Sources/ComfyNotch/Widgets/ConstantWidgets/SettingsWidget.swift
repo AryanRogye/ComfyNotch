@@ -1,15 +1,30 @@
 import AppKit
 import SwiftUI
 
+struct SettingsButtonView : View {
+
+    // allow for function to run in here
+    var action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "gear")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 20, height: 20)
+                .foregroundColor(.white)
+        }
+    }
+}
 
 class SettingsWidget : NSObject, Widget {
 
     var name: String = "Settings"
     var view: NSView
 
-    var settingsButton: NSButton
-    private var _alignment: WidgetAlignment = .right
+    private var hostingController: NSHostingController<SettingsButtonView>
 
+    private var _alignment: WidgetAlignment = .right
     private var settingsWindow: NSWindow?
 
 
@@ -24,41 +39,22 @@ class SettingsWidget : NSObject, Widget {
         }
     }
 
-    override init () {
-        view = NSView()
-        view.isHidden = true
-        view.wantsLayer = true
-        view.layer?.cornerRadius = 12
-        view.layer?.borderWidth = 1.5
-        view.layer?.borderColor = NSColor.darkGray.cgColor
-        view.translatesAutoresizingMaskIntoConstraints = false
-
-
-        settingsButton = NSButton()
+    override init() {
+        view = NSView() // Temporary placeholder
+        hostingController = NSHostingController(rootView: SettingsButtonView(action: {}))
+        
         super.init()
 
-        self.setupInternalConstraints()
+        let swiftUIView = SettingsButtonView(action: { [weak self] in self?.openSettings() })
+        hostingController = NSHostingController(rootView: swiftUIView)
+        
+        let hostingView = hostingController.view
+        hostingView.translatesAutoresizingMaskIntoConstraints = false
+        view = hostingView
+        
+        view.isHidden = true
     }
 
-    func setupInternalConstraints() {
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.wantsLayer = true
-        view.layer?.cornerRadius = 12
-        view.layer?.borderWidth = 1.5
-        view.layer?.borderColor = NSColor.darkGray.cgColor
-
-        settingsButton = createStyledButton(symbolName: "gear", action: #selector(openSettings))
-
-        view.addSubview(settingsButton)
-        settingsButton.translatesAutoresizingMaskIntoConstraints = false
-
-        NSLayoutConstraint.activate([
-            settingsButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            settingsButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            settingsButton.widthAnchor.constraint(equalToConstant: 20),
-            settingsButton.heightAnchor.constraint(equalToConstant: 20)
-        ])
-    }
 
     @objc func openSettings() {
         print("Opening settings")
