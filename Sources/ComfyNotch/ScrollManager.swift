@@ -84,6 +84,42 @@ class ScrollManager {
         }
     }
 
+    /// Programmatically opens the panel fully
+    func open() {
+        guard let panel = UIManager.shared.big_panel else { return }
+        
+        let targetHeight = maxPanelHeight
+        let targetWidth = maxPanelWidth
+        let screen = NSScreen.main!
+
+        var panelFrame = panel.frame
+        panelFrame.size.width = targetWidth
+        panelFrame.size.height = targetHeight
+        panelFrame.origin.y = screen.frame.height - targetHeight - UIManager.shared.startPanelYOffset - offset
+        panelFrame.origin.x = (screen.frame.width - targetWidth) / 2
+
+        animatePanelTransition(to: panelFrame)
+        updatePanelState(for: targetHeight)
+    }
+
+    /// Programmatically closes the panel fully
+    func close() {
+        guard let panel = UIManager.shared.big_panel else { return }
+
+        let targetHeight = minPanelHeight
+        let targetWidth = minPanelWidth
+        let screen = NSScreen.main!
+
+        var panelFrame = panel.frame
+        panelFrame.size.width = targetWidth
+        panelFrame.size.height = targetHeight
+        panelFrame.origin.y = screen.frame.height - targetHeight - UIManager.shared.startPanelYOffset - 35 // Use your standard closed offset
+        panelFrame.origin.x = (screen.frame.width - targetWidth) / 2
+
+        animatePanelTransition(to: panelFrame)
+        updatePanelState(for: targetHeight)
+    }
+
     /**
      *
      *   This Function handles haptic feedback for scroll events.

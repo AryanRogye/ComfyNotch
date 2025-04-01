@@ -6,12 +6,16 @@ import Foundation
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     private var hoverHandler: HoverHandler?
+    private var panelProximityHandler: PanelProximityHandler?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         UIManager.shared.setupFrame()
         ScrollManager.shared.start()
         if let smallPanel = UIManager.shared.small_panel {
             self.hoverHandler = HoverHandler(panel: smallPanel)
+        }
+        if let bigPanel = UIManager.shared.big_panel {
+            self.panelProximityHandler = PanelProximityHandler(panel: bigPanel)
         }
 
         loadWidgetsFromSettings()
