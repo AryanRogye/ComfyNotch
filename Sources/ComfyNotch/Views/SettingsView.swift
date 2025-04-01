@@ -4,6 +4,9 @@ import Combine
 class SettingsModel: ObservableObject {
     static let shared = SettingsModel() // Singleton for global access
 
+    @Published var open_state_y_offset: CGFloat = 35
+
+
     @Published var mappedWidgets: [String: Widget] = [
         "MusicPlayerWidget": MusicPlayerWidget(),
         "TimeWidget": TimeWidget(),
@@ -55,6 +58,27 @@ struct SettingsView: View {
                     .foregroundColor(.secondary)
             }
             .padding(.top, 12)
+
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text("Open State Y Offset")
+                        .font(.headline)
+                        .foregroundColor(textColor)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "arrow.up.and.down")
+                        .foregroundColor(.blue)
+                }
+                
+                Slider(value: $settings.open_state_y_offset, in: 0...100, step: 1)
+                    .onChange(of: settings.open_state_y_offset) { _ in
+                        ScrollManager.shared.applyOffsetChange()
+                    }
+                    .accentColor(.blue)
+                    .padding(.horizontal, 16)
+            }
+            .padding()
             
             // Available Widgets Section
             VStack(alignment: .leading, spacing: 12) {
