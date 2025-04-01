@@ -12,6 +12,9 @@ class UIManager {
 
     var small_panel : NSPanel!
     var big_panel : NSPanel!
+
+    var bigPanelWidgetManager = BigPanelWidgetManager()
+    var smallPanelWidgetManager = SmallPanelWidgetManager()
     
     var panel_state : PanelState = .CLOSED
 
@@ -61,6 +64,15 @@ class UIManager {
             contentView.wantsLayer = true
             contentView.layer?.cornerRadius = 12
             contentView.layer?.masksToBounds = true
+
+            smallPanelWidgetManager.setPanelContentView(contentView)
+
+            // Now add the settings widget AFTER the panel is set up
+            let settingsWidget = SettingsWidget()
+            settingsWidget.alignment = .right
+            smallPanelWidgetManager.addWidget(settingsWidget)
+            // Layout widgets
+            smallPanelWidgetManager.layoutWidgets()
         }
 
         small_panel.makeKeyAndOrderFront(nil)
@@ -101,24 +113,38 @@ class UIManager {
             // border color of grey
 
             // THIS IS WHERE THE WIDGETS GO
-            WidgetManager.shared.setPanelContentView(contentView)
+            bigPanelWidgetManager.setPanelContentView(contentView)
         }
 
         big_panel.makeKeyAndOrderFront(nil)
     }
 
-    func hideWidgets() {
-        WidgetManager.shared.hideWidgets()
-        big_panel.contentView?.layoutSubtreeIfNeeded() // Force layout update
+
+    // HIDE/SHOW SMALL PANEL
+    func hideSmallPanelSettingsWidget() {
+        smallPanelWidgetManager.hideWidgets()
+        small_panel.contentView?.layoutSubtreeIfNeeded()
+    }
+    func showSmallPanelSettingsWidget() {
+        smallPanelWidgetManager.showWidgets()
     }
 
-    func showWidgets() {
-        WidgetManager.shared.showWidgets()
+
+    // BIG PANEL VIEWS
+    func hideBigPanelWidgets() {
+        bigPanelWidgetManager.hideWidgets()
+        big_panel.contentView?.layoutSubtreeIfNeeded()
+    }
+    func showBigPanelWidgets() {
+        bigPanelWidgetManager.showWidgets()
     }
 
-    func addWidget(_ widget: Widget) {
-        print("Adding widget: \(widget.name)")
-        WidgetManager.shared.addWidget(widget)
+    // ADDING TO WIDGETS
+    func addWidgetToBigPanel(_ widget: Widget) {
+        bigPanelWidgetManager.addWidget(widget)
+    }
+    func addWidgetsToSmallPanel(_ widget: Widget) {
+        smallPanelWidgetManager.addWidget(widget)
     }
 
     func getNotchHeight() -> CGFloat {

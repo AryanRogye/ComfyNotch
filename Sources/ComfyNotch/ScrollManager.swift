@@ -153,7 +153,6 @@ class ScrollManager {
         }
     }
 
-
     private func updatePanelSize(toHeight newHeight: CGFloat, toWidth newWidth: CGFloat, animated: Bool) {
         guard let screen = NSScreen.main else { return }
         
@@ -200,10 +199,12 @@ class ScrollManager {
     public func updatePanelState(for height: CGFloat) {
         if height >= maxPanelHeight {
             UIManager.shared.panel_state = .OPEN
-            UIManager.shared.showWidgets()
+            UIManager.shared.showBigPanelWidgets()
+            UIManager.shared.showSmallPanelSettingsWidget()
         } else if height <= minPanelHeight {
             UIManager.shared.panel_state = .CLOSED
-            UIManager.shared.hideWidgets()
+            UIManager.shared.hideBigPanelWidgets()
+            UIManager.shared.hideSmallPanelSettingsWidget()
             
             if let panel = UIManager.shared.big_panel, let smallPanelFrame = smallPanelRect {
                 // Animate back to the small panel's frame (without extra offset)
@@ -217,7 +218,8 @@ class ScrollManager {
             }
         } else {
             UIManager.shared.panel_state = .PARTIALLY_OPEN
-            UIManager.shared.showWidgets()
+            UIManager.shared.showBigPanelWidgets()
+            UIManager.shared.hideSmallPanelSettingsWidget()
         }
     }
 
