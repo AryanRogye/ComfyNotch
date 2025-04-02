@@ -30,7 +30,6 @@ class CameraWidget: Widget {
         if previewLayer == nil { // Setup camera only if it's not already set up
             setupCamera()
         }
-        print("Showing CameraWidget")
         view.isHidden = false
         session.startRunning() // Start the camera feed when showing the widget
     }
