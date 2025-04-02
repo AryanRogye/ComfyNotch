@@ -45,12 +45,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         var usesMusicPlayer = false;
+
         for widgetName in settings.selectedWidgets {
             if let widget = settings.mappedWidgets[widgetName] {
                 UIManager.shared.addWidgetToBigPanel(widget)
                 if (widget.name == "MusicPlayerWidget") {
                     usesMusicPlayer = true
-                }
+                }                
                 widget.show()  // Make sure the widget is not hidden
             } else {
                 print("Widget \(widgetName) not found in mappedWidgets")

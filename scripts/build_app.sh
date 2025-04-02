@@ -35,6 +35,9 @@ mkdir -p "$APP_NAME.app/Contents/Resources"
 
 # Copy the executable to the .app bundle
 cp "$BUILD_DIR/$APP_NAME" "$APP_NAME.app/Contents/MacOS/"
+cp Info.plist "$APP_NAME.app/Contents/"
+
+
 chmod +x "$APP_NAME.app/Contents/MacOS/$APP_NAME"
 
 # Generate .icns file from PNG
