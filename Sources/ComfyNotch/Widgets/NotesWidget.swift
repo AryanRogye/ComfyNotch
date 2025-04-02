@@ -40,21 +40,16 @@ class NotesWidget: Widget {
             ))
         }
 
+        // ✅ Force the view to expand to the max height of the stackView
+        view.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        view.setContentHuggingPriority(.defaultLow, for: .vertical)
+        view.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        view.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+
     }
 
     private func saveNotes(_ notes: String) {
         UserDefaults.standard.set(notes, forKey: "notesWidget_content")
-    }
-
-    func setupInternalConstraints() {
-        guard view.superview != nil else { return } // Exit if superview is nil
-
-        NSLayoutConstraint.activate([
-            view.leadingAnchor.constraint(equalTo: view.superview!.leadingAnchor, constant: 10),
-            view.trailingAnchor.constraint(equalTo: view.superview!.trailingAnchor, constant: -10),
-            view.topAnchor.constraint(equalTo: view.superview!.topAnchor, constant: 10),
-            view.bottomAnchor.constraint(equalTo: view.superview!.bottomAnchor, constant: -10)
-        ])
     }
 
     func loadNotes() -> String {
