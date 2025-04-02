@@ -102,6 +102,11 @@ cat > "$APP_NAME.app/Contents/Info.plist" <<EOL
     <!-- Privacy Description -->
     <key>NSCameraUsageDescription</key>
     <string>ComfyNotch needs access to the camera for widget functionalities.</string>
+
+    <!-- Continuity Camera -->
+    <key>NSCameraUseContinuityCameraDeviceType</key>
+    <true/>
+
 </dict>
 </plist>
 EOL

@@ -8,17 +8,29 @@ class CameraWidget: Widget {
     var view: NSView
     private var session: AVCaptureSession
     private var previewLayer: AVCaptureVideoPreviewLayer?
+    private var cancellables = Set<AnyCancellable>()
+
 
     init() {
         self.view = NSView(frame: NSRect(x: 0, y: 0, width: 300, height: 200))
         self.view.isHidden = true
         self.session = AVCaptureSession()
-        self.view.wantsLayer = true // Important to enable CALayer support
+        self.view.wantsLayer = true
 
         setupCamera()
+
+        NotificationCenter.default.publisher(for: .init("FlipCameraChanged"))
+            .sink { [weak self] _ in
+                self?.applyFlipTransform()
+            }
+            .store(in: &cancellables)
     }
  
     func show() {
+        if previewLayer == nil { // Setup camera only if it's not already set up
+            setupCamera()
+        }
+        print("Showing CameraWidget")
         view.isHidden = false
         session.startRunning() // Start the camera feed when showing the widget
     }
@@ -58,6 +70,22 @@ class CameraWidget: Widget {
 
         if let layer = view.layer, let previewLayer = previewLayer {
             layer.addSublayer(previewLayer)
+            applyFlipTransform()
+        }
+
+        // Apply flipping based on the setting
+    }
+
+    // This function will apply the flip based on the user setting
+    private func applyFlipTransform() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let previewLayer = self.previewLayer else { return }
+
+            if SettingsModel.shared.flipCamera {
+                previewLayer.setAffineTransform(CGAffineTransform(scaleX: -1, y: 1))
+            } else {
+                previewLayer.setAffineTransform(CGAffineTransform.identity)
+            }
         }
     }
 }

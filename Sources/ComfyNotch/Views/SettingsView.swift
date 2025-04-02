@@ -6,7 +6,6 @@ class SettingsModel: ObservableObject {
 
     @Published var open_state_y_offset: CGFloat = 35
     @Published var isSettingsOpen: Bool = false
-    @Published var flipCamera : Bool = false
 
 
     @Published var mappedWidgets: [String: Widget] = [
@@ -20,15 +19,27 @@ class SettingsModel: ObservableObject {
 
     private var cancellables = Set<AnyCancellable>()
 
+    @Published var flipCamera : Bool = true {
+        didSet {
+            NotificationCenter.default.post(name: .init("FlipCameraChanged"), object: nil)
+        }
+    }
+
     init() {
     $selectedWidgets
             .debounce(for: .milliseconds(200), scheduler: RunLoop.main) // Give it some time before triggering the reload
-            .sink { _ in
+            .sink { widgets in
                 NotificationCenter.default.post(name: NSNotification.Name("ReloadWidgets"), object: nil)
+
+                // 📌 Check if CameraWidget is removed
+                if !widgets.contains("CameraWidget") || UIManager.shared.panel_state == .CLOSED {
+                    (self.mappedWidgets["CameraWidget"] as? CameraWidget)?.hide()
+                }
             }
             .store(in: &cancellables)
     }
 }
+
 struct SettingsView: View {
     @ObservedObject var settings = SettingsModel.shared
     @State private var draggingItem: String?

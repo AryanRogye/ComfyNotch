@@ -57,7 +57,6 @@ class SettingsWidget : NSObject, Widget {
 
 
     @objc func openSettings() {
-        print("Opening settings")
 
         // Check if the window is already open to prevent multiple instances
         if let existingWindow = settingsWindow {
@@ -75,7 +74,7 @@ class SettingsWidget : NSObject, Widget {
             defer: false
         )
         window.title = "Settings"
-        window.center()
+
         window.isReleasedWhenClosed = false // Keep it in memory even after closing
 
         // ✅ Assign the delegate to this class (make sure your class conforms to NSWindowDelegate)
@@ -87,13 +86,41 @@ class SettingsWidget : NSObject, Widget {
         let hostingController = NSHostingController(rootView: settingsView)
         window.contentViewController = hostingController
 
+        if let screen = NSScreen.main {
+            let screenFrame = screen.visibleFrame
+            
+            // Calculate window position
+            let windowWidth: CGFloat = 400
+            let windowHeight: CGFloat = 300
+            let xPos = (screenFrame.width - windowWidth) / 2
+            
+            // Position about 200 pixels up from the bottom of the screen
+            let yPos: CGFloat = 200
+            
+            // Force set frame completely instead of just origin
+            window.setFrame(NSRect(x: xPos, y: yPos, width: windowWidth, height: windowHeight), display: true)
+        }
+
+        // Make sure this is called after setting the frame
+        window.center()
+
+
         self.settingsWindow = window
         NSApp.addWindowsItem(window, title: window.title, filename: false)
         window.makeKeyAndOrderFront(nil)
         window.orderFrontRegardless()
+
+        // After window is visible, force position again with a slight delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+            if let screen = NSScreen.main {
+                let screenFrame = screen.visibleFrame
+                let xPos = (screenFrame.width - 400) / 2
+                let yPos: CGFloat = 200
+                self?.settingsWindow?.setFrameOrigin(NSPoint(x: xPos, y: yPos))
+            }
+        }
         
         SettingsModel.shared.isSettingsOpen = true
-        print("Settings window opened")
     }
 
     private func createStyledButton(symbolName: String, action: Selector) -> NSButton {

@@ -40,7 +40,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Clear existing widgets
         UIManager.shared.bigPanelWidgetManager.widgets.forEach { widget in
-            print("Removing widget: \(widget.name)")
             UIManager.shared.bigPanelWidgetManager.removeWidget(widget)
         }
 

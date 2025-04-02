@@ -18,7 +18,6 @@ class WidgetManager {
             print("Panel content view not set. Use `setPanelContentView()` before adding widgets.")
             return
         }
-        print("Added widget \(widget.name) to panel content view")
 
         // Add the widget's view to the panel content view
         panelContentView.addSubview(widget.view)
@@ -108,7 +107,6 @@ class SmallPanelWidgetManager: WidgetManager {
         guard let panelContentView = panelContentView else { return }
 
         // Print debug info
-        print("Adding widget: \(widget.name), alignment: \(String(describing: widget.alignment))")
         
         widget.view.translatesAutoresizingMaskIntoConstraints = false
         panelContentView.addSubview(widget.view)

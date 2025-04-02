@@ -17,7 +17,11 @@ let package = Package(
         .executableTarget(
             name: "ComfyNotch",
             dependencies: [],
-            path: "Sources/ComfyNotch"
+            path: "Sources/ComfyNotch",
+            exclude: []
+            // resources: [
+            //     .process("Resources") // Put your Info.plist in a Resources folder
+            // ]
         )
     ]
 )
