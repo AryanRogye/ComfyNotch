@@ -25,6 +25,7 @@ fi
 # Clean previous build if it exists
 if [ -d "$APP_NAME.app" ]; then
     rm -rf "$APP_NAME.app"
+    rm -rf "$APP_NAME.app.zip"
     echo "Previous build removed."
 fi
 
@@ -97,6 +98,10 @@ cat > "$APP_NAME.app/Contents/Info.plist" <<EOL
     <string>NSApplication</string>
     <key>CFBundleIconFile</key>
     <string>ComfyNotchIcon</string>
+
+    <!-- Privacy Description -->
+    <key>NSCameraUsageDescription</key>
+    <string>ComfyNotch needs access to the camera for widget functionalities.</string>
 </dict>
 </plist>
 EOL
