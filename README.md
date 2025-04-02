@@ -19,7 +19,7 @@ ComfyNotch brings life to your MacBook’s notch by providing a clean and intuit
 - 📝 **Notes Widget**: Keep quick notes accessible from the notch.
 - ⏰ **Time Widget**: Always know the time with style.
 - 🔄 **Smooth Animations**: Every interaction feels satisfying.
-- 📷 **Coming Soon: Camera**: See how your looking in public
+- 📷 **Camera**: See how your looking in public
 - 🎨 **Coming Soon: Customization**: Easily add your own widgets.
 
 
