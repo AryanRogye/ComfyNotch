@@ -107,6 +107,10 @@ cat > "$APP_NAME.app/Contents/Info.plist" <<EOL
     <key>NSCameraUseContinuityCameraDeviceType</key>
     <true/>
 
+    <!-- App Transport Security Settings -->
+    <key>LSUIElement</key>
+    <true/>
+
 </dict>
 </plist>
 EOL

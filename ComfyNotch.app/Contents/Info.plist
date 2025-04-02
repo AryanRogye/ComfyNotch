@@ -22,5 +22,14 @@
     <!-- Privacy Description -->
     <key>NSCameraUsageDescription</key>
     <string>ComfyNotch needs access to the camera for widget functionalities.</string>
+
+    <!-- Continuity Camera -->
+    <key>NSCameraUseContinuityCameraDeviceType</key>
+    <true/>
+
+    <!-- App Transport Security Settings -->
+    <key>LSUIElement</key>
+    <true/>
+
 </dict>
 </plist>
