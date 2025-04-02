@@ -79,7 +79,14 @@ class UIManager {
             // Now add the settings widget AFTER the panel is set up
             let settingsWidget = SettingsWidget()
             settingsWidget.alignment = .right
+
+            let closedAlbumWidget = ClosedAlbumWidget()
+            closedAlbumWidget.alignment = .right
+
+
             smallPanelWidgetManager.addWidget(settingsWidget)
+            // smallPanelWidgetManager.addWidget(closedAlbumWidget)
+
             // Layout widgets
             smallPanelWidgetManager.layoutWidgets()
         }
@@ -131,11 +138,28 @@ class UIManager {
 
     // HIDE/SHOW SMALL PANEL
     func hideSmallPanelSettingsWidget() {
-        smallPanelWidgetManager.hideWidgets()
+        let widgets = smallPanelWidgetManager.widgets
+
+        for widget in widgets {
+            if widget.name == "Settings" {
+                widget.hide()
+            } else if widget.name == "ClosedAlbumWidget" {
+                widget.show()
+            }
+        }
+
         small_panel.contentView?.layoutSubtreeIfNeeded()
     }
     func showSmallPanelSettingsWidget() {
-        smallPanelWidgetManager.showWidgets()
+        let widgets = smallPanelWidgetManager.widgets
+
+        for widget in widgets {
+            if widget.name == "Settings" {
+                widget.show()
+            } else if widget.name == "ClosedAlbumWidget" {
+                widget.hide()
+            }
+        }
     }
 
 

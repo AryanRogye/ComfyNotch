@@ -10,8 +10,8 @@ import Combine
  *  adjusting its width and height based on user interactions.
  *
  */
-class ScrollManager {
-    static let shared = ScrollManager()
+class ScrollHandler {
+    static let shared = ScrollHandler()
 
     var scrollPadding: CGFloat = 15
 

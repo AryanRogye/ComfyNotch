@@ -10,7 +10,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         UIManager.shared.setupFrame()
-        ScrollManager.shared.start()
+        ScrollHandler.shared.start()
         if let smallPanel = UIManager.shared.small_panel {
             self.hoverHandler = HoverHandler(panel: smallPanel)
         }
@@ -27,6 +27,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             name: NSNotification.Name("ReloadWidgets"),
             object: nil
         )
+        DisplayHandler.shared.start()
     }
 
     @objc private func reloadWidgets() {
@@ -43,23 +44,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             UIManager.shared.bigPanelWidgetManager.removeWidget(widget)
         }
 
-        var usesMusicPlayer = false;
-
         for widgetName in settings.selectedWidgets {
             if let widget = settings.mappedWidgets[widgetName] {
                 UIManager.shared.addWidgetToBigPanel(widget)
-                if (widget.name == "MusicPlayerWidget") {
-                    usesMusicPlayer = true
-                }                
                 widget.show()  // Make sure the widget is not hidden
             } else {
                 print("Widget \(widgetName) not found in mappedWidgets")
             }
         }
 
-        if usesMusicPlayer {
-            AudioManager.shared.startMediaTimer()
-        }
+        AudioManager.shared.startMediaTimer()
 
         // Force layout refresh
         UIManager.shared.bigPanelWidgetManager.layoutWidgets()
