@@ -7,36 +7,63 @@ class SettingsModel: ObservableObject {
     @Published var open_state_y_offset: CGFloat = 35
     @Published var isSettingsOpen: Bool = false
 
-
     @Published var mappedWidgets: [String: Widget] = [
         "MusicPlayerWidget": MusicPlayerWidget(),
         "TimeWidget": TimeWidget(),
         "NotesWidget": NotesWidget(),
         "CameraWidget": CameraWidget(),
     ]
-    
-    @Published var selectedWidgets: [String] = ["MusicPlayerWidget", "TimeWidget", "NotesWidget"] // Default selected widgets
+
+    @Published var selectedWidgets: [String] = [] // This will be loaded from UserDefaults
 
     private var cancellables = Set<AnyCancellable>()
 
-    @Published var flipCamera : Bool = true {
+    @Published var flipCamera: Bool = true {
         didSet {
             NotificationCenter.default.post(name: .init("FlipCameraChanged"), object: nil)
+            saveSettings()
         }
     }
 
     init() {
-    $selectedWidgets
-            .debounce(for: .milliseconds(200), scheduler: RunLoop.main) // Give it some time before triggering the reload
+        loadSettings()  // Load saved settings from UserDefaults
+
+        $selectedWidgets
+            .debounce(for: .milliseconds(200), scheduler: RunLoop.main)
             .sink { widgets in
                 NotificationCenter.default.post(name: NSNotification.Name("ReloadWidgets"), object: nil)
+                self.saveSettings() // Save whenever widgets change
 
-                // 📌 Check if CameraWidget is removed
                 if !widgets.contains("CameraWidget") || UIManager.shared.panel_state == .CLOSED {
                     (self.mappedWidgets["CameraWidget"] as? CameraWidget)?.hide()
                 }
             }
             .store(in: &cancellables)
+    }
+    
+    /// Save settings to UserDefaults
+    private func saveSettings() {
+        let defaults = UserDefaults.standard
+        defaults.set(selectedWidgets, forKey: "selectedWidgets")
+        defaults.set(flipCamera, forKey: "flipCamera")
+    }
+
+    /// Load settings from UserDefaults
+    private func loadSettings() {
+        let defaults = UserDefaults.standard
+        
+        // Load selected widgets
+        if let loadedWidgets = defaults.object(forKey: "selectedWidgets") as? [String] {
+            self.selectedWidgets = loadedWidgets
+        } else {
+            // Set default if nothing is saved
+            self.selectedWidgets = ["MusicPlayerWidget", "TimeWidget", "NotesWidget"]
+        }
+        
+        // Load flip camera setting
+        if defaults.object(forKey: "flipCamera") != nil {
+            self.flipCamera = defaults.bool(forKey: "flipCamera")
+        }
     }
 }
 
