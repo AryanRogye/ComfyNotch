@@ -47,8 +47,8 @@ ComfyNotch brings life to your MacBook’s notch by providing a clean and intuit
 - [x] **Hide App Icon**: Hide app icon at all times, no need to bother the users dock.
 - [x] **Album View When Closed**: Display album art in a mini view when the panel is closed.
 - [x] **Music Playing Indicator**: Add a smooth icon animation to indicate when music is playing.
-- [ ] **Multiple Notes System**: Implement a notes dashboard with multiple notes accessible through tabs.
-- [ ] **Dynamic Animated Button Colors**: Match the animated buttons’ colors to the dominant color of the album art.
+- [x] **Multiple Notes System**: Implement a notes dashboard with multiple notes accessible through tabs.
+- [x] **Dynamic Animated Button Colors**: Match the animated buttons’ colors to the dominant color of the album art.
 - [ ] **AI Chat Integration**: Allow users to interact with an AI chat feature by providing their own API keys.
 
 ### 🎨 **UI/UX Improvements**
