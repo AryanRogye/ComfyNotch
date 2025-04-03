@@ -81,11 +81,11 @@ class UIManager {
             settingsWidget.alignment = .right
 
             let closedAlbumWidget = ClosedAlbumWidget()
-            closedAlbumWidget.alignment = .right
+            closedAlbumWidget.alignment = .left
 
 
             smallPanelWidgetManager.addWidget(settingsWidget)
-            // smallPanelWidgetManager.addWidget(closedAlbumWidget)
+            smallPanelWidgetManager.addWidget(closedAlbumWidget)
 
             // Layout widgets
             smallPanelWidgetManager.layoutWidgets()
