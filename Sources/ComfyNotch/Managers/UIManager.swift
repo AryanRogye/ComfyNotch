@@ -83,12 +83,17 @@ class UIManager {
             let closedAlbumWidget = ClosedAlbumWidget()
             closedAlbumWidget.alignment = .left
 
+            let movingDotsWidget = MovingDotsWidget()
+            movingDotsWidget.alignment = .right
 
-            smallPanelWidgetManager.addWidget(settingsWidget)
+
             smallPanelWidgetManager.addWidget(closedAlbumWidget)
+            smallPanelWidgetManager.addWidget(settingsWidget)
+            smallPanelWidgetManager.addWidget(movingDotsWidget)
 
             // Layout widgets
             smallPanelWidgetManager.layoutWidgets()
+            smallPanelWidgetManager.logAllConstraints()
         }
 
         small_panel.makeKeyAndOrderFront(nil)
@@ -145,6 +150,8 @@ class UIManager {
                 widget.hide()
             } else if widget.name == "ClosedAlbumWidget" {
                 widget.show()
+            } else if widget.name == "MovingDotsWidget" {
+                widget.show()
             }
         }
 
@@ -158,6 +165,8 @@ class UIManager {
                 widget.show()
             } else if widget.name == "ClosedAlbumWidget" {
                 widget.hide()
+            } else if widget.name == "MovingDotsWidget" {
+                widget.hide()
             }
         }
     }
@@ -167,7 +176,11 @@ class UIManager {
     func hideBigPanelWidgets() {
         bigPanelWidgetManager.hideWidgets()
         big_panel.contentView?.layoutSubtreeIfNeeded()
+
+        small_panel.makeKeyAndOrderFront(nil)
+        small_panel.level = .screenSaver
     }
+
     func showBigPanelWidgets() {
         bigPanelWidgetManager.showWidgets()
     }

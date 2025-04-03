@@ -5,10 +5,10 @@ class AudioManager {
 
     static let shared = AudioManager()
 
-    var currentSongText: String = "Nothing Currently Playing"
-    var currentArtistText: String = "Unknown Artist"
-    var currentAlbumText: String = "Unknown Album"
-    var currentArtworkImage: NSImage? = nil
+    @Published var currentSongText: String = "No Song Playing"
+    @Published var currentArtistText: String = "Unknown Artist"
+    @Published var currentAlbumText: String = "Unknown Album"
+    @Published var currentArtworkImage: NSImage? = nil
 
     private var timer: Timer?
     var onNowPlayingInfoUpdated: (() -> Void)?
@@ -72,6 +72,7 @@ class AudioManager {
                 self.currentSongText = "No Song Playing"
                 self.currentArtistText = "Unknown Artist"
                 self.currentAlbumText = "Unknown Album"
+                self.currentArtworkImage = nil
                 
                 // Notify about the update
                 self.onNowPlayingInfoUpdated?()

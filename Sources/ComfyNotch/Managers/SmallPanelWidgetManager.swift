@@ -7,6 +7,10 @@ class SmallPanelWidgetManager: WidgetManager {
     private var stackView : NSStackView = NSStackView()
     private var leftStackView : NSStackView = NSStackView()
     private var rightStackView : NSStackView = NSStackView()
+    private var notchSpacer: NSView = NSView()
+
+
+    private var paddingWidth: CGFloat = 5
 
     override init() {
         super.init()
@@ -29,11 +33,26 @@ class SmallPanelWidgetManager: WidgetManager {
         rightStackView.alignment = .centerY
         rightStackView.spacing = 10
 
+        let leftPadding = createPaddingSpacer()
+        let rightPadding = createPaddingSpacer()
+
 
         // the the left and right to the stackView
+        stackView.addArrangedSubview(leftPadding)
         stackView.addArrangedSubview(leftStackView)
-        stackView.addArrangedSubview(getSpacer()) // Spacer
+        notchSpacer = getSpacer()
+        stackView.addArrangedSubview(notchSpacer) // Notch spacer
         stackView.addArrangedSubview(rightStackView)
+        stackView.addArrangedSubview(rightPadding)
+    }
+
+    private func createPaddingSpacer() -> NSView {
+        let spacer = NSView()
+        spacer.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            spacer.widthAnchor.constraint(equalToConstant: paddingWidth)
+        ])
+        return spacer
     }
 
     /** 
@@ -44,10 +63,16 @@ class SmallPanelWidgetManager: WidgetManager {
     private func getSpacer() -> NSView {
         let spacer = NSView()
         spacer.translatesAutoresizingMaskIntoConstraints = false
-        let notchWidth = self.getNotchWidth()
+
+        // Ensure the spacer has a constant width
+        let notchWidth = self.getNotchWidth() + 10
         NSLayoutConstraint.activate([
-            spacer.widthAnchor.constraint(equalToConstant: notchWidth)
+            spacer.widthAnchor.constraint(equalToConstant: notchWidth),
+            spacer.heightAnchor.constraint(equalToConstant: 1) // Small height to ensure it's part of the layout
         ])
+        
+        spacer.wantsLayer = true
+        // spacer.layer?.backgroundColor = NSColor.red.cgColor // Visualize the spacer for debugging
 
         return spacer
     }
@@ -117,10 +142,20 @@ class SmallPanelWidgetManager: WidgetManager {
     }
 
     private func getNotchWidth() -> CGFloat {
-        if let screen = NSScreen.main {
-            let safeAreaInsets = screen.safeAreaInsets
-            return safeAreaInsets.left + safeAreaInsets.right
+        guard let screen = NSScreen.main else { return 180 } // Default to 180 if it fails
+    
+        let screenWidth = screen.frame.width
+
+        // Rough estimates based on Apple specs
+        if screenWidth >= 3456 { // 16-inch MacBook Pro
+            return 180
+        } else if screenWidth >= 3024 { // 14-inch MacBook Pro
+            return 160
+        } else if screenWidth >= 2880 { // 15-inch MacBook Air
+            return 170
         }
-        return 0
+
+        // Default if we can't determine it
+        return 180
     }
 }
