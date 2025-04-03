@@ -14,13 +14,17 @@ struct AlbumWidgetView: View {
                     .frame(width: 30, height: 30)
                     .cornerRadius(8)
             } else {
-                Image(systemName: "music.note")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 20, height: 20)
-                    .padding(5)
-                    .background(Color.black.opacity(0.5))
-                    .cornerRadius(10)
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.gray.opacity(0.2))
+                        .frame(width: 30, height: 30)
+                    
+                    Image(systemName: "music.note")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.white)
+                }
+                .frame(width: 30, height: 30)
+                .padding(.bottom, 3.5)
             }
         }
     }
