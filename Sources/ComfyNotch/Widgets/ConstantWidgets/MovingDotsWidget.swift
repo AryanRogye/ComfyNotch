@@ -11,15 +11,15 @@ struct MovingDotsView : View {
         HStack(spacing: 6) {
             ForEach(0..<3) { index in
                 Circle()
-                    .fill(Color.white)
+                    .fill(Color(viewModel.playingColor)) // Use the dynamic color from viewModel
                     .frame(width: 6, height: 6)
-                    .offset(y: animate ? -5 : 0) // Fixed: neutral position when not animating
+                    .offset(y: animate ? -5 : 0)
                     .animation(
                         animate ? 
                             Animation.easeInOut(duration: 0.5)
                                 .repeatForever()
                                 .delay(Double(index) * 0.2) : 
-                            .default, // Fixed: use default animation when stopping
+                            .default,
                         value: animate
                     )
             }
@@ -35,6 +35,7 @@ struct MovingDotsView : View {
 
 class MovingDotsViewModel: ObservableObject {
     @Published var isPlaying: Bool = false
+    @Published var playingColor = NSColor.white
 }
 
 
@@ -45,7 +46,8 @@ class MovingDotsWidget: Widget {
     private var hostingController: NSHostingController<MovingDotsView>
     private var _alignment: WidgetAlignment = .right
 
-    private var cancellable: AnyCancellable?
+    private var cancellables = Set<AnyCancellable>()
+
     private var viewModel = MovingDotsViewModel()
 
 
@@ -67,8 +69,8 @@ class MovingDotsWidget: Widget {
         view = hostingView
         view.isHidden = false
         
-        // Subscribe to AudioManager's currentSongText changes
-        cancellable = AudioManager.shared.$currentSongText
+        // Subscribe to song text changes
+        AudioManager.shared.$currentSongText
             .receive(on: RunLoop.main)
             .sink { [weak self] text in
                 DispatchQueue.main.async {
@@ -79,6 +81,17 @@ class MovingDotsWidget: Widget {
                     }
                 }
             }
+            .store(in: &cancellables)
+        
+        // Subscribe to color changes
+        AudioManager.shared.$dominantColor
+            .receive(on: RunLoop.main)
+            .sink { [weak self] color in
+                DispatchQueue.main.async {
+                    self?.viewModel.playingColor = color
+                }
+            }
+            .store(in: &cancellables)
     }
 
     func update() {
