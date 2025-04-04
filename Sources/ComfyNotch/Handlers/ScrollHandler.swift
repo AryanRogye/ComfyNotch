@@ -20,7 +20,7 @@ class ScrollHandler {
     var maxPanelHeight: CGFloat = 100
 
     var minPanelWidth: CGFloat = 300
-    var maxPanelWidth: CGFloat = 650
+    var maxPanelWidth: CGFloat = 700
 
     var smallPanelRect: NSRect?
 

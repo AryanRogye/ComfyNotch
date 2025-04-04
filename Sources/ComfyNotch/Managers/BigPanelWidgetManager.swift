@@ -10,7 +10,7 @@ class BigPanelWidgetManager: WidgetManager {
         // Limit the number of widgets displayed
         let visibleWidgets = widgets.prefix(3) // Only take the first 3 widgets
         
-        let totalWidth: CGFloat = 650 // The total width of the big_panel
+        let totalWidth: CGFloat = 700 // The total width of the big_panel
         let widgetWidth = totalWidth / CGFloat(visibleWidgets.count) // Divide width evenly
         let widgetHeight: CGFloat = 100
 
