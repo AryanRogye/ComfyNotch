@@ -71,7 +71,7 @@ class UIManager {
 
         if let contentView = small_panel.contentView {
             contentView.wantsLayer = true
-            contentView.layer?.cornerRadius = 12
+            contentView.layer?.cornerRadius = 24
             contentView.layer?.masksToBounds = true
 
             smallPanelWidgetManager.setPanelContentView(contentView)
@@ -128,7 +128,7 @@ class UIManager {
 
         if let contentView = big_panel.contentView {
             contentView.wantsLayer = true
-            contentView.layer?.cornerRadius = 12
+            contentView.layer?.cornerRadius = 24
             contentView.layer?.masksToBounds = true
 
             // border color of grey

@@ -202,12 +202,30 @@ class ScrollHandler {
         // If we're already snapping, ignore further scroll events
         if isSnapping { return }
 
-        guard let panel = UIManager.shared.big_panel else {
-            print("Big panel is nil. Make sure it's initialized before using it.")
-            return
-        }
+        guard let panel = UIManager.shared.big_panel else { return }
         
         let scrollDeltaY = event.scrollingDeltaY
+
+        // let scrollThreshold: CGFloat = 10.0 // Increased to avoid tiny flickers
+
+        // // Use DispatchQueue to avoid blocking the main thread
+        // DispatchQueue.global(qos: .userInteractive).async { [weak self] in
+        //     if scrollDeltaY > scrollThreshold {
+        //         // Scrolling down (Close)
+        //         DispatchQueue.main.async {
+        //             self?.open()
+        //         }
+        //     } 
+        //     else if scrollDeltaY < -scrollThreshold {
+        //         // Scrolling up (Open)
+        //         DispatchQueue.main.async {
+        //             self?.close()
+        //         }
+        //     }
+        // }
+        // return
+
+
         let currentHeight = panel.frame.height
         let proposedHeight = currentHeight + scrollDeltaY
         let clampedHeight = max(minPanelHeight, min(maxPanelHeight, proposedHeight))

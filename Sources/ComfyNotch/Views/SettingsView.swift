@@ -55,11 +55,16 @@ class SettingsModel: ObservableObject {
     }
     
     /// Save settings to UserDefaults
-    private func saveSettings() {
+    func saveSettings() {
         let defaults = UserDefaults.standard
         defaults.set(selectedWidgets, forKey: "selectedWidgets")
         defaults.set(flipCamera, forKey: "flipCamera")
-        defaults.set(ai_api_key, forKey: "ai_api_key")
+        if !ai_api_key.isEmpty {
+            print("Saving API Key: \(ai_api_key)")  // Debugging
+            defaults.set(ai_api_key, forKey: "ai_api_key")
+        } else {
+            print("API Key is empty. Not saving.")  // Debugging
+        }
     }
 
     /// Load settings from UserDefaults
@@ -81,7 +86,10 @@ class SettingsModel: ObservableObject {
 
         // Load AI API key
         if let apiKey = defaults.string(forKey: "ai_api_key") {
+            print("Loaded API Key: \(apiKey)")  // Add this for debugging
             self.ai_api_key = apiKey
+        } else {
+            print("No API key found in UserDefaults") // Add this for debugging
         }
     }
 }

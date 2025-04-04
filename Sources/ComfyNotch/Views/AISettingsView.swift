@@ -7,7 +7,9 @@ struct AISettingsView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                TextField("AI API Key", text: $settings.ai_api_key)
+                TextField("AI API Key", text: $settings.ai_api_key, onCommit: {
+                    settings.saveSettings()
+                })
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding()
                     .focusable(true)

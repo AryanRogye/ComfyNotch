@@ -41,7 +41,9 @@ class AudioManager {
         self.currentArtistText = info.1
         self.currentAlbumText = info.2
         self.currentArtworkImage = info.3
-        self.dominantColor = self.getDominantColor(from: info.3) ?? .white
+        if let inf = info.3 {
+            self.dominantColor = self.getDominantColor(from: inf) ?? .white
+        }
     }
 
     private func getSpotifyInfo() -> (String, String, String, NSImage?)? {
@@ -140,11 +142,10 @@ class AudioManager {
         timer = nil
     }
 
-    private func getDominantColor(from image: NSImage?) -> NSColor? {
-        guard let image = image,
-              let tiffData = image.tiffRepresentation,
-              let ciImage = CIImage(data: tiffData) else { return nil }
-
+    private func getDominantColor(from image: NSImage) -> NSColor? {
+        guard let tiffData = image.tiffRepresentation,
+            let ciImage = CIImage(data: tiffData) else { return nil }
+        
         let filter = CIFilter(name: "CIAreaAverage", parameters: [
             kCIInputImageKey: ciImage,
             kCIInputExtentKey: CIVector(x: 0, y: 0, z: ciImage.extent.width, w: ciImage.extent.height)
@@ -156,10 +157,24 @@ class AudioManager {
         let context = CIContext()
         context.render(outputImage, toBitmap: &bitmap, rowBytes: 4, bounds: CGRect(x: 0, y: 0, width: 1, height: 1), format: .RGBA8, colorSpace: nil)
         
-        return NSColor(red: CGFloat(bitmap[0]) / 255.0,
-                       green: CGFloat(bitmap[1]) / 255.0,
-                       blue: CGFloat(bitmap[2]) / 255.0,
-                       alpha: CGFloat(bitmap[3]) / 255.0)
+        var red = CGFloat(bitmap[0]) / 255.0
+        var green = CGFloat(bitmap[1]) / 255.0
+        var blue = CGFloat(bitmap[2]) / 255.0
+        let alpha = CGFloat(bitmap[3]) / 255.0
+        
+        // Calculate brightness as the average of RGB values
+        let brightness = (red + green + blue) / 3.0 * 255.0
+
+        if brightness < 128 {
+            // Scale the brightness to reach 128
+            let scale = 128.0 / brightness
+
+            red = min(red * CGFloat(scale), 1.0)
+            green = min(green * CGFloat(scale), 1.0)
+            blue = min(blue * CGFloat(scale), 1.0)
+        }
+        
+        return NSColor(red: red, green: green, blue: blue, alpha: alpha)
     }
 
     func playPreviousTrack() {
