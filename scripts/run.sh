@@ -1,2 +1,3 @@
-swift build
-swift run
+pkill ComfyNotch
+./scripts/build_app.sh
+open ./ComfyNotch.app

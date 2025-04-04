@@ -3,39 +3,54 @@ import SwiftUI
 import Combine
 
 
-struct MovingDotsView : View {
-    @ObservedObject var viewModel: MovingDotsViewModel
-    @State private var animate = false
-    
+// This view encapsulates the animation for an individual dot.
+struct AnimatedDot: View {
+    let delay: Double
+    let color: Color
+    @State private var isAnimating = false
+
     var body: some View {
-        HStack(spacing: 6) {
-            ForEach(0..<3) { index in
-                Circle()
-                    .fill(Color(viewModel.playingColor)) // Use the dynamic color from viewModel
-                    .frame(width: 6, height: 6)
-                    .offset(y: animate ? -5 : 0)
-                    .animation(
-                        animate ? 
-                            Animation.easeInOut(duration: 0.5)
-                                .repeatForever()
-                                .delay(Double(index) * 0.2) : 
-                            .default,
-                        value: animate
-                    )
+        Circle()
+            .fill(color)
+            .frame(width: 6, height: 6)
+            .offset(y: isAnimating ? -5 : 5)
+            .onAppear {
+                // Start the animation with a delay.
+                withAnimation(Animation.easeInOut(duration: 0.5).repeatForever().delay(delay)) {
+                    isAnimating = true
+                }
             }
-        }
-        .onAppear {
-            animate = viewModel.isPlaying
-        }
-        .onChange(of: viewModel.isPlaying) { newValue in
-            animate = newValue
-        }
     }
 }
 
+// The view model for the moving dots.
 class MovingDotsViewModel: ObservableObject {
     @Published var isPlaying: Bool = false
-    @Published var playingColor = NSColor.white
+    @Published var playingColor: NSColor = .white
+}
+
+// The parent view that shows three dots.
+// When isPlaying is true, it shows animated dots; otherwise, static dots.
+struct MovingDotsView: View {
+    @ObservedObject var viewModel: MovingDotsViewModel
+
+    var body: some View {
+        HStack(spacing: 6) {
+            if viewModel.isPlaying {
+                ForEach(0..<3) { index in
+                    AnimatedDot(delay: Double(index) * 0.2,
+                                color: Color(viewModel.playingColor))
+                }
+            } else {
+                // Static dots when not playing
+                ForEach(0..<3) { _ in
+                    Circle()
+                        .fill(Color(viewModel.playingColor))
+                        .frame(width: 6, height: 6)
+                }
+            }
+        }
+    }
 }
 
 
