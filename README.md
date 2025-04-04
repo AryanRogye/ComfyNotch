@@ -2,7 +2,7 @@
 
 > Turn your MacBook’s notch into a **beautifully functional and customizable space**.
 
-![ComfyNotch Logo](Assets/ComfyNotchLogo.png)
+<img src="Assets/ComfyNotchLogo.png" alt="ComfyNotch Logo" width="200"/>
 
 ---
 
@@ -14,7 +14,8 @@ ComfyNotch brings life to your MacBook’s notch by providing a clean and intuit
 
 ## 🎉 Features
 
-- ✅ **Widgets**: Music Player, Camera Widget, Notes, Time Display, and more!
+- ✅ **Widgets**: AI Integration, Music Player, Camera Widget, Notes, Time Display, and more!
+- 🤖 **AI Chat**: Seamlessly interact with powerful AI models like OpenAI's GPT-4 directly from your notch
 - 🎵 **Music Control**: Easily control your music playback with slick visual indicators.
 - 📝 **Notes Widget**: Keep quick notes accessible from the notch.
 - ⏰ **Time Widget**: Always know the time with style.
@@ -31,7 +32,7 @@ ComfyNotch brings life to your MacBook’s notch by providing a clean and intuit
 
 2. **Display Issues**  
    - After closing and reopening the laptop, the app display may appear distorted or glitchy.  
-   - Fixing this is a priority.  
+   - Fixing this is a priority once I know how to lol.
 
 3. **Monitor Switching**  
    - Switching monitors causes the app to lose positioning, not returning to the laptop screen.  
@@ -49,11 +50,11 @@ ComfyNotch brings life to your MacBook’s notch by providing a clean and intuit
 - [x] **Music Playing Indicator**: Add a smooth icon animation to indicate when music is playing.
 - [x] **Multiple Notes System**: Implement a notes dashboard with multiple notes accessible through tabs.
 - [x] **Dynamic Animated Button Colors**: Match the animated buttons’ colors to the dominant color of the album art.
-- [ ] **AI Chat Integration**: Allow users to interact with an AI chat feature by providing their own API keys.
+- [x] **AI Chat Integration (More Coming Soon...)**: Allow users to interact with an AI chat feature by providing their own API keys.
 
 ### 🎨 **UI/UX Improvements**
 - [x] **Better Settings Menu**: Revamp the settings view for easier customization and better user experience.
-- [ ] **Improved Notes Widget UI**: Add buttons to switch between multiple notes.
+- [x] **Improved Notes Widget UI**: Add buttons to switch between multiple notes.
 - [ ] **Improved Music Player UI**: Make the buttons more cleaner.
 - [ ] **Convert to SwiftUI where I can**: Said everything I need to. 😂
 
