@@ -52,7 +52,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 print("Widget \(widgetName) not found in mappedWidgets")
             }
         }
-
+        
         AudioManager.shared.startMediaTimer()
 
         // Force layout refresh

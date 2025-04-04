@@ -6,6 +6,9 @@ APP_NAME="ComfyNotch"
 # Build directory
 BUILD_DIR=".build/release"
 
+# Name of the entitlements file
+ENTITLEMENTS_FILE="ComfyNotch.entitlements"
+
 # Ensure we're in the correct directory
 if [ ! -f Package.swift ]; then
     echo "Error: Run this script from the root of your Swift package."
@@ -111,9 +114,44 @@ cat > "$APP_NAME.app/Contents/Info.plist" <<EOL
     <key>LSUIElement</key>
     <true/>
 
+    <!-- Privacy Descriptions for Apple Event Access -->
+    <key>NSAppleEventsUsageDescription</key>
+    <string>ComfyNotch needs access to control Spotify and Music playback.</string>
+
 </dict>
 </plist>
 EOL
+
+# Create the Entitlements file if it doesn't exist
+if [ ! -f "$ENTITLEMENTS_FILE" ]; then
+    cat > "$ENTITLEMENTS_FILE" <<EOL
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Disable Sandbox (if not needed for App Store) -->
+    <key>com.apple.security.app-sandbox</key>
+    <false/>
+
+    <!-- Temporary exception to access MediaRemote framework -->
+    <key>com.apple.security.temporary-exception.mach-lookup.global-name</key>
+    <array>
+        <string>com.apple.MediaRemote</string>
+    </array>
+
+    <!-- Allow Apple Event Access -->
+    <key>com.apple.security.temporary-exception.apple-events</key>
+    <array>
+        <string>com.spotify.client</string>
+        <string>com.apple.Music</string>
+    </array>
+</dict>
+</plist>
+EOL
+    echo "Entitlements file created successfully: $ENTITLEMENTS_FILE"
+else
+    echo "Entitlements file already exists: $ENTITLEMENTS_FILE"
+fi
 
 echo "Removing Icns file..."
 rm -rf "$ICNS_FILE"
@@ -121,7 +159,7 @@ rm -rf "$ICNS_FILE"
 echo "App bundle created successfully!"
 
 # ✅ 1. Sign the app (Ad-Hoc Signing) - Just copy-paste this command
-codesign --deep --force --sign - ComfyNotch.app
+codesign --deep --force --sign - --entitlements "$ENTITLEMENTS_FILE" ComfyNotch.app
 
 # ✅ 2. Zip the app properly - This command keeps everything intact
 ditto -c -k --sequesterRsrc --keepParent ComfyNotch.app ComfyNotch.app.zip

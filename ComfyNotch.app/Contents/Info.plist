@@ -31,5 +31,9 @@
     <key>LSUIElement</key>
     <true/>
 
+    <!-- Privacy Descriptions for Apple Event Access -->
+    <key>NSAppleEventsUsageDescription</key>
+    <string>ComfyNotch needs access to control Spotify and Music playback.</string>
+
 </dict>
 </plist>
