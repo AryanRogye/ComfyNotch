@@ -13,9 +13,6 @@ struct AISettingsView: View {
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding()
                     .focusable(true)
-                Text("No Persistent Storage Sorry😓 (For Now....)")
-                    .font(.footnote)
-                    .padding()
             }
         }
     }
