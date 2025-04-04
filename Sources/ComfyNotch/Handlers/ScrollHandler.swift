@@ -24,12 +24,13 @@ class ScrollHandler {
 
     var smallPanelRect: NSRect?
 
-    // The percentage of max height where snapping occurs
-    var snapThreshold: CGFloat = 0.1
     // Small padding to make the snapping feel more natural
     var snapPadding: CGFloat = 10
     var isSnapping: Bool = false
 
+    // Determine final state based on thresholds
+    let snapOpenThreshold: CGFloat = 0.9  // 90% open
+    let snapClosedThreshold: CGFloat = 0.5 // 50% open
 
     var offset: CGFloat
     private var cancellables = Set<AnyCancellable>()
@@ -239,11 +240,7 @@ class ScrollHandler {
             // Update instantly with no animation
             updatePanelSize(toHeight: clampedHeight, toWidth: newWidth, animated: false)
         }
-        else if event.phase == .ended || event.phase == .cancelled {
-            // Determine final state based on thresholds
-            let snapOpenThreshold: CGFloat = 0.8  // 80% open
-            let snapClosedThreshold: CGFloat = 0.2 // 20% open
-            
+        else if event.phase == .ended || event.phase == .cancelled { 
             // Start snapping
             isSnapping = true
             
