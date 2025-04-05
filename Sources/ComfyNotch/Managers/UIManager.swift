@@ -1,4 +1,5 @@
 import AppKit
+import SwiftUI
 
 
 enum PanelState {
@@ -18,13 +19,16 @@ class FocusablePanel: NSPanel {
 
 class UIManager {
     static let shared = UIManager()
+    let smallWidgetStore = SmallPanelWidgetStore()
+    let bigWidgetStore = BigPanelWidgetStore()
 
     var small_panel : NSPanel!
     var big_panel : NSPanel!
 
-    var bigPanelWidgetManager = BigPanelWidgetManager()
     var smallPanelWidgetManager = SmallPanelWidgetManager()
-    
+    var bigPanelWidgetManager = BigPanelWidgetManager()
+
+ 
     var panel_state : PanelState = .CLOSED
 
     var startPanelHeight: CGFloat = 0
@@ -65,38 +69,33 @@ class UIManager {
         small_panel.level = .screenSaver
         small_panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         small_panel.isMovableByWindowBackground = false
-        small_panel.backgroundColor = .black.withAlphaComponent(1)
+        small_panel.backgroundColor = .clear
         small_panel.isOpaque = false
         small_panel.hasShadow = false
+ 
+        // Create and add widgets to the store
+        let albumWidgetModel = AlbumWidgetModel()
+        let movingDotsModel = MovingDotsViewModel()
+        let settingsWidgetModel = SettingsWidgetModel()
 
-        if let contentView = small_panel.contentView {
-            contentView.wantsLayer = true
-            contentView.layer?.cornerRadius = 24
-            contentView.layer?.masksToBounds = true
+        let albumWidget = AlbumWidgetView(model: albumWidgetModel)
 
-            smallPanelWidgetManager.setPanelContentView(contentView)
+        let movingDotsWidget = MovingDotsView(model: movingDotsModel)
 
-            // Now add the settings widget AFTER the panel is set up
-            let settingsWidget = SettingsWidget()
-            settingsWidget.alignment = .right
+        let settingsWidget = SettingsButtonView(model: settingsWidgetModel)
 
-            let closedAlbumWidget = ClosedAlbumWidget()
-            closedAlbumWidget.alignment = .left
+        // Add Widgets to the WidgetStore
+        smallWidgetStore.addWidget(albumWidget)
+        smallWidgetStore.addWidget(movingDotsWidget)
+        smallWidgetStore.addWidget(settingsWidget)
 
-            let movingDotsWidget = MovingDotsWidget()
-            movingDotsWidget.alignment = .right
-
-
-            smallPanelWidgetManager.addWidget(closedAlbumWidget)
-            smallPanelWidgetManager.addWidget(settingsWidget)
-            smallPanelWidgetManager.addWidget(movingDotsWidget)
-
-            // Layout widgets
-            smallPanelWidgetManager.layoutWidgets()
-            smallPanelWidgetManager.logAllConstraints()
-        }
-
+        let contentView = SmallPanelWidgetManager()
+            .environmentObject(smallWidgetStore)
+        
+        small_panel.contentView = NSHostingView(rootView: contentView)
         small_panel.makeKeyAndOrderFront(nil)
+
+        hideSmallPanelSettingsWidget() // Ensure initial state is correct
     }
 
     func setupBigPanel() {
@@ -122,59 +121,35 @@ class UIManager {
         big_panel.level = .screenSaver
         big_panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         big_panel.isMovableByWindowBackground = false
-        big_panel.backgroundColor = .black.withAlphaComponent(1)
+        big_panel.backgroundColor = .clear
         big_panel.isOpaque = false
         big_panel.hasShadow = false
 
-        if let contentView = big_panel.contentView {
-            contentView.wantsLayer = true
-            contentView.layer?.cornerRadius = 24
-            contentView.layer?.masksToBounds = true
+        let contentView = BigPanelWidgetManager()
+            .environmentObject(bigWidgetStore)
 
-            // border color of grey
-
-            // THIS IS WHERE THE WIDGETS GO
-            bigPanelWidgetManager.setPanelContentView(contentView)
-        }
-
+        big_panel.contentView = NSHostingView(rootView: contentView)
         big_panel.makeKeyAndOrderFront(nil)
     }
 
 
     // HIDE/SHOW SMALL PANEL
     func hideSmallPanelSettingsWidget() {
-        let widgets = smallPanelWidgetManager.widgets
-
-        for widget in widgets {
-            if widget.name == "Settings" {
-                widget.hide()
-            } else if widget.name == "ClosedAlbumWidget" {
-                widget.show()
-            } else if widget.name == "MovingDotsWidget" {
-                widget.show()
-            }
-        }
-
-        small_panel.contentView?.layoutSubtreeIfNeeded()
+        smallWidgetStore.hideWidget(named: "Settings")
+        smallWidgetStore.showWidget(named: "AlbumWidget")
+        smallWidgetStore.showWidget(named: "MovingDotsWidget")
     }
-    func showSmallPanelSettingsWidget() {
-        let widgets = smallPanelWidgetManager.widgets
 
-        for widget in widgets {
-            if widget.name == "Settings" {
-                widget.show()
-            } else if widget.name == "ClosedAlbumWidget" {
-                widget.hide()
-            } else if widget.name == "MovingDotsWidget" {
-                widget.hide()
-            }
-        }
+    func showSmallPanelSettingsWidget() {
+        smallWidgetStore.showWidget(named: "Settings")
+        smallWidgetStore.showWidget(named: "AlbumWidget")
+        smallWidgetStore.hideWidget(named: "MovingDotsWidget")
     }
 
 
     // BIG PANEL VIEWS
     func hideBigPanelWidgets() {
-        bigPanelWidgetManager.hideWidgets()
+        // bigPanelWidgetManager.hideWidgets()
         big_panel.contentView?.layoutSubtreeIfNeeded()
 
         small_panel.makeKeyAndOrderFront(nil)
@@ -182,15 +157,15 @@ class UIManager {
     }
 
     func showBigPanelWidgets() {
-        bigPanelWidgetManager.showWidgets()
+        // bigPanelWidgetManager.showWidgets()
     }
 
     // ADDING TO WIDGETS
     func addWidgetToBigPanel(_ widget: Widget) {
-        bigPanelWidgetManager.addWidget(widget)
+        // bigPanelWidgetManager.addWidget(widget)
     }
     func addWidgetsToSmallPanel(_ widget: Widget) {
-        smallPanelWidgetManager.addWidget(widget)
+        // smallPanelWidgetManager.addWidget(widget)
     }
 
     func getNotchHeight() -> CGFloat {

@@ -14,6 +14,19 @@ class SettingsModel: ObservableObject {
         }
     }
 
+    @Published var snapOpenThreshold: CGFloat = 0.9  {
+        didSet {
+            NotificationCenter.default.post(name: .init("SnapOpenThresholdChanged"), object: nil)
+            saveSettings()
+        }
+    }
+    @Published var snapClosedThreshold: CGFloat = 0.5 {
+        didSet {
+            NotificationCenter.default.post(name: .init("SnapClosedThresholdChanged"), object: nil)
+            saveSettings()
+        }
+    }
+
     @Published var selectedProvider: AIProvider = .openAI
     @Published var selectedOpenAIModel: OpenAIModel = .gpt3
     @Published var selectedAnthropicModel: AnthropicModel = .claudeV1
@@ -59,12 +72,12 @@ class SettingsModel: ObservableObject {
         let defaults = UserDefaults.standard
         defaults.set(selectedWidgets, forKey: "selectedWidgets")
         defaults.set(flipCamera, forKey: "flipCamera")
+
         if !ai_api_key.isEmpty {
-            print("Saving API Key: \(ai_api_key)")  // Debugging
             defaults.set(ai_api_key, forKey: "ai_api_key")
-        } else {
-            print("API Key is empty. Not saving.")  // Debugging
         }
+        defaults.set(snapOpenThreshold, forKey: "snapOpenThreshold")
+        defaults.set(snapClosedThreshold, forKey: "snapClosedThreshold")
     }
 
     /// Load settings from UserDefaults
@@ -91,6 +104,19 @@ class SettingsModel: ObservableObject {
         } else {
             print("No API key found in UserDefaults") // Add this for debugging
         }
+
+        // Load snap thresholds
+        if let loadedSnapOpenThreshold = defaults.object(forKey: "snapOpenThreshold") as? CGFloat {
+            self.snapOpenThreshold = loadedSnapOpenThreshold
+        } else {
+            self.snapOpenThreshold = 0.9 // Default value
+        }
+
+        if let loadedSnapClosedThreshold = defaults.object(forKey: "snapClosedThreshold") as? CGFloat {
+            self.snapClosedThreshold = loadedSnapClosedThreshold
+        } else {
+            self.snapClosedThreshold = 0.5 // Default value
+        }
     }
 }
 
@@ -114,6 +140,12 @@ struct SettingsView: View {
                         Text("AI Settings")
                     }
                     .tag(1)
+                ShortcutView(settings: settings)
+                    .tabItem {
+                        Image(systemName: "keyboard")
+                        Text("Shortcuts")
+                    }
+                    .tag(2)
             }
         }.onDisappear {
             settings.isSettingsOpen = false

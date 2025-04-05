@@ -1,6 +1,43 @@
 import AppKit
+import SwiftUI
 
-class BigPanelWidgetManager: WidgetManager {
+class BigPanelWidgetStore: ObservableObject {
+    @Published var widgets : [WidgetEntry] = []
+
+    func addWidget(_ widget: WidgetEntry) {
+        if widgets.count >= 3 {
+            print("Cannot add more than 3 widgets to the big panel.")
+            return
+        }
+        widgets.append(widget)
+    }
+
+    func removeWidget(named name: String) {
+        if let index = widgets.firstIndex(where: { $0.widget.name == name }) {
+            widgets.remove(at: index)
+        }
+    }
+}
+
+struct BigPanelWidgetManager : View {
+    @EnvironmentObject var widgetStore: BigPanelWidgetStore
+
+    var body : some View {
+        ZStack {
+            Color.black.opacity(1)
+                .clipShape(RoundedCornersShape(topLeft: 0, 
+                                               topRight: 0, 
+                                               bottomLeft: 20, 
+                                               bottomRight: 20))
+                HStack(spacing: 1) {
+                    
+                }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+class _BigPanelWidgetManager: WidgetManager {
     override func layoutWidgets() {
         guard let panelContentView = panelContentView else { return }
 
