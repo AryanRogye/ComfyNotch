@@ -207,24 +207,26 @@ class ScrollHandler {
         
         let scrollDeltaY = event.scrollingDeltaY
 
-        // let scrollThreshold: CGFloat = 10.0 // Increased to avoid tiny flickers
+        let scrollThreshold: CGFloat = 10.0 // Increased to avoid tiny flickers
 
-        // // Use DispatchQueue to avoid blocking the main thread
-        // DispatchQueue.global(qos: .userInteractive).async { [weak self] in
-        //     if scrollDeltaY > scrollThreshold {
-        //         // Scrolling down (Close)
-        //         DispatchQueue.main.async {
-        //             self?.open()
-        //         }
-        //     } 
-        //     else if scrollDeltaY < -scrollThreshold {
-        //         // Scrolling up (Open)
-        //         DispatchQueue.main.async {
-        //             self?.close()
-        //         }
-        //     }
-        // }
-        // return
+        // Use DispatchQueue to avoid blocking the main thread
+        DispatchQueue.global(qos: .userInteractive).async { [weak self] in
+            if scrollDeltaY > scrollThreshold {
+                // Scrolling down (Close)
+                DispatchQueue.main.async {
+                    self?.open()
+                    return
+                }
+            }
+            // else if scrollDeltaY < -scrollThreshold {
+            //     // Scrolling up (Open)
+            //     DispatchQueue.main.async {
+            //         self?.close()
+            //     }
+            // }
+        }
+
+        print("Scroll delta Y: \(scrollDeltaY)")
 
 
         let currentHeight = panel.frame.height
@@ -345,7 +347,7 @@ class ScrollHandler {
     */
     private func animatePanelTransition(to targetFrame: NSRect) {
         NSAnimationContext.runAnimationGroup({ context in
-            context.duration = 0.3
+            context.duration = 0.05
             context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
             UIManager.shared.big_panel?.animator().setFrame(targetFrame, display: true)
         }, completionHandler: {

@@ -34,7 +34,7 @@ struct AlbumWidgetView: View, SwiftUIWidget {
 
     var swiftUIView: AnyView {
         AnyView(self)
-    }    
+    }
 }
 
 class AlbumWidgetModel : ObservableObject {

@@ -6,6 +6,10 @@ struct WidgetEntry {
     var isVisible: Bool
 }
 
+class PanelStore {
+
+}
+
 class SmallPanelWidgetStore: ObservableObject {
     @Published var leftWidgetsHidden: [WidgetEntry] = []
     @Published var leftWidgetsShown: [WidgetEntry] = []

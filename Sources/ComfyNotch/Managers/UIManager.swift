@@ -42,8 +42,8 @@ class UIManager {
     }
 
     func setupFrame() {
-        setupBigPanel()
         setupSmallPanel()
+        setupBigPanel()
     }
 
     func setupSmallPanel() {
@@ -125,11 +125,24 @@ class UIManager {
         big_panel.isOpaque = false
         big_panel.hasShadow = false
 
+
+        let musicPlayerWidget = MusicPlayerWidget_()
+        let timeWidget = TimeWidget_()
+        let notesWidget = NotesWidget_()
+        let cameraWidget = CameraWidget_()
+
+        bigWidgetStore.addWidget(musicPlayerWidget)
+        // bigWidgetStore.addWidget(timeWidget)
+        bigWidgetStore.addWidget(notesWidget)
+        bigWidgetStore.addWidget(cameraWidget)
+
         let contentView = BigPanelWidgetManager()
             .environmentObject(bigWidgetStore)
 
         big_panel.contentView = NSHostingView(rootView: contentView)
         big_panel.makeKeyAndOrderFront(nil)
+
+        hideBigPanelWidgets() // Ensure initial state is correct
     }
 
 
@@ -147,17 +160,26 @@ class UIManager {
     }
 
 
+
     // BIG PANEL VIEWS
     func hideBigPanelWidgets() {
-        // bigPanelWidgetManager.hideWidgets()
-        big_panel.contentView?.layoutSubtreeIfNeeded()
+        bigWidgetStore.hideWidget(named: "NotesWidget")
+        bigWidgetStore.hideWidget(named: "TimeWidget")
+        bigWidgetStore.hideWidget(named: "MusicPlayerWidget")
+        bigWidgetStore.hideWidget(named: "UserNotesWidget")
+        bigWidgetStore.hideWidget(named: "CameraWidget")
 
         small_panel.makeKeyAndOrderFront(nil)
         small_panel.level = .screenSaver
     }
 
     func showBigPanelWidgets() {
-        // bigPanelWidgetManager.showWidgets()
+        bigWidgetStore.hideWidget(named: "NotesWidget")
+        bigWidgetStore.showWidget(named: "TimeWidget")
+        bigWidgetStore.showWidget(named: "MusicPlayerWidget")
+        bigWidgetStore.showWidget(named: "UserNotesWidget")
+        bigWidgetStore.showWidget(named: "CameraWidget")
+        // big_panel.contentView?.layoutSubtreeIfNeeded()
     }
 
     // ADDING TO WIDGETS
