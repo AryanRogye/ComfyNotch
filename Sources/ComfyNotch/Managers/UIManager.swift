@@ -163,23 +163,25 @@ class UIManager {
 
     // BIG PANEL VIEWS
     func hideBigPanelWidgets() {
-        bigWidgetStore.hideWidget(named: "NotesWidget")
-        bigWidgetStore.hideWidget(named: "TimeWidget")
+
         bigWidgetStore.hideWidget(named: "MusicPlayerWidget")
-        bigWidgetStore.hideWidget(named: "UserNotesWidget")
+        bigWidgetStore.hideWidget(named: "TimeWidget")
+        bigWidgetStore.hideWidget(named: "NotesWidget")
         bigWidgetStore.hideWidget(named: "CameraWidget")
+        bigWidgetStore.hideWidget(named: "AIChatWidget")
 
         small_panel.makeKeyAndOrderFront(nil)
         small_panel.level = .screenSaver
     }
 
     func showBigPanelWidgets() {
-        bigWidgetStore.hideWidget(named: "NotesWidget")
-        bigWidgetStore.showWidget(named: "TimeWidget")
         bigWidgetStore.showWidget(named: "MusicPlayerWidget")
-        bigWidgetStore.showWidget(named: "UserNotesWidget")
+        bigWidgetStore.showWidget(named: "TimeWidget")
+        bigWidgetStore.hideWidget(named: "NotesWidget")
         bigWidgetStore.showWidget(named: "CameraWidget")
-        // big_panel.contentView?.layoutSubtreeIfNeeded()
+        bigWidgetStore.showWidget(named: "AIChatWidget")
+
+        big_panel.contentView?.layoutSubtreeIfNeeded()
     }
 
     // ADDING TO WIDGETS

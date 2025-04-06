@@ -16,16 +16,6 @@ class SettingsModel : ObservableObject {
 
     private init() {
         loadSettings()
-
-        /// Updates the user interface whenever `selectedWidgets` changes by:
-        /// - Saving the current settings to persistent storage
-        /// - Posting a notification to reload widgets throughout the application
-        $selectedWidgets
-            .sink { _ in 
-                self.saveSettings() 
-                NotificationCenter.default.post(name: NSNotification.Name("ReloadWidgets"), object: nil)
-            }
-            .store(in: &cancellables)
     }
 
     /// Saves the current settings to UserDefaults
@@ -41,9 +31,23 @@ class SettingsModel : ObservableObject {
         /// For some reason the api key was getting called to save even if it was empty
         /// So I had to add this check, prolly gonna have to check that reason out <- TODO
         if !ai_api_key.isEmpty {
-            print("Saving API Key: \(ai_api_key)")  // Debugging
             defaults.set(ai_api_key, forKey: "ai_api_key")
         }
+    }
+
+    /// Updates `selectedWidgets` and triggers a reload notification immediately
+    func updateSelectedWidgets(with widgetName: String, isSelected: Bool) {
+        if isSelected {
+            if !selectedWidgets.contains(widgetName) {
+                selectedWidgets.append(widgetName)
+            }
+        } else {
+            selectedWidgets.removeAll { $0 == widgetName }
+        }
+        
+        saveSettings()
+
+        NotificationCenter.default.post(name: NSNotification.Name("ReloadWidgets"), object: nil)
     }
 
     /// Loads the last saved settings from UserDefaults
@@ -67,7 +71,6 @@ class SettingsModel : ObservableObject {
         if let apiKey = defaults.string(forKey: "ai_api_key") {
             self.ai_api_key = apiKey
         }
-
     }
 }
 

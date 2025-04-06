@@ -226,7 +226,7 @@ class ScrollHandler {
             }
         }
 
-        print("Scroll delta Y: \(scrollDeltaY)")
+        // print("Scroll delta Y: \(scrollDeltaY)")
 
 
         let currentHeight = panel.frame.height

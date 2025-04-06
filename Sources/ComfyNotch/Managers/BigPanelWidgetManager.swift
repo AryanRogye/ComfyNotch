@@ -21,14 +21,14 @@ class BigPanelWidgetStore: ObservableObject {
     }
 
     func hideWidget(named name: String) {
-        print("Hiding widget: \(name)")
+        // print("Hiding widget: \(name)")
         if let index = widgets.firstIndex(where: { $0.widget.name == name }) {
             widgets[index].isVisible = false
         }
     }
 
     func showWidget(named name: String) {
-        print("Showing widget: \(name)")
+        // print("Showing widget: \(name)")
         // Show from the hidden list if it exists
         if let index = widgets.firstIndex(where: { $0.widget.name == name }) {
             widgets[index].isVisible = true

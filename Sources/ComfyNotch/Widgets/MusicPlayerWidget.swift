@@ -92,14 +92,14 @@ struct MusicPlayerWidget: View, SwiftUIWidget {
             }
             .padding(.trailing, 5)
         }
-        .frame(width: 200, height: 100)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.black.opacity(0.01)) // Nearly transparent but allows interaction
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.gray, lineWidth: 1.5)
-                .allowsHitTesting(false)
-        )
-        .cornerRadius(12)
+        // .overlay(
+        //     RoundedRectangle(cornerRadius: 12)
+        //         .stroke(Color.gray, lineWidth: 1.5)
+        //         .allowsHitTesting(false)
+        // )
+        // .cornerRadius(12)
         .gesture(
             DragGesture().onChanged { _ in }
             .onEnded { _ in }

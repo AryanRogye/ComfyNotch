@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MainSettingsView : View {
     @ObservedObject var settings: SettingsModel
+    let widgetRegistry: WidgetRegistry = WidgetRegistry.shared
     @State private var draggingItem: String?
     @State private var isDragging = false
     @Environment(\.colorScheme) var colorScheme
@@ -47,9 +48,9 @@ struct MainSettingsView : View {
             
             Divider()
             
-            // ForEach(Array(settings.mappedWidgets.keys.sorted()), id: \.self) { widgetName in
-            //     widgetToggleRow(for: widgetName)
-            // }
+            ForEach(Array(widgetRegistry.widgets.keys.sorted()), id: \.self) { widgetName in
+                widgetToggleRow(for: widgetName)
+            }
         }
         .padding()
         .background(Color.gray.opacity(0.1))
@@ -61,25 +62,20 @@ struct MainSettingsView : View {
             Image(systemName: getIconName(for: widgetName))
                 .frame(width: 30, height: 30)
                 .foregroundColor(.blue)
-            
+        
             Text(formatWidgetName(widgetName))
                 .foregroundColor(.primary)
-            
+        
             Spacer()
-            
+        
             Toggle("", isOn: Binding(
                 get: { settings.selectedWidgets.contains(widgetName) },
                 set: { isSelected in
-                    if isSelected {
-                        if settings.selectedWidgets.count < maxWidgetCount {
-                            settings.selectedWidgets.append(widgetName)
-                        }
-                    } else {
-                        settings.selectedWidgets.removeAll { $0 == widgetName }
-                    }
+                    settings.updateSelectedWidgets(with: widgetName, isSelected: isSelected)
                 }
             ))
             .labelsHidden()
+            // .disabled(!settings.selectedWidgets.contains(widgetName) && settings.selectedWidgets.count >= maxWidgetCount)
         }
         .padding(.vertical, 8)
     }
@@ -95,8 +91,9 @@ struct MainSettingsView : View {
             
             Divider()
             
-            // Toggle("Flip Camera", isOn: $settings.flipCamera)
-            //     .padding(.vertical, 8)
+            Toggle("Flip Camera", isOn: $settings.isCameraFlipped)
+                .onChange(of: settings.isCameraFlipped) { _ in settings.saveSettings() }
+                .padding(.vertical, 8)
         }
     }
     

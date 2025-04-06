@@ -41,33 +41,64 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // This method is called to reload widgets when the settings change
     @objc private func reloadWidgets() {
-        loadWidgetsFromSettings()
-        // UIManager.shared.big_panel.contentView?.layoutSubtreeIfNeeded()
-        // UIManager.shared.bigPanelWidgetManager.layoutWidgets()
+        let settings = SettingsModel.shared
+        let widgetRegistry = WidgetRegistry.shared
+
+        // Clear existing widgets from the UI
+        UIManager.shared.bigWidgetStore.clearWidgets()
+
+        print("Reloading widgets: \(settings.selectedWidgets)") // Debug print
+
+        for widgetName in settings.selectedWidgets {
+            if let widget = widgetRegistry.getWidget(named: widgetName) {
+                UIManager.shared.addWidgetToBigPanel(widget)
+
+                // If the panel is closed, hide all widgets
+                if UIManager.shared.panel_state == .CLOSED {
+                    UIManager.shared.bigWidgetStore.hideWidget(named: widgetName)
+                } else {
+                    UIManager.shared.bigWidgetStore.showWidget(named: widgetName)
+                }
+            
+                print("Added widget: \(widgetName)") // Debug print
+            } else {
+                print("Widget \(widgetName) not found in registry")
+            }
+        }
+
+        // Force layout updates
+        AudioManager.shared.startMediaTimer()
+        UIManager.shared.big_panel.contentView?.needsLayout = true
+        UIManager.shared.big_panel.contentView?.layoutSubtreeIfNeeded()
+    
+        DispatchQueue.main.async {
+            UIManager.shared.big_panel.contentView?.needsDisplay = true
+        }
     }
 
-    // This method is called to load widgets from the settings
     private func loadWidgetsFromSettings() {
         let settings = SettingsModel.shared
         let widgetRegistry = WidgetRegistry.shared
 
-
-        // Clear existing widgets
+        // Clear existing widgets from the UI
         UIManager.shared.bigWidgetStore.clearWidgets()
 
         for widgetName in settings.selectedWidgets {
             if let widget = widgetRegistry.getWidget(named: widgetName) {
                 UIManager.shared.addWidgetToBigPanel(widget)
-                UIManager.shared.bigWidgetStore.showWidget(named: widgetName)
+            
+                // Only show widgets if the panel is open
+                if UIManager.shared.panel_state == .CLOSED {
+                    UIManager.shared.bigWidgetStore.hideWidget(named: widgetName)
+                } else {
+                    UIManager.shared.bigWidgetStore.showWidget(named: widgetName)
+                }
             } else {
                 print("Widget \(widgetName) not found in mappedWidgets")
             }
         }
-        
-        AudioManager.shared.startMediaTimer()
 
-        // Force layout refresh
-        // UIManager.shared.bigPanelWidgetManager.layoutWidgets()
+        AudioManager.shared.startMediaTimer()
         UIManager.shared.big_panel.contentView?.layoutSubtreeIfNeeded()
     }
 }

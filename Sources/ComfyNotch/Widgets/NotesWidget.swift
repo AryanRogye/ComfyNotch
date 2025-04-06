@@ -4,7 +4,7 @@ import SwiftUI
 
 struct NotesWidget : View, SwiftUIWidget {
 
-    var name: String = "UserNotesWidget"
+    var name: String = "NotesWidget"
     private var buttons: [String] = ["1", "2", "3"]
 
     @ObservedObject var model = NotesWidgetModel()  // Using your model
