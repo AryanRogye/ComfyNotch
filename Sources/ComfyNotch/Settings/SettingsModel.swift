@@ -26,7 +26,8 @@ class SettingsModel : ObservableObject {
         defaults.set(selectedWidgets, forKey: "selectedWidgets")
 
 
-        defaults.set(isCameraFlipped, forKey: "flipCamera")
+        defaults.set(isCameraFlipped, forKey: "isCameraFlipped")
+        print("Saving camera flip state: \(isCameraFlipped)")
 
         /// For some reason the api key was getting called to save even if it was empty
         /// So I had to add this check, prolly gonna have to check that reason out <- TODO
