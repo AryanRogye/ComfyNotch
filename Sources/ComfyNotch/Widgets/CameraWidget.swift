@@ -3,7 +3,7 @@ import SwiftUI
 import AVFoundation
 import Combine
 
-struct CameraWidget_ : View, SwiftUIWidget {
+struct CameraWidget : View, SwiftUIWidget {
 var name: String = "CameraWidget"
 
     @ObservedObject private var model = CameraWidgetModel()
@@ -28,7 +28,7 @@ var name: String = "CameraWidget"
 }
 
 class CameraWidgetModel: ObservableObject {
-    @Published var flipCamera = SettingsModel.shared.flipCamera
+    @Published var flipCamera = SettingsModel.shared.isCameraFlipped
     let session = AVCaptureSession()
     private var cancellables = Set<AnyCancellable>()
 
@@ -37,7 +37,7 @@ class CameraWidgetModel: ObservableObject {
 
         NotificationCenter.default.publisher(for: .init("FlipCameraChanged"))
             .sink { [weak self] _ in
-                self?.flipCamera = SettingsModel.shared.flipCamera
+                self?.flipCamera = SettingsModel.shared.isCameraFlipped
             }
             .store(in: &cancellables)
     }
@@ -113,89 +113,89 @@ struct CameraPreviewView: NSViewRepresentable {
     }
 }
 
-class CameraWidget: Widget {
+// class CameraWidget: Widget {
 
-    var name: String = "CameraWidget"
-    var view: NSView
-    private var session: AVCaptureSession
-    private var previewLayer: AVCaptureVideoPreviewLayer?
-    private var cancellables = Set<AnyCancellable>()
+//     var name: String = "CameraWidget"
+//     var view: NSView
+//     private var session: AVCaptureSession
+//     private var previewLayer: AVCaptureVideoPreviewLayer?
+//     private var cancellables = Set<AnyCancellable>()
 
 
-    init() {
-        self.view = NSView(frame: NSRect(x: 0, y: 0, width: 300, height: 200))
-        self.view.isHidden = true
-        self.session = AVCaptureSession()
-        self.view.wantsLayer = true
+//     init() {
+//         self.view = NSView(frame: NSRect(x: 0, y: 0, width: 300, height: 200))
+//         self.view.isHidden = true
+//         self.session = AVCaptureSession()
+//         self.view.wantsLayer = true
 
-        setupCamera()
+//         setupCamera()
 
-        NotificationCenter.default.publisher(for: .init("FlipCameraChanged"))
-            .sink { [weak self] _ in
-                self?.applyFlipTransform()
-            }
-            .store(in: &cancellables)
-    }
+//         NotificationCenter.default.publisher(for: .init("FlipCameraChanged"))
+//             .sink { [weak self] _ in
+//                 self?.applyFlipTransform()
+//             }
+//             .store(in: &cancellables)
+//     }
  
-    func show() {
-        if previewLayer == nil { // Setup camera only if it's not already set up
-            setupCamera()
-        }
-        view.isHidden = false
-        session.startRunning() // Start the camera feed when showing the widget
-    }
+//     func show() {
+//         if previewLayer == nil { // Setup camera only if it's not already set up
+//             setupCamera()
+//         }
+//         view.isHidden = false
+//         session.startRunning() // Start the camera feed when showing the widget
+//     }
     
-    func hide() {
-        view.isHidden = true
-        session.stopRunning() // Stop the camera feed when hiding the widget
-    }
+//     func hide() {
+//         view.isHidden = true
+//         session.stopRunning() // Stop the camera feed when hiding the widget
+//     }
     
-    func update() {
-        // Update logic if needed
-    }
+//     func update() {
+//         // Update logic if needed
+//     }
 
-    private func setupCamera() {
-        session.sessionPreset = .high
+//     private func setupCamera() {
+//         session.sessionPreset = .high
 
-        guard let device = AVCaptureDevice.default(for: .video) else {
-            print("Failed to access camera.")
-            return
-        }
+//         guard let device = AVCaptureDevice.default(for: .video) else {
+//             print("Failed to access camera.")
+//             return
+//         }
         
-        do {
-            let input = try AVCaptureDeviceInput(device: device)
-            if session.canAddInput(input) {
-                session.addInput(input)
-            }
-        } catch {
-            print("Error setting up camera input: \(error)")
-            return
-        }
+//         do {
+//             let input = try AVCaptureDeviceInput(device: device)
+//             if session.canAddInput(input) {
+//                 session.addInput(input)
+//             }
+//         } catch {
+//             print("Error setting up camera input: \(error)")
+//             return
+//         }
         
-        // Create the preview layer and add it to your NSView
-        previewLayer = AVCaptureVideoPreviewLayer(session: session)
-        previewLayer?.videoGravity = .resizeAspectFill
-        previewLayer?.frame = view.bounds
-        previewLayer?.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
+//         // Create the preview layer and add it to your NSView
+//         previewLayer = AVCaptureVideoPreviewLayer(session: session)
+//         previewLayer?.videoGravity = .resizeAspectFill
+//         previewLayer?.frame = view.bounds
+//         previewLayer?.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
 
-        if let layer = view.layer, let previewLayer = previewLayer {
-            layer.addSublayer(previewLayer)
-            applyFlipTransform()
-        }
+//         if let layer = view.layer, let previewLayer = previewLayer {
+//             layer.addSublayer(previewLayer)
+//             applyFlipTransform()
+//         }
 
-        // Apply flipping based on the setting
-    }
+//         // Apply flipping based on the setting
+//     }
 
-    // This function will apply the flip based on the user setting
-    private func applyFlipTransform() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self, let previewLayer = self.previewLayer else { return }
+//     // This function will apply the flip based on the user setting
+//     private func applyFlipTransform() {
+//         DispatchQueue.main.async { [weak self] in
+//             guard let self = self, let previewLayer = self.previewLayer else { return }
 
-            if SettingsModel.shared.flipCamera {
-                previewLayer.setAffineTransform(CGAffineTransform(scaleX: -1, y: 1))
-            } else {
-                previewLayer.setAffineTransform(CGAffineTransform.identity)
-            }
-        }
-    }
-}
+//             if SettingsModel.shared.flipCamera {
+//                 previewLayer.setAffineTransform(CGAffineTransform(scaleX: -1, y: 1))
+//             } else {
+//                 previewLayer.setAffineTransform(CGAffineTransform.identity)
+//             }
+//         }
+//     }
+// }

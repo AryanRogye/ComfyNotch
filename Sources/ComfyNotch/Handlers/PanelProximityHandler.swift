@@ -75,7 +75,7 @@ class PanelProximityHandler: NSObject {
         if UIManager.shared.panel_state == .OPEN && !paddedFrame.contains(mouseLocation) {
             let distance = distanceFromPanel(to: mouseLocation, panelFrame: panelFrame)
             
-            if distance > distanceThreshold && !SettingsModel.shared.isSettingsOpen {
+            if distance > distanceThreshold && !SettingsModel.shared.isSettingsWindowOpen {
                 UIManager.shared.panel_state = .CLOSED
                 ScrollHandler.shared.close()
             }

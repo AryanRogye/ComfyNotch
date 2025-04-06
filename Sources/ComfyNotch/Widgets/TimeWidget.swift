@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-struct TimeWidget_ : View, SwiftUIWidget {
+struct TimeWidget : View, SwiftUIWidget {
     var name: String = "TimeWidget"
 
     @ObservedObject var model: TimeWidgetModel = TimeWidgetModel()

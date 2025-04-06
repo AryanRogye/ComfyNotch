@@ -9,6 +9,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var panelProximityHandler: PanelProximityHandler?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        _ = SettingsModel.shared
+
         // Start the UI
         UIManager.shared.setupFrame()
         // Allow Scroll Handler to listen to scroll events
@@ -39,33 +41,33 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // This method is called to reload widgets when the settings change
     @objc private func reloadWidgets() {
-        // loadWidgetsFromSettings()
+        loadWidgetsFromSettings()
         // UIManager.shared.big_panel.contentView?.layoutSubtreeIfNeeded()
         // UIManager.shared.bigPanelWidgetManager.layoutWidgets()
     }
 
     // This method is called to load widgets from the settings
     private func loadWidgetsFromSettings() {
-        // let settings = SettingsModel.shared
+        let settings = SettingsModel.shared
+        let widgetRegistry = WidgetRegistry.shared
 
-        // // Clear existing widgets
-        // UIManager.shared.bigPanelWidgetManager.widgets.forEach { widget in
-        //     UIManager.shared.bigPanelWidgetManager.removeWidget(widget)
-        // }
 
-        // for widgetName in settings.selectedWidgets {
-        //     if let widget = settings.mappedWidgets[widgetName] {
-        //         UIManager.shared.addWidgetToBigPanel(widget)
-        //         widget.show()  // Make sure the widget is not hidden
-        //     } else {
-        //         print("Widget \(widgetName) not found in mappedWidgets")
-        //     }
-        // }
+        // Clear existing widgets
+        UIManager.shared.bigWidgetStore.clearWidgets()
+
+        for widgetName in settings.selectedWidgets {
+            if let widget = widgetRegistry.getWidget(named: widgetName) {
+                UIManager.shared.addWidgetToBigPanel(widget)
+                UIManager.shared.bigWidgetStore.showWidget(named: widgetName)
+            } else {
+                print("Widget \(widgetName) not found in mappedWidgets")
+            }
+        }
         
-        // AudioManager.shared.startMediaTimer()
+        AudioManager.shared.startMediaTimer()
 
-        // // Force layout refresh
+        // Force layout refresh
         // UIManager.shared.bigPanelWidgetManager.layoutWidgets()
-        // UIManager.shared.big_panel.contentView?.layoutSubtreeIfNeeded()
+        UIManager.shared.big_panel.contentView?.layoutSubtreeIfNeeded()
     }
 }

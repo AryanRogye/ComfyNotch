@@ -27,7 +27,7 @@ struct SettingsButtonView : View, SwiftUIWidget {
 class SettingsWidgetModel: ObservableObject {
     @Published var action : () -> Void = {
         SettingsWindowController.shared.show()
-        SettingsModel.shared.isSettingsOpen = true
+        SettingsModel.shared.isSettingsWindowOpen = true
     }
 }
 
@@ -66,7 +66,7 @@ class SettingsWindowController: NSWindowController, NSWindowDelegate {
     }
 
     deinit {
-        SettingsModel.shared.isSettingsOpen = false
+        SettingsModel.shared.isSettingsWindowOpen = false
     }
 
     required init?(coder: NSCoder) {
@@ -85,11 +85,11 @@ class SettingsWindowController: NSWindowController, NSWindowDelegate {
             window.makeFirstResponder(window.contentView)
         }
         
-        SettingsModel.shared.isSettingsOpen = true // Make sure to update the model when opening
+        SettingsModel.shared.isSettingsWindowOpen = true // Make sure to update the model when opening
     }
 
     func windowWillClose(_ notification: Notification) {
-        SettingsModel.shared.isSettingsOpen = false
+        SettingsModel.shared.isSettingsWindowOpen = false
     }
 }
 
@@ -138,7 +138,7 @@ class SettingsWindowController: NSWindowController, NSWindowDelegate {
 //         // if let existingWindow = settingsWindow {
 //         //     existingWindow.makeKeyAndOrderFront(nil)
 //         //     existingWindow.orderFrontRegardless()
-//         //     SettingsModel.shared.isSettingsOpen = true
+//         //     SettingsModel.shared.isSettingsWindowOpen = true
 //         //     return
 //         // }
 
@@ -198,7 +198,7 @@ class SettingsWindowController: NSWindowController, NSWindowDelegate {
 
 //         SettingsWindowController.shared.show()
         
-//         SettingsModel.shared.isSettingsOpen = true
+//         SettingsModel.shared.isSettingsWindowOpen = true
 //     }
 
 //     private func createStyledButton(symbolName: String, action: Selector) -> NSButton {
@@ -242,7 +242,7 @@ class SettingsWindowController: NSWindowController, NSWindowDelegate {
 // extension SettingsWidget: NSWindowDelegate {
 //     func windowWillClose(_ notification: Notification) {
 //         if notification.object as? NSWindow == self.settingsWindow {
-//             SettingsModel.shared.isSettingsOpen = false
+//             SettingsModel.shared.isSettingsWindowOpen = false
 //             self.settingsWindow = nil // Clear the reference to the settings window
 //             print("Settings window closed via red X button")
 //         }

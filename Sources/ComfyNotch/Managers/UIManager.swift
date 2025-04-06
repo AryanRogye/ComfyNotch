@@ -126,15 +126,15 @@ class UIManager {
         big_panel.hasShadow = false
 
 
-        let musicPlayerWidget = MusicPlayerWidget_()
-        let timeWidget = TimeWidget_()
-        let notesWidget = NotesWidget_()
-        let cameraWidget = CameraWidget_()
+        // let musicPlayerWidget = MusicPlayerWidget()
+        // let timeWidget = TimeWidget()
+        // let notesWidget = NotesWidget()
+        // let cameraWidget = CameraWidget()
 
-        bigWidgetStore.addWidget(musicPlayerWidget)
-        // bigWidgetStore.addWidget(timeWidget)
-        bigWidgetStore.addWidget(notesWidget)
-        bigWidgetStore.addWidget(cameraWidget)
+        // bigWidgetStore.addWidget(musicPlayerWidget)
+        // // bigWidgetStore.addWidget(timeWidget)
+        // bigWidgetStore.addWidget(notesWidget)
+        // bigWidgetStore.addWidget(cameraWidget)
 
         let contentView = BigPanelWidgetManager()
             .environmentObject(bigWidgetStore)
@@ -183,10 +183,10 @@ class UIManager {
     }
 
     // ADDING TO WIDGETS
-    func addWidgetToBigPanel(_ widget: Widget) {
-        // bigPanelWidgetManager.addWidget(widget)
+    func addWidgetToBigPanel(_ widget: SwiftUIWidget) {
+        bigWidgetStore.addWidget(widget)
     }
-    func addWidgetsToSmallPanel(_ widget: Widget) {
+    func addWidgetsToSmallPanel(_ widget: SwiftUIWidget) {
         // smallPanelWidgetManager.addWidget(widget)
     }
 
