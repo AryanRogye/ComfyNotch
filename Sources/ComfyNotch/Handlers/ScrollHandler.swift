@@ -218,12 +218,12 @@ class ScrollHandler {
                     return
                 }
             }
-            // else if scrollDeltaY < -scrollThreshold {
-            //     // Scrolling up (Open)
-            //     DispatchQueue.main.async {
-            //         self?.close()
-            //     }
-            // }
+            else if scrollDeltaY < -scrollThreshold {
+                // Scrolling up (Open)
+                DispatchQueue.main.async {
+                    self?.close()
+                }
+            }
         }
 
         print("Scroll delta Y: \(scrollDeltaY)")
