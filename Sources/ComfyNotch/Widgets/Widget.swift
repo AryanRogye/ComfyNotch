@@ -9,11 +9,12 @@ enum WidgetAlignment {
 protocol SwiftUIWidget {
     var name: String { get }
     var alignment: WidgetAlignment? { get }
-    var swiftUIView: AnyView { get }  // Make it a computed property, not optional
+    var swiftUIView: AnyView { get }
 }
 
 extension SwiftUIWidget {
-    var alignment: WidgetAlignment? { nil }  // Default to nil unless overridden
+    /// Aligment to default to nil unless overridden
+    var alignment: WidgetAlignment? { nil }
 }
 
 // protocol Widget {

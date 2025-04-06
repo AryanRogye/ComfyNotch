@@ -82,7 +82,9 @@ class SettingsWindowController: NSWindowController, NSWindowDelegate {
         NSApp.activate(ignoringOtherApps: true) // Make sure your app is the focused application
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
-            window.makeFirstResponder(window.contentView)
+            if self != nil {
+                window.makeFirstResponder(window.contentView)
+            }
         }
         
         SettingsModel.shared.isSettingsWindowOpen = true // Make sure to update the model when opening
