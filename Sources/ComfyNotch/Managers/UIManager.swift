@@ -125,17 +125,6 @@ class UIManager {
         big_panel.isOpaque = false
         big_panel.hasShadow = false
 
-
-        // let musicPlayerWidget = MusicPlayerWidget()
-        // let timeWidget = TimeWidget()
-        // let notesWidget = NotesWidget()
-        // let cameraWidget = CameraWidget()
-
-        // bigWidgetStore.addWidget(musicPlayerWidget)
-        // // bigWidgetStore.addWidget(timeWidget)
-        // bigWidgetStore.addWidget(notesWidget)
-        // bigWidgetStore.addWidget(cameraWidget)
-
         let contentView = BigPanelWidgetManager()
             .environmentObject(bigWidgetStore)
 
@@ -163,7 +152,6 @@ class UIManager {
 
     // BIG PANEL VIEWS
     func hideBigPanelWidgets() {
-
         bigWidgetStore.hideWidget(named: "MusicPlayerWidget")
         bigWidgetStore.hideWidget(named: "TimeWidget")
         bigWidgetStore.hideWidget(named: "NotesWidget")

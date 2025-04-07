@@ -14,8 +14,9 @@ struct SettingsButtonView : View, SwiftUIWidget {
             Image(systemName: "gear")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 15, height: 15)
+                .frame(width: 20, height: 15)
                 .foregroundColor(.white)
+                .background(Color.clear)
         }
     }
 

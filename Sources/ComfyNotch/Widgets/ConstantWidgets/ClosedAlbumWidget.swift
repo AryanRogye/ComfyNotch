@@ -26,7 +26,7 @@ struct AlbumWidgetView: View, SwiftUIWidget {
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.white)
                 }
-                .frame(width: 30, height: 30)
+                .frame(width: 25, height: 25)
             }
         }
         .padding(.leading, 10)

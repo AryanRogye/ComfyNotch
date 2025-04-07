@@ -75,7 +75,7 @@ struct MainSettingsView : View {
                 }
             ))
             .labelsHidden()
-            // .disabled(!settings.selectedWidgets.contains(widgetName) && settings.selectedWidgets.count >= maxWidgetCount)
+            .disabled(!settings.selectedWidgets.contains(widgetName) && settings.selectedWidgets.count >= maxWidgetCount)
         }
         .padding(.vertical, 8)
     }

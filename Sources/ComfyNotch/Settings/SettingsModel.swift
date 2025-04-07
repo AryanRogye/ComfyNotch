@@ -13,7 +13,7 @@ class SettingsModel : ObservableObject {
     @Published var ai_api_key: String = "" 
 
     private var cancellables = Set<AnyCancellable>()
-
+    
     private init() {
         loadSettings()
     }
@@ -21,6 +21,8 @@ class SettingsModel : ObservableObject {
     /// Saves the current settings to UserDefaults
     func saveSettings() {
         let defaults = UserDefaults.standard
+
+        print("Saving Widget Settings: \(selectedWidgets)") // Debug print
 
         // Saving the last state for whatever widgets are selected
         defaults.set(selectedWidgets, forKey: "selectedWidgets")
@@ -41,15 +43,23 @@ class SettingsModel : ObservableObject {
         if isSelected {
             if !selectedWidgets.contains(widgetName) {
                 selectedWidgets.append(widgetName)
+                print("Added \(widgetName) to selectedWidgets: \(selectedWidgets)")
             }
         } else {
-            selectedWidgets.removeAll { $0 == widgetName }
+            if selectedWidgets.contains(widgetName) {
+                selectedWidgets.removeAll { $0 == widgetName }
+                print("Removed \(widgetName) from selectedWidgets: \(selectedWidgets)")
+            } else {
+                print("Attempted to remove \(widgetName), but it wasn't found in selectedWidgets: \(selectedWidgets)")
+            }
         }
         
         saveSettings()
+        print("NEW Saved Settings: \(selectedWidgets)")
 
         NotificationCenter.default.post(name: NSNotification.Name("ReloadWidgets"), object: nil)
     }
+
 
     /// Loads the last saved settings from UserDefaults
     func loadSettings() {
@@ -60,7 +70,7 @@ class SettingsModel : ObservableObject {
             self.selectedWidgets = loadedWidgets
         } else {
             // Set default if nothing is saved
-            self.selectedWidgets = ["MusicPlayerWidget", "TimeWidget", "NotesWidget"]
+            self.selectedWidgets = WidgetRegistry.shared.getDefaultWidgets()
         }
 
         // Loading the last state for camera flip
@@ -90,6 +100,10 @@ class WidgetRegistry {
 
     func getWidget(named name: String) -> SwiftUIWidget? {
         return widgets[name]
+    }
+
+    func getDefaultWidgets() -> [String] {
+        return ["MusicPlayerWidget", "TimeWidget", "NotesWidget"]
     }
 }
 

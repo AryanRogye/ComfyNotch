@@ -5,37 +5,43 @@ class BigPanelWidgetStore: ObservableObject {
     @Published var widgets : [WidgetEntry] = []
 
     func addWidget(_ widget: SwiftUIWidget) {
-        print("Adding widget: \(widget.name)")
         let widgetEntry = WidgetEntry(widget: widget, isVisible: false)
         if widgets.count >= 3 {
             print("Cannot add more than 3 widgets to the big panel.")
             return
         }
+        print("Adding widget: \(widget.name)")
         widgets.append(widgetEntry)
     }
 
     func removeWidget(named name: String) {
+        // No need to parse the list if it's empty
+        if widgets.isEmpty {
+            return
+        }
         if let index = widgets.firstIndex(where: { $0.widget.name == name }) {
+            print("Removing widget: \(name)")
             widgets.remove(at: index)
         }
     }
 
     func hideWidget(named name: String) {
-        // print("Hiding widget: \(name)")
         if let index = widgets.firstIndex(where: { $0.widget.name == name }) {
             widgets[index].isVisible = false
         }
     }
 
     func showWidget(named name: String) {
-        // print("Showing widget: \(name)")
         // Show from the hidden list if it exists
         if let index = widgets.firstIndex(where: { $0.widget.name == name }) {
+            print("Showing widget: \(name)")
             widgets[index].isVisible = true
+            NotificationCenter.default.post(name: Notification.Name("WidgetVisibilityChanged"), object: nil)
         }
     }
 
     func clearWidgets() {
+        print("Clearing all widgets from the big panel.")
         widgets.removeAll()
     }
 }
