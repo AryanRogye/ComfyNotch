@@ -12,11 +12,18 @@ class SettingsModel : ObservableObject {
     @Published var snapOpenThreshold: CGFloat = 0.9
     @Published var ai_api_key: String = "" 
 
+    @Published var selectedProvider: AIProvider = .openAI
+    @Published var selectedOpenAIModel: OpenAIModel = .gpt3
+    @Published var selectedAnthropicModel: AnthropicModel = .claudeV1
+    @Published var selectedGoogleModel: GoogleModel = .palm
+
     private var cancellables = Set<AnyCancellable>()
     
     private init() {
         loadSettings()
     }
+
+
 
     /// Saves the current settings to UserDefaults
     func saveSettings() {
