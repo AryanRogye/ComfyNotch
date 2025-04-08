@@ -30,13 +30,16 @@ ComfyNotch brings life to your MacBook’s notch by providing a clean and intuit
    - Users on macOS 13 and below may experience crashes or missing functionalities.  
    - No plans for backward compatibility, but feel free to open an issue if needed.  
 
-2. **Display Issues**  
-   - After closing and reopening the laptop, the app display may appear distorted or glitchy.  
-   - Fixing this is a priority once I know how to lol.
-
-3. **Monitor Switching**  
+2. **Monitor Switching**  
    - Switching monitors causes the app to lose positioning, not returning to the laptop screen.  
    - Resolving this is also a priority.  
+
+3. **Scroll Logic (for most MacOS)**
+
+## 👏🏽 Fixed Issues
+1. **Display Issues**  
+   - After closing and reopening the laptop, the app display may appear distorted or glitchy.  
+   - Fixing this is a priority once I know how to lol.
 
 
 ---
