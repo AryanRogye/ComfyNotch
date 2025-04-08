@@ -79,6 +79,14 @@ class SettingsModel : ObservableObject {
 
         // Refresh the UI only if the panel is open
         if UIManager.shared.panel_state == .OPEN {
+            refreshUI()
+        } else {
+            print("Panel is not open, not refreshing UI")
+        }
+    }
+
+    func refreshUI() -> Void {
+        if UIManager.shared.panel_state == .OPEN {
             AudioManager.shared.startMediaTimer()
             UIManager.shared.big_panel.contentView?.needsLayout = true
             UIManager.shared.big_panel.contentView?.layoutSubtreeIfNeeded()
@@ -90,6 +98,24 @@ class SettingsModel : ObservableObject {
         }
     }
 
+    func removeAndAddBackCurrentWidgets() {
+        print("🔄 Rebuilding widgets in the panel based on the updated order.")
+
+        // Clear all currently displayed widgets
+        UIManager.shared.bigWidgetStore.clearWidgets()
+    
+        // Iterate over the updated selectedWidgets list
+        for widgetName in selectedWidgets {
+            if let widget = WidgetRegistry.shared.getWidget(named: widgetName) {
+                UIManager.shared.addWidgetToBigPanel(widget)
+            } else {
+                print("⚠️ Widget \(widgetName) not found in WidgetRegistry.")
+            }
+        }
+
+        // Finally, refresh the UI
+        refreshUI()
+    }
 
     /// Loads the last saved settings from UserDefaults
     func loadSettings() {

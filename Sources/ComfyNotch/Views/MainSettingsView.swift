@@ -190,3 +190,34 @@ struct MainSettingsView : View {
         NSApp.terminate(nil)
     }
 }
+
+
+
+struct DropViewDelegate: DropDelegate {
+    var item: String
+    var settings: SettingsModel
+    @Binding var draggingItem: String?
+    @Binding var isDragging: Bool
+
+    func performDrop(info: DropInfo) -> Bool {
+        guard let draggingItem = draggingItem else { return false }
+        
+        if let fromIndex = settings.selectedWidgets.firstIndex(of: draggingItem),
+           let toIndex = settings.selectedWidgets.firstIndex(of: item),
+           fromIndex != toIndex {
+            
+            withAnimation {
+                let movedItem = settings.selectedWidgets.remove(at: fromIndex)
+                settings.selectedWidgets.insert(movedItem, at: toIndex)
+            }
+
+            settings.saveSettings()  // Save the updated order to disk
+            settings.removeAndAddBackCurrentWidgets()
+
+            self.draggingItem = nil
+            self.isDragging = false
+            return true
+        }
+        return false
+    }
+}

@@ -1,15 +1,34 @@
-
 import AppKit
 import MediaPlayer
 import CoreAudio
 import Foundation
 
+/**
+ * AppDelegate manages the application lifecycle and initialization of core components.
+ * Responsible for setting up the UI, handlers, and loading widget configurations.
+ *
+ * Properties:
+ * - hoverHandler: Manages hover interactions for the small panel
+ * - panelProximityHandler: Manages proximity-based interactions for the big panel
+ */
 class AppDelegate: NSObject, NSApplicationDelegate {
     private var hoverHandler: HoverHandler?
     private var panelProximityHandler: PanelProximityHandler?
 
-    /// This function is called when the app is launched
-    /// - Parameter notification: The notification object telling us the app has launched
+    /**
+     * Called when the application finishes launching.
+     * Initializes core components and sets up the UI infrastructure.
+     *
+     * Setup sequence:
+     * 1. Initializes settings
+     * 2. Sets up UI frame
+     * 3. Starts scroll event handling
+     * 4. Configures panel handlers
+     * 5. Loads widget configurations
+     * 6. Starts display monitoring
+     *
+     * - Parameter notification: Launch notification object
+     */
     func applicationDidFinishLaunching(_ notification: Notification) {
         _ = SettingsModel.shared
 
@@ -33,10 +52,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         DisplayHandler.shared.start()
     }
 
-    /// This function is called when the app is started to load in the widgets
-    /// I could add this to the UIManager but I think it makes more sense to have it here
-    /// it means after "everything" is setup, we can then start loading in the widgets,
-    /// this confirms to us that everything is ok and nothing is broken
+    /**
+     * Loads and configures widgets based on user settings.
+     * This method ensures all system components are properly initialized
+     * before loading widgets.
+     *
+     * Process:
+     * 1. Gets current widget configuration from settings
+     * 2. Removes deselected widgets
+     * 3. Adds or shows selected widgets
+     * 4. Updates widget visibility based on panel state
+     * 5. Refreshes layout and display
+     */
     private func loadWidgetsFromSettings() {
         let settings = SettingsModel.shared
         let widgetRegistry = WidgetRegistry.shared
