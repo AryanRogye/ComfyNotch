@@ -2,23 +2,44 @@ import AppKit
 import MediaPlayer
 import CoreImage
 
+/**
+ * AudioManager handles media playback information and control across music applications.
+ * Provides unified interface for Spotify and Apple Music integration.
+ *
+ * Key Features:
+ * - Tracks current playing media information
+ * - Manages artwork and dominant color extraction
+ * - Provides playback controls
+ * - Auto-updates media information
+ */
 class AudioManager {
-
     static let shared = AudioManager()
 
+    /// Currently playing song title
     @Published var currentSongText: String = "No Song Playing"
+    /// Current artist name
     @Published var currentArtistText: String = "Unknown Artist"
+    /// Current album name
     @Published var currentAlbumText: String = "Unknown Album"
+    /// Current album artwork
     @Published var currentArtworkImage: NSImage? = nil
+    /// Dominant color extracted from artwork
     @Published var dominantColor: NSColor = .white
 
     private var timer: Timer?
     var onNowPlayingInfoUpdated: (() -> Void)?
 
+    /**
+     * Initializes the audio manager and starts the media update timer.
+     */
     private init() {
         startMediaTimer()
     }
 
+    /**
+     * Fetches and updates current playing media information.
+     * Checks Spotify first, then falls back to Music app if needed.
+     */
     func getNowPlayingInfo() {
         if let spotifyInfo = getSpotifyInfo() {
             updateNowPlaying(with: spotifyInfo)
@@ -36,6 +57,10 @@ class AudioManager {
         self.onNowPlayingInfoUpdated?()
     }
 
+    /**
+     * Updates the current playing media information with provided data.
+     * Also extracts and updates the dominant color from artwork.
+     */
     private func updateNowPlaying(with info: (String, String, String, NSImage?)) {
         self.currentSongText = info.0
         self.currentArtistText = info.1
@@ -46,6 +71,10 @@ class AudioManager {
         }
     }
 
+    /**
+     * Fetches current playing information from Spotify.
+     * Returns tuple of (track, artist, album, artwork) if successful.
+     */
     private func getSpotifyInfo() -> (String, String, String, NSImage?)? {
         let script = """
         tell application "Spotify"
@@ -79,6 +108,10 @@ class AudioManager {
         return nil
     }
 
+    /**
+     * Fetches current playing information from Music app.
+     * Returns tuple of (track, artist, album, artwork) if successful.
+     */
     private func getMusicInfo() -> (String, String, String, NSImage?)? {
         let script = """
         tell application "Music"
@@ -120,6 +153,9 @@ class AudioManager {
         return nil
     }
 
+    /**
+     * Executes an AppleScript and returns the result as a string.
+     */
     private func runAppleScript(_ script: String) -> String? {
         var error: NSDictionary?
         if let scriptObject = NSAppleScript(source: script) {
@@ -129,6 +165,10 @@ class AudioManager {
         return nil
     }
 
+    /**
+     * Starts the timer that periodically updates media information.
+     * Timer runs every second in common run loop mode.
+     */
     func startMediaTimer() {
         timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
@@ -137,11 +177,18 @@ class AudioManager {
         RunLoop.main.add(timer!, forMode: .common)
     }
 
+    /**
+     * Stops the media update timer.
+     */
     func stopMediaTimer() {
         timer?.invalidate()
         timer = nil
     }
 
+    /**
+     * Extracts the dominant color from an image.
+     * Ensures minimum brightness for visibility.
+     */
     private func getDominantColor(from image: NSImage) -> NSColor? {
         guard let tiffData = image.tiffRepresentation,
             let ciImage = CIImage(data: tiffData) else { return nil }
@@ -177,13 +224,17 @@ class AudioManager {
         return NSColor(red: red, green: green, blue: blue, alpha: alpha)
     }
 
+    /**
+     * Media control methods.
+     * These methods attempt Spotify first, then fall back to Music app.
+     */
     func playPreviousTrack() {
         if runAppleScript("""
             tell application "Spotify"
                 previous track
             end tell
         """) == nil {
-            runAppleScript("""
+            let _ = runAppleScript("""
                 tell application "Music"
                     previous track
                 end tell
@@ -197,7 +248,7 @@ class AudioManager {
                 next track
             end tell
         """) == nil {
-            runAppleScript("""
+            let _ = runAppleScript("""
                 tell application "Music"
                     next track
                 end tell
@@ -211,7 +262,7 @@ class AudioManager {
                 playpause
             end tell
         """) == nil {
-            runAppleScript("""
+            let _ = runAppleScript("""
                 tell application "Music"
                     playpause
                 end tell

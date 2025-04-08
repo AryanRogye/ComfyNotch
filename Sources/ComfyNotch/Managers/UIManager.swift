@@ -1,13 +1,19 @@
 import AppKit
 import SwiftUI
 
-
+/**
+ * Represents the current state of the panel display.
+ */
 enum PanelState {
     case CLOSED
     case PARTIALLY_OPEN
     case OPEN
 }
 
+/**
+ * Custom NSPanel subclass that can become key and main window.
+ * Enables proper focus and interaction handling.
+ */
 class FocusablePanel: NSPanel {
     override var canBecomeKey: Bool {
         return true
@@ -17,6 +23,15 @@ class FocusablePanel: NSPanel {
     }
 }
 
+/**
+ * UIManager handles the core UI components of the application.
+ * Responsible for managing panels, widget stores, and panel states.
+ *
+ * Key Components:
+ * - Small Panel: Displays compact widgets in the notch area
+ * - Big Panel: Shows expanded widgets and additional functionality
+ * - Widget Stores: Manages widget collections for both panels
+ */
 class UIManager {
     static let shared = UIManager()
     let smallWidgetStore = SmallPanelWidgetStore()
@@ -28,24 +43,34 @@ class UIManager {
     var smallPanelWidgetManager = SmallPanelWidgetManager()
     var bigPanelWidgetManager = BigPanelWidgetManager()
 
- 
     var panel_state : PanelState = .CLOSED
 
     var startPanelHeight: CGFloat = 0
     var startPanelWidth: CGFloat = 300
 
     var startPanelYOffset: CGFloat = 0
-    
+
+    /**
+     * Initializes the UI manager and sets up initial dimensions.
+     * Configures panel height based on notch size and initializes audio components.
+     */
     private init() {
         startPanelHeight = getNotchHeight()
         AudioManager.shared.getNowPlayingInfo()
     }
 
+    /**
+     * Sets up both small and big panels with their initial configurations.
+     */
     func setupFrame() {
         setupSmallPanel()
         setupBigPanel()
     }
 
+    /**
+     * Configures the small panel that sits in the notch area.
+     * Initializes default widgets and sets up panel properties.
+     */
     func setupSmallPanel() {
         guard let screen = NSScreen.main else { return }
         let screenFrame = screen.frame
@@ -72,7 +97,7 @@ class UIManager {
         small_panel.backgroundColor = .clear
         small_panel.isOpaque = false
         small_panel.hasShadow = false
- 
+
         // Create and add widgets to the store
         let albumWidgetModel = AlbumWidgetModel()
         let movingDotsModel = MovingDotsViewModel()
@@ -91,13 +116,17 @@ class UIManager {
 
         let contentView = SmallPanelWidgetManager()
             .environmentObject(smallWidgetStore)
-        
+
         small_panel.contentView = NSHostingView(rootView: contentView)
         small_panel.makeKeyAndOrderFront(nil)
 
         hideSmallPanelSettingsWidget() // Ensure initial state is correct
     }
 
+    /**
+     * Configures the expandable big panel for additional widgets.
+     * Sets up panel properties and initial widget layout.
+     */
     func setupBigPanel() {
         guard let screen = NSScreen.main else { return }
         let screenFrame = screen.frame
@@ -134,8 +163,10 @@ class UIManager {
         hideBigPanelWidgets() // Ensure initial state is correct
     }
 
-
-    // HIDE/SHOW SMALL PANEL
+    /**
+     * Widget visibility management methods for the small panel.
+     * Controls the display of settings and other widgets.
+     */
     func hideSmallPanelSettingsWidget() {
         smallWidgetStore.hideWidget(named: "Settings")
         smallWidgetStore.showWidget(named: "AlbumWidget")
@@ -148,9 +179,10 @@ class UIManager {
         smallWidgetStore.hideWidget(named: "MovingDotsWidget")
     }
 
-
-
-    // BIG PANEL VIEWS
+    /**
+     * Widget visibility management methods for the big panel.
+     * Controls the display state of all big panel widgets.
+     */
     func hideBigPanelWidgets() {
         bigWidgetStore.hideWidget(named: "MusicPlayerWidget")
         bigWidgetStore.hideWidget(named: "TimeWidget")
@@ -163,7 +195,6 @@ class UIManager {
     }
 
     func showBigPanelWidgets() {
-        
         bigWidgetStore.showWidget(named: "MusicPlayerWidget")
         bigWidgetStore.showWidget(named: "TimeWidget")
         bigWidgetStore.showWidget(named: "NotesWidget")
@@ -183,10 +214,13 @@ class UIManager {
         print("=====================================================")
     }
 
-    // ADDING TO WIDGETS
+    /**
+     * Utility methods for widget management and panel dimensions.
+     */
     func addWidgetToBigPanel(_ widget: Widget) {
         bigWidgetStore.addWidget(widget)
     }
+
     func addWidgetsToSmallPanel(_ widget: Widget) {
         // smallPanelWidgetManager.addWidget(widget)
     }
