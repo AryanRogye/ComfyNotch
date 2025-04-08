@@ -8,6 +8,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var hoverHandler: HoverHandler?
     private var panelProximityHandler: PanelProximityHandler?
 
+    /// This function is called when the app is launched
+    /// - Parameter notification: The notification object telling us the app has launched
     func applicationDidFinishLaunching(_ notification: Notification) {
         _ = SettingsModel.shared
 
@@ -26,65 +28,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Set up the ui by loading the widgets from settings onto it
         loadWidgetsFromSettings()
-        print("Done loading widgets from settings")
 
-
-        // Useful for the settings to let the app know when to reload widgets
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(reloadWidgets),
-            name: NSNotification.Name("ReloadWidgets"),
-            object: nil
-        )
         // Any Screen errors that may happen, is handled in here
         DisplayHandler.shared.start()
     }
 
-    // This method is called to reload widgets when the settings change
-    // TODO: Issue In Here
-    @objc private func reloadWidgets() {
-        let settings = SettingsModel.shared
-        let widgetRegistry = WidgetRegistry.shared
-
-        print("Reloading widgets: \(settings.selectedWidgets)")
-
-        let currentlyAddedWidgets = UIManager.shared.bigWidgetStore.widgets.map { $0.widget.name }
-
-        // Remove widgets that are no longer selected
-        for existingWidget in currentlyAddedWidgets {
-            if !settings.selectedWidgets.contains(existingWidget) {
-                UIManager.shared.bigWidgetStore.hideWidget(named: existingWidget)
-            }
-        }
-
-        // Add or update widgets that are selected
-        for widgetName in settings.selectedWidgets {
-            if let widget = widgetRegistry.getWidget(named: widgetName) {
-                if !currentlyAddedWidgets.contains(widgetName) {
-                    UIManager.shared.addWidgetToBigPanel(widget)
-                }
-            
-                // Only show widgets if the panel is open
-                if UIManager.shared.panel_state == .OPEN {
-                    print("Showing widget: \(widgetName)")
-                    UIManager.shared.bigWidgetStore.showWidget(named: widgetName)
-                }
-            } else {
-                print("Widget \(widgetName) not found in registry")
-            }
-        }
-
-        AudioManager.shared.startMediaTimer()
-        UIManager.shared.big_panel.contentView?.needsLayout = true
-        UIManager.shared.big_panel.contentView?.layoutSubtreeIfNeeded()
-
-        DispatchQueue.main.async {
-            UIManager.shared.big_panel.contentView?.needsDisplay = true
-        }
-    }
-
+    /// This function is called when the app is started to load in the widgets
+    /// I could add this to the UIManager but I think it makes more sense to have it here
+    /// it means after "everything" is setup, we can then start loading in the widgets,
+    /// this confirms to us that everything is ok and nothing is broken
     private func loadWidgetsFromSettings() {
-        print("Loading Widgets From Settings")
         let settings = SettingsModel.shared
         let widgetRegistry = WidgetRegistry.shared
 

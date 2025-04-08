@@ -1,47 +1,66 @@
 import AppKit
 import SwiftUI
 
+/**
+ * `BigPanelWidgetStore` is a class that manages a collection of widgets for a "big panel" UI component.
+ * It provides functionality to add, remove, show, hide, and clear widgets, while maintaining their visibility state.
+ * The class is designed to work with SwiftUI and uses the `@Published` property wrapper to notify observers of changes.
+ */
 class BigPanelWidgetStore: ObservableObject {
     @Published var widgets : [WidgetEntry] = []
 
+    /// Adds a widget to the big panel "store"
+    /// -   widget: The widget to add
     func addWidget(_ widget: SwiftUIWidget) {
         let widgetEntry = WidgetEntry(widget: widget, isVisible: false)
         if widgets.count >= 3 {
-            print("Cannot add more than 3 widgets to the big panel.")
             return
         }
-        print("Adding widget: \(widget.name)")
         widgets.append(widgetEntry)
     }
 
+    /// Removes a widget from the big panel "store"
+    /// This should be used by anything related to the "settings"
+    /// -   name: name of the widget to remove
     func removeWidget(named name: String) {
-        // No need to parse the list if it's empty
         if widgets.isEmpty {
             return
         }
         if let index = widgets.firstIndex(where: { $0.widget.name == name }) {
-            print("Removing widget: \(name)")
             widgets.remove(at: index)
         }
     }
 
+    /**
+      *  Hides a widget from the big panel "store"
+      *  This is really the best way to "hide" or not show the widget
+      *  when the panel is closed
+      *  -  name: name of the widget to hide
+    ***/ 
     func hideWidget(named name: String) {
         if let index = widgets.firstIndex(where: { $0.widget.name == name }) {
             widgets[index].isVisible = false
         }
     }
 
+    /**
+      *  Shows a widget from the big panel "store"
+      *  This changes the visibility of the widget
+      *  when the panel is open
+      *  -  name: name of the widget to show
+    ***/
     func showWidget(named name: String) {
         // Show from the hidden list if it exists
         if let index = widgets.firstIndex(where: { $0.widget.name == name }) {
-            print("Showing widget: \(name)")
-            widgets[index].isVisible = true
-            NotificationCenter.default.post(name: Notification.Name("WidgetVisibilityChanged"), object: nil)
+            widgets[index].isVisible = true // Make the widget visible
+            widgets[index] = WidgetEntry(widget: widgets[index].widget, 
+                                         isVisible: true)
         }
     }
 
+    /// Function to remove all widgets from the big panel
     func clearWidgets() {
-        print("Clearing all widgets from the big panel.")
+        print("🗑️ Clearing all widgets from the big panel.")
         widgets.removeAll()
     }
 }
@@ -52,10 +71,10 @@ struct BigPanelWidgetManager : View {
     var body : some View {
         ZStack {
             Color.black.opacity(1)
-                .clipShape(RoundedCornersShape(topLeft: 20, 
-                                               topRight: 20, 
-                                               bottomLeft: 20, 
-                                               bottomRight: 20))
+                .clipShape(RoundedCornersShape(topLeft: 10, 
+                                               topRight: 10, 
+                                               bottomLeft: 10, 
+                                               bottomRight: 10))
                 HStack(spacing: 1) {
                     ForEach(widgetStore.widgets.indices, id: \.self) { index in
                         let widgetEntry = widgetStore.widgets[index]
@@ -73,44 +92,3 @@ struct BigPanelWidgetManager : View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
-
-// class _BigPanelWidgetManager: WidgetManager {
-//     override func layoutWidgets() {
-//         guard let panelContentView = panelContentView else { return }
-
-//         // Remove all existing constraints first
-//         panelContentView.constraints.forEach { panelContentView.removeConstraint($0) }
-
-//         // Limit the number of widgets displayed
-//         let visibleWidgets = widgets.prefix(3) // Only take the first 3 widgets
-        
-//         let totalWidth: CGFloat = 700 // The total width of the big_panel
-//         let widgetWidth = totalWidth / CGFloat(visibleWidgets.count) // Divide width evenly
-//         let widgetHeight: CGFloat = 100
-
-//         var currentX: CGFloat = 0
-
-//         // Calculate total width of the visible widgets
-//         let totalWidgetWidth = widgetWidth * CGFloat(visibleWidgets.count)
-
-//         // Calculate the padding needed to center the widgets
-//         let paddingX = (totalWidth - totalWidgetWidth) / 2
-
-//         for widget in visibleWidgets {
-//             let widgetView = widget.view
-//             widgetView.translatesAutoresizingMaskIntoConstraints = false
-
-//             NSLayoutConstraint.activate([
-//                 widgetView.leadingAnchor.constraint(equalTo: panelContentView.leadingAnchor, constant: currentX + paddingX), // Apply padding to center
-//                 widgetView.topAnchor.constraint(equalTo: panelContentView.topAnchor),
-//                 widgetView.widthAnchor.constraint(equalToConstant: widgetWidth),
-//                 widgetView.heightAnchor.constraint(equalToConstant: widgetHeight)
-//             ])
-
-//             currentX += widgetWidth
-//         }
-
-//         // Force layout update
-//         panelContentView.layoutSubtreeIfNeeded()
-//     }
-// }

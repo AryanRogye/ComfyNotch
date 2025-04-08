@@ -40,24 +40,47 @@ class SettingsModel : ObservableObject {
 
     /// Updates `selectedWidgets` and triggers a reload notification immediately
     func updateSelectedWidgets(with widgetName: String, isSelected: Bool) {
+
+        print("Updating selected widgets with: \(widgetName), isSelected: \(isSelected)")
+
+        // Starting With Remove Logic so we can clear out any old widgets
+
+        if !isSelected {
+            if selectedWidgets.contains(widgetName) {
+                selectedWidgets.removeAll { $0 == widgetName }
+                UIManager.shared.bigWidgetStore.removeWidget(named: widgetName)
+                print("Removed widget: \(widgetName)")
+            } else {
+                print("Widget \(widgetName) not found in selected widgets")
+                exit(0)
+            }
+        }
+
+        // Add Logic
         if isSelected {
             if !selectedWidgets.contains(widgetName) {
                 selectedWidgets.append(widgetName)
-                print("Added \(widgetName) to selectedWidgets: \(selectedWidgets)")
-            }
-        } else {
-            if selectedWidgets.contains(widgetName) {
-                selectedWidgets.removeAll { $0 == widgetName }
-                print("Removed \(widgetName) from selectedWidgets: \(selectedWidgets)")
-            } else {
-                print("Attempted to remove \(widgetName), but it wasn't found in selectedWidgets: \(selectedWidgets)")
+                if let widget = WidgetRegistry.shared.getWidget(named: widgetName) {
+                    UIManager.shared.addWidgetToBigPanel(widget)
+                    print("Added widget: \(widgetName)")
+                }
             }
         }
-        
+
         saveSettings()
         print("NEW Saved Settings: \(selectedWidgets)")
 
-        NotificationCenter.default.post(name: NSNotification.Name("ReloadWidgets"), object: nil)
+        // Refresh the UI only if the panel is open
+        if UIManager.shared.panel_state == .OPEN {
+            AudioManager.shared.startMediaTimer()
+            UIManager.shared.big_panel.contentView?.needsLayout = true
+            UIManager.shared.big_panel.contentView?.layoutSubtreeIfNeeded()
+
+            DispatchQueue.main.async {
+                UIManager.shared.big_panel.contentView?.needsDisplay = true
+                UIManager.shared.showBigPanelWidgets()
+            }
+        }
     }
 
 

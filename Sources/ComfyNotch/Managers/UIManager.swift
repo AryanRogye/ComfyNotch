@@ -163,13 +163,24 @@ class UIManager {
     }
 
     func showBigPanelWidgets() {
+        
         bigWidgetStore.showWidget(named: "MusicPlayerWidget")
         bigWidgetStore.showWidget(named: "TimeWidget")
-        bigWidgetStore.hideWidget(named: "NotesWidget")
+        bigWidgetStore.showWidget(named: "NotesWidget")
         bigWidgetStore.showWidget(named: "CameraWidget")
         bigWidgetStore.showWidget(named: "AIChatWidget")
 
         big_panel.contentView?.layoutSubtreeIfNeeded()
+    }
+
+    private func displayCurrentBigPanelWidgets(with title : String = "Current Big Panel Widgets") {
+        print("=====================================================")
+        print("\(title)")
+        print("=====================================================")
+        for widget in bigWidgetStore.widgets {
+            print("Name: \(widget.widget.name), Visible: \(widget.isVisible)")
+        }
+        print("=====================================================")
     }
 
     // ADDING TO WIDGETS
