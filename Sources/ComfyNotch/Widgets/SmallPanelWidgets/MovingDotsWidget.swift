@@ -54,7 +54,7 @@ class MovingDotsViewModel: ObservableObject {
 
 // The parent view that shows three dots.
 // When isPlaying is true, it shows animated dots; otherwise, static dots.
-struct MovingDotsView: View, SwiftUIWidget {
+struct MovingDotsView: View, Widget {
     var name: String = "MovingDotsWidget"
     var alignment: WidgetAlignment? = .right
     @ObservedObject var model: MovingDotsViewModel

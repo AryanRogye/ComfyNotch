@@ -11,7 +11,7 @@ class BigPanelWidgetStore: PanelManager, ObservableObject {
 
     /// Adds a widget to the big panel "store"
     /// -   widget: The widget to add
-    func addWidget(_ widget: SwiftUIWidget) {
+    func addWidget(_ widget: Widget) {
         let widgetEntry = WidgetEntry(widget: widget, isVisible: false)
         if widgets.count >= 3 {
             return

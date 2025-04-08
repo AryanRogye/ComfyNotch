@@ -7,7 +7,7 @@ struct ChatMessage: Identifiable, Codable, Hashable {
     var isUser: Bool
 }
 
-struct AIChatWidget : View, SwiftUIWidget {
+struct AIChatWidget : View, Widget {
 
     var name: String = "AIChatWidget"
 

@@ -120,7 +120,7 @@ class WidgetRegistry {
 
     private init() {}
 
-    var widgets: [String: SwiftUIWidget] = [
+    var widgets: [String: Widget] = [
         "MusicPlayerWidget": MusicPlayerWidget(),
         "TimeWidget": TimeWidget(),
         "NotesWidget": NotesWidget(),
@@ -128,7 +128,7 @@ class WidgetRegistry {
         "AIChatWidget": AIChatWidget()
     ]
 
-    func getWidget(named name: String) -> SwiftUIWidget? {
+    func getWidget(named name: String) -> Widget? {
         return widgets[name]
     }
 

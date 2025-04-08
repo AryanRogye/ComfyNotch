@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 
-struct MusicPlayerWidget: View, SwiftUIWidget {
+struct MusicPlayerWidget: View, Widget {
     var name: String = "MusicPlayerWidget"
     @StateObject private var model = MusicPlayerWidgetModel()
     

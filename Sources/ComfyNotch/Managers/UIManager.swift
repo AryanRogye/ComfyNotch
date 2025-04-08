@@ -184,10 +184,10 @@ class UIManager {
     }
 
     // ADDING TO WIDGETS
-    func addWidgetToBigPanel(_ widget: SwiftUIWidget) {
+    func addWidgetToBigPanel(_ widget: Widget) {
         bigWidgetStore.addWidget(widget)
     }
-    func addWidgetsToSmallPanel(_ widget: SwiftUIWidget) {
+    func addWidgetsToSmallPanel(_ widget: Widget) {
         // smallPanelWidgetManager.addWidget(widget)
     }
 

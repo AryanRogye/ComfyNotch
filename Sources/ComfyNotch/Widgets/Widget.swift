@@ -1,41 +1,46 @@
 import AppKit
 import SwiftUI
 
+/**
+ * Defines the horizontal alignment options for widgets in the panel.
+ * Used primarily in the SmallPanel to organize widgets.
+ *     - The SmallPanel is wrapped around the notch so cuz of this we
+ *       need to define the alignment of the widgets, this way its constant
+ *
+ * Cases:
+ * - left: Aligns widget to the left side of the panel
+ * - right: Aligns widget to the right side of the panel
+ */
 enum WidgetAlignment {
     case left
     case right
 }
 
-protocol SwiftUIWidget {
+/**
+ * Widget protocol defines the basic structure for all panel widgets.
+ * This protocol ensures all widgets have consistent properties for
+ * identification, positioning, and view representation.
+ *
+ * Required Properties:
+ * - name: Unique identifier for the widget
+ * - alignment: Optional alignment preference (left/right)
+ * - swiftUIView: The widget's visual representation
+ */
+protocol Widget {
+    /// Unique identifier for the widget
     var name: String { get }
+    
+    /// Optional alignment preference for widget positioning
     var alignment: WidgetAlignment? { get }
+    
+    /// SwiftUI view representation of the widget
     var swiftUIView: AnyView { get }
 }
 
-extension SwiftUIWidget {
-    /// Aligment to default to nil unless overridden
+extension Widget {
+    /**
+     * Default implementation for widget alignment.
+     * Returns nil, allowing the panel manager to determine default positioning.
+     */
     var alignment: WidgetAlignment? { nil }
 }
-
-// protocol Widget {
-//     var name: String { get }   // Unique name for the widget
-//     var alignment: WidgetAlignment? { get } // Optional alignment, defaulting to nil
-//     func update()              // Refresh the widget’s content
-//     func show()
-//     func hide()
-
-//     // New: Optional SwiftUI view representation
-//     var swiftUIView: AnyView? { get }
-    
-//     // Legacy: NSView representation
-//     var view: NSView { get }
-// }
-
-// extension Widget {
-//     // Provide a default implementation for alignment so it's "optional" for conforming types
-//     var alignment: WidgetAlignment? { nil }
-//     var swiftUIView: AnyView? { nil }  // Default to nil unless overridden
-
-//     func show() {}
-//     func hide() {}
-// }

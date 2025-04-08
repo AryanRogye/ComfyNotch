@@ -22,9 +22,9 @@ class SmallPanelWidgetStore: PanelManager, ObservableObject {
      * Adds a new widget to the appropriate hidden array based on its alignment.
      * If no alignment is specified, the widget defaults to left alignment.
      *
-     * - Parameter widget: The SwiftUIWidget to be added
+     * - Parameter widget: The Widget to be added
      */
-    func addWidget(_ widget: SwiftUIWidget) {
+    func addWidget(_ widget: Widget) {
         let widgetEntry = WidgetEntry(widget: widget, isVisible: false)
         
         if let alignment = widget.alignment {

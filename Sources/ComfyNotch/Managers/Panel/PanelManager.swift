@@ -5,11 +5,11 @@ import Foundation
  * This struct is used to track both the widget itself and whether it's currently visible.
  *
  * Properties:
- * - widget: The SwiftUIWidget instance
+ * - widget: The Widget instance
  * - isVisible: Boolean flag indicating if the widget is currently visible
  */
 struct WidgetEntry {
-    var widget: SwiftUIWidget
+    var widget: Widget
     var isVisible: Bool
 }
 
@@ -27,9 +27,9 @@ struct WidgetEntry {
 protocol PanelManager {
     /**
      * Adds a new widget to the panel.
-     * - Parameter widget: The SwiftUIWidget to be added
+     * - Parameter widget: The Widget to be added
      */
-    func addWidget(_ widget: SwiftUIWidget)
+    func addWidget(_ widget: Widget)
     
     /**
      * Hides a specific widget from view.

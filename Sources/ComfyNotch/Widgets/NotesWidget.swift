@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 
-struct NotesWidget : View, SwiftUIWidget {
+struct NotesWidget : View, Widget {
 
     var name: String = "NotesWidget"
     private var buttons: [String] = ["1", "2", "3"]

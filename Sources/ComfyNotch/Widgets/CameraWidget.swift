@@ -4,7 +4,7 @@ import AVFoundation
 import Combine
 
 
-struct CameraWidget: View, SwiftUIWidget {
+struct CameraWidget: View, Widget {
     var name: String = "CameraWidget"
     @StateObject private var model = CameraWidgetModel()
     
