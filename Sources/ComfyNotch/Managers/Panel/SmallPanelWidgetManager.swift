@@ -1,21 +1,29 @@
 import AppKit
 import SwiftUI
 
-struct WidgetEntry {
-    var widget: SwiftUIWidget
-    var isVisible: Bool
-}
-
-class PanelStore {
-
-}
-
-class SmallPanelWidgetStore: ObservableObject {
+/**
+ * SmallPanelWidgetStore manages the widgets displayed in the notch panel area.
+ * It handles the organization and visibility state of widgets, separating them into
+ * left and right aligned sections.
+ *
+ * The store maintains four arrays:
+ * - leftWidgetsHidden: Widgets aligned to the left that are currently hidden
+ * - leftWidgetsShown: Widgets aligned to the left that are currently visible
+ * - rightWidgetsHidden: Widgets aligned to the right that are currently hidden
+ * - rightWidgetsShown: Widgets aligned to the right that are currently visible
+ */
+class SmallPanelWidgetStore: PanelManager, ObservableObject {
     @Published var leftWidgetsHidden: [WidgetEntry] = []
     @Published var leftWidgetsShown: [WidgetEntry] = []
     @Published var rightWidgetsHidden: [WidgetEntry] = []
     @Published var rightWidgetsShown: [WidgetEntry] = []
 
+    /**
+     * Adds a new widget to the appropriate hidden array based on its alignment.
+     * If no alignment is specified, the widget defaults to left alignment.
+     *
+     * - Parameter widget: The SwiftUIWidget to be added
+     */
     func addWidget(_ widget: SwiftUIWidget) {
         let widgetEntry = WidgetEntry(widget: widget, isVisible: false)
         
@@ -31,6 +39,12 @@ class SmallPanelWidgetStore: ObservableObject {
         }
     }
 
+    /**
+     * Hides a widget by moving it from the shown array to the hidden array.
+     * The widget's visibility state is updated to false.
+     *
+     * - Parameter name: The name of the widget to hide
+     */
     func hideWidget(named name: String) {
         if let index = leftWidgetsShown.firstIndex(where: { $0.widget.name == name }) {
             leftWidgetsShown[index].isVisible = false
@@ -45,6 +59,12 @@ class SmallPanelWidgetStore: ObservableObject {
         }
     }
 
+    /**
+     * Shows a widget by moving it from the hidden array to the shown array.
+     * The widget's visibility state is updated to true.
+     *
+     * - Parameter name: The name of the widget to show
+     */
     func showWidget(named name: String) {
         // Show from the hidden list if it exists
         if let index = leftWidgetsHidden.firstIndex(where: { $0.widget.name == name }) {
@@ -58,6 +78,24 @@ class SmallPanelWidgetStore: ObservableObject {
             let widgetEntry = rightWidgetsHidden.remove(at: index)
             rightWidgetsShown.append(widgetEntry)
         }
+    }
+
+    /**
+     * Removes a widget from the store completely.
+     * Currently not implemented.
+     *
+     * - Parameter name: The name of the widget to remove
+     */
+    func removeWidget(named name: String) {
+        // No Implementation Needed
+    }
+
+    /**
+     * Removes all widgets from the store.
+     * Currently not implemented.
+     */
+    func clearWidgets() {
+        // No Implementation Needed
     }
 }
 
@@ -110,92 +148,6 @@ struct SmallPanelWidgetManager: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-
-    // /** 
-    //  *
-    //  *  This function gets a NSView with the width of the notch
-    //  *
-    //  */
-    // private func getSpacer() -> NSView {
-    //     let spacer = NSView()
-    //     spacer.translatesAutoresizingMaskIntoConstraints = false
-
-    //     // Ensure the spacer has a constant width
-    //     let notchWidth = self.getNotchWidth() + 10
-    //     NSLayoutConstraint.activate([
-    //         spacer.widthAnchor.constraint(equalToConstant: notchWidth),
-    //         spacer.heightAnchor.constraint(equalToConstant: 1) // Small height to ensure it's part of the layout
-    //     ])
-        
-    //     spacer.wantsLayer = true
-    //     // spacer.layer?.backgroundColor = NSColor.red.cgColor // Visualize the spacer for debugging
-
-    //     return spacer
-    // }
-
-    // /**
-    //  *
-    //  *  we attach our stackView to the panelContentView
-    //  *  this creates a hierarchy of NSPanel -> panelContentView -> stackView -> Widgets
-    //  *
-    //  */
-    // override func setPanelContentView(_ view: NSView) {
-    //     super.setPanelContentView(view)
-    //     view.addSubview(stackView)
-    //     stackView.translatesAutoresizingMaskIntoConstraints = false
-
-    //     // Pinning stackView to the edges of the panelContentView
-    //     // This is kinda like we just pasted the stackView to the panelContentView
-    //     NSLayoutConstraint.activate([
-    //         stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-    //         stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-    //         stackView.topAnchor.constraint(equalTo: view.topAnchor),
-    //         stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-    //     ])
-    // }
-
-    // /**
-    //  *
-    //  *  This function will add the widget to either the left or the right
-    //  *  stackView depending on the alignment of the widget, if no alignment
-    //  *  is set, it will default to the left stackView
-    //  *
-    //  */
-    // func addWidget(_ widget: Widget) {
-    //     widgets.append(widget)
-    //     // Handle Alignment
-    //     if let alignment = widget.alignment {
-    //         switch alignment {
-    //             case .left:
-    //                 leftStackView.addArrangedSubview(widget.view)
-    //             case .right:
-    //                 rightStackView.addArrangedSubview(widget.view)
-    //         }
-    //     } else {
-    //         // Default to left alignment if no specific alignment is set
-    //         leftStackView.addArrangedSubview(widget.view)
-    //     }
-
-    //     widget.view.setContentHuggingPriority(.defaultLow, 
-    //                                           for: .horizontal)
-    //     widget.view.setContentCompressionResistancePriority(.defaultLow, 
-    //                                                         for: .horizontal)
-    // }
-    
-    // override func layoutWidgets() {
-    //     // Force layout update
-    //     stackView.layoutSubtreeIfNeeded()
-    // }
-    
-    // // Helper method to log all constraints
-    // func logAllConstraints() {
-    //     guard let panelContentView = panelContentView else { return }
-    //     print("=== All Constraints ===")
-    //     for (index, constraint) in panelContentView.constraints.enumerated() {
-    //         print("Constraint \(index): \(constraint)")
-    //     }
-    //     print("======================")
-    // }
 
     private func getNotchWidth() -> CGFloat {
         guard let screen = NSScreen.main else { return 180 } // Default to 180 if it fails

@@ -6,7 +6,7 @@ import SwiftUI
  * It provides functionality to add, remove, show, hide, and clear widgets, while maintaining their visibility state.
  * The class is designed to work with SwiftUI and uses the `@Published` property wrapper to notify observers of changes.
  */
-class BigPanelWidgetStore: ObservableObject {
+class BigPanelWidgetStore: PanelManager, ObservableObject {
     @Published var widgets : [WidgetEntry] = []
 
     /// Adds a widget to the big panel "store"

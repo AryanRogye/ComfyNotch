@@ -101,6 +101,13 @@ struct AIChatWidget : View, SwiftUIWidget {
     func sendMessage() {
         let userMessage = ChatMessage(content: inputText, isUser: true)
         messages.append(userMessage)
+
+        // just make sure that its openai for now
+        if settings.selectedProvider != .openAI {
+            let errorMessage = ChatMessage(content: "Only OpenAI is supported for now.", isUser: false)
+            messages.append(errorMessage)
+            return
+        }
         
         let requestBody: [String: Any] = [
             "model": "gpt-3.5-turbo",
