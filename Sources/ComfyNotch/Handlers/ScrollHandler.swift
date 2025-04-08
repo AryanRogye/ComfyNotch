@@ -207,26 +207,27 @@ class ScrollHandler {
         
         let scrollDeltaY = event.scrollingDeltaY
 
-        let scrollThreshold: CGFloat = 10.0 // Increased to avoid tiny flickers
+        let scrollThreshold: CGFloat = 1.0 // Increased to avoid tiny flickers
+        print("Scroll delta Y: \(scrollDeltaY)")
 
         // Use DispatchQueue to avoid blocking the main thread
         DispatchQueue.global(qos: .userInteractive).async { [weak self] in
             if scrollDeltaY > scrollThreshold {
                 // Scrolling down (Close)
-                DispatchQueue.main.async {
-                    self?.open()
-                    return
-                }
+                // DispatchQueue.main.async {
+                //     self?.open()
+                //     return
+                // }
             }
             else if scrollDeltaY < -scrollThreshold {
                 // Scrolling up (Open)
                 DispatchQueue.main.async {
                     self?.close()
+                    return
                 }
             }
         }
 
-        // print("Scroll delta Y: \(scrollDeltaY)")
 
 
         let currentHeight = panel.frame.height

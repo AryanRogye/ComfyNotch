@@ -8,7 +8,7 @@ import CoreImage
  *
  * Key Features:
  * - Tracks current playing media information
- * - Manages artwork and dominant color extraction
+ * - Manages artwork and dominant color extraction  
  * - Provides playback controls
  * - Auto-updates media information
  */

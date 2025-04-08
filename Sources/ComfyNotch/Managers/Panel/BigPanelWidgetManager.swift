@@ -73,18 +73,16 @@ struct BigPanelWidgetManager : View {
             Color.black.opacity(1)
                 .clipShape(RoundedCornersShape(topLeft: 10, 
                                                topRight: 10, 
-                                               bottomLeft: 10, 
-                                               bottomRight: 10))
-                HStack(spacing: 1) {
+                                               bottomLeft: 20, 
+                                               bottomRight: 20))
+                HStack(spacing: 0) {
                     ForEach(widgetStore.widgets.indices, id: \.self) { index in
                         let widgetEntry = widgetStore.widgets[index]
                         if widgetEntry.isVisible {
                             widgetEntry.widget.swiftUIView
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                .padding(.horizontal, 10)
+                                .padding(.horizontal, 2)
                                 .padding(.vertical, 5)
-                                .background(Color.black.opacity(0.8))
-                                .cornerRadius(10)
                         }
                     }
                 }

@@ -58,8 +58,13 @@ struct AIChatWidget : View, Widget {
                             .foregroundColor(.white)
                     }
                 }
-                Text(outputText)
-                    .background(Color.black.opacity(0.1))
+                Button(action: {
+                    messages.removeAll()
+                    saveMessages()  // Save empty state
+                }) {
+                    Text("Clear")
+                        .background(Color.black.opacity(0.1))
+                }
             }
         }
         .onAppear {
