@@ -1,3 +1,10 @@
 .build/
 .swiftpm/
 .vscode/
+
+# Ignore build artifacts
+*.d
+*.o
+*.swiftdeps
+*.zip
+*.app
