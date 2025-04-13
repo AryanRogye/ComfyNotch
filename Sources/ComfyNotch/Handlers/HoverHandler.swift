@@ -22,6 +22,9 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
 
     private var collapseTimer: Timer?
     private var isUsingHapticFeedback: Bool = false
+
+    private let padding: CGFloat = 10
+    private let closingPadding : CGFloat = 50
     
     // Start with no hover state
     var hoverState : HoverState = .NOT_HOVERING
@@ -88,8 +91,6 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
         let mouseLocation = NSEvent.mouseLocation
 
         // 🧠 Padding zone in pixels
-        let padding: CGFloat = 10
-        let closingPadding : CGFloat = 50
         
         // Get panel's frame in screen coordinates
         let panelFrame = panel.frame.insetBy(dx: -padding, dy: -padding)
@@ -129,6 +130,28 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
                     // Reset haptic feedback state
                     self.isUsingHapticFeedback = false
                 }
+            }
+        }
+    }
+
+    func collapsePanelIfExpanded() {
+        guard let panel = self.panel else { return }
+
+        if PanelAnimationState.shared.isExpanded {
+            PanelAnimationState.shared.isExpanded = false
+            PanelAnimationState.shared.bottomSectionHeight = 0
+
+            let collapsedFrame = NSRect(
+                x: self.originalFrame.origin.x,
+                y: self.originalFrame.origin.y,
+                width: self.originalWidth,
+                height: self.originalHeight
+            )
+
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = self.animationDuration
+                context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                panel.animator().setFrame(collapsedFrame, display: true)
             }
         }
     }

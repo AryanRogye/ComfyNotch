@@ -367,6 +367,10 @@ class ScrollHandler {
     public func updatePanelState(for height: CGFloat) {
         if height >= maxPanelHeight {
             UIManager.shared.panel_state = .OPEN
+
+            // 🔽 Close the hover-triggered small panel before opening big one
+            UIManager.shared.hoverHandler?.collapsePanelIfExpanded()
+
             UIManager.shared.showBigPanelWidgets()
             UIManager.shared.showSmallPanelSettingsWidget()
         } else if height <= minPanelHeight {

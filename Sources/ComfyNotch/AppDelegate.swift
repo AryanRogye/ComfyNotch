@@ -40,6 +40,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // Tiny Haptic Feedback when hovering
             self.hoverHandler = HoverHandler(panel: smallPanel)
         }
+        UIManager.shared.hoverHandler = self.hoverHandler
         if let bigPanel = UIManager.shared.big_panel {
             // Proximity Handler for the Big Panel
             self.panelProximityHandler = PanelProximityHandler(panel: bigPanel)

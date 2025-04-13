@@ -106,6 +106,7 @@ class PanelAnimationState: ObservableObject {
     @Published var isExpanded: Bool = false
     @Published var bottomSectionHeight: CGFloat = 0
     @Published var songText: String = AudioManager.shared.currentSongText
+    @Published var playingColor: NSColor = AudioManager.shared.dominantColor
 
 
     private var cancellables = Set<AnyCancellable>()
@@ -117,6 +118,15 @@ class PanelAnimationState: ObservableObject {
                 self?.songText = newSong
             }
             .store(in: &cancellables)
+        
+        AudioManager.shared.$dominantColor
+            .receive(on: RunLoop.main)
+            .sink { [weak self] color in
+                DispatchQueue.main.async {
+                    self?.playingColor = color
+                }
+            }
+            .store(in: &cancellables)
     }
 }
 
@@ -124,6 +134,7 @@ struct SmallPanelWidgetManager: View {
 
     @EnvironmentObject var widgetStore: SmallPanelWidgetStore
     @ObservedObject var animationState = PanelAnimationState.shared
+    @State private var isHovering: Bool = false
 
     private var paddingWidth: CGFloat = 20
     private var contentInset: CGFloat = 40
@@ -156,14 +167,47 @@ struct SmallPanelWidgetManager: View {
 
                     // Right Widgets
                     ZStack(alignment: .leading) {
-                        HStack(spacing: 0) {
-                            ForEach(widgetStore.rightWidgetsShown.indices, id: \.self) { index in
-                                let widgetEntry = widgetStore.rightWidgetsShown[index]
-                                if widgetEntry.isVisible {
-                                    widgetEntry.widget.swiftUIView
+                        if !isHovering {
+                            HStack(spacing: 0) {
+                                ForEach(widgetStore.rightWidgetsShown.indices, id: \.self) { index in
+                                    let widgetEntry = widgetStore.rightWidgetsShown[index]
+                                    if widgetEntry.isVisible {
+                                        widgetEntry.widget.swiftUIView
+                                    }
+                                }
+                            }
+                        } 
+                        else {
+                            HStack(spacing: 0) {
+                                //// If the widget is playing show pause
+                                if (animationState.songText != "No Song Playing") {
+                                    Button(action: AudioManager.shared.togglePlayPause ) {
+                                        Image(systemName: "pause.fill")
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: 17, height: 15)
+                                            .foregroundColor(Color(nsColor:animationState.playingColor))
+                                    }
+                                    .buttonStyle(.plain)
+                                    .padding(.trailing, 23)
+                                } 
+                                /// if the widget is not playing show play
+                                else {
+                                    Button(action: AudioManager.shared.togglePlayPause ) {
+                                        Image(systemName: "play.fill")
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: 17, height: 15)
+                                            .foregroundColor(Color(nsColor:animationState.playingColor))
+                                    }
+                                    .buttonStyle(.plain)
+                                    .padding(.trailing, 23)
                                 }
                             }
                         }
+                    }
+                    .onHover { hover in 
+                        isHovering = hover
                     }
                 }
                 .padding(.top, 4)
@@ -172,7 +216,8 @@ struct SmallPanelWidgetManager: View {
                 VStack {
                     if animationState.isExpanded {
                         Text(animationState.songText)
-                            .foregroundStyle(.white)
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundStyle(Color(nsColor: animationState.playingColor))
                             .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
                 }

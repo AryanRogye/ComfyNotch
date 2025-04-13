@@ -37,6 +37,8 @@ class UIManager {
     let smallWidgetStore = SmallPanelWidgetStore()
     let bigWidgetStore = BigPanelWidgetStore()
 
+    var hoverHandler: HoverHandler?
+
     var small_panel : NSPanel!
     var big_panel : NSPanel!
 
