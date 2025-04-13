@@ -11,7 +11,7 @@ import Foundation
  * - hoverHandler: Manages hover interactions for the small panel
  * - panelProximityHandler: Manages proximity-based interactions for the big panel
  */
-class AppDelegate: NSObject, NSApplicationDelegate {
+public class AppDelegate: NSObject, NSApplicationDelegate {
     private var hoverHandler: HoverHandler?
     private var panelProximityHandler: PanelProximityHandler?
 
@@ -29,7 +29,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
      *
      * - Parameter notification: Launch notification object
      */
-    func applicationDidFinishLaunching(_ notification: Notification) {
+    public func applicationDidFinishLaunching(_ notification: Notification) {
         _ = SettingsModel.shared
 
         // Start the UI

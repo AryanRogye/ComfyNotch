@@ -131,72 +131,6 @@ class PanelAnimationState: ObservableObject {
     }
 }
 
-class MetalCoordinator: NSObject, MTKViewDelegate {
-    var time: Float = 0
-    var shadeColor = SIMD3<Float>(0.2, 0.2, 0.2) // Default comfy fallback
-
-    func updateShade(from nsColor: NSColor) {
-        let rgb = nsColor.usingColorSpace(.deviceRGB) ?? NSColor.black
-        shadeColor = SIMD3<Float>(
-            Float(rgb.redComponent),
-            Float(rgb.greenComponent),
-            Float(rgb.blueComponent)
-        )
-    }
-
-    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
-
-    func draw(in view: MTKView) {
-        guard let drawable = view.currentDrawable,
-              let descriptor = view.currentRenderPassDescriptor,
-              let device = view.device,
-              let commandQueue = device.makeCommandQueue(),
-              let commandBuffer = commandQueue.makeCommandBuffer(),
-              let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)
-        else { return }
-
-        time += 0.03
-
-        let glow = (sin(time) + 1) / 2
-        let strength = 0.06 + glow * 0 // Pulses from 0.07 to 0.09
-
-        let finalColor = shadeColor * strength
-
-        view.clearColor = MTLClearColor(
-            red: Double(finalColor.x),
-            green: Double(finalColor.y),
-            blue: Double(finalColor.z),
-            alpha: 1
-        )
-
-        encoder.endEncoding()
-        commandBuffer.present(drawable)
-        commandBuffer.commit()
-    }
-}
-
-struct MetalBackgroundView: NSViewRepresentable {
-
-    @Binding var shade: NSColor
-
-    func makeCoordinator() -> MetalCoordinator {
-        MetalCoordinator()
-    }
-
-    func makeNSView(context: Context) -> MTKView {
-        let mtkView = MTKView()
-        mtkView.device = MTLCreateSystemDefaultDevice()
-        mtkView.delegate = context.coordinator
-        mtkView.isPaused = false
-        mtkView.enableSetNeedsDisplay = false
-        mtkView.preferredFramesPerSecond = 60
-        return mtkView
-    }
-
-    func updateNSView(_ nsView: MTKView, context: Context) {
-        context.coordinator.updateShade(from: shade)
-    }
-}
 
 struct SmallPanelWidgetManager: View {
 
@@ -346,5 +280,73 @@ struct SmallPanelWidgetManager: View {
 
         // Default if we can't determine it
         return 180
+    }
+}
+
+
+class MetalCoordinator: NSObject, MTKViewDelegate {
+    var time: Float = 0
+    var shadeColor = SIMD3<Float>(0.2, 0.2, 0.2) // Default comfy fallback
+
+    func updateShade(from nsColor: NSColor) {
+        let rgb = nsColor.usingColorSpace(.deviceRGB) ?? NSColor.black
+        shadeColor = SIMD3<Float>(
+            Float(rgb.redComponent),
+            Float(rgb.greenComponent),
+            Float(rgb.blueComponent)
+        )
+    }
+
+    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
+
+    func draw(in view: MTKView) {
+        guard let drawable = view.currentDrawable,
+              let descriptor = view.currentRenderPassDescriptor,
+              let device = view.device,
+              let commandQueue = device.makeCommandQueue(),
+              let commandBuffer = commandQueue.makeCommandBuffer(),
+              let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)
+        else { return }
+
+        time += 0.03
+
+        let glow = (sin(time) + 1) / 2
+        let strength = 0.06 + glow * 0 // Pulses from 0.07 to 0.09
+
+        let finalColor = shadeColor * strength
+
+        view.clearColor = MTLClearColor(
+            red: Double(finalColor.x),
+            green: Double(finalColor.y),
+            blue: Double(finalColor.z),
+            alpha: 1
+        )
+
+        encoder.endEncoding()
+        commandBuffer.present(drawable)
+        commandBuffer.commit()
+    }
+}
+
+struct MetalBackgroundView: NSViewRepresentable {
+
+    @Binding var shade: NSColor
+
+    func makeCoordinator() -> MetalCoordinator {
+        MetalCoordinator()
+    }
+
+    func makeNSView(context: Context) -> MTKView {
+        let mtkView = MTKView()
+        mtkView.device = MTLCreateSystemDefaultDevice()
+        mtkView.delegate = context.coordinator
+        mtkView.isPaused = false
+        mtkView.enableSetNeedsDisplay = false
+        mtkView.preferredFramesPerSecond = 60
+        return mtkView
+    }
+
+    func updateNSView(_ nsView: MTKView, context: Context) {
+        context.coordinator.updateShade(from: shade)
     }
 }

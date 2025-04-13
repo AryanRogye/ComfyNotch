@@ -7,21 +7,20 @@ let package = Package(
         .macOS(.v12)
     ],
     products: [
-        .executable(
-            name: "ComfyNotch",
-            targets: ["ComfyNotch"]
-        ),
+        .library(name: "ComfyNotch", targets: ["ComfyNotch"]),
+        .executable(name: "ComfyNotchDev", targets: ["ComfyNotchDev"])
     ],
     dependencies: [],
     targets: [
-        .executableTarget(
+        .target(
             name: "ComfyNotch",
             dependencies: [],
-            path: "Sources/ComfyNotch",
-            exclude: []
-            // resources: [
-            //     .process("Resources") // Put your Info.plist in a Resources folder
-            // ]
+            path: "Sources/ComfyNotch"
+        ),
+        .executableTarget(
+            name: "ComfyNotchDev",
+            dependencies: ["ComfyNotch"],
+            path: "Sources/ComfyNotchDev"
         )
     ]
 )

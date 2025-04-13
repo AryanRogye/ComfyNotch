@@ -1,6 +1,7 @@
 import AppKit
+import ComfyNotch
 
-let minimumSupportedVersion = OperatingSystemVersion(majorVersion: 14, minorVersion: 0, patchVersion: 0) // macOS 14 (Sonoma)
+let minimumSupportedVersion = OperatingSystemVersion(majorVersion: 14, minorVersion: 0, patchVersion: 0) // Sonoma
 
 if !ProcessInfo.processInfo.isOperatingSystemAtLeast(minimumSupportedVersion) {
     let alert = NSAlert()
