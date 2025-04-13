@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import Combine
 
 /**
  * SmallPanelWidgetStore manages the widgets displayed in the notch panel area.
@@ -99,9 +100,30 @@ class SmallPanelWidgetStore: PanelManager, ObservableObject {
     }
 }
 
+class PanelAnimationState: ObservableObject {
+    static let shared = PanelAnimationState()
+
+    @Published var isExpanded: Bool = false
+    @Published var bottomSectionHeight: CGFloat = 0
+    @Published var songText: String = AudioManager.shared.currentSongText
+
+
+    private var cancellables = Set<AnyCancellable>()
+
+    init() {
+        AudioManager.shared.$currentSongText
+            .receive(on: RunLoop.main)
+            .sink { [weak self] newSong in
+                self?.songText = newSong
+            }
+            .store(in: &cancellables)
+    }
+}
+
 struct SmallPanelWidgetManager: View {
 
     @EnvironmentObject var widgetStore: SmallPanelWidgetStore
+    @ObservedObject var animationState = PanelAnimationState.shared
 
     private var paddingWidth: CGFloat = 20
     private var contentInset: CGFloat = 40
@@ -113,38 +135,55 @@ struct SmallPanelWidgetManager: View {
                                                topRight: 0, 
                                                bottomLeft: 20, 
                                                bottomRight: 20))
-            HStack(spacing: 0) {
-                // Left Widgets
-                ZStack(alignment: .trailing) {
-                    HStack(spacing: 0) {
-                        ForEach(widgetStore.leftWidgetsShown.indices, id: \.self) { index in
-                            let widgetEntry = widgetStore.leftWidgetsShown[index]
-                            if widgetEntry.isVisible {
-                                widgetEntry.widget.swiftUIView
+            VStack(spacing: 0) {
+                HStack(spacing: 0) {
+                    // Left Widgets
+                    ZStack(alignment: .trailing) {
+                        HStack(spacing: 0) {
+                            ForEach(widgetStore.leftWidgetsShown.indices, id: \.self) { index in
+                                let widgetEntry = widgetStore.leftWidgetsShown[index]
+                                if widgetEntry.isVisible {
+                                    widgetEntry.widget.swiftUIView
+                                }
+                            }
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+
+                    Spacer()
+                        .frame(width: getNotchWidth())
+                        .padding([.trailing, .leading], paddingWidth)
+
+                    // Right Widgets
+                    ZStack(alignment: .leading) {
+                        HStack(spacing: 0) {
+                            ForEach(widgetStore.rightWidgetsShown.indices, id: \.self) { index in
+                                let widgetEntry = widgetStore.rightWidgetsShown[index]
+                                if widgetEntry.isVisible {
+                                    widgetEntry.widget.swiftUIView
+                                }
                             }
                         }
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .trailing)
-
+                .padding(.top, 4)
+                .frame(maxWidth: .infinity, alignment: .top)
+                
+                VStack {
+                    if animationState.isExpanded {
+                        Text(animationState.songText)
+                            .foregroundStyle(.white)
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
+                }
+                .frame(height: animationState.bottomSectionHeight)
+                .clipped()
+                .animation(.easeInOut(duration: animationState.isExpanded ? 0.3 : 0.1), 
+                           value: animationState.isExpanded)
                 Spacer()
-                    .frame(width: getNotchWidth())
-                    .padding([.trailing, .leading], paddingWidth)
-
-                // Right Widgets
-                ZStack(alignment: .leading) {
-                    HStack(spacing: 0) {
-                        ForEach(widgetStore.rightWidgetsShown.indices, id: \.self) { index in
-                            let widgetEntry = widgetStore.rightWidgetsShown[index]
-                            if widgetEntry.isVisible {
-                                widgetEntry.widget.swiftUIView
-                            }
-                        }
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
                 
             }
+            .frame(maxWidth: .infinity, alignment: .top)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

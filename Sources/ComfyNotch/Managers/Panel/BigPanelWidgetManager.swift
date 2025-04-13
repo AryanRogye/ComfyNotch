@@ -13,9 +13,9 @@ class BigPanelWidgetStore: PanelManager, ObservableObject {
     /// -   widget: The widget to add
     func addWidget(_ widget: Widget) {
         let widgetEntry = WidgetEntry(widget: widget, isVisible: false)
-        if widgets.count >= 3 {
-            return
-        }
+        // if widgets.count >= 4 {
+        //     return
+        // }
         widgets.append(widgetEntry)
     }
 
@@ -75,17 +75,18 @@ struct BigPanelWidgetManager : View {
                                                topRight: 10, 
                                                bottomLeft: 20, 
                                                bottomRight: 20))
-                HStack(spacing: 0) {
-                    ForEach(widgetStore.widgets.indices, id: \.self) { index in
-                        let widgetEntry = widgetStore.widgets[index]
-                        if widgetEntry.isVisible {
-                            widgetEntry.widget.swiftUIView
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                .padding(.horizontal, 2)
-                                .padding(.vertical, 5)
-                        }
+
+            HStack(spacing: 2) {
+                ForEach(widgetStore.widgets.indices, id: \.self) { index in
+                    let widgetEntry = widgetStore.widgets[index]
+                    if widgetEntry.isVisible {
+                        widgetEntry.widget.swiftUIView
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .padding(.horizontal, 2)
+                            .padding(.vertical, 5)
                     }
                 }
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

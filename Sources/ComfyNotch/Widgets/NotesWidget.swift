@@ -19,7 +19,7 @@ struct NotesWidget : View, Widget {
                     renderFontToggle()
                 }
                 .background(Color.clear)
-                .padding(.leading, 3)
+                .padding(.leading, 7)
                 .frame(maxWidth: 30)
 
                 renderTextEditor()
