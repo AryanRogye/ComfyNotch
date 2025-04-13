@@ -248,10 +248,6 @@ struct SmallPanelWidgetManager: View {
                     Spacer()
                         .frame(width: getNotchWidth())
                         .padding([.trailing, .leading], paddingWidth)
-                        .onHover { hover in 
-                            isHovering = hover
-                        }
-
                     // Right Widgets
                     ZStack(alignment: .leading) {
                         if !isHovering {
@@ -293,8 +289,12 @@ struct SmallPanelWidgetManager: View {
                             }
                         }
                     }
-                    .onHover { hover in 
-                        isHovering = hover
+                    .onHover { hover in
+                        if animationState.isExpanded {
+                            isHovering = hover
+                        } else {
+                            isHovering = false
+                        }
                     }
                 }
                 .padding(.top, 4)
