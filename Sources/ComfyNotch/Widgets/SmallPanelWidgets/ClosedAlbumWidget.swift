@@ -7,15 +7,19 @@ struct AlbumWidgetView: View, Widget {
     var name: String = "AlbumWidget"
 
     @ObservedObject var model : AlbumWidgetModel
+    var scrollManager  = ScrollHandler.shared
     
     var body: some View {
         Group {
             if let nsImage = model.image {
-                Image(nsImage: nsImage)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 25, height: 25)
-                    .cornerRadius(8)
+                Button(action: { scrollManager.open() }) {
+                    Image(nsImage: nsImage)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 25, height: 25)
+                        .cornerRadius(8)
+                }
+                .buttonStyle(.plain)
             } else {
                 ZStack {
                     RoundedRectangle(cornerRadius: 8)

@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import Combine
 
 struct SettingsButtonView : View, Widget {
 
@@ -15,9 +16,11 @@ struct SettingsButtonView : View, Widget {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 20, height: 15)
-                .foregroundColor(.white)
+                .foregroundColor(Color(nsColor: model.playingColor))
                 .background(Color.clear)
         }
+        .buttonStyle(.plain)
+        .padding(.trailing, 20)
     }
 
     var swiftUIView: AnyView {
@@ -29,6 +32,20 @@ class SettingsWidgetModel: ObservableObject {
     @Published var action : () -> Void = {
         SettingsWindowController.shared.show()
         SettingsModel.shared.isSettingsWindowOpen = true
+    }
+    @Published var playingColor: NSColor = .white
+
+    private var cancellables = Set<AnyCancellable>()
+
+    init() {
+        AudioManager.shared.$dominantColor
+            .receive(on: RunLoop.main)
+            .sink { [weak self] color in
+                DispatchQueue.main.async {
+                    self?.playingColor = color
+                }
+            }
+            .store(in: &cancellables)
     }
 }
 
