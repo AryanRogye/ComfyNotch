@@ -27,10 +27,11 @@ ComfyNotch brings life to your MacBook’s notch by providing a clean and intuit
 
 1. **macOS Compatibility**  
    - ComfyNotch only supports macOS 14 (Sonoma) and above.  
+   - ComfyNotch also uses Metal for rendering, which is not available on macOS 13 and below.
    - Users on macOS 13 and below may experience crashes or missing functionalities.  
    - No plans for backward compatibility, but feel free to open an issue if needed.  
 
-2. **Monitor Switching**  
+2. ** Monitor Switching (Solved) **  
    - Switching monitors causes the app to lose positioning, not returning to the laptop screen.  
    - Resolving this is also a priority.  
 
@@ -47,7 +48,7 @@ ComfyNotch brings life to your MacBook’s notch by providing a clean and intuit
 ## ✅ **Planned Features & Improvements**
 
 ### 🔧 **Functionality Enhancements**
-- [ ] **App Restart on Display Changes**: Automatically restart the app when monitors are plugged in or unplugged.
+- [x] **App Restart on Display Changes**: Automatically restart the app when monitors are plugged in or unplugged.
 - [x] **Hide App Icon**: Hide app icon at all times, no need to bother the users dock.
 - [x] **Album View When Closed**: Display album art in a mini view when the panel is closed.
 - [x] **Music Playing Indicator**: Add a smooth icon animation to indicate when music is playing.
@@ -58,8 +59,8 @@ ComfyNotch brings life to your MacBook’s notch by providing a clean and intuit
 ### 🎨 **UI/UX Improvements**
 - [x] **Better Settings Menu**: Revamp the settings view for easier customization and better user experience.
 - [x] **Improved Notes Widget UI**: Add buttons to switch between multiple notes.
-- [ ] **Improved Music Player UI**: Make the buttons more cleaner.
-- [ ] **Convert to SwiftUI where I can**: Said everything I need to. 😂
+- [x] **Improved Music Player UI**: Make the buttons more cleaner.
+- [x] **Convert to SwiftUI where I can**: Said everything I need to. 😂
 
 ---
 
@@ -87,7 +88,7 @@ swift package clean
 swift build -c release
 
 # Copying the executable
-cp .build/release/ComfyNotch ComfyNotch.app/Contents/MacOS/
+cp .build/release/ComfyNotchDev ComfyNotch.app/Contents/MacOS/
 
 # Making the executable executable
 chmod +x ComfyNotch.app/Contents/MacOS/ComfyNotch

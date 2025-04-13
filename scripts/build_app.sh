@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name of the app
-APP_NAME="ComfyNotch"
+APP_NAME="ComfyNotchDev"
 
 # Build directory
 BUILD_DIR=".build/release"

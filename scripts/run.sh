@@ -1,3 +1,3 @@
 pkill ComfyNotch
 ./scripts/build_app.sh
-open ./ComfyNotch.app
+open ./ComfyNotchDev.app

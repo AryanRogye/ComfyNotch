@@ -3,32 +3,37 @@ import Combine
 
 struct SettingsView: View {
     @ObservedObject var settings = SettingsModel.shared
-    @State private var selectedTab = 0
+    @State private var selectedTab: Int? = 0
 
     var body: some View {
-        HStack {
-            TabView(selection: $selectedTab) {
-                MainSettingsView(settings: settings)
-                    .tabItem {
-                        Image(systemName: "gear")
-                        Text("Settings")
-                    }
+        NavigationSplitView {
+            List(selection: $selectedTab) {
+                Label("Settings", systemImage: "gear")
                     .tag(0)
-                AISettingsView(settings: settings)
-                    .tabItem {
-                        Image(systemName: "brain")
-                        Text("AI Settings")
-                    }
+                Label("AI Settings", systemImage: "brain")
                     .tag(1)
-                ShortcutView(settings: settings)
-                    .tabItem {
-                        Image(systemName: "keyboard")
-                        Text("Shortcuts")
-                    }
+                Label("Shortcuts", systemImage: "keyboard")
                     .tag(2)
             }
-        }.onDisappear {
+            .listStyle(SidebarListStyle())
+            .frame(minWidth: 200)
+        } detail: {
+            Group {
+                switch selectedTab {
+                case 0: MainSettingsView(settings: settings)
+                case 1: AISettingsView(settings: settings)
+                case 2: ShortcutView(settings: settings)
+                default: EmptyView()
+                }
+            }
+        }
+        .onDisappear {
             settings.isSettingsWindowOpen = false
         }
     }    
+}
+
+
+#Preview {
+    SettingsView(settings: SettingsModel.shared)
 }

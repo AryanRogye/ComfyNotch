@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 
 struct AISettingsView: View {
@@ -13,7 +14,21 @@ struct AISettingsView: View {
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding()
                     .focusable(true)
+                Button( action: addFromClipboard ) {
+                    Text("Add From Clipboard")
+                }
             }
         }
     }
+    
+    func addFromClipboard() {
+        if let clipboardString = NSPasteboard.general.string(forType: .string) {
+            settings.ai_api_key = clipboardString
+        }
+    }
+}
+
+
+#Preview {
+    AISettingsView(settings: SettingsModel.shared)
 }

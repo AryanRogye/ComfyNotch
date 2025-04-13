@@ -221,3 +221,8 @@ struct DropViewDelegate: DropDelegate {
         return false
     }
 }
+
+
+#Preview {
+    MainSettingsView(settings: SettingsModel.shared)
+}
