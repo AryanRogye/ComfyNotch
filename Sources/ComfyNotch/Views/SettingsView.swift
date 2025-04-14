@@ -9,13 +9,9 @@ struct SettingsView: View {
     
     let expandedSidebarWidth: CGFloat = 180
     // <<< How much space does the button *actually* need visually? >>>
-    // Includes its internal padding & the VStack padding. Approx 40-55.
     let collapsedVisibleWidth: CGFloat = 55 // Keep this definition for the spacer
 
     // <<< Calculate the offset needed to show JUST the button >>>
-    // Button starts visually around x=6 within container due to VStack padding.
-    // If we want it to appear at x=5 on screen: offset = 5 - 6 = -1
-    // Let's use a slightly larger offset for safety/visuals, e.g., -10
     let collapsedOffsetValue: CGFloat = -69
 
     var body: some View {
@@ -43,7 +39,7 @@ struct SettingsView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
                 
-                tabBar(isExpanded: $showTabBar) {
+                CustomSidebar(isExpanded: $showTabBar) {
                     /// we have 3 right now
                     customTabOption(icon: "gearshape", title: "Settings", isSelected: selectedTab == 0) { selectedTab = 0 }
                     customTabOption(icon: "brain.head.profile", title: "AI Settings", isSelected: selectedTab == 1) { selectedTab = 1 }
