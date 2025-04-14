@@ -7,31 +7,39 @@ struct AlbumWidgetView: View, Widget {
     var name: String = "AlbumWidget"
 
     @ObservedObject var model: AlbumWidgetModel
-    var scrollManager  = ScrollHandler.shared
+    var scrollManager = ScrollHandler.shared
     var body: some View {
         Group {
             if let nsImage = model.image {
-                Button(action: { scrollManager.open() }) {
+                panelButton {
                     Image(nsImage: nsImage)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 25, height: 25)
                         .cornerRadius(8)
                 }
-                .buttonStyle(.plain)
             } else {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.gray.opacity(0.2))
-                        .frame(width: 30, height: 30)
-                    Image(systemName: "music.note")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.white)
+                panelButton {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.gray.opacity(0.2))
+                            .frame(width: 30, height: 30)
+                        Image(systemName: "music.note")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.white)
+                    }
+                    .frame(width: 25, height: 25)
                 }
-                .frame(width: 25, height: 25)
             }
         }
         .padding(.leading, 10)
+    }
+
+    private func panelButton<Label: View>(@ViewBuilder label: () -> Label) -> some View {
+        Button(action: scrollManager.open ) {
+            label()
+        }
+        .buttonStyle(.plain)
     }
 
     var swiftUIView: AnyView {
@@ -41,7 +49,6 @@ struct AlbumWidgetView: View, Widget {
 
 class AlbumWidgetModel: ObservableObject {
     @Published var image: NSImage?
-
     private var cancellables = Set<AnyCancellable>()
 
     init() {
