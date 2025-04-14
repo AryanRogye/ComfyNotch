@@ -21,7 +21,6 @@ struct MainSettingsView: View {
             }
             .padding()
         }
-        .frame(width: 400, height: 600)
     }
     private var headerView: some View {
         VStack(spacing: 8) {

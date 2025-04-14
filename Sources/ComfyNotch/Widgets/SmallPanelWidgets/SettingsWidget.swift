@@ -36,6 +36,8 @@ class SettingsWindowDelegate: NSObject, NSWindowDelegate {
 
 class SettingsWidgetModel: ObservableObject {
     @Published var action: () -> Void = {
+        /// Set the Model to the pane open
+        SettingsModel.shared.isSettingsWindowOpen = true
         SettingsView(settings: SettingsModel.shared)
             .openNewWindow(
                 title: "Settings",

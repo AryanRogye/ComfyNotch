@@ -11,7 +11,7 @@ class SettingsModel: ObservableObject {
     @Published var openStateYOffset = CGFloat(35)
     @Published var snapOpenThreshold: CGFloat = 0.9
     @Published var aiApiKey: String = ""
-
+    
     @Published var selectedProvider: AIProvider = .openAI
     @Published var selectedOpenAIModel: OpenAIModel = .gpt3
     @Published var selectedAnthropicModel: AnthropicModel = .claudeV1

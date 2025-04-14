@@ -159,9 +159,9 @@ rm -rf "$ICNS_FILE"
 echo "App bundle created successfully!"
 
 # ✅ 1. Sign the app (Ad-Hoc Signing) - Just copy-paste this command
-codesign --deep --force --sign - --entitlements "$ENTITLEMENTS_FILE" ComfyNotch.app
+codesign --deep --force --sign - --entitlements "$ENTITLEMENTS_FILE" ComfyNotchDev.app
 
 # ✅ 2. Zip the app properly - This command keeps everything intact
-ditto -c -k --sequesterRsrc --keepParent ComfyNotch.app ComfyNotch.app.zip
+ditto -c -k --sequesterRsrc --keepParent ComfyNotchDev.app ComfyNotchDev.app.zip
 
 echo "Build complete! Upload ComfyNotch.app.zip to GitHub Releases."

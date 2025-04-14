@@ -85,6 +85,8 @@ class ScrollHandler {
     /// Programmatically opens the panel fully
     func open() {
         guard let panel = UIManager.shared.bigPanel else { return }
+        /// When Opening make sure that the small panel is closed
+        UIManager.shared.hoverHandler?.collapsePanelIfExpanded()
 
         let targetHeight = maxPanelHeight
         let targetWidth = maxPanelWidth
@@ -186,10 +188,10 @@ class ScrollHandler {
                 width: smallPanel.frame.width + (scrollPadding * 2),
                 height: smallPanel.frame.height + (scrollPadding * 2)
             )
-            
+
             return paddedFrame.contains(mouseLocation)
         }
-        
+
         return false
     }
 
@@ -205,7 +207,7 @@ class ScrollHandler {
         if isSnapping { return }
 
         guard let panel = UIManager.shared.bigPanel else { return }
-        
+
         let scrollDeltaY = event.scrollingDeltaY
 
         let scrollThreshold: CGFloat = 1.0 // Increased to avoid tiny flickers
@@ -219,8 +221,7 @@ class ScrollHandler {
                 //     self?.open()
                 //     return
                 // }
-            }
-            else if scrollDeltaY < -scrollThreshold {
+            } else if scrollDeltaY < -scrollThreshold {
                 // Scrolling up (Open)
                 DispatchQueue.main.async {
                     self?.close()
@@ -229,12 +230,10 @@ class ScrollHandler {
             }
         }
 
-
-
         let currentHeight = panel.frame.height
         let proposedHeight = currentHeight + scrollDeltaY
         let clampedHeight = max(minPanelHeight, min(maxPanelHeight, proposedHeight))
-        
+
         // Compute ratio from 0 (closed) to 1 (open)
         let ratio = (clampedHeight - minPanelHeight) / (maxPanelHeight - minPanelHeight)
         let newWidth = minPanelWidth + ratio * (maxPanelWidth - minPanelWidth)
@@ -243,11 +242,10 @@ class ScrollHandler {
         if event.phase == .changed {
             // Update instantly with no animation
             updatePanelSize(toHeight: clampedHeight, toWidth: newWidth, animated: false)
-        }
-        else if event.phase == .ended || event.phase == .cancelled { 
+        } else if event.phase == .ended || event.phase == .cancelled {
             // Start snapping
             isSnapping = true
-            
+
             if ratio >= snapOpenThreshold {
                 animatePanelToState(open: true)
                 updatePanelState(for: maxPanelHeight)
