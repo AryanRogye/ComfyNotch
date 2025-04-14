@@ -17,7 +17,7 @@ struct CustomSidebar<Content: View>: View {
     init(
         isExpanded: Binding<Bool>,
         expandedSidebarWidth: CGFloat = 180,
-        collapsedOffsetValue: CGFloat = -69,
+        collapsedOffsetValue: CGFloat = -65,
         @ViewBuilder content: @escaping () -> Content
     ) {
         self._isExpanded = isExpanded
@@ -44,6 +44,7 @@ struct CustomSidebar<Content: View>: View {
                         .rotationEffect(.degrees(isExpanded ? 0 : 180))
                         .animation(.easeInOut(duration: 0.25), value: isExpanded)
                 }
+                .padding(.trailing, 20)
                 .padding(.vertical, 10)
 
                 /// Actual Content

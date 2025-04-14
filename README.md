@@ -61,6 +61,7 @@ ComfyNotch brings life to your MacBook’s notch by providing a clean and intuit
 - [x] **Improved Notes Widget UI**: Add buttons to switch between multiple notes.
 - [x] **Improved Music Player UI**: Make the buttons more cleaner.
 - [x] **Convert to SwiftUI where I can**: Said everything I need to. 😂
+- [ ] **Invisible Mode**: Hide the notch with a shortcut when hovered on the notch, so toolbar options on other apps can be visible
 
 ---
 

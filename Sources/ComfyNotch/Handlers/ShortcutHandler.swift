@@ -1,5 +1,14 @@
 import AppKit
 
+enum ModifierKey: String, CaseIterable, Identifiable {
+    case command = "⌘ Command"
+    case control = "^ Control"
+    case option = "⌥ Option"
+    case shift = "⇧ Shift"
+
+    var id: String { rawValue }
+}
+
 class ShortcutHandler: ObservableObject {
 
     static let shared = ShortcutHandler()

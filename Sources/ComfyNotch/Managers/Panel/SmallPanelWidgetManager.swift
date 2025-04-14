@@ -155,8 +155,8 @@ struct SmallPanelWidgetManager: View {
                     .clipShape(RoundedCornersShape(
                                     topLeft: 0,
                                     topRight: 0,
-                                    bottomLeft: 20,
-                                    bottomRight: 20
+                                    bottomLeft: 10,
+                                    bottomRight: 10
                             ))
             }
             VStack(spacing: 0) {
@@ -251,15 +251,15 @@ struct SmallPanelWidgetManager: View {
         .clipShape(RoundedCornersShape(
                         topLeft: 0,
                         topRight: 0,
-                        bottomLeft: 20,
-                        bottomRight: 20
+                        bottomLeft: 10,
+                        bottomRight: 10
                  ))
         .mask(
             RoundedCornersShape(
                 topLeft: 0,
                 topRight: 0,
-                bottomLeft: 20,
-                bottomRight: 20
+                bottomLeft: 10,
+                bottomRight: 10
             )
         )
     }

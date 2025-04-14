@@ -76,8 +76,8 @@ struct BigPanelWidgetManager: View {
                 .clipShape(RoundedCornersShape(
                     topLeft: 10,
                     topRight: 10,
-                    bottomLeft: 20,
-                    bottomRight: 20
+                    bottomLeft: 10,
+                    bottomRight: 10
                 ))
 
             HStack(spacing: 2) {
