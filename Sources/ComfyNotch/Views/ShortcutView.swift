@@ -1,6 +1,5 @@
 import SwiftUI
 
-
 struct ShortcutView: View {
 
     @ObservedObject var settings: SettingsModel

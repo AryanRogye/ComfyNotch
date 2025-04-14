@@ -1,15 +1,14 @@
 import AppKit
 import SwiftUI
 
-
-struct NotesWidget : View, Widget {
+struct NotesWidget: View, Widget {
 
     var name: String = "NotesWidget"
     private var buttons: [String] = ["1", "2", "3"]
 
     @ObservedObject var model = NotesWidgetModel()  // Using your model
-    @State var currentFontSize : CGFloat = 14
-    @State var showFontControls : Bool = false
+    @State var currentFontSize: CGFloat = 14
+    @State var showFontControls: Bool = false
 
     var body: some View {
         ZStack {
@@ -102,7 +101,7 @@ struct NotesWidget : View, Widget {
     }
 }
 
-class NotesWidgetModel : ObservableObject {
+class NotesWidgetModel: ObservableObject {
     @Published var text: String = ""
     @Published var selectedButton: String = "1"
 
@@ -111,7 +110,9 @@ class NotesWidgetModel : ObservableObject {
     }
 
     func loadNotes() {
-        let savedText = UserDefaults.standard.string(forKey: "\(selectedButton)_content") ?? "Hello, this is a test note.\nYou can edit this text."
+        let key = "\(selectedButton)_content"
+        let defaultText = "Hello, this is a test note.\nYou can edit this text."
+        let savedText = UserDefaults.standard.string(forKey: key) ?? defaultText
         text = savedText
     }
 

@@ -7,7 +7,7 @@ import SwiftUI
  * The class is designed to work with SwiftUI and uses the `@Published` property wrapper to notify observers of changes.
  */
 class BigPanelWidgetStore: PanelManager, ObservableObject {
-    @Published var widgets : [WidgetEntry] = []
+    @Published var widgets: [WidgetEntry] = []
 
     /// Adds a widget to the big panel "store"
     /// -   widget: The widget to add
@@ -53,8 +53,10 @@ class BigPanelWidgetStore: PanelManager, ObservableObject {
         // Show from the hidden list if it exists
         if let index = widgets.firstIndex(where: { $0.widget.name == name }) {
             widgets[index].isVisible = true // Make the widget visible
-            widgets[index] = WidgetEntry(widget: widgets[index].widget, 
-                                         isVisible: true)
+            widgets[index] = WidgetEntry(
+                widget: widgets[index].widget,
+                isVisible: true
+            )
         }
     }
 
@@ -65,16 +67,18 @@ class BigPanelWidgetStore: PanelManager, ObservableObject {
     }
 }
 
-struct BigPanelWidgetManager : View {
+struct BigPanelWidgetManager: View {
     @EnvironmentObject var widgetStore: BigPanelWidgetStore
 
-    var body : some View {
+    var body: some View {
         ZStack {
             Color.black.opacity(1)
-                .clipShape(RoundedCornersShape(topLeft: 10, 
-                                               topRight: 10, 
-                                               bottomLeft: 20, 
-                                               bottomRight: 20))
+                .clipShape(RoundedCornersShape(
+                    topLeft: 10,
+                    topRight: 10,
+                    bottomLeft: 20,
+                    bottomRight: 20
+                ))
 
             HStack(spacing: 2) {
                 ForEach(widgetStore.widgets.indices, id: \.self) { index in

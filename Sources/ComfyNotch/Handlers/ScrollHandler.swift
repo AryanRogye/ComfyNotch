@@ -35,14 +35,12 @@ class ScrollHandler {
     var offset: CGFloat
     private var cancellables = Set<AnyCancellable>()
 
-
-
     // The initial height of the panel when the app starts
     private init() {
         let settings = SettingsModel.shared
-        offset = settings.open_state_y_offset
+        offset = settings.openStateYOffset
 
-        if let panel = UIManager.shared.small_panel {
+        if let panel = UIManager.shared.smallPanel {
             smallPanelRect = panel.frame
         }
     }
@@ -57,7 +55,7 @@ class ScrollHandler {
     func start() {
         let settings = SettingsModel.shared
 
-        settings.$open_state_y_offset
+        settings.$openStateYOffset
             .dropFirst() // Skip the initial emission
             .sink { [weak self] newValue in
                 self?.offset = newValue
@@ -66,7 +64,6 @@ class ScrollHandler {
             }
             .store(in: &cancellables)
 
-
         // Register for two-finger scroll events
         // Global monitor for events outside your app
         NSEvent.addGlobalMonitorForEvents(matching: .scrollWheel) { event in
@@ -74,7 +71,7 @@ class ScrollHandler {
                 self.handleTwoFingerScroll(event)
             }
         }
-    
+
         // Local monitor for events inside your app
         NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { event in
             if self.isMouseInPanelRegion() {
@@ -87,8 +84,8 @@ class ScrollHandler {
 
     /// Programmatically opens the panel fully
     func open() {
-        guard let panel = UIManager.shared.big_panel else { return }
-        
+        guard let panel = UIManager.shared.bigPanel else { return }
+
         let targetHeight = maxPanelHeight
         let targetWidth = maxPanelWidth
         let screen = NSScreen.main!
@@ -105,7 +102,7 @@ class ScrollHandler {
 
     /// Programmatically closes the panel fully
     func close() {
-        guard let panel = UIManager.shared.big_panel else { return }
+        guard let panel = UIManager.shared.bigPanel else { return }
 
         let targetHeight = minPanelHeight
         let targetWidth = minPanelWidth
@@ -114,7 +111,9 @@ class ScrollHandler {
         var panelFrame = panel.frame
         panelFrame.size.width = targetWidth
         panelFrame.size.height = targetHeight
-        panelFrame.origin.y = screen.frame.height - targetHeight - UIManager.shared.startPanelYOffset - 35 // Use your standard closed offset
+        panelFrame.origin.y =
+            screen.frame.height - targetHeight - UIManager.shared.startPanelYOffset - 35
+
         panelFrame.origin.x = (screen.frame.width - targetWidth) / 2
 
         animatePanelTransition(to: panelFrame)
@@ -126,11 +125,11 @@ class ScrollHandler {
      *   This Function handles haptic feedback for scroll events.
      *
      */
-    private func handleScrollHaptics(_ event: NSEvent) -> Void {
+    private func handleScrollHaptics(_ event: NSEvent) {
         let hapticManager = NSHapticFeedbackManager.defaultPerformer
 
         let scrollSpeed = abs(event.scrollingDeltaY)
-        
+
         if scrollSpeed > 5.0 { // Higher threshold = less frequent, softer feedback
             hapticManager.perform(.levelChange, performanceTime: .now)
         }
@@ -145,25 +144,27 @@ class ScrollHandler {
     private func isMouseInPanelRegion() -> Bool {
         // Get the current mouse location in screen coordinates
         let mouseLocation = NSEvent.mouseLocation
-        
+
         // First check if mouse is in big panel area
-        if let panel = UIManager.shared.big_panel {
+        if let panel = UIManager.shared.bigPanel {
             // Create a detection area that extends from the panel's current position 
             // all the way to its maximum possible position plus padding
             var detectionArea = panel.frame
-            
+
             // Adjust height to include the entire region the panel could occupy
-            if UIManager.shared.panel_state != .CLOSED {
+            if UIManager.shared.panelState != .closed {
                 // If panel is open or partially open, detection area should extend from
                 // current position to max panel height
                 let maxPossibleHeight = maxPanelHeight
                 detectionArea.size.height = maxPossibleHeight
-                
+
                 // Adjust y position to account for panel potentially moving downward
-                detectionArea.origin.y = min(panel.frame.origin.y, 
-                                            NSScreen.main!.frame.height - maxPanelHeight - UIManager.shared.startPanelYOffset - offset)
+                detectionArea.origin.y = min(
+                    panel.frame.origin.y,
+                    NSScreen.main!.frame.height - maxPanelHeight - UIManager.shared.startPanelYOffset - offset
+                )
             }
-            
+
             // Add padding around all sides
             detectionArea = NSRect(
                 x: detectionArea.origin.x - scrollPadding,
@@ -171,14 +172,14 @@ class ScrollHandler {
                 width: detectionArea.width + (scrollPadding * 2),
                 height: detectionArea.height + (scrollPadding * 2)
             )
-            
+
             if detectionArea.contains(mouseLocation) {
                 return true
             }
         }
-        
+
         // Also check small panel if it's visible
-        if UIManager.shared.panel_state == .CLOSED, let smallPanel = UIManager.shared.small_panel {
+        if UIManager.shared.panelState == .closed, let smallPanel = UIManager.shared.smallPanel {
             let paddedFrame = NSRect(
                 x: smallPanel.frame.origin.x - scrollPadding,
                 y: smallPanel.frame.origin.y - scrollPadding,
@@ -203,7 +204,7 @@ class ScrollHandler {
         // If we're already snapping, ignore further scroll events
         if isSnapping { return }
 
-        guard let panel = UIManager.shared.big_panel else { return }
+        guard let panel = UIManager.shared.bigPanel else { return }
         
         let scrollDeltaY = event.scrollingDeltaY
 
@@ -250,12 +251,10 @@ class ScrollHandler {
             if ratio >= snapOpenThreshold {
                 animatePanelToState(open: true)
                 updatePanelState(for: maxPanelHeight)
-            }
-            else if ratio <= snapClosedThreshold {
+            } else if ratio <= snapClosedThreshold {
                 animatePanelToState(open: false)
                 updatePanelState(for: minPanelHeight)
-            }
-            else {
+            } else {
                 // If in between, decide based on whether ratio is more or less than 0.5
                 let shouldOpen = ratio > 0.5
                 animatePanelToState(open: shouldOpen)
@@ -275,15 +274,16 @@ class ScrollHandler {
      */
     private func updatePanelSize(toHeight newHeight: CGFloat, toWidth newWidth: CGFloat, animated: Bool) {
         guard let screen = NSScreen.main else { return }
-        
-        if let panel = UIManager.shared.big_panel {
+
+        if let panel = UIManager.shared.bigPanel {
             var panelFrame = panel.frame
             // Adjust origin so the panel remains aligned relative to the screen
-            panelFrame.origin.y = screen.frame.height - newHeight - UIManager.shared.startPanelYOffset - offset  // Adjust offset as needed
+            panelFrame.origin.y =
+                screen.frame.height - newHeight - UIManager.shared.startPanelYOffset - offset
             panelFrame.size.height = newHeight
             panelFrame.size.width = newWidth
             panelFrame.origin.x = (screen.frame.width - newWidth) / 2
-            
+
             if animated {
                 NSAnimationContext.runAnimationGroup({ context in
                     context.duration = 0.3  // tweak duration as desired
@@ -301,17 +301,17 @@ class ScrollHandler {
     * Adjusts the panel's frame size and position based on the desired state.
     */
     private func animatePanelToState(open: Bool) {
-        guard let screen = NSScreen.main, let panel = UIManager.shared.big_panel else { return }
-        
+        guard let screen = NSScreen.main, let panel = UIManager.shared.bigPanel else { return }
+
         // Determine the target dimensions based on whether the panel is opening or closing
         let (targetWidth, targetHeight) = calculateTargetSize(isOpening: open)
         let targetPosition = calculateTargetPosition(width: targetWidth, height: targetHeight, screen: screen)
-        
+
         // Create the target frame
         var targetFrame = panel.frame
         targetFrame.size = NSSize(width: targetWidth, height: targetHeight)
         targetFrame.origin = targetPosition
-        
+
         // Animate the panel transition
         animatePanelTransition(to: targetFrame)
     }
@@ -332,14 +332,14 @@ class ScrollHandler {
         let xPosition = (screen.frame.width - width) / 2
 
         let yPosition: CGFloat
-        if UIManager.shared.panel_state == .CLOSED {
+        if UIManager.shared.panelState == .closed {
             // When closed, use the default offset (35)
             yPosition = screen.frame.height - height - UIManager.shared.startPanelYOffset - 35
         } else {
             // When open or partially open, use the user-defined offset
             yPosition = screen.frame.height - height - UIManager.shared.startPanelYOffset - offset
         }
-        
+
         return CGPoint(x: xPosition, y: yPosition)
     }
 
@@ -350,7 +350,7 @@ class ScrollHandler {
         NSAnimationContext.runAnimationGroup({ context in
             context.duration = 0.05
             context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-            UIManager.shared.big_panel?.animator().setFrame(targetFrame, display: true)
+            UIManager.shared.bigPanel?.animator().setFrame(targetFrame, display: true)
         }, completionHandler: {
             self.isSnapping = false
         })
@@ -366,7 +366,7 @@ class ScrollHandler {
      */
     public func updatePanelState(for height: CGFloat) {
         if height >= maxPanelHeight {
-            UIManager.shared.panel_state = .OPEN
+            UIManager.shared.panelState = .open
 
             // 🔽 Close the hover-triggered small panel before opening big one
             UIManager.shared.hoverHandler?.collapsePanelIfExpanded()
@@ -374,11 +374,11 @@ class ScrollHandler {
             UIManager.shared.showBigPanelWidgets()
             UIManager.shared.showSmallPanelSettingsWidget()
         } else if height <= minPanelHeight {
-            UIManager.shared.panel_state = .CLOSED
+            UIManager.shared.panelState = .closed
             UIManager.shared.hideBigPanelWidgets()
             UIManager.shared.hideSmallPanelSettingsWidget()
-            
-            if let panel = UIManager.shared.big_panel, let smallPanelFrame = smallPanelRect {
+
+            if let panel = UIManager.shared.bigPanel, let smallPanelFrame = smallPanelRect {
                 // Animate back to the small panel's frame (without extra offset)
                 NSAnimationContext.runAnimationGroup({ context in
                     context.duration = 0.3
@@ -389,21 +389,21 @@ class ScrollHandler {
                 })
             }
         } else {
-            UIManager.shared.panel_state = .PARTIALLY_OPEN
+            UIManager.shared.panelState = .partiallyOpen
             UIManager.shared.showBigPanelWidgets()
             UIManager.shared.hideSmallPanelSettingsWidget()
         }
     }
 
     func applyOffsetChange() {
-        guard let panel = UIManager.shared.big_panel else { return }
-        
+        guard let panel = UIManager.shared.bigPanel else { return }
+
         // Get the current frame of the panel
         var frame = panel.frame
 
         // Adjust the y-position using the new offset value only if the panel is not closed
         if let screen = NSScreen.main {
-            if UIManager.shared.panel_state != .CLOSED {
+            if UIManager.shared.panelState != .closed {
                 frame.origin.y = screen.frame.height - frame.height - UIManager.shared.startPanelYOffset - offset
             } else {
                 // If the panel is closed, position it using its normal closed position logic
@@ -414,26 +414,4 @@ class ScrollHandler {
         // Update the panel position
         panel.setFrame(frame, display: true, animate: true)
     }
-
-    // Older version of handleTwoFingerScroll ( No Snap Handling )
-    // private func handleTwoFingerScroll_(_ event: NSEvent) {
-    //     let scrollDeltaY = event.scrollingDeltaY
-
-    //     if let panel = UIManager.shared.panel {
-    //         // Calculate new height
-    //         let newHeight = panel.frame.height + scrollDeltaY
-    //         let clampedHeight = max(minPanelHeight, min(maxPanelHeight, newHeight))
-    
-    //         // Calculate new width proportionally to height change
-    //         let heightPercentage = (clampedHeight - minPanelHeight) / (maxPanelHeight - minPanelHeight)
-    //         let newWidth = minPanelWidth + (heightPercentage * (maxPanelWidth - minPanelWidth))
-    //         let clampedWidth = max(minPanelWidth, min(maxPanelWidth, newWidth))
-
-    //         // SNAP HANDLING LOGIC
-
-    //         // Update the panel's size smoothly
-    //         updatePanelSize(toHeight: clampedHeight, toWidth: clampedWidth)
-    //         updatePanelState(for: clampedHeight)
-    //     }
-    // }
 }

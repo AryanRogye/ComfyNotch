@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-struct TimeWidget : View, Widget {
+struct TimeWidget: View, Widget {
     var name: String = "TimeWidget"
 
     @ObservedObject var model: TimeWidgetModel = TimeWidgetModel()
@@ -31,7 +31,7 @@ struct TimeWidget : View, Widget {
     }
 }
 
-class TimeWidgetModel : ObservableObject {
+class TimeWidgetModel: ObservableObject {
     @Published var currentTime: String = TimeWidgetModel.getCurrentTime()
 
     private var timer: Timer?

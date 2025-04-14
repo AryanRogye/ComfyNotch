@@ -1,24 +1,26 @@
 import AppKit
 
-
 class DisplayHandler {
     static let shared = DisplayHandler()
 
     func start() {
         let notificationCenter = NSWorkspace.shared.notificationCenter
-        notificationCenter.addObserver(self,
-                                       selector: #selector(handleScreenWake),
-                                       name: NSWorkspace.didWakeNotification,
-                                       object: nil)
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(handleScreenWake),
+            name: NSWorkspace.didWakeNotification,
+            object: nil
+        )
 
-        NotificationCenter.default.addObserver(self, 
-                                               selector: #selector(handleScreenChange), 
-                                               name: NSApplication.didChangeScreenParametersNotification, 
-                                               object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleScreenChange),
+            name: NSApplication.didChangeScreenParametersNotification,
+            object: nil
+        )
     }
-    
-    // Both Do the same thing but for knowing which is whcich i set into 2 different functions
 
+    // Both Do the same thing but for knowing which is whcich i set into 2 different functions
 
     @objc func handleScreenWake() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
@@ -46,7 +48,7 @@ class DisplayHandler {
         } catch {
             print("Failed to launch a new instance: \(error)")
         }
-        
+
         exit(0)  // Terminate the current instance
     }
 }

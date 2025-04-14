@@ -46,11 +46,13 @@ extension View {
         window.makeFirstResponder(window.contentView)
         return window
     }
-    
-    func openNewWindow(title: String,
-                       geometry: NSRect = NSRect(x: 20, y: 20, width: 640, height: 480),
-                       style: NSWindow.StyleMask = [.titled, .closable, .miniaturizable, .resizable],
-                       delegate: NSWindowDelegate? = nil) {
+
+    func openNewWindow(
+        title: String,
+        geometry: NSRect = NSRect(x: 20, y: 20, width: 640, height: 480),
+        style: NSWindow.StyleMask = [.titled, .closable, .miniaturizable, .resizable],
+        delegate: NSWindowDelegate? = nil
+    ) {
         self.newWindowInternal(title: title, geometry: geometry, style: style, delegate: delegate)
             .contentView = NSHostingView(rootView: self)
     }

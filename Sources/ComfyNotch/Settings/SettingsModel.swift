@@ -1,16 +1,16 @@
 import AppKit
 import Combine
 
-class SettingsModel : ObservableObject {
+class SettingsModel: ObservableObject {
 
     static let shared = SettingsModel()
 
     @Published var selectedWidgets: [String] = []
-    @Published var isSettingsWindowOpen : Bool = false
-    @Published var isCameraFlipped : Bool = false
-    @Published var open_state_y_offset = CGFloat(35)
+    @Published var isSettingsWindowOpen: Bool = false
+    @Published var isCameraFlipped: Bool = false
+    @Published var openStateYOffset = CGFloat(35)
     @Published var snapOpenThreshold: CGFloat = 0.9
-    @Published var ai_api_key: String = "" 
+    @Published var aiApiKey: String = ""
 
     @Published var selectedProvider: AIProvider = .openAI
     @Published var selectedOpenAIModel: OpenAIModel = .gpt3
@@ -18,12 +18,10 @@ class SettingsModel : ObservableObject {
     @Published var selectedGoogleModel: GoogleModel = .palm
 
     private var cancellables = Set<AnyCancellable>()
-    
+
     private init() {
         loadSettings()
     }
-
-
 
     /// Saves the current settings to UserDefaults
     func saveSettings() {
@@ -34,14 +32,13 @@ class SettingsModel : ObservableObject {
         // Saving the last state for whatever widgets are selected
         defaults.set(selectedWidgets, forKey: "selectedWidgets")
 
-
         defaults.set(isCameraFlipped, forKey: "isCameraFlipped")
         print("Saving camera flip state: \(isCameraFlipped)")
 
         /// For some reason the api key was getting called to save even if it was empty
         /// So I had to add this check, prolly gonna have to check that reason out <- TODO
-        if !ai_api_key.isEmpty {
-            defaults.set(ai_api_key, forKey: "ai_api_key")
+        if !aiApiKey.isEmpty {
+            defaults.set(aiApiKey, forKey: "aiApiKey")
         }
     }
 
@@ -78,21 +75,21 @@ class SettingsModel : ObservableObject {
         print("NEW Saved Settings: \(selectedWidgets)")
 
         // Refresh the UI only if the panel is open
-        if UIManager.shared.panel_state == .OPEN {
+        if UIManager.shared.panelState == .open {
             refreshUI()
         } else {
             print("Panel is not open, not refreshing UI")
         }
     }
 
-    func refreshUI() -> Void {
-        if UIManager.shared.panel_state == .OPEN {
+    func refreshUI() {
+        if UIManager.shared.panelState == .open {
             AudioManager.shared.startMediaTimer()
-            UIManager.shared.big_panel.contentView?.needsLayout = true
-            UIManager.shared.big_panel.contentView?.layoutSubtreeIfNeeded()
+            UIManager.shared.bigPanel.contentView?.needsLayout = true
+            UIManager.shared.bigPanel.contentView?.layoutSubtreeIfNeeded()
 
             DispatchQueue.main.async {
-                UIManager.shared.big_panel.contentView?.needsDisplay = true
+                UIManager.shared.bigPanel.contentView?.needsDisplay = true
                 UIManager.shared.showBigPanelWidgets()
             }
         }
@@ -103,7 +100,7 @@ class SettingsModel : ObservableObject {
 
         // Clear all currently displayed widgets
         UIManager.shared.bigWidgetStore.clearWidgets()
-    
+
         // Iterate over the updated selectedWidgets list
         for widgetName in selectedWidgets {
             if let widget = WidgetRegistry.shared.getWidget(named: widgetName) {
@@ -135,8 +132,8 @@ class SettingsModel : ObservableObject {
         }
 
         // Loading the last api_key the user entered
-        if let apiKey = defaults.string(forKey: "ai_api_key") {
-            self.ai_api_key = apiKey
+        if let apiKey = defaults.string(forKey: "aiApiKey") {
+            self.aiApiKey = apiKey
         }
     }
 }
@@ -163,8 +160,6 @@ class WidgetRegistry {
     }
 }
 
-
-
 enum AIProvider: String, CaseIterable {
     case openAI = "OpenAI"
     case anthropic = "Anthropic"
@@ -186,8 +181,7 @@ enum GoogleModel: String, CaseIterable {
     case bard = "Bard"
 }
 
-
-class AIRegistery : ObservableObject {
+class AIRegistery: ObservableObject {
     @Published var selectedProvider: AIProvider = .openAI
     @Published var selectedOpenAIModel: OpenAIModel = .gpt3
     @Published var selectedAnthropicModel: AnthropicModel = .claudeV1

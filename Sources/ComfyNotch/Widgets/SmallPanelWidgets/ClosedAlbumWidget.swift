@@ -6,9 +6,8 @@ struct AlbumWidgetView: View, Widget {
     var alignment: WidgetAlignment? = .left
     var name: String = "AlbumWidget"
 
-    @ObservedObject var model : AlbumWidgetModel
+    @ObservedObject var model: AlbumWidgetModel
     var scrollManager  = ScrollHandler.shared
-    
     var body: some View {
         Group {
             if let nsImage = model.image {
@@ -25,7 +24,6 @@ struct AlbumWidgetView: View, Widget {
                     RoundedRectangle(cornerRadius: 8)
                         .fill(Color.gray.opacity(0.2))
                         .frame(width: 30, height: 30)
-                    
                     Image(systemName: "music.note")
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.white)
@@ -41,8 +39,8 @@ struct AlbumWidgetView: View, Widget {
     }
 }
 
-class AlbumWidgetModel : ObservableObject {
-    @Published var image : NSImage?
+class AlbumWidgetModel: ObservableObject {
+    @Published var image: NSImage?
 
     private var cancellables = Set<AnyCancellable>()
 

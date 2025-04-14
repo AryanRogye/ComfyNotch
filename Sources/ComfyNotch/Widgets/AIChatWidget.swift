@@ -7,18 +7,19 @@ struct ChatMessage: Identifiable, Codable, Hashable {
     var isUser: Bool
 }
 
-struct AIChatWidget : View, Widget {
+struct AIChatWidget: View, Widget {
 
     var name: String = "AIChatWidget"
 
-    @StateObject var settings : SettingsModel = SettingsModel.shared
+    @StateObject var settings: SettingsModel = SettingsModel.shared
 
     @State private var inputText: String = ""
     @State private var outputText: String = "Response will appear here."
     @State private var messages: [ChatMessage] = []
 
-    var body : some View {
-        ScrollView{
+    var body: some View {
+        ScrollView {
+
             VStack {
                 HStack {
                     Picker("", selection: $settings.selectedProvider) {
@@ -51,7 +52,6 @@ struct AIChatWidget : View, Widget {
                 HStack {
                     TextField("Enter your prompt...", text: $inputText)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
-                
                     Button(action: sendMessage) {
                         Text("Send")
                             .background(Color.blue)
@@ -83,11 +83,9 @@ struct AIChatWidget : View, Widget {
             .padding()
             .background(Color.white)
             .cornerRadius(10)
-            
             HStack {
                 TextField("Enter your prompt...", text: $inputText)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
-                
                 Button(action: {
                     sendMessage()
                 }) {
@@ -113,7 +111,6 @@ struct AIChatWidget : View, Widget {
             messages.append(errorMessage)
             return
         }
-        
         let requestBody: [String: Any] = [
             "model": "gpt-3.5-turbo",
             "messages": [
@@ -122,11 +119,9 @@ struct AIChatWidget : View, Widget {
             ],
             "temperature": 0.7
         ]
-        
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: requestBody, options: [])
-            let client = OpenAIClient(apiKey: settings.ai_api_key, body: jsonData)
-            
+            let client = OpenAIClient(apiKey: settings.aiApiKey, body: jsonData)
             client.performRequest { result in
                 DispatchQueue.main.async {
                     switch result {

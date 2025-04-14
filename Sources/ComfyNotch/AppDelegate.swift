@@ -36,12 +36,12 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         UIManager.shared.setupFrame()
         // Allow Scroll Handler to listen to scroll events
         ScrollHandler.shared.start()
-        if let smallPanel = UIManager.shared.small_panel {
+        if let smallPanel = UIManager.shared.smallPanel {
             // Tiny Haptic Feedback when hovering
             self.hoverHandler = HoverHandler(panel: smallPanel)
         }
         UIManager.shared.hoverHandler = self.hoverHandler
-        if let bigPanel = UIManager.shared.big_panel {
+        if let bigPanel = UIManager.shared.bigPanel {
             // Proximity Handler for the Big Panel
             self.panelProximityHandler = PanelProximityHandler(panel: bigPanel)
         }
@@ -72,23 +72,20 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         // Get the current list of widgets in the store
         let existingWidgets = UIManager.shared.bigWidgetStore.widgets.map { $0.widget.name }
         // Remove widgets that are not selected anymore
-        for widgetName in existingWidgets {
-            if !settings.selectedWidgets.contains(widgetName) {
-                UIManager.shared.bigWidgetStore.hideWidget(named: widgetName)
-            }
+        for widgetName in existingWidgets where !settings.selectedWidgets.contains(widgetName) {
+            UIManager.shared.bigWidgetStore.hideWidget(named: widgetName)
         }
 
         // Add or show selected widgets
         for widgetName in settings.selectedWidgets {
             if let widget = widgetRegistry.getWidget(named: widgetName) {
 
-
                 if !existingWidgets.contains(widgetName) {
                     UIManager.shared.addWidgetToBigPanel(widget)
                 }
 
                 // Show or hide depending on the panel state
-                if UIManager.shared.panel_state == .OPEN {
+                if UIManager.shared.panelState == .open {
                     UIManager.shared.bigWidgetStore.showWidget(named: widgetName)
                 } else {
                     UIManager.shared.bigWidgetStore.hideWidget(named: widgetName)
@@ -100,10 +97,10 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Force layout refresh
         AudioManager.shared.startMediaTimer()
-        UIManager.shared.big_panel.contentView?.layoutSubtreeIfNeeded()
+        UIManager.shared.bigPanel.contentView?.layoutSubtreeIfNeeded()
 
         DispatchQueue.main.async {
-            UIManager.shared.big_panel.contentView?.needsDisplay = true
+            UIManager.shared.bigPanel.contentView?.needsDisplay = true
         }
     }
 }

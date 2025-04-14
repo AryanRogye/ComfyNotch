@@ -5,9 +5,9 @@ import SwiftUI
  * Represents the current state of the panel display.
  */
 enum PanelState {
-    case CLOSED
-    case PARTIALLY_OPEN
-    case OPEN
+    case closed
+    case partiallyOpen
+    case open
 }
 
 /**
@@ -39,13 +39,13 @@ class UIManager {
 
     var hoverHandler: HoverHandler?
 
-    var small_panel : NSPanel!
-    var big_panel : NSPanel!
+    var smallPanel: NSPanel!
+    var bigPanel: NSPanel!
 
     var smallPanelWidgetManager = SmallPanelWidgetManager()
     var bigPanelWidgetManager = BigPanelWidgetManager()
 
-    var panel_state : PanelState = .CLOSED
+    var panelState: PanelState = .closed
 
     var startPanelHeight: CGFloat = 0
     var startPanelWidth: CGFloat = 300
@@ -85,20 +85,20 @@ class UIManager {
             height: notchHeight
         )
 
-        small_panel = NSPanel(
+        smallPanel = NSPanel(
             contentRect: panelRect,
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
         )
 
-        small_panel.title = "ComfyNotch"
-        small_panel.level = .screenSaver
-        small_panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-        small_panel.isMovableByWindowBackground = false
-        small_panel.backgroundColor = .clear
-        small_panel.isOpaque = false
-        small_panel.hasShadow = false
+        smallPanel.title = "ComfyNotch"
+        smallPanel.level = .screenSaver
+        smallPanel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        smallPanel.isMovableByWindowBackground = false
+        smallPanel.backgroundColor = .clear
+        smallPanel.isOpaque = false
+        smallPanel.hasShadow = false
 
         // Create and add widgets to the store
         let albumWidgetModel = AlbumWidgetModel()
@@ -119,8 +119,8 @@ class UIManager {
         let contentView = SmallPanelWidgetManager()
             .environmentObject(smallWidgetStore)
 
-        small_panel.contentView = NSHostingView(rootView: contentView)
-        small_panel.makeKeyAndOrderFront(nil)
+        smallPanel.contentView = NSHostingView(rootView: contentView)
+        smallPanel.makeKeyAndOrderFront(nil)
 
         hideSmallPanelSettingsWidget() // Ensure initial state is correct
     }
@@ -132,35 +132,35 @@ class UIManager {
     func setupBigPanel() {
         guard let screen = NSScreen.main else { return }
         let screenFrame = screen.frame
-        let notchHeight = getNotchHeight()  // Same height as small_panel
+        let notchHeight = getNotchHeight()  // Same height as smallPanel
 
         let panelRect = NSRect(
             x: (screenFrame.width - startPanelWidth) / 2,
             y: screenFrame.height - notchHeight - startPanelYOffset,
             width: startPanelWidth,
-            height: notchHeight  // Same starting height as small_panel
+            height: notchHeight  // Same starting height as smallPanel
         )
 
-        big_panel = FocusablePanel(
+        bigPanel = FocusablePanel(
             contentRect: panelRect,
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
         )
 
-        big_panel.title = "ComfyNotch Big Panel"
-        big_panel.level = .screenSaver
-        big_panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-        big_panel.isMovableByWindowBackground = false
-        big_panel.backgroundColor = .clear
-        big_panel.isOpaque = false
-        big_panel.hasShadow = false
+        bigPanel.title = "ComfyNotch Big Panel"
+        bigPanel.level = .screenSaver
+        bigPanel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        bigPanel.isMovableByWindowBackground = false
+        bigPanel.backgroundColor = .clear
+        bigPanel.isOpaque = false
+        bigPanel.hasShadow = false
 
         let contentView = BigPanelWidgetManager()
             .environmentObject(bigWidgetStore)
 
-        big_panel.contentView = NSHostingView(rootView: contentView)
-        big_panel.makeKeyAndOrderFront(nil)
+        bigPanel.contentView = NSHostingView(rootView: contentView)
+        bigPanel.makeKeyAndOrderFront(nil)
 
         hideBigPanelWidgets() // Ensure initial state is correct
     }
@@ -192,8 +192,8 @@ class UIManager {
         bigWidgetStore.hideWidget(named: "CameraWidget")
         bigWidgetStore.hideWidget(named: "AIChatWidget")
 
-        small_panel.makeKeyAndOrderFront(nil)
-        small_panel.level = .screenSaver
+        smallPanel.makeKeyAndOrderFront(nil)
+        smallPanel.level = .screenSaver
     }
 
     func showBigPanelWidgets() {
@@ -203,10 +203,10 @@ class UIManager {
         bigWidgetStore.showWidget(named: "CameraWidget")
         bigWidgetStore.showWidget(named: "AIChatWidget")
 
-        big_panel.contentView?.layoutSubtreeIfNeeded()
+        bigPanel.contentView?.layoutSubtreeIfNeeded()
     }
 
-    private func displayCurrentBigPanelWidgets(with title : String = "Current Big Panel Widgets") {
+    private func displayCurrentBigPanelWidgets(with title: String = "Current Big Panel Widgets") {
         print("=====================================================")
         print("\(title)")
         print("=====================================================")

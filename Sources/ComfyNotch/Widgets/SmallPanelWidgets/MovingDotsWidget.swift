@@ -2,7 +2,6 @@ import AppKit
 import SwiftUI
 import Combine
 
-
 // This view encapsulates the animation for an individual dot.
 struct AnimatedDot: View {
     let delay: Double
@@ -63,8 +62,10 @@ struct MovingDotsView: View, Widget {
         HStack(spacing: 6) {
             if model.isPlaying {
                 ForEach(0..<3) { index in
-                    AnimatedDot(delay: Double(index) * 0.2,
-                                color: Color(model.playingColor))
+                    AnimatedDot(
+                        delay: Double(index) * 0.2,
+                        color: Color(model.playingColor)
+                    )
                 }
             } else {
                 // Static dots when not playing
@@ -77,8 +78,7 @@ struct MovingDotsView: View, Widget {
         }
         .padding(.trailing, 10)
     }
-     
     var swiftUIView: AnyView {
         AnyView(self)
-    }    
+    }
 }

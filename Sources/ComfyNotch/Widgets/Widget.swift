@@ -29,10 +29,10 @@ enum WidgetAlignment {
 protocol Widget {
     /// Unique identifier for the widget
     var name: String { get }
-    
+
     /// Optional alignment preference for widget positioning
     var alignment: WidgetAlignment? { get }
-    
+
     /// SwiftUI view representation of the widget
     var swiftUIView: AnyView { get }
 }

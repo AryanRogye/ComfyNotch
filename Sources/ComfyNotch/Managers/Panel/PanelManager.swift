@@ -30,25 +30,25 @@ protocol PanelManager {
      * - Parameter widget: The Widget to be added
      */
     func addWidget(_ widget: Widget)
-    
+
     /**
      * Hides a specific widget from view.
      * - Parameter name: The name of the widget to hide
      */
     func hideWidget(named name: String)
-    
+
     /**
      * Makes a specific widget visible.
      * - Parameter name: The name of the widget to show
      */
     func showWidget(named name: String)
-    
+
     /**
      * Removes a widget completely from the panel.
      * - Parameter name: The name of the widget to remove
      */
     func removeWidget(named name: String)
-    
+
     /**
      * Removes all widgets from the panel.
      */

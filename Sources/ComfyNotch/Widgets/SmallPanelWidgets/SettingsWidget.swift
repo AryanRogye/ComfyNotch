@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 import Combine
 
-struct SettingsButtonView : View, Widget {
+struct SettingsButtonView: View, Widget {
 
     var name: String = "Settings"
     var alignment: WidgetAlignment? = .right
@@ -37,9 +37,11 @@ class SettingsWindowDelegate: NSObject, NSWindowDelegate {
 class SettingsWidgetModel: ObservableObject {
     @Published var action: () -> Void = {
         SettingsView(settings: SettingsModel.shared)
-            .openNewWindow(title: "Settings",
-                           style: [.titled, .closable, .resizable],
-                           delegate: SettingsWindowDelegate())
+            .openNewWindow(
+                title: "Settings",
+                style: [.titled, .closable, .resizable],
+                delegate: SettingsWindowDelegate()
+            )
     }
 
     @Published var playingColor: NSColor = .white

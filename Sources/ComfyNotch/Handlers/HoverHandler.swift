@@ -1,8 +1,8 @@
 import AppKit
 
 enum HoverState {
-    case HOVERING
-    case NOT_HOVERING
+    case hovering
+    case notHovering
 }
 class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
     private weak var panel: NSPanel?
@@ -17,17 +17,17 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
     private var originalWidth: CGFloat
     private var originalHeight: CGFloat
 
-    private var expandedWidth : CGFloat
-    private var expandedHeight : CGFloat
+    private var expandedWidth: CGFloat
+    private var expandedHeight: CGFloat
 
     private var collapseTimer: Timer?
     private var isUsingHapticFeedback: Bool = false
 
     private let padding: CGFloat = 10
-    private let closingPadding : CGFloat = 50
-    
+    private let closingPadding: CGFloat = 50
+
     // Start with no hover state
-    var hoverState : HoverState = .NOT_HOVERING
+    var hoverState: HoverState = .notHovering
 
     init(panel: NSPanel) {
         self.panel = panel
@@ -43,23 +43,23 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
         super.init() // Important: call super.init() after setting properties but before other setup
         startListeningForMouseMoves()
     }
-    
+
     deinit {
         stopMonitoring()
     }
-    
+
     private func startListeningForMouseMoves() {
         // Local monitor for events in our application
         localMonitor = NSEvent.addLocalMonitorForEvents(matching: .mouseMoved) { [weak self] event in
             self?.handleMouseMoved(event)
             return event
         }
-        
+
         // Global monitor for events outside our application
         globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: .mouseMoved) { [weak self] event in
             self?.handleMouseMoved(event)
         }
-        
+
         // Also add tracking area to the panel's content view
         if let contentView = panel?.contentView {
             let trackingArea = NSTrackingArea(
@@ -71,19 +71,19 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
             contentView.addTrackingArea(trackingArea)
         }
     }
-    
+
     private func stopMonitoring() {
         if let localMonitor = localMonitor {
             NSEvent.removeMonitor(localMonitor)
             self.localMonitor = nil
         }
-        
+
         if let globalMonitor = globalMonitor {
             NSEvent.removeMonitor(globalMonitor)
             self.globalMonitor = nil
         }
     }
-    
+
     private func handleMouseMoved(_ event: NSEvent) {
         guard let panel = panel else { return }
 
@@ -91,11 +91,11 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
         let mouseLocation = NSEvent.mouseLocation
 
         // 🧠 Padding zone in pixels
-        
+
         // Get panel's frame in screen coordinates
         let panelFrame = panel.frame.insetBy(dx: -padding, dy: -padding)
         let openedPanelFrameWithPadding = panel.frame.insetBy(dx: -closingPadding, dy: -closingPadding)
-        
+
         // Simple check if the mouse is inside the panel's frame
         if panelFrame.contains(mouseLocation) {
             // Inside padding area
@@ -104,7 +104,7 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
             collapseTimer?.invalidate()
             collapseTimer = nil
 
-            if UIManager.shared.panel_state == .CLOSED {
+            if UIManager.shared.panelState == .closed {
                 let now = CACurrentMediaTime()
                 if now - lastHapticTime > 0.2 {
                     triggerHapticFeedback()
@@ -113,17 +113,17 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
                 }
             }
 
-            hoverState = .HOVERING
-        } else if !openedPanelFrameWithPadding.contains(mouseLocation) {  
+            hoverState = .hovering
+        } else if !openedPanelFrameWithPadding.contains(mouseLocation) {
             // 🔴 Mouse is outside padded area
             // Don't double up timers
             if collapseTimer == nil {
                 collapseTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
                     guard let self else { return }
 
-                    if UIManager.shared.panel_state == .CLOSED || UIManager.shared.panel_state == .OPEN {
+                    if UIManager.shared.panelState == .closed || UIManager.shared.panelState == .open {
                         self.animatePanel(expand: false)
-                        self.hoverState = .NOT_HOVERING
+                        self.hoverState = .notHovering
                     }
 
                     self.collapseTimer = nil
@@ -161,20 +161,16 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
             return
         }
         let hapticManager = NSHapticFeedbackManager.defaultPerformer
-        // Use a stronger haptic pattern
         hapticManager.perform(.levelChange, performanceTime: .now)
-        // Or for even stronger feedback:
         hapticManager.perform(.generic, performanceTime: .now)
-        // hapticManager.perform(.alignment, performanceTime: .now)
         self.isUsingHapticFeedback = true
     }
-    
-    // MARK: - NSTrackingArea methods with correct signatures
+
     @objc func mouseEntered(with event: NSEvent) {
         print("Mouse entered view")
         triggerHapticFeedback()
     }
-    
+
     @objc func mouseExited(with event: NSEvent) {
         print("Mouse exited view")
     }
@@ -204,31 +200,6 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
                     panel.animator().setFrame(collapsedFrame, display: true)
                 }
             }
-    }
-        
-//
-//        // Calculate the new width and height
-//
-//        let newWidth = expand ? expandedWidth : originalWidth
-//        let newHeight = expand ? expandedHeight : originalHeight
-//
-//        // Adjust the origin to keep the panel centered during scaling
-//        let deltaX = (newWidth - originalWidth) / 2
-//        let deltaY = (newHeight - originalHeight) / 2
-//
-//        // Adjust the origin to move it correctly without jumping away
-//        // let newOrigin = CGPoint(x: originalFrame.origin.x - deltaX, y: originalFrame.origin.y - deltaY)
-//        let newOrigin = CGPoint(
-//            x: round(originalFrame.origin.x - deltaX),
-//            y: round(originalFrame.origin.y - deltaY)
-//        )
-//        // let originalOrigin = originalFrame.origin
-//        let newFrame = NSRect(origin: newOrigin, size: CGSize(width: newWidth, height: newHeight))
-//
-//        NSAnimationContext.runAnimationGroup { context in
-//            context.duration = animationDuration
-//            context.timingFunction = CAMediaTimingFunction(controlPoints: 0.3, 1.0, 0.7, 1.0)
-//            panel.animator().setFrame(newFrame, display: true)
-//        }
+        }
     }
 }

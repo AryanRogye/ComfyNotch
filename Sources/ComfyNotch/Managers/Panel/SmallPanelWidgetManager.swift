@@ -28,7 +28,7 @@ class SmallPanelWidgetStore: PanelManager, ObservableObject {
      */
     func addWidget(_ widget: Widget) {
         let widgetEntry = WidgetEntry(widget: widget, isVisible: false)
-        
+
         if let alignment = widget.alignment {
             switch alignment {
             case .left:
@@ -53,7 +53,6 @@ class SmallPanelWidgetStore: PanelManager, ObservableObject {
             let widgetEntry = leftWidgetsShown.remove(at: index)
             leftWidgetsHidden.append(widgetEntry)
         }
-        
         if let index = rightWidgetsShown.firstIndex(where: { $0.widget.name == name }) {
             rightWidgetsShown[index].isVisible = false
             let widgetEntry = rightWidgetsShown.remove(at: index)
@@ -74,7 +73,6 @@ class SmallPanelWidgetStore: PanelManager, ObservableObject {
             let widgetEntry = leftWidgetsHidden.remove(at: index)
             leftWidgetsShown.append(widgetEntry)
         }
-        
         if let index = rightWidgetsHidden.firstIndex(where: { $0.widget.name == name }) {
             rightWidgetsHidden[index].isVisible = true
             let widgetEntry = rightWidgetsHidden.remove(at: index)
@@ -109,7 +107,6 @@ class PanelAnimationState: ObservableObject {
     @Published var songText: String = AudioManager.shared.currentSongText
     @Published var playingColor: NSColor = AudioManager.shared.dominantColor
 
-
     private var cancellables = Set<AnyCancellable>()
 
     init() {
@@ -119,7 +116,7 @@ class PanelAnimationState: ObservableObject {
                 self?.songText = newSong
             }
             .store(in: &cancellables)
-        
+
         AudioManager.shared.$dominantColor
             .receive(on: RunLoop.main)
             .sink { [weak self] color in
@@ -130,7 +127,6 @@ class PanelAnimationState: ObservableObject {
             .store(in: &cancellables)
     }
 }
-
 
 struct SmallPanelWidgetManager: View {
 
@@ -143,8 +139,6 @@ struct SmallPanelWidgetManager: View {
 
     var body: some View {
         ZStack {
-
-
             if animationState.isExpanded {
                 GeometryReader { geo in
                     MetalBackgroundView(shade: $animationState.playingColor)
@@ -158,12 +152,13 @@ struct SmallPanelWidgetManager: View {
                 }
             } else {
                 Color.black.opacity(1)
-                    .clipShape(RoundedCornersShape(topLeft: 0, 
-                                               topRight: 0, 
-                                               bottomLeft: 20, 
-                                               bottomRight: 20))
+                    .clipShape(RoundedCornersShape(
+                                    topLeft: 0,
+                                    topRight: 0,
+                                    bottomLeft: 20,
+                                    bottomRight: 20
+                            ))
             }
-                
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     // Left Widgets
@@ -193,21 +188,20 @@ struct SmallPanelWidgetManager: View {
                                     }
                                 }
                             }
-                        } 
-                        else {
+                        } else {
                             HStack(spacing: 0) {
                                 //// If the widget is playing show pause
-                                if (animationState.songText != "No Song Playing") {
+                                if animationState.songText != "No Song Playing" {
                                     Button(action: AudioManager.shared.togglePlayPause ) {
                                         Image(systemName: "pause.fill")
                                             .resizable()
                                             .aspectRatio(contentMode: .fill)
                                             .frame(width: 17, height: 15)
-                                            .foregroundColor(Color(nsColor:animationState.playingColor))
+                                            .foregroundColor(Color(nsColor: animationState.playingColor))
                                     }
                                     .buttonStyle(.plain)
                                     .padding(.trailing, 23)
-                                } 
+                                }
                                 /// if the widget is not playing show play
                                 else {
                                     Button(action: AudioManager.shared.togglePlayPause ) {
@@ -215,7 +209,7 @@ struct SmallPanelWidgetManager: View {
                                             .resizable()
                                             .aspectRatio(contentMode: .fill)
                                             .frame(width: 17, height: 15)
-                                            .foregroundColor(Color(nsColor:animationState.playingColor))
+                                            .foregroundColor(Color(nsColor: animationState.playingColor))
                                     }
                                     .buttonStyle(.plain)
                                     .padding(.trailing, 23)
@@ -233,7 +227,7 @@ struct SmallPanelWidgetManager: View {
                 }
                 .padding(.top, 4)
                 .frame(maxWidth: .infinity, alignment: .top)
-                
+
                 VStack {
                     if animationState.isExpanded {
                         Text(animationState.songText)
@@ -244,29 +238,35 @@ struct SmallPanelWidgetManager: View {
                 }
                 .frame(height: animationState.bottomSectionHeight)
                 .clipped()
-                .animation(.easeInOut(duration: animationState.isExpanded ? 0.3 : 0.1), 
-                           value: animationState.isExpanded)
+                .animation(
+                            .easeInOut(duration: animationState.isExpanded ? 0.3 : 0.1),
+                            value: animationState.isExpanded
+                        )
+
                 Spacer()
-                
             }
             .frame(maxWidth: .infinity, alignment: .top)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .clipShape(RoundedCornersShape(topLeft: 0, 
-                                       topRight: 0, 
-                                       bottomLeft: 20, 
-                                       bottomRight: 20))
+        .clipShape(RoundedCornersShape(
+                        topLeft: 0,
+                        topRight: 0,
+                        bottomLeft: 20,
+                        bottomRight: 20
+                 ))
         .mask(
-            RoundedCornersShape(topLeft: 0, 
-                                topRight: 0, 
-                                bottomLeft: 20, 
-                                bottomRight: 20)
+            RoundedCornersShape(
+                topLeft: 0,
+                topRight: 0,
+                bottomLeft: 20,
+                bottomRight: 20
+            )
         )
     }
 
     private func getNotchWidth() -> CGFloat {
         guard let screen = NSScreen.main else { return 180 } // Default to 180 if it fails
-    
+
         let screenWidth = screen.frame.width
 
         // Rough estimates based on Apple specs
@@ -282,7 +282,6 @@ struct SmallPanelWidgetManager: View {
         return 180
     }
 }
-
 
 class MetalCoordinator: NSObject, MTKViewDelegate {
     var time: Float = 0

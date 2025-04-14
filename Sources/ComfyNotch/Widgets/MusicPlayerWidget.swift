@@ -1,21 +1,16 @@
 import AppKit
 import SwiftUI
 import Combine
-
-
 struct MusicPlayerWidget: View, Widget {
     var name: String = "MusicPlayerWidget"
     @StateObject private var model = MusicPlayerWidgetModel()
-    
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
             // Album artwork
             renderAlbumCover()
-            
             // Song info
             VStack(alignment: .leading, spacing: 4) {
                 renderSongInformation()
-                
                 // Control buttons
                 HStack(spacing: 5) {
                     renderSongMusicControls()
@@ -48,7 +43,6 @@ struct MusicPlayerWidget: View, Widget {
                 .frame(width: 30, height: 30)
         }
         .buttonStyle(PlainButtonStyle())
-                    
         Button(action: {
             AudioManager.shared.togglePlayPause()
         }) {
@@ -60,7 +54,6 @@ struct MusicPlayerWidget: View, Widget {
                 .frame(width: 30, height: 30)
         }
         .buttonStyle(PlainButtonStyle())
-                    
         Button(action: {
             AudioManager.shared.playNextTrack()
         }) {
@@ -81,12 +74,10 @@ struct MusicPlayerWidget: View, Widget {
             .foregroundColor(.white)
             .lineLimit(1)
             .padding(.top, 3.5)
-                
         Text(model.artistText)
             .font(.system(size: 11, weight: .regular))
             .foregroundColor(.white)
             .lineLimit(1)
-                
         Text(model.albumText)
             .font(.system(size: 11, weight: .light))
             .foregroundColor(.white)
@@ -115,13 +106,13 @@ struct MusicPlayerWidget: View, Widget {
                 .allowsHitTesting(false)
         }
     }
-    
+
     var swiftUIView: AnyView {
         AnyView(self)
     }
 }
 
-class MusicPlayerWidgetModel : ObservableObject {
+class MusicPlayerWidgetModel: ObservableObject {
     @Published var songText: String = AudioManager.shared.currentSongText
     @Published var artistText: String = AudioManager.shared.currentArtistText
     @Published var albumText: String = AudioManager.shared.currentAlbumText

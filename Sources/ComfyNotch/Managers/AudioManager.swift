@@ -22,7 +22,7 @@ class AudioManager {
     /// Current album name
     @Published var currentAlbumText: String = "Unknown Album"
     /// Current album artwork
-    @Published var currentArtworkImage: NSImage? = nil
+    @Published var currentArtworkImage: NSImage?
     /// Dominant color extracted from artwork
     @Published var dominantColor: NSColor = .white
 
@@ -53,7 +53,7 @@ class AudioManager {
             self.currentArtworkImage = nil
             self.dominantColor = .white
         }
-        
+
         self.onNowPlayingInfoUpdated?()
     }
 
@@ -87,7 +87,7 @@ class AudioManager {
             end if
         end tell
         """
-        
+
         if let output = runAppleScript(script) {
             let components = output.components(separatedBy: " - ")
             if components.count == 4 {
@@ -95,13 +95,12 @@ class AudioManager {
                 let artistName = components[1]
                 let albumName = components[2]
                 let artworkURLString = components[3]
-                
-                var artworkImage: NSImage? = nil
-                
+
+                var artworkImage: NSImage?
+
                 if let artworkURL = URL(string: artworkURLString), let imageData = try? Data(contentsOf: artworkURL) {
                     artworkImage = NSImage(data: imageData)
                 }
-                
                 return (trackName, artistName, albumName, artworkImage)
             }
         }
@@ -132,7 +131,7 @@ class AudioManager {
             end if
         end tell
         """
-        
+
         if let output = runAppleScript(script) {
             let components = output.components(separatedBy: " - ")
             if components.count == 4 {
@@ -140,13 +139,13 @@ class AudioManager {
                 let artistName = components[1]
                 let albumName = components[2]
                 let artworkPath = components[3]
-                
-                var artworkImage: NSImage? = nil
-                
+
+                var artworkImage: NSImage?
+
                 if artworkPath != "NoArtwork", let image = NSImage(contentsOfFile: artworkPath) {
                     artworkImage = image
                 }
-                
+
                 return (trackName, artistName, albumName, artworkImage)
             }
         }
@@ -192,23 +191,29 @@ class AudioManager {
     private func getDominantColor(from image: NSImage) -> NSColor? {
         guard let tiffData = image.tiffRepresentation,
             let ciImage = CIImage(data: tiffData) else { return nil }
-        
+
         let filter = CIFilter(name: "CIAreaAverage", parameters: [
             kCIInputImageKey: ciImage,
             kCIInputExtentKey: CIVector(x: 0, y: 0, z: ciImage.extent.width, w: ciImage.extent.height)
         ])
-        
+
         guard let outputImage = filter?.outputImage else { return nil }
-        
+
         var bitmap = [UInt8](repeating: 0, count: 4)
         let context = CIContext()
-        context.render(outputImage, toBitmap: &bitmap, rowBytes: 4, bounds: CGRect(x: 0, y: 0, width: 1, height: 1), format: .RGBA8, colorSpace: nil)
-        
+        context.render(
+            outputImage,
+            toBitmap: &bitmap,
+            rowBytes: 4,
+            bounds: CGRect(x: 0, y: 0, width: 1, height: 1),
+            format: .RGBA8, colorSpace: nil
+        )
+
         var red = CGFloat(bitmap[0]) / 255.0
         var green = CGFloat(bitmap[1]) / 255.0
         var blue = CGFloat(bitmap[2]) / 255.0
         let alpha = CGFloat(bitmap[3]) / 255.0
-        
+
         // Calculate brightness as the average of RGB values
         let brightness = (red + green + blue) / 3.0 * 255.0
 
@@ -220,7 +225,7 @@ class AudioManager {
             green = min(green * CGFloat(scale), 1.0)
             blue = min(blue * CGFloat(scale), 1.0)
         }
-        
+
         return NSColor(red: red, green: green, blue: blue, alpha: alpha)
     }
 
@@ -234,35 +239,35 @@ class AudioManager {
                 previous track
             end tell
         """) == nil {
-            let _ = runAppleScript("""
+            _ = runAppleScript("""
                 tell application "Music"
                     previous track
                 end tell
             """)
         }
     }
-    
+
     func playNextTrack() {
         if runAppleScript("""
             tell application "Spotify"
                 next track
             end tell
         """) == nil {
-            let _ = runAppleScript("""
+            _ = runAppleScript("""
                 tell application "Music"
                     next track
                 end tell
             """)
         }
     }
-    
+
     func togglePlayPause() {
         if runAppleScript("""
             tell application "Spotify"
                 playpause
             end tell
         """) == nil {
-            let _ = runAppleScript("""
+            _ = runAppleScript("""
                 tell application "Music"
                     playpause
                 end tell

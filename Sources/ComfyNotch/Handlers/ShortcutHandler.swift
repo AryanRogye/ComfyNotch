@@ -1,11 +1,10 @@
 import AppKit
 
-
 class ShortcutHandler: ObservableObject {
 
     static let shared = ShortcutHandler()
     private var localMonitor: Any?
-    @Published var pressedShortcut: String? = nil
+    @Published var pressedShortcut: String?
 
     private init() {
 
@@ -21,8 +20,8 @@ class ShortcutHandler: ObservableObject {
     private func isCommand(for event: NSEvent) -> Bool {
         return event.modifierFlags.contains(.command)
     }
-    
-    private func isKey(for event: NSEvent, key : String) -> Bool {
+
+    private func isKey(for event: NSEvent, key: String) -> Bool {
         return event.charactersIgnoringModifiers == key
     }
 
@@ -31,10 +30,13 @@ class ShortcutHandler: ObservableObject {
             self.pressedShortcut = "new"
             print("⌘ + N was pressed")
         }
-        
-        if event.modifierFlags.contains(.command) && event.modifierFlags.contains(.shift) && event.charactersIgnoringModifiers == "w" {
-            self.pressedShortcut = "close"
-            print("⌘ + Shift + W was pressed")
+
+        if  event.modifierFlags.contains(.command) &&
+            event.modifierFlags.contains(.shift) &&
+            event.charactersIgnoringModifiers == "w" {
+
+                self.pressedShortcut = "close"
+                print("⌘ + Shift + W was pressed")
         }
     }
 }

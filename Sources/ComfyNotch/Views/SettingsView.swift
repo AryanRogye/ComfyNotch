@@ -30,10 +30,8 @@ struct SettingsView: View {
         .onDisappear {
             settings.isSettingsWindowOpen = false
         }
-    }    
+    }
 }
-
-
 #Preview {
     SettingsView(settings: SettingsModel.shared)
 }
