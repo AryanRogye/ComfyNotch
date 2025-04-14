@@ -8,48 +8,65 @@
 import SwiftUI
 
 struct CustomSidebar<Content: View>: View {
-    let isExpanded: Binding <Bool>
-    let content : () -> Content
-    
+
+    @Binding var isExpanded: Bool
+    let content: () -> Content
+    let expandedSidebarWidth: CGFloat
+    let collapsedOffsetValue: CGFloat
+
     init(
-        isExpanded : Binding<Bool>,
-        @ViewBuilder content : @escaping () -> Content
+        isExpanded: Binding<Bool>,
+        expandedSidebarWidth: CGFloat = 180,
+        collapsedOffsetValue: CGFloat = -69,
+        @ViewBuilder content: @escaping () -> Content
     ) {
-        self.isExpanded = isExpanded
+        self._isExpanded = isExpanded
         self.content = content
+        self.expandedSidebarWidth = expandedSidebarWidth
+        self.collapsedOffsetValue = collapsedOffsetValue
     }
-    
+
     var body: some View {
         ZStack {
             VisualEffectView(
                 material: .sidebar,
                 blendingMode: .behindWindow
             )
-            .frame(width: isExpanded.wrappedValue ? 180 : 0)
+            .frame(width: isExpanded ? 180 : 0)
             .clipShape(RoundedRectangle(cornerRadius: 0))
-            
+
             VStack(alignment: .leading, spacing: 1) {
                 /// Button to toggle the sidebar
                 Button(action: {
-                    isExpanded.wrappedValue.toggle()
-                } ) {
-                    Image(systemName: "chevron.compact.down")
+                    isExpanded.toggle()
+                }) {
+                    Image(systemName: "chevron.compact.left")
+                        .rotationEffect(.degrees(isExpanded ? 0 : 180))
+                        .animation(.easeInOut(duration: 0.25), value: isExpanded)
                 }
                 .padding(.vertical, 10)
-                
+
                 /// Actual Content
-                if isExpanded.wrappedValue {
+                if isExpanded {
                     content()
                 } else {
                     Spacer()
                 }
-                
+
             }
             .padding(.top, 10)
             .padding(.horizontal, 6)
         }
-        .transition(.move(edge: .leading).combined(with: .opacity))
-        .animation(.easeInOut(duration: 0.25), value: isExpanded.wrappedValue)
+        .clipped()
+        .frame(width: expandedSidebarWidth)
+        .offset(x: isExpanded ? 0 : collapsedOffsetValue)
+        .transition(.asymmetric(
+            insertion: .move(edge: .leading).combined(with: .opacity),
+            removal: .move(edge: .trailing).combined(with: .opacity)
+        ))
+        .animation(.easeInOut(duration: 0.25), value: isExpanded)
+        .zIndex(1)
+
     }
 }
 
