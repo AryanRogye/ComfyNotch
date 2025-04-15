@@ -55,13 +55,16 @@ ComfyNotch brings life to your MacBook’s notch by providing a clean and intuit
 - [x] **Multiple Notes System**: Implement a notes dashboard with multiple notes accessible through tabs.
 - [x] **Dynamic Animated Button Colors**: Match the animated buttons’ colors to the dominant color of the album art.
 - [x] **AI Chat Integration (More Coming Soon...)**: Allow users to interact with an AI chat feature by providing their own API keys.
+- [ ] **Clipboard Manager**: Implement a clipboard manager to keep track of copied items.
+- [ ] **Pomodoro Timer**: Add a Pomodoro timer to help users manage their time effectively.
+- [ ] **Notifications Popup**: Right now there is a hover on the notch that pops down i'm sure we can reuse that for notifications
 
 ### 🎨 **UI/UX Improvements**
 - [x] **Better Settings Menu**: Revamp the settings view for easier customization and better user experience.
 - [x] **Improved Notes Widget UI**: Add buttons to switch between multiple notes.
 - [x] **Improved Music Player UI**: Make the buttons more cleaner.
 - [x] **Convert to SwiftUI where I can**: Said everything I need to. 😂
-- [ ] **Invisible Mode**: Hide the notch with a shortcut when hovered on the notch, so toolbar options on other apps can be visible
+- [x] **Invisible Mode**: Hide the notch with a shortcut when hovered on the notch, so toolbar options on other apps can be visible
 
 ---
 
