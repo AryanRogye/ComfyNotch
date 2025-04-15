@@ -58,6 +58,7 @@ ComfyNotch brings life to your MacBook’s notch by providing a clean and intuit
 - [ ] **Clipboard Manager**: Implement a clipboard manager to keep track of copied items.
 - [ ] **Pomodoro Timer**: Add a Pomodoro timer to help users manage their time effectively.
 - [ ] **Notifications Popup**: Right now there is a hover on the notch that pops down i'm sure we can reuse that for notifications
+- [ ] **Better Shortcut Management**: Implement a better shortcut management system to allow users to customize their shortcuts easily.
 
 ### 🎨 **UI/UX Improvements**
 - [x] **Better Settings Menu**: Revamp the settings view for easier customization and better user experience.

@@ -6,19 +6,35 @@ import Combine
 struct AnimatedDot: View {
     let delay: Double
     let color: Color
+    var shouldAnimate: Bool
     @State private var isAnimating = false
 
     var body: some View {
         Circle()
             .fill(color)
             .frame(width: 6, height: 6)
-            .offset(y: isAnimating ? -5 : 5)
+            .offset(y: shouldAnimate ? (isAnimating ? -5 : 5) : 0)
             .onAppear {
-                // Start the animation with a delay.
-                withAnimation(Animation.easeInOut(duration: 0.5).repeatForever().delay(delay)) {
-                    isAnimating = true
+                if shouldAnimate {
+                    startAnimation()
                 }
             }
+            .onChange(of: shouldAnimate) { newValue in
+                if newValue {
+                    startAnimation()
+                } else {
+                    isAnimating = false
+                }
+            }
+    }
+
+    private func startAnimation() {
+        isAnimating = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            withAnimation(Animation.easeInOut(duration: 0.5).repeatForever()) {
+                isAnimating = true
+            }
+        }
     }
 }
 
@@ -60,24 +76,19 @@ struct MovingDotsView: View, Widget {
 
     var body: some View {
         HStack(spacing: 6) {
-            if model.isPlaying {
-                ForEach(0..<3) { index in
-                    AnimatedDot(
-                        delay: Double(index) * 0.2,
-                        color: Color(model.playingColor)
-                    )
-                }
-            } else {
-                // Static dots when not playing
-                ForEach(0..<3) { _ in
-                    Circle()
-                        .fill(Color(model.playingColor))
-                        .frame(width: 6, height: 6)
-                }
+            ForEach(0..<3) { index in
+                AnimatedDot(
+                    delay: Double(index) * 0.2,
+                    color: Color(model.playingColor),
+                    shouldAnimate: model.isPlaying  // controls bounce
+                )
             }
         }
         .padding(.trailing, 10)
+        // Optionally add an explicit animation for the change in bounce state:
+        .animation(.easeInOut(duration: 0.3), value: model.isPlaying)
     }
+    
     var swiftUIView: AnyView {
         AnyView(self)
     }
