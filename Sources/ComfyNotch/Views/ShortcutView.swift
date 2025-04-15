@@ -20,9 +20,6 @@ struct ShortcutView: View {
             }
             .padding()
         }
-        .onAppear {
-            shortcutHandler.startListening()
-        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }

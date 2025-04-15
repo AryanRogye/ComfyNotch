@@ -65,6 +65,7 @@ struct SettingsView: View {
         .frame(maxWidth: 700, maxHeight: 600)
         .onDisappear {
             settings.isSettingsWindowOpen = false
+            SettingsModel.shared.refreshUI()
         }
     }
 }

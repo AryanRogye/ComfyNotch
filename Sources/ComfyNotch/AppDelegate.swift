@@ -51,6 +51,8 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Any Screen errors that may happen, is handled in here
         DisplayHandler.shared.start()
+        // Start listening for shortcuts
+        ShortcutHandler.shared.startListening()
     }
 
     /**

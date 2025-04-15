@@ -15,20 +15,21 @@ struct AlbumWidgetView: View, Widget {
                     Image(nsImage: nsImage)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 25, height: 25)
-                        .cornerRadius(8)
+                        .frame(width: 25, height: 22)
+                        .cornerRadius(4)
+                        .padding(.top, 2)
                 }
             } else {
                 panelButton {
                     ZStack {
                         RoundedRectangle(cornerRadius: 8)
                             .fill(Color.gray.opacity(0.2))
-                            .frame(width: 30, height: 30)
+                            .frame(width: 27, height: 23)
                         Image(systemName: "music.note")
-                            .font(.system(size: 14, weight: .medium))
+                            .font(.system(size: 13, weight: .medium))
                             .foregroundColor(.white)
                     }
-                    .frame(width: 25, height: 25)
+                    .padding(.top, 1)
                 }
             }
         }

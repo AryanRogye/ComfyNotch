@@ -168,6 +168,7 @@ struct SmallPanelWidgetManager: View {
                                 let widgetEntry = widgetStore.leftWidgetsShown[index]
                                 if widgetEntry.isVisible {
                                     widgetEntry.widget.swiftUIView
+                                        .padding(.top, 2)
                                 }
                             }
                         }
@@ -225,7 +226,6 @@ struct SmallPanelWidgetManager: View {
                         }
                     }
                 }
-                .padding(.top, 4)
                 .frame(maxWidth: .infinity, alignment: .top)
 
                 VStack {
