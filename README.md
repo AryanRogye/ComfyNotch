@@ -2,7 +2,7 @@
 
 > Turn your MacBook’s notch into a **beautifully functional and customizable space**.
 
-<img src="Assets/ComfyLogo.png" alt="ComfyNotch Logo" width="200"/>
+<img src="Assets/ComfyNotchLogo.png" alt="ComfyNotch Logo" width="200"/>
 
 ---
 
