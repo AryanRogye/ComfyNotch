@@ -11,6 +11,9 @@ https://github.com/user-attachments/assets/6af570c7-4395-4b2f-9910-0e5d6cc38bb9
 
 _✨ Watch ComfyNotch bring your MacBook’s notch to life ✨_
 
+> ⚠️ *Note:* This video shows a recent build, but ComfyNotch is under active development —  
+> features and visuals might look a little different in your download!
+
 ## 📦 Download
 
 > ⚠️ Not on the App Store (yet) — but super easy to run!
@@ -29,8 +32,8 @@ macOS will warn you it’s “unverified,” but it’s totally safe — just fo
 ...or build it yourself from source (look for the script at the bottom 👇).
 
 ⚙️ *Heads up:* The manual build steps below work… mostly 😅  
-But if you want a smoother time, just run [`scripts/build_app.sh`](scripts/build_app.sh) —  
-that script gets all the love because Bash variables > rewriting commands 10 times 💀
+But for the smoothest experience, just run [`scripts/build_app.sh`](scripts/build_app.sh) —  
+it’s what I personally use, and it stays up to date because writing Bash with variables > retyping everything 10 times 💀
 
 ---
 
