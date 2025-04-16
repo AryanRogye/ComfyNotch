@@ -31,12 +31,30 @@ struct SettingsButtonView: View, Widget {
 class SettingsWindowDelegate: NSObject, NSWindowDelegate {
     func windowWillClose(_ notification: Notification) {
         SettingsModel.shared.isSettingsWindowOpen = false
+        SettingsModel.shared.refreshUI()
     }
 }
 
 class SettingsWidgetModel: ObservableObject {
-    @Published var action: () -> Void = {
-        /// Set the Model to the pane open
+    @Published var action: () -> Void
+    @Published var playingColor: NSColor = .white
+
+    private var cancellables = Set<AnyCancellable>()
+
+    init() {
+        action = {
+            Self.openSettingsWindow()
+        }
+
+        AudioManager.shared.$dominantColor
+            .receive(on: RunLoop.main)
+            .sink { [weak self] color in
+                self?.playingColor = color
+            }
+            .store(in: &cancellables)
+    }
+
+    private static func openSettingsWindow() {
         SettingsModel.shared.isSettingsWindowOpen = true
         SettingsView(settings: SettingsModel.shared)
             .openNewWindow(
@@ -44,18 +62,5 @@ class SettingsWidgetModel: ObservableObject {
                 style: [.titled, .closable, .resizable],
                 delegate: SettingsWindowDelegate()
             )
-    }
-
-    @Published var playingColor: NSColor = .white
-
-    private var cancellables = Set<AnyCancellable>()
-
-    init() {
-        AudioManager.shared.$dominantColor
-            .receive(on: RunLoop.main)
-            .sink { [weak self] color in
-                self?.playingColor = color
-            }
-            .store(in: &cancellables)
     }
 }

@@ -1,9 +1,30 @@
 import AppKit
+import Combine
+import SwiftUI
 
 enum HoverState {
     case hovering
     case notHovering
 }
+
+
+class HoverHandlerModel: ObservableObject {
+    @Published var isPlaying: Bool = false
+    private var cancellables = Set<AnyCancellable>()
+
+    init() {
+        // Subscribe to changes in the AudioManager's current song text and color.
+        AudioManager.shared.$currentSongText
+            .receive(on: RunLoop.main)
+            .sink { [weak self] text in
+                DispatchQueue.main.async {
+                    self?.isPlaying = text != "No Song Playing"
+                }
+            }
+            .store(in: &cancellables)
+    }
+}
+
 class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
     private weak var panel: NSPanel?
     private var localMonitor: Any?
@@ -25,6 +46,8 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
 
     private let padding: CGFloat = 10
     private let closingPadding: CGFloat = 50
+
+    @ObservedObject var hoverHandlerModel = HoverHandlerModel()
 
     // Start with no hover state
     var hoverState: HoverState = .notHovering
@@ -110,6 +133,9 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
         UIManager.shared.smallPanel?.alphaValue = 1
         UIManager.shared.bigPanel?.alphaValue = 1
 
+        /// No HoverHandler if no music is playing
+
+
         // Simple check if the mouse is inside the panel's frame
         if panelFrame.contains(mouseLocation) {
             // Inside padding area
@@ -119,11 +145,13 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
             collapseTimer = nil
 
             if UIManager.shared.panelState == .closed {
-                let now = CACurrentMediaTime()
-                if now - lastHapticTime > 0.2 {
-                    triggerHapticFeedback()
-                    animatePanel(expand: true)
-                    lastHapticTime = now
+                if CACurrentMediaTime() - lastHapticTime > 0.2 {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration * 0.6) {
+                        self.triggerHapticFeedback()
+                        self.lastHapticTime = CACurrentMediaTime()
+                    }
+
+                    animatePanel(expand: hoverHandlerModel.isPlaying)
                 }
             }
 
@@ -136,7 +164,8 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
                     guard let self else { return }
 
                     if UIManager.shared.panelState == .closed || UIManager.shared.panelState == .open {
-                        self.animatePanel(expand: false)
+                        /// Dont animate if the panel is already closed
+                        self.animatePanel(expand: false && self.hoverHandlerModel.isPlaying)
                         self.hoverState = .notHovering
                     }
 
@@ -176,7 +205,7 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
         }
         let hapticManager = NSHapticFeedbackManager.defaultPerformer
         hapticManager.perform(.levelChange, performanceTime: .now)
-        hapticManager.perform(.generic, performanceTime: .now)
+        // hapticManager.perform(.generic, performanceTime: .now)
         self.isUsingHapticFeedback = true
     }
 

@@ -8,6 +8,7 @@ struct AlbumWidgetView: View, Widget {
 
     @ObservedObject var model: AlbumWidgetModel
     var scrollManager = ScrollHandler.shared
+
     var body: some View {
         ZStack {
             panelButton {
