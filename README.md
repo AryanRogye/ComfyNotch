@@ -4,6 +4,13 @@
 
 <img src="Assets/ComfyNotchLogo.png" alt="ComfyNotch Logo" width="200"/>
 
+
+## 🎥 Live Demo
+
+https://github.com/user-attachments/assets/6af570c7-4395-4b2f-9910-0e5d6cc38bb9
+
+_✨ Watch ComfyNotch bring your MacBook’s notch to life ✨_
+
 ---
 
 ## 📖 About
