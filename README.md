@@ -54,6 +54,15 @@ ComfyNotch brings life to your MacBook’s notch by providing a clean and intuit
 - 📷 **Camera**: See how your looking in public
 - 🎨 **Coming Soon: Customization**: Easily add your own widgets.
 
+### 🪄 Smart Notch Hiding (You’ve never seen this before)
+
+Hold down a modifier key (e.g. ⌘ or ⌥) and hover near the notch —  
+ComfyNotch will temporarily hide itself so you can access toolbar elements underneath.
+
+Perfect for apps with chunky UIs like Xcode, Finder, or Final Cut.
+
+> 🔥 Pretty sure no other notch utility does this.
+
 ## ⚠️ Known Issues
 
 1. **macOS Compatibility**  
