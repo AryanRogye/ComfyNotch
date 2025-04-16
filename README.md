@@ -11,6 +11,20 @@ https://github.com/user-attachments/assets/6af570c7-4395-4b2f-9910-0e5d6cc38bb9
 
 _✨ Watch ComfyNotch bring your MacBook’s notch to life ✨_
 
+## 📦 Download
+
+> ⚠️ Not on the App Store (yet) — but super easy to run!
+
+1. Go to the [**Releases tab**](https://github.com/AryanRogye/ComfyNotch/releases)
+2. Download the latest `.dmg` file (e.g. `ComfyNotch-v0.1.0.dmg`)
+3. Double-click to open it — **if macOS blocks it**, do:
+   - Open **System Settings → Privacy & Security**
+   - Scroll to **"Open Anyway"** under Security
+   - Click it and you're good!
+
+🧠 *Why?*  
+I'm a solo dev without an Apple Developer ID yet, so macOS flags it as “unverified.” Totally safe though.
+
 ---
 
 ## 📖 About
