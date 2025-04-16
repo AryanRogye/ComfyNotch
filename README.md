@@ -23,7 +23,14 @@ _✨ Watch ComfyNotch bring your MacBook’s notch to life ✨_
    - Click it and you're good!
 
 🧠 *Why?*  
-I'm a solo dev without an Apple Developer ID yet, so macOS flags it as “unverified.” Totally safe though.
+I have a Developer ID, but I’m skipping the whole notarization + App Store process for now (too much red tape 🫠).  
+macOS will warn you it’s “unverified,” but it’s totally safe — just follow the steps above ....
+
+...or build it yourself from source (look for the script at the bottom 👇).
+
+⚙️ *Heads up:* The manual build steps below work… mostly 😅  
+But if you want a smoother time, just run [`scripts/build_app.sh`](scripts/build_app.sh) —  
+that script gets all the love because Bash variables > rewriting commands 10 times 💀
 
 ---
 
