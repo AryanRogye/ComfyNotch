@@ -131,6 +131,8 @@ class PanelAnimationState: ObservableObject {
 struct SmallPanelWidgetManager: View {
 
     @EnvironmentObject var widgetStore: SmallPanelWidgetStore
+    @EnvironmentObject var priorityStore: BigPanelWidgetStore
+
     @ObservedObject var animationState = PanelAnimationState.shared
     @State private var isHovering: Bool = false
 
@@ -230,10 +232,14 @@ struct SmallPanelWidgetManager: View {
 
                 VStack {
                     if animationState.isExpanded {
-                        Text(animationState.songText)
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundStyle(Color(nsColor: animationState.playingColor))
-                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                        // show the last item in the priority store
+                        if let top = priorityStore.widgets.last(where: { $0.isVisible }) {
+                            top.widget.swiftUIView
+                        }
+                        // Text(animationState.songText)
+                        //     .font(.system(size: 16, weight: .bold))
+                        //     .foregroundStyle(Color(nsColor: animationState.playingColor))
+                        //     .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
                 }
                 .frame(height: animationState.bottomSectionHeight)

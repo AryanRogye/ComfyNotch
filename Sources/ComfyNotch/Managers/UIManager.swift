@@ -36,6 +36,7 @@ class UIManager {
     static let shared = UIManager()
     let smallWidgetStore = SmallPanelWidgetStore()
     let bigWidgetStore = BigPanelWidgetStore()
+    let priorityPanelWidgetStore = BigPanelWidgetStore()
 
     var hoverHandler: HoverHandler?
 
@@ -104,20 +105,31 @@ class UIManager {
         let albumWidgetModel = AlbumWidgetModel()
         let movingDotsModel = MovingDotsViewModel()
         let settingsWidgetModel = SettingsWidgetModel()
+        let currentSongWidgetModel = MusicPlayerWidgetModel()
 
+        /// Create Widgets for the small panel
         let albumWidget = AlbumWidgetView(model: albumWidgetModel)
-
         let movingDotsWidget = MovingDotsView(model: movingDotsModel)
-
         let settingsWidget = SettingsButtonView(model: settingsWidgetModel)
+
+        /// Create Widgets for the priority panel
+        let currentSongWidget = CurrentSongWidget(
+            model: currentSongWidgetModel,
+            movingDotsModel: movingDotsModel
+        )
 
         // Add Widgets to the WidgetStore
         smallWidgetStore.addWidget(albumWidget)
         smallWidgetStore.addWidget(movingDotsWidget)
         smallWidgetStore.addWidget(settingsWidget)
 
+        // Add Widgets to the PriorityPanel
+        priorityPanelWidgetStore.addWidget(currentSongWidget)
+        priorityPanelWidgetStore.showWidget(named: "CurrentSongWidget")
+
         let contentView = SmallPanelWidgetManager()
             .environmentObject(smallWidgetStore)
+            .environmentObject(priorityPanelWidgetStore)
 
         smallPanel.contentView = NSHostingView(rootView: contentView)
         smallPanel.makeKeyAndOrderFront(nil)

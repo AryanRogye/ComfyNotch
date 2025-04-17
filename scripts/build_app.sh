@@ -3,7 +3,7 @@ set -e
 
 # === CONFIG ===
 APP_NAME="ComfyNotch"                 # Final .app name
-EXECUTABLE_NAME="ComfyNotchDev"      # Built binary from SwiftPM
+EXECUTABLE_NAME="ComfyNotchDev"       # Built binary from SwiftPM
 BUILD_DIR=".build/release"
 ENTITLEMENTS_FILE="ComfyNotch.entitlements"
 ICON_SOURCE="Assets/ComfyNotchLogo.png"
@@ -25,6 +25,10 @@ if [ ! -f "$BUILD_DIR/$EXECUTABLE_NAME" ]; then
     exit 1
 fi
 
+# === RENAME EXECUTABLE ===
+echo "🔧 Renaming built binary to $APP_NAME..."
+mv "$BUILD_DIR/$EXECUTABLE_NAME" "$BUILD_DIR/$APP_NAME"
+
 # === CLEAN PREVIOUS ===
 if [ -d "$APP_NAME.app" ]; then
     echo "🧹 Cleaning old $APP_NAME.app bundle..."
@@ -38,7 +42,7 @@ mkdir -p "$APP_NAME.app/Contents/Resources"
 
 # === COPY BINARY ===
 echo "📦 Adding executable..."
-cp "$BUILD_DIR/$EXECUTABLE_NAME" "$APP_NAME.app/Contents/MacOS/$APP_NAME"
+cp "$BUILD_DIR/$APP_NAME" "$APP_NAME.app/Contents/MacOS/$APP_NAME"
 chmod +x "$APP_NAME.app/Contents/MacOS/$APP_NAME"
 
 # === GENERATE ICON ===
@@ -74,7 +78,8 @@ fi
 echo "🧾 Writing Info.plist..."
 cat > "$APP_NAME.app/Contents/Info.plist" <<EOL
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN"
+ "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key>
@@ -111,7 +116,8 @@ if [ ! -f "$ENTITLEMENTS_FILE" ]; then
     echo "🔐 Creating entitlements file..."
     cat > "$ENTITLEMENTS_FILE" <<EOL
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN"
+ "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
     <key>com.apple.security.app-sandbox</key>
