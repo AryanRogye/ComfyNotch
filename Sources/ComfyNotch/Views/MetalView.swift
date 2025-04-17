@@ -4,11 +4,20 @@ import Combine
 import MetalKit
 
 
+enum ShaderEffect {
+    case none
+    case borderGlow
+    case fullGlow
+}
+
 class MetalCoordinator: NSObject, MTKViewDelegate {
 
     let pipelineBorder: MTLRenderPipelineState
     let pipelineFull: MTLRenderPipelineState
-    var useBorder: Bool = false
+
+    var useBorder: Bool = false /// TODO: Replace with enum
+    var currentEffect: ShaderEffect = .none
+
     var time: Float = 0
     var shadeColor = SIMD3<Float>(0.2, 0.2, 0.2) // Default comfy fallback
     var pulseStrength: Float = 0 
@@ -66,11 +75,12 @@ class MetalCoordinator: NSObject, MTKViewDelegate {
     
     /// Every 60 seconds it tells Metal: "Hey Metal! Here’s what I want to draw next""
     func draw(in view: MTKView) {
+        /// Get where to draw. (basically like "give me a fresh canvas")
         guard let passDesc = view.currentRenderPassDescriptor,
-            let drawable = view.currentDrawable,
-            let queue    = view.device?.makeCommandQueue(),
-            let buf      = queue.makeCommandBuffer(),
-            let enc      = buf.makeRenderCommandEncoder(descriptor: passDesc)
+            let drawable = view.currentDrawable,                                // Get the actual texture (image) that will be shown on screen.
+            let queue    = view.device?.makeCommandQueue(),                     // Create a command queue (kinda like a todo list for the GPU).
+            let buf      = queue.makeCommandBuffer(),                           // Create a command buffer (the specific todo list).
+            let enc      = buf.makeRenderCommandEncoder(descriptor: passDesc)   // Create a command encoder (start writing the drawing commands).
             else { return }
 
         time += 0.03
