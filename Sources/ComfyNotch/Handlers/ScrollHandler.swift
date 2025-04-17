@@ -211,7 +211,7 @@ class ScrollHandler {
         let scrollDeltaY = event.scrollingDeltaY
 
         let scrollThreshold: CGFloat = 1.0 // Increased to avoid tiny flickers
-        print("Scroll delta Y: \(scrollDeltaY)")
+        // print("Scroll delta Y: \(scrollDeltaY)")
 
         // Use DispatchQueue to avoid blocking the main thread
         DispatchQueue.global(qos: .userInteractive).async { [weak self] in

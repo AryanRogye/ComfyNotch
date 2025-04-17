@@ -5,20 +5,11 @@ struct ShortcutRows: View {
 
     var body: some View {
         ForEach($shortcutHandler.userShortcuts) { $shortcut in
-            // If it's "Hover Hide"
-            if shortcut.name == "Hover Hide" {
-                ModifierPickerItem(
-                    name: "Hover Hide",
-                    selected: $shortcut.modifier
-                )
-            }
-            // If it's "Open Settings"
-            else if shortcut.name == "Open Settings" {
-                ModifierPickerItem(
-                    name: "Open Settings",
-                    selected: $shortcut.modifier
-                )
-            }
+            ModifierPickerItem(
+                name: shortcut.name,
+                selected: $shortcut.modifiers,
+                key: $shortcut.key
+            )
         }
     }
 }

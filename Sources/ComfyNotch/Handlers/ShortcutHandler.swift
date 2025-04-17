@@ -17,7 +17,11 @@ struct UserShortcut: Identifiable {
     /// The modifier is the key that is pressed with the shortcut, this is always going to be activated
     /// before the key, this means we always check the modifier first, then the key, this case no accidental
     /// "Key" then "Modifier" presses will be registered.
-    var modifier: ModifierKey
+    /// - Mark: This is new, I changed this to a set because we can have multiple modifiers imagine that shit
+    ///         we can have command + + control + option + shift + key
+    ///         The Set is my design choice, I couldve went with a array but its imo the best way to not
+    ///         have to check for duplicates, and also its easier to check if a modifier is in the set
+    var modifiers: Set<ModifierKey> = []
     /// The key of the shortcut is what is pressed with the modifier, this doesnt always
     /// necessarily mean that the key will always be inputted for a userShortcut, this is
     /// because, certain actions like "Hide Dock When Hover", its much easier to press with just
@@ -27,8 +31,8 @@ struct UserShortcut: Identifiable {
 
 extension UserShortcut {
     static var defaultShortcuts: [UserShortcut] = [
-        UserShortcut(name: "Hover Hide", modifier: .command),
-        UserShortcut(name: "Open Settings", modifier: .command, key: "s")
+        UserShortcut(name: "Hover Hide", modifiers: [.command]),
+        UserShortcut(name: "Open Settings", modifiers: [.command], key: "s")
     ]
 }
 
@@ -65,16 +69,18 @@ class ShortcutHandler: ObservableObject {
 
     private func handleKeyEvent(_ event: NSEvent) {
         for shortcut in userShortcuts {
-            let matchesModifier = event.modifierFlags.contains(shortcut.modifier.eventFlag)
+            let shortcutModifiers = shortcut.modifiers
+            let eventModifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
 
-            let isShortcutNil = shortcut.key == nil
-            let isCharsIsEqual = event.charactersIgnoringModifiers?.lowercased() == shortcut.key?.lowercased()
+            let allModifiersPressed = shortcutModifiers.allSatisfy { modifier in
+                eventModifiers.contains(modifier.eventFlag)
+            }
 
-            let matchesKey = isShortcutNil || isCharsIsEqual
+            let matchesKey = shortcut.key == nil || (event.charactersIgnoringModifiers?.lowercased() == shortcut.key?.lowercased())
 
-            if matchesModifier && matchesKey {
+            if allModifiersPressed && matchesKey {
                 self.pressedShortcut = shortcut.name
-                print("Shortcut matched → \(shortcut.name) [\(shortcut.modifier.rawValue) + \(shortcut.key ?? "")]")
+                print("Shortcut matched → \(shortcut.name) [\(shortcut.modifiers.map(\.rawValue).joined(separator: " + ")) + \(shortcut.key ?? "")]")
             }
         }
     }
@@ -90,7 +96,7 @@ class ShortcutHandler: ObservableObject {
 
         // Modifier-only shortcut check
         if shortcut.key == nil {
-            return activeModifiers.contains(shortcut.modifier)
+            return activeModifiers.contains(shortcut.modifiers)
         }
 
         // If it's a modifier + key combo, match recent pressed name
@@ -98,10 +104,8 @@ class ShortcutHandler: ObservableObject {
     }
 
     func updateModifier(for name: String, to newModifier: ModifierKey) {
-        // find the relevant shortcut
         if let index = userShortcuts.firstIndex(where: { $0.name == name }) {
-            // update its modifier
-            userShortcuts[index].modifier = newModifier
+            userShortcuts[index].modifiers = [newModifier] // <<< wrap in array or set
             print("Updated \(name) to modifier \(newModifier.rawValue)")
         }
     }
@@ -111,18 +115,22 @@ class ShortcutHandler: ObservableObject {
         lastFlags = currentFlags
 
         for shortcut in userShortcuts where shortcut.key == nil {
-            let isPressedNow = currentFlags.contains(shortcut.modifier.eventFlag)
-            let wasPressedBefore = activeModifiers.contains(shortcut.modifier)
-            // Key just pressed
-            if isPressedNow && !wasPressedBefore {
-                activeModifiers.insert(shortcut.modifier)
-                self.pressedShortcut = shortcut.name
-                // print("🔹 Modifier down → \(shortcut.name) [\(shortcut.modifier.rawValue)]")
+            let allModifiersPressed = shortcut.modifiers.allSatisfy { modifier in
+                currentFlags.contains(modifier.eventFlag)
             }
-            // Key just released
-            if !isPressedNow && wasPressedBefore {
-                activeModifiers.remove(shortcut.modifier)
-                // print("🔻 Modifier up → \(shortcut.modifier.rawValue)")
+
+            let wasActiveBefore = shortcut.modifiers.allSatisfy { modifier in
+                activeModifiers.contains(modifier)
+            }
+
+            if allModifiersPressed && !wasActiveBefore {
+                activeModifiers.formUnion(shortcut.modifiers) // insert all modifiers into activeModifiers
+                self.pressedShortcut = shortcut.name
+                // print("🔹 Modifier down → \(shortcut.name) [\(shortcut.modifiers.map(\.rawValue).joined(separator: " + "))]")
+            }
+            if !allModifiersPressed && wasActiveBefore {
+                activeModifiers.subtract(shortcut.modifiers) // remove all modifiers from activeModifiers
+                // print("🔻 Modifier up → \(shortcut.modifiers.map(\.rawValue).joined(separator: " + "))")
             }
         }
     }

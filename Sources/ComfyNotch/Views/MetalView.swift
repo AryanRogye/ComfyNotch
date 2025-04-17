@@ -130,7 +130,7 @@ struct MetalBackgroundView: NSViewRepresentable {
     @Binding var pulse: Bool
 
     func makeCoordinator() -> MetalCoordinator {
-        MetalCoordinator()
+        MetalCoordinator.shared
     }
 
     func makeNSView(context: Context) -> MTKView {
