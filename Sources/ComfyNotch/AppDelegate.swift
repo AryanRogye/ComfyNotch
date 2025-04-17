@@ -10,10 +10,12 @@ import Foundation
  * Properties:
  * - hoverHandler: Manages hover interactions for the small panel
  * - panelProximityHandler: Manages proximity-based interactions for the big panel
+ * - notificationManager: Manages notifications for the small panel
  */
 public class AppDelegate: NSObject, NSApplicationDelegate {
     private var hoverHandler: HoverHandler?
     private var panelProximityHandler: PanelProximityHandler?
+    private var notificationManager: NotificationManager?
 
     /**
      * Called when the application finishes launching.
@@ -44,6 +46,12 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         if let bigPanel = UIManager.shared.bigPanel {
             // Proximity Handler for the Big Panel
             self.panelProximityHandler = PanelProximityHandler(panel: bigPanel)
+        }
+        
+        if Bundle.main.bundleURL.pathExtension == "app" {
+            if UIManager.shared.smallPanel != nil {
+                self.notificationManager = NotificationManager()
+            }
         }
 
         // Set up the ui by loading the widgets from settings onto it

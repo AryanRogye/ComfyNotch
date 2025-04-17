@@ -74,10 +74,10 @@ struct BigPanelWidgetManager: View {
         ZStack {
             Color.black.opacity(1)
                 .clipShape(RoundedCornersShape(
-                    topLeft: 10,
-                    topRight: 10,
-                    bottomLeft: 10,
-                    bottomRight: 10
+                    topLeft: 20,
+                    topRight: 20,
+                    bottomLeft: 20,
+                    bottomRight: 20
                 ))
 
             HStack(spacing: 2) {

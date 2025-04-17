@@ -106,7 +106,18 @@ class PanelAnimationState: ObservableObject {
     @Published var bottomSectionHeight: CGFloat = 0
     @Published var songText: String = AudioManager.shared.currentSongText
     @Published var playingColor: NSColor = AudioManager.shared.dominantColor
+    
+    
+    @Published var isBorderGlowing: Bool = false
+    
+    public func toggleBorderGlow() {
+        isBorderGlowing = true
 
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
+            self?.isBorderGlowing = false
+        }
+    }
+    
     private var cancellables = Set<AnyCancellable>()
 
     init() {
@@ -141,26 +152,36 @@ struct SmallPanelWidgetManager: View {
 
     var body: some View {
         ZStack {
+            
+            GeometryReader { geo in
+                MetalBackgroundView(
+                    shade: $animationState.playingColor,
+                    pulse: $animationState.isBorderGlowing
+                )
+                    .frame(width: geo.size.width, height: geo.size.height)
+                    .allowsHitTesting(false)
+                Image("noise")
+                    .resizable()
+                    .scaledToFill()
+                    .opacity(0.05)
+                    .blendMode(.overlay)
+            }
+            
             if animationState.isExpanded {
-                GeometryReader { geo in
-                    MetalBackgroundView(shade: $animationState.playingColor)
-                        .frame(width: geo.size.width, height: geo.size.height)
-                        .allowsHitTesting(false)
-                    Image("noise")
-                        .resizable()
-                        .scaledToFill()
-                        .opacity(0.05)
-                        .blendMode(.overlay)
-                }
+                Color.clear  // let the Metal / noise show through
+                    .clipShape(RoundedCornersShape(
+                        topLeft: 0, topRight: 0,
+                        bottomLeft: 20, bottomRight: 20
+                    ))
             } else {
                 Color.black.opacity(1)
                     .clipShape(RoundedCornersShape(
-                                    topLeft: 0,
-                                    topRight: 0,
-                                    bottomLeft: 10,
-                                    bottomRight: 10
-                            ))
+                        topLeft: 0, topRight: 0,
+                        bottomLeft: 20, bottomRight: 20
+                    ))
             }
+            
+            
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     // Left Widgets
@@ -231,6 +252,9 @@ struct SmallPanelWidgetManager: View {
                 .frame(maxWidth: .infinity, alignment: .top)
 
                 VStack {
+                    /**
+                     * This is the priority store section (IN PROGRESS)
+                    */
                     if animationState.isExpanded {
                         // show the last item in the priority store
                         if let top = priorityStore.widgets.last(where: { $0.isVisible }) {
@@ -257,15 +281,15 @@ struct SmallPanelWidgetManager: View {
         .clipShape(RoundedCornersShape(
                         topLeft: 0,
                         topRight: 0,
-                        bottomLeft: 10,
-                        bottomRight: 10
+                        bottomLeft: 20,
+                        bottomRight: 20
                  ))
         .mask(
             RoundedCornersShape(
                 topLeft: 0,
                 topRight: 0,
-                bottomLeft: 10,
-                bottomRight: 10
+                bottomLeft: 20,
+                bottomRight: 20
             )
         )
     }
@@ -289,69 +313,74 @@ struct SmallPanelWidgetManager: View {
     }
 }
 
-class MetalCoordinator: NSObject, MTKViewDelegate {
-    var time: Float = 0
-    var shadeColor = SIMD3<Float>(0.2, 0.2, 0.2) // Default comfy fallback
+/// Preview is a bit messed up but it shows how it would look
+/// In a real scenario
+struct SmallPanelWidgetManager_Previews: PreviewProvider {
+  static var smallStore: SmallPanelWidgetStore = {
+    let store = SmallPanelWidgetStore()
+    let album      = AlbumWidgetView(model: .init())
+    let movingDots = MovingDotsView(model: .init())
+    let settings   = SettingsButtonView(model: .init())
+    // add & show each one:
+    store.addWidget(album)
+    store.showWidget(named: album.name)
+    
+    store.addWidget(movingDots)
+    store.showWidget(named: movingDots.name)
+    
+    store.addWidget(settings)
+    store.showWidget(named: settings.name)
+    return store
+  }()
 
-    func updateShade(from nsColor: NSColor) {
-        let rgb = nsColor.usingColorSpace(.deviceRGB) ?? NSColor.black
-        shadeColor = SIMD3<Float>(
-            Float(rgb.redComponent),
-            Float(rgb.greenComponent),
-            Float(rgb.blueComponent)
-        )
-    }
+  static var priorityStore: BigPanelWidgetStore = {
+    let store = BigPanelWidgetStore()
+    let current = CurrentSongWidget(
+      model: MusicPlayerWidgetModel(),
+      movingDotsModel: MovingDotsViewModel()
+    )
+    store.addWidget(current)
+    store.showWidget(named: current.name)
+    return store
+  }()
 
-    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
+  static var previews: some View {
+    // Force expanded + give it some height
+    let state = PanelAnimationState.shared
+    state.isExpanded = true
+    state.bottomSectionHeight = 40
 
-    func draw(in view: MTKView) {
-        guard let drawable = view.currentDrawable,
-              let descriptor = view.currentRenderPassDescriptor,
-              let device = view.device,
-              let commandQueue = device.makeCommandQueue(),
-              let commandBuffer = commandQueue.makeCommandBuffer(),
-              let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)
-        else { return }
-
-        time += 0.03
-
-        let glow = (sin(time) + 1) / 2
-        let strength = 0.06 + glow * 0 // Pulses from 0.07 to 0.09
-
-        let finalColor = shadeColor * strength
-
-        view.clearColor = MTLClearColor(
-            red: Double(finalColor.x),
-            green: Double(finalColor.y),
-            blue: Double(finalColor.z),
-            alpha: 1
-        )
-
-        encoder.endEncoding()
-        commandBuffer.present(drawable)
-        commandBuffer.commit()
-    }
+    return SmallPanelWidgetManager()
+      .environmentObject(smallStore)
+      .environmentObject(priorityStore)
+      .frame(width: 400, height: 80)
+      .previewLayout(.sizeThatFits)
+  }
 }
 
-struct MetalBackgroundView: NSViewRepresentable {
+#Preview {
+  // 1) prepare stores
+  let smallStore = SmallPanelWidgetStore()
+  let album      = AlbumWidgetView(model: .init())
+  smallStore.addWidget(album); smallStore.showWidget(named: album.name)
+  // …add + show your other widgets…
 
-    @Binding var shade: NSColor
+  let priorityStore = BigPanelWidgetStore()
+  let current = CurrentSongWidget(
+    model: MusicPlayerWidgetModel(),
+    movingDotsModel: MovingDotsViewModel()
+  )
+  priorityStore.addWidget(current)
+  priorityStore.showWidget(named: current.name)
 
-    func makeCoordinator() -> MetalCoordinator {
-        MetalCoordinator()
-    }
+  // 2) expand panel
+  let state = PanelAnimationState.shared
+  state.isExpanded = true
+  state.bottomSectionHeight = 40
 
-    func makeNSView(context: Context) -> MTKView {
-        let mtkView = MTKView()
-        mtkView.device = MTLCreateSystemDefaultDevice()
-        mtkView.delegate = context.coordinator
-        mtkView.isPaused = false
-        mtkView.enableSetNeedsDisplay = false
-        mtkView.preferredFramesPerSecond = 60
-        return mtkView
-    }
-
-    func updateNSView(_ nsView: MTKView, context: Context) {
-        context.coordinator.updateShade(from: shade)
-    }
+  // 3) return your single View
+  return SmallPanelWidgetManager()
+    .environmentObject(smallStore)
+    .environmentObject(priorityStore)
+    .frame(width: 400, height: 80)
 }

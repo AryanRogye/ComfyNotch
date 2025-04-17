@@ -16,7 +16,10 @@ let package = Package(
         .target(
             name: "ComfyNotch",
             dependencies: [],
-            path: "Sources/ComfyNotch"
+            path: "Sources/ComfyNotch",
+            resources: [
+                .process("Shaders")
+            ]
         ),
         .executableTarget(
             name: "ComfyNotchDev",
