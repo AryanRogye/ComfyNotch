@@ -49,7 +49,7 @@ class UIManager {
     var panelState: PanelState = .closed
 
     var startPanelHeight: CGFloat = 0
-    var startPanelWidth: CGFloat = 300
+    var startPanelWidth: CGFloat = 320
 
     var startPanelYOffset: CGFloat = 0
 

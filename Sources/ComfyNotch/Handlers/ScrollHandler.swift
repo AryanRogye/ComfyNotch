@@ -19,7 +19,7 @@ class ScrollHandler {
     var minPanelHeight: CGFloat = UIManager.shared.getNotchHeight()
     var maxPanelHeight: CGFloat = 100
 
-    var minPanelWidth: CGFloat = 300
+    var minPanelWidth: CGFloat = 320
     var maxPanelWidth: CGFloat = 700
 
     var smallPanelRect: NSRect?

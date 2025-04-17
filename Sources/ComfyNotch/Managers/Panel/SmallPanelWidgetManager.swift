@@ -160,11 +160,11 @@ struct SmallPanelWidgetManager: View {
                 )
                     .frame(width: geo.size.width, height: geo.size.height)
                     .allowsHitTesting(false)
-                Image("noise")
-                    .resizable()
-                    .scaledToFill()
-                    .opacity(0.05)
-                    .blendMode(.overlay)
+                // Image("noise")
+                //     .resizable()
+                //     .scaledToFill()
+                //     .opacity(0.05)
+                //     .blendMode(.overlay)
             }
             
             if animationState.isExpanded {
@@ -384,3 +384,5 @@ struct SmallPanelWidgetManager_Previews: PreviewProvider {
     .environmentObject(priorityStore)
     .frame(width: 400, height: 80)
 }
+
+

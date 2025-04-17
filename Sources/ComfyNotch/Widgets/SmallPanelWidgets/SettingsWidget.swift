@@ -20,6 +20,7 @@ struct SettingsButtonView: View, Widget {
                 .background(Color.clear)
         }
         .buttonStyle(.plain)
+        .padding(.top, 2)
         .padding(.trailing, 20)
     }
 

@@ -12,6 +12,8 @@ enum ShaderEffect {
 
 class MetalCoordinator: NSObject, MTKViewDelegate {
 
+    static let shared = MetalCoordinator(device: MTLCreateSystemDefaultDevice()!)
+
     let pipelineBorder: MTLRenderPipelineState
     let pipelineFull: MTLRenderPipelineState
 
@@ -57,7 +59,7 @@ class MetalCoordinator: NSObject, MTKViewDelegate {
     }
 
     convenience override init() {
-        self.init(device: MTLCreateSystemDefaultDevice()!)
+        fatalError("Use shared instance")
     }
 
     func updateShade(from nsColor: NSColor) {
@@ -85,8 +87,22 @@ class MetalCoordinator: NSObject, MTKViewDelegate {
 
         time += 0.03
 
-        // pick pipeline
-        enc.setRenderPipelineState(useBorder ? pipelineBorder : pipelineFull)
+        /// Choosing the right pipeline
+        switch currentEffect {
+        case .none:
+            /// We return because we dont want to draw anything if nothing is going on
+            enc.endEncoding()
+            buf.present(drawable)
+            buf.commit()
+            return;
+        case .borderGlow:
+            print("Using border glow Shader")
+            enc.setRenderPipelineState(pipelineBorder)
+        case .fullGlow:
+            print("Using full glow Shader")
+            enc.setRenderPipelineState(pipelineFull)
+        }
+
 
         // -------- uniforms ----------
         var t = time
