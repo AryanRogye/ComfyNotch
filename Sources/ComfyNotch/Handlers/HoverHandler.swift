@@ -7,7 +7,6 @@ enum HoverState {
     case notHovering
 }
 
-
 class HoverHandlerModel: ObservableObject {
     @Published var isPlaying: Bool = false
     private var cancellables = Set<AnyCancellable>()
@@ -118,7 +117,7 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
         // Get panel's frame in screen coordinates
         let panelFrame = panel.frame.insetBy(dx: -padding, dy: -padding)
         let openedPanelFrameWithPadding = panel.frame.insetBy(dx: -closingPadding, dy: -closingPadding)
-        
+
         /// Before any check the first check is to make sure the "Hover Hide" and is close to the notch
         if ShortcutHandler.shared.isShortcutActive("Hover Hide") {
             // now we check if its in the pane
@@ -132,9 +131,6 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
         /// if anything was affected
         UIManager.shared.smallPanel?.alphaValue = 1
         UIManager.shared.bigPanel?.alphaValue = 1
-
-        /// No HoverHandler if no music is playing
-
 
         // Simple check if the mouse is inside the panel's frame
         if panelFrame.contains(mouseLocation) {

@@ -88,7 +88,7 @@ struct MovingDotsView: View, Widget {
         // Optionally add an explicit animation for the change in bounce state:
         .animation(.easeInOut(duration: 0.3), value: model.isPlaying)
     }
-    
+
     var swiftUIView: AnyView {
         AnyView(self)
     }

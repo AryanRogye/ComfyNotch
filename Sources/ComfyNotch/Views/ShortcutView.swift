@@ -4,7 +4,7 @@ struct ShortcutView: View {
 
     @ObservedObject var settings: SettingsModel
     @StateObject private var shortcutHandler = ShortcutHandler.shared
-    
+
     // temp value for modifier
     @State private var selectedModifier: ModifierKey = .command
 

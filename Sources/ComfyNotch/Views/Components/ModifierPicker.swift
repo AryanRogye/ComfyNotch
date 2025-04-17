@@ -7,23 +7,21 @@
 
 import SwiftUI
 
-
 struct ModifierPickerItem: View {
     @State var shortcutName: String
     @Binding var selected: ModifierKey
-    
+
     init(name: String, selected: Binding<ModifierKey>) {
         self.shortcutName = name
         self._selected = selected
     }
-    
     var body: some View {
         HStack {
             Text(shortcutName)
                 .font(.headline)
                 .foregroundStyle(.primary)
             Spacer(minLength: 16)
-            
+
             Picker("", selection: $selected) {
                 ForEach(ModifierKey.allCases) { key in
                     Text(key.rawValue).tag(key)

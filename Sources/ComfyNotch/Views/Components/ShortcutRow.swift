@@ -1,6 +1,5 @@
 import SwiftUI
 
-
 struct ShortcutRows: View {
     @ObservedObject var shortcutHandler = ShortcutHandler.shared
 

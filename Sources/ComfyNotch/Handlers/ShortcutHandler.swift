@@ -28,7 +28,7 @@ struct UserShortcut: Identifiable {
 extension UserShortcut {
     static var defaultShortcuts: [UserShortcut] = [
         UserShortcut(name: "Hover Hide", modifier: .command),
-        UserShortcut(name: "Open Settings", modifier: .command, key: "s"),
+        UserShortcut(name: "Open Settings", modifier: .command, key: "s")
     ]
 }
 
@@ -40,7 +40,7 @@ class ShortcutHandler: ObservableObject {
     @Published var pressedShortcut: String?
 
     @Published var userShortcuts: [UserShortcut] = UserShortcut.defaultShortcuts
-    
+
     var activeModifiers: Set<ModifierKey> = []
     private var lastFlags: NSEvent.ModifierFlags = []
 
@@ -66,7 +66,11 @@ class ShortcutHandler: ObservableObject {
     private func handleKeyEvent(_ event: NSEvent) {
         for shortcut in userShortcuts {
             let matchesModifier = event.modifierFlags.contains(shortcut.modifier.eventFlag)
-            let matchesKey = shortcut.key == nil || event.charactersIgnoringModifiers?.lowercased() == shortcut.key?.lowercased()
+
+            let isShortcutNil = shortcut.key == nil
+            let isCharsIsEqual = event.charactersIgnoringModifiers?.lowercased() == shortcut.key?.lowercased()
+
+            let matchesKey = isShortcutNil || isCharsIsEqual
 
             if matchesModifier && matchesKey {
                 self.pressedShortcut = shortcut.name
@@ -74,7 +78,7 @@ class ShortcutHandler: ObservableObject {
             }
         }
     }
-    
+
     /// Usage:
     /// if ShortcutHandler.shared.isShortcutActive("Hover Hide") {
     ///     // perform hover hide logic or animation
@@ -101,7 +105,7 @@ class ShortcutHandler: ObservableObject {
             print("Updated \(name) to modifier \(newModifier.rawValue)")
         }
     }
-    
+
     private func handleModifierEvent(_ event: NSEvent) {
         let currentFlags = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
         lastFlags = currentFlags
