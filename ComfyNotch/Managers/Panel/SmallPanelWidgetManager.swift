@@ -2,6 +2,7 @@ import AppKit
 import SwiftUI
 import Combine
 import MetalKit
+import Foundation
 
 /**
  * SmallPanelWidgetStore manages the widgets displayed in the notch panel area.
@@ -197,7 +198,6 @@ struct SmallPanelWidgetManager: View {
                     ))
             }
             
-            
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     // Left Widgets
@@ -308,6 +308,12 @@ struct SmallPanelWidgetManager: View {
                 bottomRight: 20
             )
         )
+        .panGesture(direction: .down) { delta, phase in
+            ScrollHandler.shared.handlePan(delta: delta, phase: phase)
+        }
+        .panGesture(direction: .up) { delta, phase in
+            ScrollHandler.shared.handlePan(delta: -delta, phase: phase)
+        }
     }
 
     private func getNotchWidth() -> CGFloat {

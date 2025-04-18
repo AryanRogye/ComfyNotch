@@ -41,25 +41,25 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             // Start the UI
             UIManager.shared.setupFrame()
             // Allow Scroll Handler to listen to scroll events
-            ScrollHandler.shared.start()
-            if let smallPanel = UIManager.shared.smallPanel {
-                // Tiny Haptic Feedback when hovering
-                self.hoverHandler = HoverHandler(panel: smallPanel)
-            }
-            UIManager.shared.hoverHandler = self.hoverHandler
-            if let bigPanel = UIManager.shared.bigPanel {
-                // Proximity Handler for the Big Panel
-                self.panelProximityHandler = PanelProximityHandler(panel: bigPanel)
-            }
+//            ScrollHandler.shared.start()
+//            if let smallPanel = UIManager.shared.smallPanel {
+//                // Tiny Haptic Feedback when hovering
+//                self.hoverHandler = HoverHandler(panel: smallPanel)
+//            }
+//            UIManager.shared.hoverHandler = self.hoverHandler
+//            if let bigPanel = UIManager.shared.bigPanel {
+//                // Proximity Handler for the Big Panel
+//                self.panelProximityHandler = PanelProximityHandler(panel: bigPanel)
+//            }
             
             if Bundle.main.bundleURL.pathExtension == "app" {
-                if UIManager.shared.smallPanel != nil {
+                if UIManager.shared.userNotch != nil {
                     self.notificationManager = NotificationManager()
                 }
             }
             
             // Set up the ui by loading the widgets from settings onto it
-            self.loadWidgetsFromSettings()
+            // self.loadWidgetsFromSettings()
             
             // Any Screen errors that may happen, is handled in here
             DisplayHandler.shared.start()

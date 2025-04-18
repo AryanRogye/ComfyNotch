@@ -91,9 +91,6 @@ class SettingsModel: ObservableObject {
             DispatchQueue.main.async {
                 UIManager.shared.bigPanel.contentView?.needsDisplay = true
                 UIManager.shared.showBigPanelWidgets()
-                if UIManager.shared.panelState == .closed {
-                    UIManager.shared.hideBigPanel()
-                }
             }
         }
     }

@@ -25,7 +25,7 @@ class HoverHandlerModel: ObservableObject {
 }
 
 class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
-    private weak var panel: NSPanel?
+    private weak var panel: NSWindow?
     private var localMonitor: Any?
     private var globalMonitor: Any?
     private var lastHapticTime: TimeInterval = 0
@@ -53,7 +53,7 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
     // Start with no hover state
     var hoverState: HoverState = .notHovering
 
-    init(panel: NSPanel) {
+    init(panel: NSWindow) {
         self.panel = panel
         // set original frame
         self.originalFrame = panel.frame
@@ -129,13 +129,13 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
             // now we check if its in the pane
             if panelFrame.contains(mouseLocation) {
                 // only then do we hide it
-                UIManager.shared.smallPanel?.alphaValue = 0
+                UIManager.shared.userNotch?.alphaValue = 0
                 UIManager.shared.bigPanel?.alphaValue = 0
                 return
             }
         }
         /// if anything was affected
-        UIManager.shared.smallPanel?.alphaValue = 1
+        UIManager.shared.userNotch?.alphaValue = 1
         UIManager.shared.bigPanel?.alphaValue = 1
 
         // Simple check if the mouse is inside the panel's frame

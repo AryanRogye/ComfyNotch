@@ -23,6 +23,22 @@ class FocusablePanel: NSPanel {
     }
 }
 
+
+/// Class used for the Window
+class NotchWindow: NSWindow {
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { true }
+    /// NSWindow's internal has a scrollWheel which we will use to listen for
+    /// any scroll action done onto the Notch Window
+//    override func scrollWheel(with event: NSEvent) {
+//        /// This makes sure that the scroll wheel behaves like a normal scroll wheel
+//        super.scrollWheel(with: event)
+//        /// Let the Scroll Handler handle any "Scroll" events
+//        /// we pass in self so it can control ourselves
+//        ScrollHandler.shared.handle(event, for: self)
+//    }
+}
+
 /**
  * UIManager handles the core UI components of the application.
  * Responsible for managing panels, widget stores, and panel states.
@@ -40,7 +56,7 @@ class UIManager {
 
     var hoverHandler: HoverHandler?
 
-    var smallPanel: NSPanel!
+    var userNotch: NotchWindow!
     var bigPanel: NSPanel!
 
     var smallPanelWidgetManager = SmallPanelWidgetManager()
@@ -67,9 +83,7 @@ class UIManager {
      */
     func setupFrame() {
         setupSmallPanel()
-        setupBigPanel()
-        hideBigPanel()
-        smallPanel.orderFrontRegardless()
+        // setupBigPanel()
     }
     
     func showBigPanel() {
@@ -80,14 +94,6 @@ class UIManager {
     func hideBigPanel() {
         bigPanel.animator().alphaValue = 0
         bigPanel.orderOut(nil)
-    }
-    
-    func resizeBigPanelInstant(to height: CGFloat, width: CGFloat) {
-        guard let panel = bigPanel else { return }
-        var f = panel.frame
-        f.size = CGSize(width: width, height: height)
-        f.origin.y = NSScreen.main!.frame.height - height - startPanelYOffset - 35
-        panel.setFrame(f, display: true, animate: false)
     }
 
     /**
@@ -106,55 +112,54 @@ class UIManager {
             height: notchHeight
         )
 
-        smallPanel = NSPanel(
+        userNotch = NotchWindow(
             contentRect: panelRect,
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
         )
 
-        smallPanel.title = "ComfyNotch"
-        smallPanel.level = .screenSaver
-        smallPanel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-        smallPanel.isMovableByWindowBackground = false
-        smallPanel.backgroundColor = .clear
-        smallPanel.isOpaque = false
-        smallPanel.hasShadow = false
+        userNotch.title = "ComfyNotch"
+        userNotch.level = .screenSaver
+        userNotch.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        userNotch.isMovableByWindowBackground = false
+        userNotch.backgroundColor = .clear
+        userNotch.isOpaque = false
+        userNotch.hasShadow = false
 
         // Create and add widgets to the store
-        let albumWidgetModel = AlbumWidgetModel()
-        let movingDotsModel = MovingDotsViewModel()
-        let currentSongWidgetModel = MusicPlayerWidgetModel()
-
-        /// Create Widgets for the small panel
-        let albumWidget = AlbumWidgetView(model: albumWidgetModel)
-        let movingDotsWidget = MovingDotsView(model: movingDotsModel)
-        let settingsWidget = SettingsButtonView()
-
-        /// Create Widgets for the priority panel
-        let currentSongWidget = CurrentSongWidget(
-            model: currentSongWidgetModel,
-            movingDotsModel: movingDotsModel
-        )
-
-        // Add Widgets to the WidgetStore
-        smallWidgetStore.addWidget(albumWidget)
-        smallWidgetStore.addWidget(movingDotsWidget)
-        smallWidgetStore.addWidget(settingsWidget)
-
-        // Add Widgets to the PriorityPanel
-        priorityPanelWidgetStore.addWidget(currentSongWidget)
-        priorityPanelWidgetStore.showWidget(named: "CurrentSongWidget")
+//        let albumWidgetModel = AlbumWidgetModel()
+//        let movingDotsModel = MovingDotsViewModel()
+//        let currentSongWidgetModel = MusicPlayerWidgetModel()
+//
+//        /// Create Widgets for the small panel
+//        let albumWidget = AlbumWidgetView(model: albumWidgetModel)
+//        let movingDotsWidget = MovingDotsView(model: movingDotsModel)
+//        let settingsWidget = SettingsButtonView()
+//
+//        /// Create Widgets for the priority panel
+//        let currentSongWidget = CurrentSongWidget(
+//            model: currentSongWidgetModel,
+//            movingDotsModel: movingDotsModel
+//        )
+//
+//        // Add Widgets to the WidgetStore
+//        smallWidgetStore.addWidget(albumWidget)
+//        smallWidgetStore.addWidget(movingDotsWidget)
+//        smallWidgetStore.addWidget(settingsWidget)
+//
+//        // Add Widgets to the PriorityPanel
+//        priorityPanelWidgetStore.addWidget(currentSongWidget)
+//        priorityPanelWidgetStore.showWidget(named: "CurrentSongWidget")
 
         let contentView = SmallPanelWidgetManager()
             .environmentObject(smallWidgetStore)
             .environmentObject(priorityPanelWidgetStore)
 
-        smallPanel.contentView = NSHostingView(rootView: contentView)
-//        smallPanel.makeKeyAndOrderFront(nil)
-        smallPanel.orderFrontRegardless()
+        userNotch.contentView = NSHostingView(rootView: contentView)
+        userNotch.makeKeyAndOrderFront(nil)
 
-        hideSmallPanelSettingsWidget() // Ensure initial state is correct
+        // smallPanel.orderFrontRegardless()
     }
 
     /**
@@ -227,8 +232,8 @@ class UIManager {
         
         hideBigPanel()
         
-        smallPanel.orderFrontRegardless()
-        smallPanel.level = .screenSaver
+        userNotch.orderFrontRegardless()
+        userNotch.level = .screenSaver
     }
 
     func showBigPanelWidgets() {

@@ -40,7 +40,7 @@ struct AlbumWidgetView: View, Widget {
     }
 
     private func panelButton<Label: View>(@ViewBuilder label: () -> Label) -> some View {
-        Button(action: scrollManager.open ) {
+        Button(action: scrollManager.openFull ) {
             label()
         }
         .buttonStyle(.plain)

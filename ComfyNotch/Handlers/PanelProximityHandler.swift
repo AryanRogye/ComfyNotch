@@ -2,7 +2,7 @@ import AppKit
 
 class PanelProximityHandler: NSObject {
 
-    private weak var panel: NSPanel?
+    private weak var panel: NSWindow?
 
     private var localMonitor: Any?
     private var globalMonitor: Any?
@@ -12,7 +12,7 @@ class PanelProximityHandler: NSObject {
     
     var trackingArea: NSTrackingArea?
 
-    init(panel: NSPanel) {
+    init(panel: NSWindow) {
         self.panel = panel
         super.init()
 
@@ -82,7 +82,7 @@ class PanelProximityHandler: NSObject {
 
             if distance > distanceThreshold && !SettingsModel.shared.isSettingsWindowOpen {
                 UIManager.shared.panelState = .closed
-                ScrollHandler.shared.close()
+                ScrollHandler.shared.closeFull()
             }
         }
     }
