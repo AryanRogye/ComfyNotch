@@ -1,4 +1,5 @@
 import AppKit
+import ApplicationServices
 
 enum ModifierKey: String, CaseIterable, Identifiable {
     case command = "⌘ Command"
@@ -31,8 +32,20 @@ struct UserShortcut: Identifiable {
 
 extension UserShortcut {
     static var defaultShortcuts: [UserShortcut] = [
+        /// Local Shortcut used to hide both the panels, this is just in case you want to
+        /// use the toolbar like in xcode where its super heavy up in the toolbar and my panel
+        /// hides it
+        /// See: [HoverHandler](file:Sources/ComfyNotch/Handlers/HoverHandler.swift)
         UserShortcut(name: "Hover Hide", modifiers: [.command]),
-        UserShortcut(name: "Open Settings", modifiers: [.command], key: "s")
+        /// Global Shortcut used to open the settings page from anywhere, this is useful
+        /// if the app settings is not reachable but the user needs to quit out of the app
+        /// sometimes the "Hover Hide" may not work and the user rage quits and leaves
+        UserShortcut(name: "Open Settings", modifiers: [.command], key: "s"),
+        /// Global Shortcut used to reload the panels, I would think if some monitor switching,
+        /// or some other issue happens then it can easily be fixable with just a:
+        ///     Command Control Option R
+        /// Display Pulled From -> [DisplayHandler](file:Sources/Handlers/DisplayHandler.swift)
+        UserShortcut(name: "Reload App", modifiers: [.command, .control, .option], key: "r")
     ]
 }
 
@@ -48,7 +61,11 @@ class ShortcutHandler: ObservableObject {
     var activeModifiers: Set<ModifierKey> = []
     private var lastFlags: NSEvent.ModifierFlags = []
 
-    private init() {}
+    private init() {
+        if !checkAccessibilityPermission() {
+            requestAccessibilityPermission()
+        }
+    }
 
     func startListening() {
         localMonitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .flagsChanged]) { event in
@@ -66,22 +83,41 @@ class ShortcutHandler: ObservableObject {
             self.handleModifierEvent(event)
         }
     }
-
+    
+    /// This will only run if the "EXACT" Key is pressed, for example
+    /// If the modifier is command + control then key is a:
+    ///     command + control + option then key = a will not work
+    /// This allows for multiple usecases
     private func handleKeyEvent(_ event: NSEvent) {
         for shortcut in userShortcuts {
             let shortcutModifiers = shortcut.modifiers
             let eventModifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
-
-            let allModifiersPressed = shortcutModifiers.allSatisfy { modifier in
-                eventModifiers.contains(modifier.eventFlag)
+            
+            /// Reducing is what allows it to match perfectly, to allow the vice versa change to .allStaisfy
+            let shortcutModifierFlags = shortcutModifiers.reduce(into: NSEvent.ModifierFlags()) { flags, modifier in
+                flags.insert(modifier.eventFlag)
             }
-
+            
+            let matchesModifiersExactly = eventModifiers == shortcutModifierFlags
             let matchesKey = shortcut.key == nil || (event.charactersIgnoringModifiers?.lowercased() == shortcut.key?.lowercased())
-
-            if allModifiersPressed && matchesKey {
+            
+            if matchesModifiersExactly && matchesKey {
                 self.pressedShortcut = shortcut.name
                 print("Shortcut matched → \(shortcut.name) [\(shortcut.modifiers.map(\.rawValue).joined(separator: " + ")) + \(shortcut.key ?? "")]")
+                
+                handleShortcutAction(for: shortcut.name)
             }
+        }
+    }
+    
+    private func handleShortcutAction(for name: String) {
+        switch name {
+        case "Open Settings":
+            SettingsWidgetModel.shared.action()
+        case "Reload App":
+            DisplayHandler.shared.restartApp()
+        default:
+            break
         }
     }
 
@@ -115,23 +151,51 @@ class ShortcutHandler: ObservableObject {
         lastFlags = currentFlags
 
         for shortcut in userShortcuts where shortcut.key == nil {
-            let allModifiersPressed = shortcut.modifiers.allSatisfy { modifier in
-                currentFlags.contains(modifier.eventFlag)
+            // Build the expected flags from the shortcut modifiers
+            let shortcutModifierFlags = shortcut.modifiers.reduce(into: NSEvent.ModifierFlags()) { flags, modifier in
+                flags.insert(modifier.eventFlag)
             }
+
+            // Strict check: must match exactly
+            let matchesModifiersExactly = currentFlags == shortcutModifierFlags
 
             let wasActiveBefore = shortcut.modifiers.allSatisfy { modifier in
                 activeModifiers.contains(modifier)
             }
 
-            if allModifiersPressed && !wasActiveBefore {
+            if matchesModifiersExactly && !wasActiveBefore {
                 activeModifiers.formUnion(shortcut.modifiers) // insert all modifiers into activeModifiers
                 self.pressedShortcut = shortcut.name
-                // print("🔹 Modifier down → \(shortcut.name) [\(shortcut.modifiers.map(\.rawValue).joined(separator: " + "))]")
+                print("🔹 Modifier down → \(shortcut.name) [\(shortcut.modifiers.map(\.rawValue).joined(separator: " + "))]")
             }
-            if !allModifiersPressed && wasActiveBefore {
+            if !matchesModifiersExactly && wasActiveBefore {
                 activeModifiers.subtract(shortcut.modifiers) // remove all modifiers from activeModifiers
-                // print("🔻 Modifier up → \(shortcut.modifiers.map(\.rawValue).joined(separator: " + "))")
+                print("🔻 Modifier up → \(shortcut.modifiers.map(\.rawValue).joined(separator: " + "))")
             }
         }
+    }
+    
+    func checkAccessibilityPermission() -> Bool {
+        return AXIsProcessTrusted()
+    }
+
+    func requestAccessibilityPermission() {
+        // 1. Detect (returns true if the checkbox is ticked)
+        let enabled = CGPreflightListenEventAccess()
+        guard !enabled else { return }
+        
+        // 2. Ask: open Settings at the right pane
+        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent")!
+        NSWorkspace.shared.open(url)
+        
+        // 3. Tell the user they must tick the box & relaunch
+        let alert          = NSAlert()
+        alert.messageText  = "Enable Global Shortcuts"
+        alert.informativeText =
+        "To use keyboard shortcuts while ComfyNotch is in the background, " +
+        "turn on “ComfyNotch.app” in Settings → Privacy & Security → Input Monitoring, " +
+        "then relaunch the app."
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
     }
 }

@@ -37,7 +37,7 @@ class DisplayHandler {
         }
     }
 
-    private func restartApp() {
+    public func restartApp() {
         let task = Process()
         task.executableURL = URL(fileURLWithPath: "/usr/bin/open")
         task.arguments = ["-n", Bundle.main.bundlePath]

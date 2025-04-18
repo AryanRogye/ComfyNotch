@@ -18,13 +18,18 @@ struct ModifierPickerItem: View {
         self._key = key
     }
     var body: some View {
-        HStack {
-            /// Show the Shortcut name
-            Text(shortcutName)
-                .font(.headline)
-                .foregroundStyle(.primary)
-            Spacer(minLength: 16)
-            displayModifiers()
+        VStack {
+            HStack {
+                /// Show the Shortcut name
+                Text(shortcutName)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                Spacer(minLength: 10)
+                displayModifiers()
+            }
+            HStack {
+                displayKeys()
+            }
         }
         .padding()
         
@@ -38,6 +43,20 @@ struct ModifierPickerItem: View {
         )
         .shadow(radius: 5)
         .padding(.horizontal)
+    }
+    
+    @ViewBuilder
+    func displayKeys() -> some View {
+        Text("Key: ")
+            .font(.subheadline)
+        TextField("Optional Key", text: Binding(
+            get: { key ?? "" },
+            set: { newValue in
+                key = newValue.isEmpty ? nil : String(newValue.prefix(1)) // Only 1 Char
+            }
+        ))
+        .textFieldStyle(.roundedBorder)
+        .frame(width: 100)
     }
     
     @ViewBuilder

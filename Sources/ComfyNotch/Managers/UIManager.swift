@@ -104,13 +104,12 @@ class UIManager {
         // Create and add widgets to the store
         let albumWidgetModel = AlbumWidgetModel()
         let movingDotsModel = MovingDotsViewModel()
-        let settingsWidgetModel = SettingsWidgetModel()
         let currentSongWidgetModel = MusicPlayerWidgetModel()
 
         /// Create Widgets for the small panel
         let albumWidget = AlbumWidgetView(model: albumWidgetModel)
         let movingDotsWidget = MovingDotsView(model: movingDotsModel)
-        let settingsWidget = SettingsButtonView(model: settingsWidgetModel)
+        let settingsWidget = SettingsButtonView()
 
         /// Create Widgets for the priority panel
         let currentSongWidget = CurrentSongWidget(

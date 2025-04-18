@@ -8,7 +8,7 @@ struct SettingsButtonView: View, Widget {
     var alignment: WidgetAlignment? = .right
 
     // allow for function to run in here
-    @ObservedObject var model: SettingsWidgetModel
+    @ObservedObject var model = SettingsWidgetModel.shared
 
     var body: some View {
         Button(action: model.action) {
@@ -37,6 +37,8 @@ class SettingsWindowDelegate: NSObject, NSWindowDelegate {
 }
 
 class SettingsWidgetModel: ObservableObject {
+    static let shared = SettingsWidgetModel()
+
     @Published var action: () -> Void
     @Published var playingColor: NSColor = .white
 
