@@ -73,54 +73,21 @@ class UIManager {
     }
     
     func showBigPanel() {
+        bigPanel.animator().alphaValue = 1
         bigPanel.orderFrontRegardless()
-        animatePanelOpening()
-        panelState = .open
     }
 
     func hideBigPanel() {
-        animatePanelClosing {
-            self.bigPanel.orderOut(nil)
-            self.panelState = .closed
-        }
+        bigPanel.animator().alphaValue = 0
+        bigPanel.orderOut(nil)
     }
     
-    private func animatePanelOpening() {
-        guard let panel = UIManager.shared.bigPanel else { return }
-        var targetFrame = panel.frame
-
-        targetFrame.size.width = ScrollHandler.shared.maxPanelWidth
-        targetFrame.size.height = ScrollHandler.shared.maxPanelHeight
-        targetFrame.origin.y = NSScreen.main!.frame.height
-            - ScrollHandler.shared.maxPanelHeight
-            - UIManager.shared.startPanelYOffset
-            - ScrollHandler.shared.offset
-        targetFrame.origin.x = (NSScreen.main!.frame.width - ScrollHandler.shared.maxPanelWidth) / 2
-
-        NSAnimationContext.runAnimationGroup({ context in
-            context.duration = 0.05
-            context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-            panel.animator().setFrame(targetFrame, display: true)
-        })
-    }
-
-    private func animatePanelClosing(completion: @escaping () -> Void) {
-        guard let panel = UIManager.shared.bigPanel else { return }
-        var targetFrame = panel.frame
-
-        targetFrame.size.width = ScrollHandler.shared.minPanelWidth
-        targetFrame.size.height = ScrollHandler.shared.minPanelHeight
-        targetFrame.origin.y = NSScreen.main!.frame.height
-            - ScrollHandler.shared.minPanelHeight
-            - UIManager.shared.startPanelYOffset
-            - 35
-        targetFrame.origin.x = (NSScreen.main!.frame.width - ScrollHandler.shared.minPanelWidth) / 2
-
-        NSAnimationContext.runAnimationGroup({ context in
-            context.duration = 0.05  // SAME
-            context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-            panel.animator().setFrame(targetFrame, display: true)
-        }, completionHandler: completion)
+    func resizeBigPanelInstant(to height: CGFloat, width: CGFloat) {
+        guard let panel = bigPanel else { return }
+        var f = panel.frame
+        f.size = CGSize(width: width, height: height)
+        f.origin.y = NSScreen.main!.frame.height - height - startPanelYOffset - 35
+        panel.setFrame(f, display: true, animate: false)
     }
 
     /**
@@ -265,7 +232,6 @@ class UIManager {
     }
 
     func showBigPanelWidgets() {
-        showBigPanel()
         bigWidgetStore.showWidget(named: "MusicPlayerWidget")
         bigWidgetStore.showWidget(named: "TimeWidget")
         bigWidgetStore.showWidget(named: "NotesWidget")

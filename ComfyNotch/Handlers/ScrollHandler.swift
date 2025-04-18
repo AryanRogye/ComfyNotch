@@ -1,12 +1,12 @@
 import AppKit
 import Combine
 
-/** 
+/**
  *
- *  This file when started listens for two-finger scroll events 
+ *  This file when started listens for two-finger scroll events
  *  both globally (outside the app) and locally (inside the app).
  *
- *  Scroll gestures are used to resize the big panel, 
+ *  Scroll gestures are used to resize the big panel,
  *  adjusting its width and height based on user interactions.
  *
  */
@@ -45,7 +45,7 @@ class ScrollHandler {
         }
     }
 
-    /** 
+    /**
      *
      *  This function starts the scroll manager, setting up event listeners
      *  This is the only thing that should be called from outside this class.
@@ -149,7 +149,7 @@ class ScrollHandler {
 
         // First check if mouse is in big panel area
         if let panel = UIManager.shared.bigPanel {
-            // Create a detection area that extends from the panel's current position 
+            // Create a detection area that extends from the panel's current position
             // all the way to its maximum possible position plus padding
             var detectionArea = panel.frame
 
@@ -208,6 +208,12 @@ class ScrollHandler {
 
         guard let panel = UIManager.shared.bigPanel else { return }
 
+        // 🛑 MAKE SURE the panel is visible first
+        if !panel.isVisible {
+            panel.alphaValue = 1
+            panel.orderFrontRegardless()
+        }
+
         let scrollDeltaY = event.scrollingDeltaY
 
         let scrollThreshold: CGFloat = 1.0 // Increased to avoid tiny flickers
@@ -216,11 +222,11 @@ class ScrollHandler {
         // Use DispatchQueue to avoid blocking the main thread
         DispatchQueue.global(qos: .userInteractive).async { [weak self] in
             if scrollDeltaY > scrollThreshold {
-                // Scrolling down (Close)
-                // DispatchQueue.main.async {
-                //     self?.open()
-                //     return
-                // }
+//                 Scrolling down (Close)
+                 DispatchQueue.main.async {
+                     self?.open()
+                     return
+                 }
             } else if scrollDeltaY < -scrollThreshold {
                 // Scrolling up (Open)
                 DispatchQueue.main.async {
@@ -247,6 +253,10 @@ class ScrollHandler {
             isSnapping = true
 
             if ratio >= snapOpenThreshold {
+                // before we open we have to show the values inside this
+//                UIManager.shared.showBigPanel()
+                UIManager.shared.bigPanel?.orderFrontRegardless()
+                UIManager.shared.bigPanel?.alphaValue = 1
                 animatePanelToState(open: true)
                 updatePanelState(for: maxPanelHeight)
             } else if ratio <= snapClosedThreshold {
@@ -346,7 +356,7 @@ class ScrollHandler {
     */
     private func animatePanelTransition(to targetFrame: NSRect) {
         NSAnimationContext.runAnimationGroup({ context in
-            context.duration = 0.05
+            context.duration = 0.2
             context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
             UIManager.shared.bigPanel?.animator().setFrame(targetFrame, display: true)
         }, completionHandler: {
@@ -359,7 +369,7 @@ class ScrollHandler {
      *   This function updates the panel state based on the current height.
      *   It determines whether the panel is open, closed, or partially open
      *   and updates the UI accordingly.
-     *   
+     *
      *   This is Where anything that needs to be done when the panel is open or closed
      */
     public func updatePanelState(for height: CGFloat) {
@@ -368,6 +378,7 @@ class ScrollHandler {
 
             // 🔽 Close the hover-triggered small panel before opening big one
             UIManager.shared.hoverHandler?.collapsePanelIfExpanded()
+
             UIManager.shared.showBigPanelWidgets()
             UIManager.shared.showSmallPanelSettingsWidget()
         } else if height <= minPanelHeight {
