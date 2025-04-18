@@ -368,7 +368,6 @@ class ScrollHandler {
 
             // 🔽 Close the hover-triggered small panel before opening big one
             UIManager.shared.hoverHandler?.collapsePanelIfExpanded()
-
             UIManager.shared.showBigPanelWidgets()
             UIManager.shared.showSmallPanelSettingsWidget()
         } else if height <= minPanelHeight {
