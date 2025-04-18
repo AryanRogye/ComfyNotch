@@ -19,7 +19,7 @@ class FocusableWindow: NSWindow {
 }
 
 extension View {
-    private func newWindowInternal(
+    func newWindowInternal(
         title: String,
         geometry: NSRect,
         style: NSWindow.StyleMask,

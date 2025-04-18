@@ -49,6 +49,8 @@ class SettingsWidgetModel: ObservableObject {
     @Published var playingColor: NSColor = .white
 
     private var cancellables = Set<AnyCancellable>()
+    
+    private static var settingsWindow: NSWindow?
 
     init() {
         action = {
@@ -65,11 +67,16 @@ class SettingsWidgetModel: ObservableObject {
 
     private static func openSettingsWindow() {
         SettingsModel.shared.isSettingsWindowOpen = true
-        SettingsView(settings: SettingsModel.shared)
-            .openNewWindow(
+        
+        let window = SettingsView(settings: SettingsModel.shared)
+            .newWindowInternal(
                 title: "Settings",
+                geometry: NSRect(x: 100, y: 100, width: 600, height: 400),
                 style: [.titled, .closable, .resizable],
                 delegate: SettingsWindowDelegate()
             )
+        
+        settingsWindow = window
+        settingsWindow?.contentView = NSHostingView(rootView: SettingsView(settings: SettingsModel.shared))
     }
 }

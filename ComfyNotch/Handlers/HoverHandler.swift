@@ -45,6 +45,8 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
 
     private let padding: CGFloat = 10
     private let closingPadding: CGFloat = 50
+    
+    private var trackingArea: NSTrackingArea?
 
     @ObservedObject var hoverHandlerModel = HoverHandlerModel()
 
@@ -67,6 +69,9 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
     }
 
     deinit {
+        if let area = trackingArea {
+            panel?.contentView?.removeTrackingArea(area)
+        }
         stopMonitoring()
     }
 
@@ -86,11 +91,12 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
         if let contentView = panel?.contentView {
             let trackingArea = NSTrackingArea(
                 rect: contentView.bounds,
-                options: [.mouseEnteredAndExited, .mouseMoved, .activeAlways],
+                options: [.mouseEnteredAndExited, .activeAlways],
                 owner: self,
                 userInfo: nil
             )
             contentView.addTrackingArea(trackingArea)
+            self.trackingArea = trackingArea
         }
     }
 

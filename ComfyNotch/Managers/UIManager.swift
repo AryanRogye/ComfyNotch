@@ -68,6 +68,19 @@ class UIManager {
     func setupFrame() {
         setupSmallPanel()
         setupBigPanel()
+        hideBigPanel()
+        smallPanel.orderFrontRegardless()
+    }
+    
+    func hideBigPanel() {
+        bigPanel.orderOut(nil)
+    }
+    
+    /// Show the big panel window and its widgets
+    func showBigPanel() {
+        bigPanel.orderFrontRegardless()
+        // now display all the big-panel widgets
+        panelState = .open
     }
 
     /**
@@ -131,7 +144,8 @@ class UIManager {
             .environmentObject(priorityPanelWidgetStore)
 
         smallPanel.contentView = NSHostingView(rootView: contentView)
-        smallPanel.makeKeyAndOrderFront(nil)
+//        smallPanel.makeKeyAndOrderFront(nil)
+        smallPanel.orderFrontRegardless()
 
         hideSmallPanelSettingsWidget() // Ensure initial state is correct
     }
@@ -171,7 +185,8 @@ class UIManager {
             .environmentObject(bigWidgetStore)
 
         bigPanel.contentView = NSHostingView(rootView: contentView)
-        bigPanel.makeKeyAndOrderFront(nil)
+//        bigPanel.makeKeyAndOrderFront(nil)
+        bigPanel.orderFrontRegardless()
 
         hideBigPanelWidgets() // Ensure initial state is correct
     }
@@ -202,12 +217,16 @@ class UIManager {
         bigWidgetStore.hideWidget(named: "NotesWidget")
         bigWidgetStore.hideWidget(named: "CameraWidget")
         bigWidgetStore.hideWidget(named: "AIChatWidget")
-
-        smallPanel.makeKeyAndOrderFront(nil)
+        
+        hideBigPanel()
+        
+        smallPanel.orderFrontRegardless()
         smallPanel.level = .screenSaver
     }
 
     func showBigPanelWidgets() {
+        showBigPanel()
+
         bigWidgetStore.showWidget(named: "MusicPlayerWidget")
         bigWidgetStore.showWidget(named: "TimeWidget")
         bigWidgetStore.showWidget(named: "NotesWidget")

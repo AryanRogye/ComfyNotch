@@ -29,9 +29,11 @@ struct CameraWidget: View, Widget {
 }
 
 class CameraWidgetModel: ObservableObject {
+    
     @Published var flipCamera: Bool
     let session = AVCaptureSession()
     private var cancellables = Set<AnyCancellable>()
+    
     init() {
         self.flipCamera = SettingsModel.shared.isCameraFlipped
         // Listen for settings changes
@@ -54,6 +56,12 @@ class CameraWidgetModel: ObservableObject {
             flipCamera = newFlipState
             objectWillChange.send()
         }
+    }
+    
+    deinit {
+        print("[CameraWidgetModel] Deinit called")
+        stopSession()
+        cleanupSession()
     }
 
     func startSession() {
@@ -85,6 +93,20 @@ class CameraWidgetModel: ObservableObject {
             }
         } catch {
             print("Error setting up camera input: \(error)")
+        }
+    }
+    
+    private func cleanupSession() {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
+            self.session.beginConfiguration()
+            for input in self.session.inputs {
+                self.session.removeInput(input)
+            }
+            for output in self.session.outputs {
+                self.session.removeOutput(output)
+            }
+            self.session.commitConfiguration()
         }
     }
 }

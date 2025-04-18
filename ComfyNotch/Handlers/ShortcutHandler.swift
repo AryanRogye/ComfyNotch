@@ -163,36 +163,12 @@ class ShortcutHandler: ObservableObject {
             if matchesModifiersExactly && !wasActiveBefore {
                 activeModifiers.formUnion(shortcut.modifiers) // insert all modifiers into activeModifiers
                 self.pressedShortcut = shortcut.name
-                print("🔹 Modifier down → \(shortcut.name) [\(shortcut.modifiers.map(\.rawValue).joined(separator: " + "))]")
+//                print("🔹 Modifier down → \(shortcut.name) [\(shortcut.modifiers.map(\.rawValue).joined(separator: " + "))]")
             }
             if !matchesModifiersExactly && wasActiveBefore {
                 activeModifiers.subtract(shortcut.modifiers) // remove all modifiers from activeModifiers
-                print("🔻 Modifier up → \(shortcut.modifiers.map(\.rawValue).joined(separator: " + "))")
+//                print("🔻 Modifier up → \(shortcut.modifiers.map(\.rawValue).joined(separator: " + "))")
             }
         }
-    }
-    
-    func checkAccessibilityPermission() -> Bool {
-        return AXIsProcessTrusted()
-    }
-
-    func requestAccessibilityPermission() {
-        // 1. Detect (returns true if the checkbox is ticked)
-        let enabled = CGPreflightListenEventAccess()
-        guard !enabled else { return }
-        
-        // 2. Ask: open Settings at the right pane
-        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent")!
-        NSWorkspace.shared.open(url)
-        
-        // 3. Tell the user they must tick the box & relaunch
-        let alert          = NSAlert()
-        alert.messageText  = "Enable Global Shortcuts"
-        alert.informativeText =
-        "To use keyboard shortcuts while ComfyNotch is in the background, " +
-        "turn on “ComfyNotch.app” in Settings → Privacy & Security → Input Monitoring, " +
-        "then relaunch the app."
-        alert.addButton(withTitle: "OK")
-        alert.runModal()
     }
 }

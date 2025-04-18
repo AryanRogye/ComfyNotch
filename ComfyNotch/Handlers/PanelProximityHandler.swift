@@ -9,6 +9,8 @@ class PanelProximityHandler: NSObject {
 
     private var padding: CGFloat = 15
     private var distanceThreshold: CGFloat = 200
+    
+    var trackingArea: NSTrackingArea?
 
     init(panel: NSPanel) {
         self.panel = panel
@@ -18,6 +20,9 @@ class PanelProximityHandler: NSObject {
     }
 
     deinit {
+        if let area = trackingArea {
+            panel?.contentView?.removeTrackingArea(area)
+        }
         stopMonitoring()
     }
 
@@ -41,6 +46,7 @@ class PanelProximityHandler: NSObject {
                 userInfo: nil
             )
             contentView.addTrackingArea(trackingArea)
+            self.trackingArea = trackingArea
         }
     }
 
