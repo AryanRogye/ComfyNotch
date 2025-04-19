@@ -139,8 +139,50 @@ class PanelAnimationState: ObservableObject {
             .store(in: &cancellables)
     }
 }
-
 struct SmallPanelWidgetManager: View {
+    @EnvironmentObject var widgetStore: SmallPanelWidgetStore
+    @EnvironmentObject var priorityStore: BigPanelWidgetStore
+
+    @ObservedObject var animationState = PanelAnimationState.shared
+    @State private var isHovering: Bool = false
+
+    private var paddingWidth: CGFloat = 20
+    private var contentInset: CGFloat = 40
+    private var notchCornerRadius: CGFloat = 20
+    
+    var body: some View {
+        ZStack {
+            Color.black
+                .clipShape(RoundedCornersShape(
+                    topLeft: 0, topRight: 0,
+                    bottomLeft: notchCornerRadius, bottomRight: notchCornerRadius
+                ))
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .clipShape(RoundedCornersShape(
+                        topLeft: 0,
+                        topRight: 0,
+                        bottomLeft: 20,
+                        bottomRight: 20
+                 ))
+        .mask(
+            RoundedCornersShape(
+                topLeft: 0,
+                topRight: 0,
+                bottomLeft: 20,
+                bottomRight: 20
+            )
+        )
+        .panGesture(direction: .down) { delta, phase in
+            ScrollHandler.shared.handlePan(delta: delta, phase: phase)
+        }
+        .panGesture(direction: .up) { delta, phase in
+            ScrollHandler.shared.handlePan(delta: -delta, phase: phase)
+        }
+    }
+}
+
+struct SmallPanelWidgetManagerOLD: View {
 
     @EnvironmentObject var widgetStore: SmallPanelWidgetStore
     @EnvironmentObject var priorityStore: BigPanelWidgetStore
