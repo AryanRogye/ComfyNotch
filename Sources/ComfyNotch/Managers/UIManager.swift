@@ -40,10 +40,8 @@ class UIManager {
     var hoverHandler: HoverHandler?
 
     var smallPanel: NSPanel!
-    var bigPanel: NSPanel!
 
     var smallPanelWidgetManager = SmallPanelWidgetManager()
-    var bigPanelWidgetManager = BigPanelWidgetManager()
 
     var panelState: PanelState = .closed
 
@@ -66,7 +64,7 @@ class UIManager {
      */
     func setupFrame() {
         setupSmallPanel()
-        setupBigPanel()
+        // setupBigPanel()
     }
 
     /**
@@ -118,51 +116,12 @@ class UIManager {
 
         let contentView = SmallPanelWidgetManager()
             .environmentObject(smallWidgetStore)
+            .environmentObject(bigWidgetStore)
 
         smallPanel.contentView = NSHostingView(rootView: contentView)
         smallPanel.makeKeyAndOrderFront(nil)
 
-        hideSmallPanelSettingsWidget() // Ensure initial state is correct
-    }
-
-    /**
-     * Configures the expandable big panel for additional widgets.
-     * Sets up panel properties and initial widget layout.
-     */
-    func setupBigPanel() {
-        guard let screen = NSScreen.main else { return }
-        let screenFrame = screen.frame
-        let notchHeight = getNotchHeight()  // Same height as smallPanel
-
-        let panelRect = NSRect(
-            x: (screenFrame.width - startPanelWidth) / 2,
-            y: screenFrame.height - notchHeight - startPanelYOffset,
-            width: startPanelWidth,
-            height: notchHeight  // Same starting height as smallPanel
-        )
-
-        bigPanel = FocusablePanel(
-            contentRect: panelRect,
-            styleMask: [.borderless, .nonactivatingPanel],
-            backing: .buffered,
-            defer: false
-        )
-
-        bigPanel.title = "ComfyNotch Big Panel"
-        bigPanel.level = .screenSaver
-        bigPanel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-        bigPanel.isMovableByWindowBackground = false
-        bigPanel.backgroundColor = .clear
-        bigPanel.isOpaque = false
-        bigPanel.hasShadow = false
-
-        let contentView = BigPanelWidgetManager()
-            .environmentObject(bigWidgetStore)
-
-        bigPanel.contentView = NSHostingView(rootView: contentView)
-        bigPanel.makeKeyAndOrderFront(nil)
-
-        hideBigPanelWidgets() // Ensure initial state is correct
+        // hideSmallPanelSettingsWidget() // Ensure initial state is correct
     }
 
     /**
@@ -186,6 +145,7 @@ class UIManager {
      * Controls the display state of all big panel widgets.
      */
     func hideBigPanelWidgets() {
+        displayCurrentBigPanelWidgets(with: "Hiding Big Panel Widgets")
         bigWidgetStore.hideWidget(named: "MusicPlayerWidget")
         bigWidgetStore.hideWidget(named: "TimeWidget")
         bigWidgetStore.hideWidget(named: "NotesWidget")
@@ -197,13 +157,14 @@ class UIManager {
     }
 
     func showBigPanelWidgets() {
+        displayCurrentBigPanelWidgets(with: "Showing Big Panel Widgets")
         bigWidgetStore.showWidget(named: "MusicPlayerWidget")
         bigWidgetStore.showWidget(named: "TimeWidget")
         bigWidgetStore.showWidget(named: "NotesWidget")
         bigWidgetStore.showWidget(named: "CameraWidget")
         bigWidgetStore.showWidget(named: "AIChatWidget")
 
-        bigPanel.contentView?.layoutSubtreeIfNeeded()
+        smallPanel.contentView?.layoutSubtreeIfNeeded()
     }
 
     private func displayCurrentBigPanelWidgets(with title: String = "Current Big Panel Widgets") {

@@ -35,16 +35,16 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         // Start the UI
         UIManager.shared.setupFrame()
         // Allow Scroll Handler to listen to scroll events
-        ScrollHandler.shared.start()
-        if let smallPanel = UIManager.shared.smallPanel {
-            // Tiny Haptic Feedback when hovering
-            self.hoverHandler = HoverHandler(panel: smallPanel)
-        }
-        UIManager.shared.hoverHandler = self.hoverHandler
-        if let bigPanel = UIManager.shared.bigPanel {
-            // Proximity Handler for the Big Panel
-            self.panelProximityHandler = PanelProximityHandler(panel: bigPanel)
-        }
+        // ScrollHandler.shared.start()
+        // if let smallPanel = UIManager.shared.smallPanel {
+        //     // Tiny Haptic Feedback when hovering
+        //     self.hoverHandler = HoverHandler(panel: smallPanel)
+        // }
+        // UIManager.shared.hoverHandler = self.hoverHandler
+        // if let bigPanel = UIManager.shared.bigPanel {
+        //     // Proximity Handler for the Big Panel
+        //     self.panelProximityHandler = PanelProximityHandler(panel: bigPanel)
+        // }
 
         // Set up the ui by loading the widgets from settings onto it
         loadWidgetsFromSettings()
@@ -53,6 +53,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         DisplayHandler.shared.start()
         // Start listening for shortcuts
         ShortcutHandler.shared.startListening()
+        ScrollHandler.shared.openFull()
     }
 
     /**
@@ -99,10 +100,10 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Force layout refresh
         AudioManager.shared.startMediaTimer()
-        UIManager.shared.bigPanel.contentView?.layoutSubtreeIfNeeded()
+        UIManager.shared.smallPanel.contentView?.layoutSubtreeIfNeeded()
 
         DispatchQueue.main.async {
-            UIManager.shared.bigPanel.contentView?.needsDisplay = true
+            UIManager.shared.smallPanel.contentView?.needsDisplay = true
         }
     }
 }

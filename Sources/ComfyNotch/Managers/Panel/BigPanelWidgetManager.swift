@@ -67,31 +67,31 @@ class BigPanelWidgetStore: PanelManager, ObservableObject {
     }
 }
 
-struct BigPanelWidgetManager: View {
-    @EnvironmentObject var widgetStore: BigPanelWidgetStore
+// struct BigPanelWidgetManager: View {
+//     @EnvironmentObject var widgetStore: BigPanelWidgetStore
 
-    var body: some View {
-        ZStack {
-            Color.black.opacity(1)
-                .clipShape(RoundedCornersShape(
-                    topLeft: 10,
-                    topRight: 10,
-                    bottomLeft: 10,
-                    bottomRight: 10
-                ))
+//     var body: some View {
+//         ZStack {
+//             Color.black.opacity(1)
+//                 .clipShape(RoundedCornersShape(
+//                     topLeft: 10,
+//                     topRight: 10,
+//                     bottomLeft: 10,
+//                     bottomRight: 10
+//                 ))
 
-            HStack(spacing: 2) {
-                ForEach(widgetStore.widgets.indices, id: \.self) { index in
-                    let widgetEntry = widgetStore.widgets[index]
-                    if widgetEntry.isVisible {
-                        widgetEntry.widget.swiftUIView
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .padding(.horizontal, 2)
-                            .padding(.vertical, 5)
-                    }
-                }
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-}
+//             HStack(spacing: 2) {
+//                 ForEach(widgetStore.widgets.indices, id: \.self) { index in
+//                     let widgetEntry = widgetStore.widgets[index]
+//                     if widgetEntry.isVisible {
+//                         widgetEntry.widget.swiftUIView
+//                             .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                             .padding(.horizontal, 2)
+//                             .padding(.vertical, 5)
+//                     }
+//                 }
+//             }
+//         }
+//         .frame(maxWidth: .infinity, maxHeight: .infinity)
+//     }
+// }

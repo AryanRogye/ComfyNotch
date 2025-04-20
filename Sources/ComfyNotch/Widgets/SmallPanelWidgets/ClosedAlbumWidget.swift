@@ -11,6 +11,7 @@ struct AlbumWidgetView: View, Widget {
 
     var body: some View {
         ZStack {
+
             panelButton {
                 Image(nsImage: model.image ?? NSImage())
                     .resizable()
@@ -34,12 +35,12 @@ struct AlbumWidgetView: View, Widget {
                     .opacity(model.image == nil ? 1 : 0)
             }
         }
-            .padding(.leading, 10)
-            .animation(.easeInOut(duration: 0.25), value: model.image != nil)
+        .padding(.trailing, 22)
+        .animation(.easeInOut(duration: 0.25), value: model.image != nil)
     }
 
     private func panelButton<Label: View>(@ViewBuilder label: () -> Label) -> some View {
-        Button(action: scrollManager.open ) {
+        Button(action: scrollManager.openFull ) {
             label()
         }
         .buttonStyle(.plain)

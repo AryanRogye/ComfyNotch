@@ -131,6 +131,8 @@ class PanelAnimationState: ObservableObject {
 struct SmallPanelWidgetManager: View {
 
     @EnvironmentObject var widgetStore: SmallPanelWidgetStore
+    @EnvironmentObject var bigWidgetStore: BigPanelWidgetStore
+
     @ObservedObject var animationState = PanelAnimationState.shared
     @State private var isHovering: Bool = false
 
@@ -226,14 +228,30 @@ struct SmallPanelWidgetManager: View {
                         }
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .top)
+                .frame(maxWidth: .infinity, maxHeight: UIManager.shared.getNotchHeight(), alignment: .top)
 
                 VStack {
-                    if animationState.isExpanded {
-                        Text(animationState.songText)
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundStyle(Color(nsColor: animationState.playingColor))
-                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                    /// Big Panel Widgets
+                    ZStack {
+                        Color.black.opacity(1)
+                            .clipShape(RoundedCornersShape(
+                                topLeft: 10,
+                                topRight: 10,
+                                bottomLeft: 10,
+                                bottomRight: 10
+                            ))
+
+                        HStack(spacing: 2) {
+                            ForEach(bigWidgetStore.widgets.indices, id: \.self) { index in
+                                let widgetEntry = bigWidgetStore.widgets[index]
+                                if widgetEntry.isVisible {
+                                    widgetEntry.widget.swiftUIView
+                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                        .padding(.horizontal, 2)
+                                        .padding(.vertical, 5)
+                                }
+                            }
+                        }
                     }
                 }
                 .frame(height: animationState.bottomSectionHeight)
@@ -262,6 +280,12 @@ struct SmallPanelWidgetManager: View {
                 bottomRight: 10
             )
         )
+        .panGesture(direction: .down) { delta, phase in
+            ScrollHandler.shared.handlePan(delta: delta, phase: phase)
+        }
+        .panGesture(direction: .up) { delta, phase in
+            ScrollHandler.shared.handlePan(delta: -delta, phase: phase)
+        }
     }
 
     private func getNotchWidth() -> CGFloat {

@@ -11,7 +11,7 @@ class SettingsModel: ObservableObject {
     @Published var openStateYOffset = CGFloat(35)
     @Published var snapOpenThreshold: CGFloat = 0.9
     @Published var aiApiKey: String = ""
-    
+
     @Published var selectedProvider: AIProvider = .openAI
     @Published var selectedOpenAIModel: OpenAIModel = .gpt3
     @Published var selectedAnthropicModel: AnthropicModel = .claudeV1
@@ -85,11 +85,11 @@ class SettingsModel: ObservableObject {
     func refreshUI() {
         if UIManager.shared.panelState == .open {
             AudioManager.shared.startMediaTimer()
-            UIManager.shared.bigPanel.contentView?.needsLayout = true
-            UIManager.shared.bigPanel.contentView?.layoutSubtreeIfNeeded()
+            UIManager.shared.smallPanel.contentView?.needsLayout = true
+            UIManager.shared.smallPanel.contentView?.layoutSubtreeIfNeeded()
 
             DispatchQueue.main.async {
-                UIManager.shared.bigPanel.contentView?.needsDisplay = true
+                UIManager.shared.smallPanel.contentView?.needsDisplay = true
                 UIManager.shared.showBigPanelWidgets()
             }
         }
