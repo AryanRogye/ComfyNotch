@@ -41,10 +41,10 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         //     self.hoverHandler = HoverHandler(panel: smallPanel)
         // }
         // UIManager.shared.hoverHandler = self.hoverHandler
-        // if let bigPanel = UIManager.shared.bigPanel {
-        //     // Proximity Handler for the Big Panel
-        //     self.panelProximityHandler = PanelProximityHandler(panel: bigPanel)
-        // }
+        if let smallPanel = UIManager.shared.smallPanel {
+            // Proximity Handler for the Big Panel
+            self.panelProximityHandler = PanelProximityHandler(panel: smallPanel)
+        }
 
         // Set up the ui by loading the widgets from settings onto it
         loadWidgetsFromSettings()

@@ -77,6 +77,8 @@ class PanelProximityHandler: NSObject {
             if distance > distanceThreshold && !SettingsModel.shared.isSettingsWindowOpen {
                 UIManager.shared.panelState = .closed
                 ScrollHandler.shared.closeFull()
+                PanelAnimationState.shared.isExpanded = false
+                PanelAnimationState.shared.bottomSectionHeight = 0
             }
         }
     }

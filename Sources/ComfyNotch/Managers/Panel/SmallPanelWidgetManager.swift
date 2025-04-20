@@ -241,20 +241,18 @@ struct SmallPanelWidgetManager: View {
                                 bottomRight: 10
                             ))
 
-                        HStack(spacing: 2) {
+                        HStack {
                             ForEach(bigWidgetStore.widgets.indices, id: \.self) { index in
                                 let widgetEntry = bigWidgetStore.widgets[index]
                                 if widgetEntry.isVisible {
                                     widgetEntry.widget.swiftUIView
-                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                                         .padding(.horizontal, 2)
-                                        .padding(.vertical, 5)
                                 }
                             }
                         }
                     }
                 }
-                .frame(height: animationState.bottomSectionHeight)
+                .frame(height: .infinity)
                 .clipped()
                 .animation(
                             .easeInOut(duration: animationState.isExpanded ? 0.3 : 0.1),
