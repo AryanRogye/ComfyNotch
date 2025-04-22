@@ -42,6 +42,7 @@ struct ComfyNotchView: View {
 
     private var paddingWidth: CGFloat = 20
     private var contentInset: CGFloat = 40
+    private var cornerRadius: CGFloat = 20
 
     var body: some View {
         ZStack {
@@ -61,11 +62,11 @@ struct ComfyNotchView: View {
                 .clipShape(RoundedCornersShape(
                     topLeft: 0,
                     topRight: 0,
-                    bottomLeft: 10,
-                    bottomRight: 10
+                    bottomLeft: cornerRadius,
+                    bottomRight: cornerRadius
                 ))
 //           }
-            VStack(spacing: 0) {
+            VStack(alignment: .leading,spacing: 0) {
                 /// Top Row Widgets
                 renderTopRow()
                 renderBottomWidgets()
@@ -77,15 +78,15 @@ struct ComfyNotchView: View {
         .clipShape(RoundedCornersShape(
                         topLeft: 0,
                         topRight: 0,
-                        bottomLeft: 10,
-                        bottomRight: 10
+                        bottomLeft: cornerRadius,
+                        bottomRight: cornerRadius
                  ))
         .mask(
             RoundedCornersShape(
                 topLeft: 0,
                 topRight: 0,
-                bottomLeft: 10,
-                bottomRight: 10
+                bottomLeft: cornerRadius,
+                bottomRight: cornerRadius
             )
         )
         /// For Scrolling the Panel
@@ -153,7 +154,7 @@ struct ComfyNotchView: View {
     private func renderTopRow() -> some View {
         HStack(spacing: 0) {
             // Left Widgets
-            ZStack(alignment: .trailing) {
+            ZStack(alignment: .leading) {
                 HStack(spacing: 0) {
                     ForEach(widgetStore.leftWidgetsShown.indices, id: \.self) { index in
                         let widgetEntry = widgetStore.leftWidgetsShown[index]
@@ -167,7 +168,7 @@ struct ComfyNotchView: View {
             .frame(maxWidth: .infinity, alignment: .trailing)
 
             Spacer()
-                .frame(width: getNotchWidth())
+                .frame(width: PanelAnimationState.shared.isExpanded ? 560 : getNotchWidth())
                 .padding([.trailing, .leading], paddingWidth)
             // Right Widgets
             ZStack(alignment: .leading) {

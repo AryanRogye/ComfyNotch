@@ -11,28 +11,31 @@ struct AlbumWidgetView: View, Widget {
 
     var body: some View {
         ZStack {
-
-            panelButton {
-                Image(nsImage: model.image ?? NSImage())
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 25, height: 22)
-                    .cornerRadius(4)
-                    .padding(.top, 2)
-                    .opacity(model.image != nil ? 1 : 0)
-            }
-
-            panelButton {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.gray.opacity(0.2))
-                        .frame(width: 27, height: 23)
-                    Image(systemName: "music.note")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.white)
+            if !PanelAnimationState.shared.isExpanded {
+                panelButton {
+                    Image(nsImage: model.image ?? NSImage())
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 25, height: 22)
+                        .cornerRadius(4)
+                        .padding(.top, 2)
+                        .opacity(model.image != nil ? 1 : 0)
                 }
+                
+                panelButton {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.gray.opacity(0.2))
+                            .frame(width: 27, height: 23)
+                        Image(systemName: "music.note")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundColor(.white)
+                    }
                     .padding(.top, 1)
                     .opacity(model.image == nil ? 1 : 0)
+                }
+            } else {
+                Text("")
             }
         }
         .padding(.trailing, 22)
