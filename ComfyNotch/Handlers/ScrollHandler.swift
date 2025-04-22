@@ -303,6 +303,8 @@ class ScrollHandler {
         PanelAnimationState.shared.bottomSectionHeight = open
             ? (height - minPanelHeight)
             : 0
+        
+        /// Show The AlbumWidget if isExpanded is .closed
 
         // 2️⃣ keep your existing panel‑store logic:
         if open {

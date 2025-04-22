@@ -144,7 +144,6 @@ class UIManager {
      * Controls the display state of all big panel widgets.
      */
     func hideBigPanelWidgets() {
-        displayCurrentBigPanelWidgets(with: "Hiding Big Panel Widgets")
         bigWidgetStore.hideWidget(named: "MusicPlayerWidget")
         bigWidgetStore.hideWidget(named: "TimeWidget")
         bigWidgetStore.hideWidget(named: "NotesWidget")
@@ -156,7 +155,6 @@ class UIManager {
     }
 
     func showBigPanelWidgets() {
-        displayCurrentBigPanelWidgets(with: "Showing Big Panel Widgets")
         bigWidgetStore.showWidget(named: "MusicPlayerWidget")
         bigWidgetStore.showWidget(named: "TimeWidget")
         bigWidgetStore.showWidget(named: "NotesWidget")

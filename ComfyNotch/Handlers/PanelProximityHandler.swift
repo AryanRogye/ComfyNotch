@@ -20,6 +20,18 @@ class PanelProximityHandler: NSObject {
     deinit {
         stopMonitoring()
     }
+    
+    @objc func mouseEntered(_ event: NSEvent) {
+        // you can leave this empty or toggle state
+    }
+    
+    @objc func mouseExited(_ event: NSEvent) {
+        // same deal
+    }
+    
+    @objc func mouseMoved(_ event: NSEvent) {
+        handleMouseMoved(event)
+      }
 
     private func startListeningForPanelProximityWhenOpen() {
         localMonitor = NSEvent.addLocalMonitorForEvents(matching: .mouseMoved) { [weak self] event in

@@ -41,10 +41,10 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             // Start the UI
             UIManager.shared.setupFrame()
             
-            if let smallPanel = UIManager.shared.smallPanel {
-                // Tiny Haptic Feedback when hovering
-                self.hoverHandler = HoverHandler(panel: smallPanel)
-            }
+//            if let smallPanel = UIManager.shared.smallPanel {
+//                // Tiny Haptic Feedback when hovering
+//                self.hoverHandler = HoverHandler(panel: smallPanel)
+//            }
             if let smallPanel = UIManager.shared.smallPanel {
                 // Proximity Handler for the Big Panel
                 self.panelProximityHandler = PanelProximityHandler(panel: smallPanel)
