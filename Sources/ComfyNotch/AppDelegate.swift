@@ -34,13 +34,11 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Start the UI
         UIManager.shared.setupFrame()
-        // Allow Scroll Handler to listen to scroll events
-        // ScrollHandler.shared.start()
+
         if let smallPanel = UIManager.shared.smallPanel {
             // Tiny Haptic Feedback when hovering
             self.hoverHandler = HoverHandler(panel: smallPanel)
         }
-        // UIManager.shared.hoverHandler = self.hoverHandler
         if let smallPanel = UIManager.shared.smallPanel {
             // Proximity Handler for the Big Panel
             self.panelProximityHandler = PanelProximityHandler(panel: smallPanel)

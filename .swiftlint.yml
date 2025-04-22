@@ -5,6 +5,7 @@ disabled_rules:
   - large_tuple
   - file_length
   - function_body_length
+  - identifier_name
 
 opt_in_rules:
   - closure_spacing

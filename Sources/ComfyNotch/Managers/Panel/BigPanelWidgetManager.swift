@@ -2,11 +2,11 @@ import AppKit
 import SwiftUI
 
 /**
- * `BigPanelWidgetStore` is a class that manages a collection of widgets for a "big panel" UI component.
+ * `ExpandedWidgetsStore` is a class that manages a collection of widgets for a "big panel" UI component.
  * It provides functionality to add, remove, show, hide, and clear widgets, while maintaining their visibility state.
  * The class is designed to work with SwiftUI and uses the `@Published` property wrapper to notify observers of changes.
  */
-class BigPanelWidgetStore: PanelManager, ObservableObject {
+class ExpandedWidgetsStore: PanelManager, ObservableObject {
     @Published var widgets: [WidgetEntry] = []
 
     /// Adds a widget to the big panel "store"
@@ -66,32 +66,3 @@ class BigPanelWidgetStore: PanelManager, ObservableObject {
         widgets.removeAll()
     }
 }
-
-// struct BigPanelWidgetManager: View {
-//     @EnvironmentObject var widgetStore: BigPanelWidgetStore
-
-//     var body: some View {
-//         ZStack {
-//             Color.black.opacity(1)
-//                 .clipShape(RoundedCornersShape(
-//                     topLeft: 10,
-//                     topRight: 10,
-//                     bottomLeft: 10,
-//                     bottomRight: 10
-//                 ))
-
-//             HStack(spacing: 2) {
-//                 ForEach(widgetStore.widgets.indices, id: \.self) { index in
-//                     let widgetEntry = widgetStore.widgets[index]
-//                     if widgetEntry.isVisible {
-//                         widgetEntry.widget.swiftUIView
-//                             .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                             .padding(.horizontal, 2)
-//                             .padding(.vertical, 5)
-//                     }
-//                 }
-//             }
-//         }
-//         .frame(maxWidth: .infinity, maxHeight: .infinity)
-//     }
-// }

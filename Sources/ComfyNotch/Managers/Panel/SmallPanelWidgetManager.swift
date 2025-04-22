@@ -4,7 +4,7 @@ import Combine
 import MetalKit
 
 /**
- * SmallPanelWidgetStore manages the widgets displayed in the notch panel area.
+ * CompactWidgetsStore manages the widgets displayed in the notch panel area.
  * It handles the organization and visibility state of widgets, separating them into
  * left and right aligned sections.
  *
@@ -14,7 +14,7 @@ import MetalKit
  * - rightWidgetsHidden: Widgets aligned to the right that are currently hidden
  * - rightWidgetsShown: Widgets aligned to the right that are currently visible
  */
-class SmallPanelWidgetStore: PanelManager, ObservableObject {
+class CompactWidgetsStore: PanelManager, ObservableObject {
     @Published var leftWidgetsHidden: [WidgetEntry] = []
     @Published var leftWidgetsShown: [WidgetEntry] = []
     @Published var rightWidgetsHidden: [WidgetEntry] = []
@@ -128,10 +128,10 @@ class PanelAnimationState: ObservableObject {
     }
 }
 
-struct SmallPanelWidgetManager: View {
+struct ComfyNotchView: View {
 
-    @EnvironmentObject var widgetStore: SmallPanelWidgetStore
-    @EnvironmentObject var bigWidgetStore: BigPanelWidgetStore
+    @EnvironmentObject var widgetStore: CompactWidgetsStore
+    @EnvironmentObject var bigWidgetStore: ExpandedWidgetsStore
 
     @ObservedObject var animationState = PanelAnimationState.shared
     @State private var isHovering: Bool = false
@@ -210,7 +210,7 @@ struct SmallPanelWidgetManager: View {
         // Default if we can't determine it
         return 180
     }
-    
+
     @ViewBuilder
     private func renderBottomWidgets() -> some View {
         VStack {
@@ -224,7 +224,7 @@ struct SmallPanelWidgetManager: View {
                             bottomLeft: 10,
                             bottomRight: 10
                         ))
-                    
+
                     HStack {
                         ForEach(bigWidgetStore.widgets.indices, id: \.self) { index in
                             let widgetEntry = bigWidgetStore.widgets[index]
@@ -244,7 +244,7 @@ struct SmallPanelWidgetManager: View {
             value: animationState.isExpanded
         )
     }
-    
+
     @ViewBuilder
     private func renderTopRow() -> some View {
         HStack(spacing: 0) {
@@ -261,7 +261,7 @@ struct SmallPanelWidgetManager: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
-            
+
             Spacer()
                 .frame(width: getNotchWidth())
                 .padding([.trailing, .leading], paddingWidth)
@@ -319,7 +319,6 @@ struct SmallPanelWidgetManager: View {
         .padding(.top, animationState.isExpanded ? 10 : 0)
     }
 }
-
 
 class MetalCoordinator: NSObject, MTKViewDelegate {
     var time: Float = 0

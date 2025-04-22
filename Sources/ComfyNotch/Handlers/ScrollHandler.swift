@@ -16,12 +16,11 @@ class ScrollHandler {
     private var panAccumulated: CGFloat = 0
     private var isSnapping = false
 
-
     private var cancellables = Set<AnyCancellable>()
 
     private init() {}
 
-    /// MARK: – Public API
+    // MARK: – Public API
 
     /// Handle Pan is what the view will call when a pan gesture is made
     func handlePan(delta: CGFloat, phase: NSEvent.Phase) {
@@ -48,7 +47,6 @@ class ScrollHandler {
             }
             return
         }
-
 
         panAccumulated += delta
 
@@ -88,8 +86,8 @@ class ScrollHandler {
         let overFrame = NSRect(x: x, y: overY, width: finalW, height: overH)
 
         // 3) super‑springy curves
-        let diveDur  : TimeInterval = 0.25
-        let recoDur  : TimeInterval = 0.2
+        let diveDur: TimeInterval = 0.25
+        let recoDur: TimeInterval = 0.2
         let diveFn   = CAMediaTimingFunction(controlPoints: 0.2, 1.2, 0.4, 1.0)
         let recoFn   = CAMediaTimingFunction(controlPoints: 0.6, 1.8, 0.4, 1.0)
 
@@ -150,8 +148,8 @@ class ScrollHandler {
         PanelAnimationState.shared.bottomSectionHeight = 0
 
         // 5) timing & curves
-        let diveDuration   : TimeInterval = 0.2
-        let recoilDuration : TimeInterval = 0.15
+        let diveDuration: TimeInterval = 0.2
+        let recoilDuration: TimeInterval = 0.15
         let diveCurve      = CAMediaTimingFunction(controlPoints: 0.65, 1.0, 0.5, 1.0)
         let recoilCurve    = CAMediaTimingFunction(controlPoints: 0.75, 1.0, 0.8, 1.0)
 
@@ -187,7 +185,6 @@ class ScrollHandler {
             return
         }
 
-        let screen = NSScreen.main!                // full screen coords
         let frame = NSRect(x: finalX, y: finalY, width: finalWidth, height: finalHeight)
 
         NSAnimationContext.runAnimationGroup({ ctx in

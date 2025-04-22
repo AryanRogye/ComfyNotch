@@ -34,14 +34,14 @@ class FocusablePanel: NSPanel {
  */
 class UIManager {
     static let shared = UIManager()
-    let smallWidgetStore = SmallPanelWidgetStore()
-    let bigWidgetStore = BigPanelWidgetStore()
+    let smallWidgetStore = CompactWidgetsStore()
+    let bigWidgetStore = ExpandedWidgetsStore()
 
     var hoverHandler: HoverHandler?
 
     var smallPanel: NSPanel!
 
-    var smallPanelWidgetManager = SmallPanelWidgetManager()
+    var ComfyNotchView = ComfyNotchView()
 
     var panelState: PanelState = .closed
 
@@ -64,7 +64,6 @@ class UIManager {
      */
     func setupFrame() {
         setupSmallPanel()
-        // setupBigPanel()
     }
 
     /**
@@ -114,7 +113,7 @@ class UIManager {
         smallWidgetStore.addWidget(movingDotsWidget)
         smallWidgetStore.addWidget(settingsWidget)
 
-        let contentView = SmallPanelWidgetManager()
+        let contentView = ComfyNotchView()
             .environmentObject(smallWidgetStore)
             .environmentObject(bigWidgetStore)
 
@@ -166,7 +165,8 @@ class UIManager {
 
         smallPanel.contentView?.layoutSubtreeIfNeeded()
     }
-
+    
+    /// --Mark : Utility Methods
     private func displayCurrentBigPanelWidgets(with title: String = "Current Big Panel Widgets") {
         print("=====================================================")
         print("\(title)")
@@ -185,7 +185,7 @@ class UIManager {
     }
 
     func addWidgetsToSmallPanel(_ widget: Widget) {
-        // smallPanelWidgetManager.addWidget(widget)
+        // ComfyNotchView.addWidget(widget)
     }
 
     func getNotchHeight() -> CGFloat {
