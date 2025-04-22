@@ -130,7 +130,7 @@ struct ComfyNotchView: View {
                             bottomRight: 10
                         ))
 
-                    HStack {
+                    HStack(spacing: 0) {
                         ForEach(bigWidgetStore.widgets.indices, id: \.self) { index in
                             let widgetEntry = bigWidgetStore.widgets[index]
                             if widgetEntry.isVisible {
@@ -143,7 +143,6 @@ struct ComfyNotchView: View {
             }
         }
         .frame(maxHeight: .infinity)
-        .clipped()
         .animation(
             .easeInOut(duration: animationState.isExpanded ? 0.3 : 0.1),
             value: animationState.isExpanded
@@ -170,6 +169,7 @@ struct ComfyNotchView: View {
             Spacer()
                 .frame(width: PanelAnimationState.shared.isExpanded ? 560 : getNotchWidth())
                 .padding([.trailing, .leading], paddingWidth)
+            
             // Right Widgets
             ZStack(alignment: .leading) {
                 if !isHovering {
@@ -178,6 +178,7 @@ struct ComfyNotchView: View {
                             let widgetEntry = widgetStore.rightWidgetsShown[index]
                             if widgetEntry.isVisible {
                                 widgetEntry.widget.swiftUIView
+                                    .opacity(isHovering ? 0 : 1)
                             }
                         }
                     }

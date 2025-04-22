@@ -28,6 +28,7 @@ struct MusicPlayerWidget: View, Widget {
         )
         .padding(.vertical, 5)
         .padding(.horizontal, 2)
+        .border(Color.white.opacity(0.1), width: 1)
     }
 
     @ViewBuilder

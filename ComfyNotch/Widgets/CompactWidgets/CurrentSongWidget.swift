@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// -- Mark: Unused for now
 struct CurrentSongWidget: View, Widget {
     var name: String = "CurrentSongWidget"
 

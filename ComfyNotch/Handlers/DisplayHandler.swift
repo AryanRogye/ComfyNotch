@@ -6,41 +6,41 @@ class DisplayHandler {
     private var lastRefreshTime: Date?
 
     func start() {
-//        let notificationCenter = NotificationCenter.default
-//        let workspaceCenter = NSWorkspace.shared.notificationCenter
-//        let distributedCenter = DistributedNotificationCenter.default()
-//        
-//        workspaceCenter.addObserver(
-//            self,
-//            selector: #selector(handleScreenWake),
-//            name: NSWorkspace.didWakeNotification,
-//            object: nil
-//        )
-//        notificationCenter.addObserver(
-//            self,
-//            selector: #selector(handleScreenChange),
-//            name: NSApplication.didChangeScreenParametersNotification,
-//            object: nil
-//        )
-//        distributedCenter.addObserver(
-//            self,
-//            selector: #selector(handleSpaceChanged),
-//            name: NSNotification.Name("com.apple.spaces.didChange"),
-//            object: nil
-//        )
-//        notificationCenter.addObserver(
-//            self,
-//            selector: #selector(handlePanelMoved),
-//            name: NSWindow.didChangeScreenNotification,
-//            object: UIManager.shared.userNotch
-//        )
-//        
-//        notificationCenter.addObserver(
-//            self,
-//            selector: #selector(handlePanelMoved),
-//            name: NSWindow.didChangeScreenNotification,
-//            object: UIManager.shared.bigPanel
-//        )
+        let notificationCenter = NotificationCenter.default
+        let workspaceCenter = NSWorkspace.shared.notificationCenter
+        let distributedCenter = DistributedNotificationCenter.default()
+        
+        workspaceCenter.addObserver(
+            self,
+            selector: #selector(handleScreenWake),
+            name: NSWorkspace.didWakeNotification,
+            object: nil
+        )
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(handleScreenChange),
+            name: NSApplication.didChangeScreenParametersNotification,
+            object: nil
+        )
+        distributedCenter.addObserver(
+            self,
+            selector: #selector(handleSpaceChanged),
+            name: NSNotification.Name("com.apple.spaces.didChange"),
+            object: nil
+        )
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(handlePanelMoved),
+            name: NSWindow.didChangeScreenNotification,
+            object: UIManager.shared.comfyNotch
+        )
+        
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(handlePanelMoved),
+            name: NSWindow.didChangeScreenNotification,
+            object: UIManager.shared.comfyNotch
+        )
     }
     
     @objc private func handleWakeNotification() {

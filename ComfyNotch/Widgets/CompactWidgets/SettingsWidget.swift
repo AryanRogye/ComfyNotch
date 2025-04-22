@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 import Combine
 
-struct SettingsButtonView: View, Widget {
+struct SettingsButtonWidget: View, Widget {
 
     var name: String = "Settings"
     var alignment: WidgetAlignment? = .right

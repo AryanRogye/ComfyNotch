@@ -4,8 +4,12 @@ import AVFoundation
 import Combine
 
 struct CameraWidget: View, Widget {
+    
     var name: String = "CameraWidget"
     @StateObject private var model = CameraWidgetModel()
+    
+    @State var currentZoom: CGFloat = 1.0
+    
     var body: some View {
         ZStack {
             CameraPreviewView(session: model.session, flipCamera: model.flipCamera)
@@ -16,8 +20,29 @@ struct CameraWidget: View, Widget {
                 .onDisappear {
                     model.stopSession()
                 }
+            HStack {
+                Spacer()
+                /// We Add A Zoom here
+                VStack {
+                    Button(action: {} ) {
+                        Image(systemName: "plus")
+                            .resizable()
+                            .frame(width: 15, height: 15)
+                    }
+                    .buttonStyle(.plain)
+
+                    Button(action: {} ) {
+                        Image(systemName: "minus")
+                            .resizable()
+                            .frame(width: 15, height: 5)
+                    }
+                    .buttonStyle(.plain)
+
+                    Spacer()
+                }
+                .padding([.top, .trailing], 3)
+            }
         }
-        .background(Color.black)
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ReloadWidgets"))) { _ in
             // Force refresh when widgets are reloaded
             model.updateFlipState()

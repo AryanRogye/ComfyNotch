@@ -102,11 +102,11 @@ class UIManager {
         let movingDotsModel = MovingDotsViewModel()
         let settingsWidgetModel = SettingsWidgetModel()
 
-        let albumWidget = AlbumWidgetView(model: albumWidgetModel)
+        let albumWidget = CompactAlbumWidget(model: albumWidgetModel)
 
         let movingDotsWidget = MovingDotsView(model: movingDotsModel)
 
-        let settingsWidget = SettingsButtonView(model: settingsWidgetModel)
+        let settingsWidget = SettingsButtonWidget(model: settingsWidgetModel)
 
         // Add Widgets to the WidgetStore
         smallWidgetStore.addWidget(albumWidget)

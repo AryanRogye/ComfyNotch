@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 import Combine
 
-struct AlbumWidgetView: View, Widget {
+struct CompactAlbumWidget: View, Widget {
     var alignment: WidgetAlignment? = .left
     var name: String = "AlbumWidget"
 
