@@ -25,7 +25,7 @@ class HoverHandlerModel: ObservableObject {
 }
 
 class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
-    private weak var panel: NSPanel?
+    private weak var panel: NSWindow?
     private var localMonitor: Any?
     private var globalMonitor: Any?
     private var lastHapticTime: TimeInterval = 0
@@ -51,7 +51,7 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
     // Start with no hover state
     var hoverState: HoverState = .notHovering
 
-    init(panel: NSPanel) {
+    init(panel: NSWindow) {
         self.panel = panel
         // set original frame
         self.originalFrame = panel.frame
@@ -126,7 +126,9 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
                 UIManager.shared.smallPanel?.alphaValue = 0
                 return
             }
-        }
+        }         
+        /// For now just return this bottom part is messed up
+        /// TODO: Fix this
         /// if anything was affected
         UIManager.shared.smallPanel?.alphaValue = 1
 
@@ -146,7 +148,7 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
                         self.lastHapticTime = CACurrentMediaTime()
                     }
 
-                    animatePanel(expand: hoverHandlerModel.isPlaying)
+                    // animatePanel(expand: hoverHandlerModel.isPlaying)
                 }
             }
 
@@ -160,7 +162,7 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
 
                     if UIManager.shared.panelState == .closed || UIManager.shared.panelState == .open {
                         /// Dont animate if the panel is already closed
-                        self.animatePanel(expand: false && self.hoverHandlerModel.isPlaying)
+                        // self.animatePanel(expand: false && self.hoverHandlerModel.isPlaying)
                         self.hoverState = .notHovering
                     }
 

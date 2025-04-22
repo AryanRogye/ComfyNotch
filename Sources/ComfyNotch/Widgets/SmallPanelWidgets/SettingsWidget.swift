@@ -21,6 +21,7 @@ struct SettingsButtonView: View, Widget {
         }
         .buttonStyle(.plain)
         .padding(.trailing, 20)
+        .padding(.top, 2)
     }
 
     var swiftUIView: AnyView {

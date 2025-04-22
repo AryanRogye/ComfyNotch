@@ -83,7 +83,7 @@ class UIManager {
             height: notchHeight
         )
 
-        smallPanel = NSPanel(
+        smallPanel = FocusablePanel(
             contentRect: panelRect,
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
