@@ -45,8 +45,6 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
 
     private let padding: CGFloat = 10
     private let closingPadding: CGFloat = 50
-    
-    private var trackingArea: NSTrackingArea?
 
     @ObservedObject var hoverHandlerModel = HoverHandlerModel()
 
@@ -69,9 +67,6 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
     }
 
     deinit {
-        if let area = trackingArea {
-            panel?.contentView?.removeTrackingArea(area)
-        }
         stopMonitoring()
     }
 
@@ -91,12 +86,11 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
         if let contentView = panel?.contentView {
             let trackingArea = NSTrackingArea(
                 rect: contentView.bounds,
-                options: [.mouseEnteredAndExited, .activeAlways],
+                options: [.mouseEnteredAndExited, .mouseMoved, .activeAlways],
                 owner: self,
                 userInfo: nil
             )
             contentView.addTrackingArea(trackingArea)
-            self.trackingArea = trackingArea
         }
     }
 
@@ -129,16 +123,17 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
             // now we check if its in the pane
             if panelFrame.contains(mouseLocation) {
                 // only then do we hide it
-                UIManager.shared.userNotch?.alphaValue = 0
-                UIManager.shared.bigPanel?.alphaValue = 0
+                UIManager.shared.smallPanel?.alphaValue = 0
                 return
             }
         }
+        /// For now just return this bottom part is messed up
+        /// TODO: Fix this
         /// if anything was affected
-        UIManager.shared.userNotch?.alphaValue = 1
-        UIManager.shared.bigPanel?.alphaValue = 1
+        UIManager.shared.smallPanel?.alphaValue = 1
 
-        // Simple check if the mouse is inside the panel's frame
+        /// No HoverHandler if no music is playing
+        /// Simple check if the mouse is inside the panel's frame
         if panelFrame.contains(mouseLocation) {
             // Inside padding area
 
@@ -153,7 +148,7 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
                         self.lastHapticTime = CACurrentMediaTime()
                     }
 
-                    animatePanel(expand: hoverHandlerModel.isPlaying)
+                    // animatePanel(expand: hoverHandlerModel.isPlaying)
                 }
             }
 
@@ -167,7 +162,7 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
 
                     if UIManager.shared.panelState == .closed || UIManager.shared.panelState == .open {
                         /// Dont animate if the panel is already closed
-                        self.animatePanel(expand: false && self.hoverHandlerModel.isPlaying)
+                        // self.animatePanel(expand: false && self.hoverHandlerModel.isPlaying)
                         self.hoverState = .notHovering
                     }
 

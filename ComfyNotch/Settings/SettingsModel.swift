@@ -85,11 +85,11 @@ class SettingsModel: ObservableObject {
     func refreshUI() {
         if UIManager.shared.panelState == .open {
             AudioManager.shared.startMediaTimer()
-            UIManager.shared.bigPanel.contentView?.needsLayout = true
-            UIManager.shared.bigPanel.contentView?.layoutSubtreeIfNeeded()
+            UIManager.shared.smallPanel.contentView?.needsLayout = true
+            UIManager.shared.smallPanel.contentView?.layoutSubtreeIfNeeded()
 
             DispatchQueue.main.async {
-                UIManager.shared.bigPanel.contentView?.needsDisplay = true
+                UIManager.shared.smallPanel.contentView?.needsDisplay = true
                 UIManager.shared.showBigPanelWidgets()
             }
         }

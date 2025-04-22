@@ -31,7 +31,7 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         print("🔔 Notification received: \(notification.request.content.title) - \(notification.request.content.body)")
-        PanelAnimationState.shared.toggleBorderGlow()
+//        PanelAnimationState.shared.toggleBorderGlow()
     }
     
     /// Function to ask the user for permission to send notifications

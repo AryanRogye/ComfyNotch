@@ -23,22 +23,6 @@ class FocusablePanel: NSPanel {
     }
 }
 
-
-/// Class used for the Window
-class NotchWindow: NSWindow {
-    override var canBecomeKey: Bool { true }
-    override var canBecomeMain: Bool { true }
-    /// NSWindow's internal has a scrollWheel which we will use to listen for
-    /// any scroll action done onto the Notch Window
-//    override func scrollWheel(with event: NSEvent) {
-//        /// This makes sure that the scroll wheel behaves like a normal scroll wheel
-//        super.scrollWheel(with: event)
-//        /// Let the Scroll Handler handle any "Scroll" events
-//        /// we pass in self so it can control ourselves
-//        ScrollHandler.shared.handle(event, for: self)
-//    }
-}
-
 /**
  * UIManager handles the core UI components of the application.
  * Responsible for managing panels, widget stores, and panel states.
@@ -50,22 +34,19 @@ class NotchWindow: NSWindow {
  */
 class UIManager {
     static let shared = UIManager()
-    let smallWidgetStore = SmallPanelWidgetStore()
-    let bigWidgetStore = BigPanelWidgetStore()
-    let priorityPanelWidgetStore = BigPanelWidgetStore()
+    let smallWidgetStore = CompactWidgetsStore()
+    let bigWidgetStore = ExpandedWidgetsStore()
 
     var hoverHandler: HoverHandler?
 
-    var userNotch: NotchWindow!
-    var bigPanel: NSPanel!
+    var smallPanel: NSPanel!
 
-    var smallPanelWidgetManager = SmallPanelWidgetManager()
-    var bigPanelWidgetManager = BigPanelWidgetManager()
+    var comfyNotch = ComfyNotchView()
 
     var panelState: PanelState = .closed
 
     var startPanelHeight: CGFloat = 0
-    var startPanelWidth: CGFloat = 320
+    var startPanelWidth: CGFloat = 300
 
     var startPanelYOffset: CGFloat = 0
 
@@ -83,17 +64,6 @@ class UIManager {
      */
     func setupFrame() {
         setupSmallPanel()
-        // setupBigPanel()
-    }
-    
-    func showBigPanel() {
-        bigPanel.animator().alphaValue = 1
-        bigPanel.orderFrontRegardless()
-    }
-
-    func hideBigPanel() {
-        bigPanel.animator().alphaValue = 0
-        bigPanel.orderOut(nil)
     }
 
     /**
@@ -112,95 +82,45 @@ class UIManager {
             height: notchHeight
         )
 
-        userNotch = NotchWindow(
+        smallPanel = FocusablePanel(
             contentRect: panelRect,
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
         )
 
-        userNotch.title = "ComfyNotch"
-        userNotch.level = .screenSaver
-        userNotch.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-        userNotch.isMovableByWindowBackground = false
-        userNotch.backgroundColor = .clear
-        userNotch.isOpaque = false
-        userNotch.hasShadow = false
+        smallPanel.title = "ComfyNotch"
+        smallPanel.level = .screenSaver
+        smallPanel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        smallPanel.isMovableByWindowBackground = false
+        smallPanel.backgroundColor = .clear
+        smallPanel.isOpaque = false
+        smallPanel.hasShadow = false
 
         // Create and add widgets to the store
-//        let albumWidgetModel = AlbumWidgetModel()
-//        let movingDotsModel = MovingDotsViewModel()
-//        let currentSongWidgetModel = MusicPlayerWidgetModel()
-//
-//        /// Create Widgets for the small panel
-//        let albumWidget = AlbumWidgetView(model: albumWidgetModel)
-//        let movingDotsWidget = MovingDotsView(model: movingDotsModel)
-//        let settingsWidget = SettingsButtonView()
-//
-//        /// Create Widgets for the priority panel
-//        let currentSongWidget = CurrentSongWidget(
-//            model: currentSongWidgetModel,
-//            movingDotsModel: movingDotsModel
-//        )
-//
-//        // Add Widgets to the WidgetStore
-//        smallWidgetStore.addWidget(albumWidget)
-//        smallWidgetStore.addWidget(movingDotsWidget)
-//        smallWidgetStore.addWidget(settingsWidget)
-//
-//        // Add Widgets to the PriorityPanel
-//        priorityPanelWidgetStore.addWidget(currentSongWidget)
-//        priorityPanelWidgetStore.showWidget(named: "CurrentSongWidget")
+        let albumWidgetModel = AlbumWidgetModel()
+        let movingDotsModel = MovingDotsViewModel()
+        let settingsWidgetModel = SettingsWidgetModel()
 
-        let contentView = SmallPanelWidgetManager()
+        let albumWidget = AlbumWidgetView(model: albumWidgetModel)
+
+        let movingDotsWidget = MovingDotsView(model: movingDotsModel)
+
+        let settingsWidget = SettingsButtonView(model: settingsWidgetModel)
+
+        // Add Widgets to the WidgetStore
+        smallWidgetStore.addWidget(albumWidget)
+        smallWidgetStore.addWidget(movingDotsWidget)
+        smallWidgetStore.addWidget(settingsWidget)
+
+        let contentView = ComfyNotchView()
             .environmentObject(smallWidgetStore)
-            .environmentObject(priorityPanelWidgetStore)
-
-        userNotch.contentView = NSHostingView(rootView: contentView)
-        userNotch.makeKeyAndOrderFront(nil)
-
-        // smallPanel.orderFrontRegardless()
-    }
-
-    /**
-     * Configures the expandable big panel for additional widgets.
-     * Sets up panel properties and initial widget layout.
-     */
-    func setupBigPanel() {
-        guard let screen = NSScreen.main else { return }
-        let screenFrame = screen.frame
-        let notchHeight = getNotchHeight()  // Same height as smallPanel
-
-        let panelRect = NSRect(
-            x: (screenFrame.width - startPanelWidth) / 2,
-            y: screenFrame.height - notchHeight - startPanelYOffset,
-            width: startPanelWidth,
-            height: notchHeight  // Same starting height as smallPanel
-        )
-
-        bigPanel = FocusablePanel(
-            contentRect: panelRect,
-            styleMask: [.borderless, .nonactivatingPanel],
-            backing: .buffered,
-            defer: false
-        )
-
-        bigPanel.title = "ComfyNotch Big Panel"
-        bigPanel.level = .screenSaver
-        bigPanel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-        bigPanel.isMovableByWindowBackground = false
-        bigPanel.backgroundColor = .clear
-        bigPanel.isOpaque = false
-        bigPanel.hasShadow = false
-
-        let contentView = BigPanelWidgetManager()
             .environmentObject(bigWidgetStore)
 
-        bigPanel.contentView = NSHostingView(rootView: contentView)
-//        bigPanel.makeKeyAndOrderFront(nil)
-        bigPanel.orderFrontRegardless()
+        smallPanel.contentView = NSHostingView(rootView: contentView)
+        smallPanel.makeKeyAndOrderFront(nil)
 
-        hideBigPanelWidgets() // Ensure initial state is correct
+        // hideSmallPanelSettingsWidget() // Ensure initial state is correct
     }
 
     /**
@@ -224,28 +144,29 @@ class UIManager {
      * Controls the display state of all big panel widgets.
      */
     func hideBigPanelWidgets() {
+        displayCurrentBigPanelWidgets(with: "Hiding Big Panel Widgets")
         bigWidgetStore.hideWidget(named: "MusicPlayerWidget")
         bigWidgetStore.hideWidget(named: "TimeWidget")
         bigWidgetStore.hideWidget(named: "NotesWidget")
         bigWidgetStore.hideWidget(named: "CameraWidget")
         bigWidgetStore.hideWidget(named: "AIChatWidget")
-        
-        hideBigPanel()
-        
-        userNotch.orderFrontRegardless()
-        userNotch.level = .screenSaver
+
+        smallPanel.makeKeyAndOrderFront(nil)
+        smallPanel.level = .screenSaver
     }
 
     func showBigPanelWidgets() {
+        displayCurrentBigPanelWidgets(with: "Showing Big Panel Widgets")
         bigWidgetStore.showWidget(named: "MusicPlayerWidget")
         bigWidgetStore.showWidget(named: "TimeWidget")
         bigWidgetStore.showWidget(named: "NotesWidget")
         bigWidgetStore.showWidget(named: "CameraWidget")
         bigWidgetStore.showWidget(named: "AIChatWidget")
 
-        bigPanel.contentView?.layoutSubtreeIfNeeded()
+        smallPanel.contentView?.layoutSubtreeIfNeeded()
     }
 
+    /// --Mark : Utility Methods
     private func displayCurrentBigPanelWidgets(with title: String = "Current Big Panel Widgets") {
         print("=====================================================")
         print("\(title)")
@@ -264,7 +185,7 @@ class UIManager {
     }
 
     func addWidgetsToSmallPanel(_ widget: Widget) {
-        // smallPanelWidgetManager.addWidget(widget)
+        // comfyNotch.addWidget(widget)
     }
 
     func getNotchHeight() -> CGFloat {

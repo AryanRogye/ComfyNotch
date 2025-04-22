@@ -3,6 +3,9 @@ import MediaPlayer
 import CoreAudio
 import Foundation
 
+// _ = SettingsModel.shared
+
+
 /**
  * AppDelegate manages the application lifecycle and initialization of core components.
  * Responsible for setting up the UI, handlers, and loading widget configurations.
@@ -10,12 +13,10 @@ import Foundation
  * Properties:
  * - hoverHandler: Manages hover interactions for the small panel
  * - panelProximityHandler: Manages proximity-based interactions for the big panel
- * - notificationManager: Manages notifications for the small panel
  */
 public class AppDelegate: NSObject, NSApplicationDelegate {
     private var hoverHandler: HoverHandler?
     private var panelProximityHandler: PanelProximityHandler?
-    private var notificationManager: NotificationManager?
 
     /**
      * Called when the application finishes launching.
@@ -33,39 +34,30 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
      */
     public func applicationDidFinishLaunching(_ notification: Notification) {
         _ = SettingsModel.shared
-        
+
         DispatchQueue.main.async {
             NSApp.setActivationPolicy(.regular)
             NSApp.activate(ignoringOtherApps: true)
-            
             // Start the UI
             UIManager.shared.setupFrame()
-            // Allow Scroll Handler to listen to scroll events
-//            ScrollHandler.shared.start()
-//            if let smallPanel = UIManager.shared.smallPanel {
-//                // Tiny Haptic Feedback when hovering
-//                self.hoverHandler = HoverHandler(panel: smallPanel)
-//            }
-//            UIManager.shared.hoverHandler = self.hoverHandler
-//            if let bigPanel = UIManager.shared.bigPanel {
-//                // Proximity Handler for the Big Panel
-//                self.panelProximityHandler = PanelProximityHandler(panel: bigPanel)
-//            }
             
-            if Bundle.main.bundleURL.pathExtension == "app" {
-                if UIManager.shared.userNotch != nil {
-                    self.notificationManager = NotificationManager()
-                }
+            if let smallPanel = UIManager.shared.smallPanel {
+                // Tiny Haptic Feedback when hovering
+                self.hoverHandler = HoverHandler(panel: smallPanel)
+            }
+            if let smallPanel = UIManager.shared.smallPanel {
+                // Proximity Handler for the Big Panel
+                self.panelProximityHandler = PanelProximityHandler(panel: smallPanel)
             }
             
             // Set up the ui by loading the widgets from settings onto it
-            // self.loadWidgetsFromSettings()
+            self.loadWidgetsFromSettings()
             
             // Any Screen errors that may happen, is handled in here
             DisplayHandler.shared.start()
             // Start listening for shortcuts
             ShortcutHandler.shared.startListening()
-            SettingsModel.shared.refreshUI()
+            ScrollHandler.shared.openFull()
         }
     }
 
@@ -113,10 +105,10 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Force layout refresh
         AudioManager.shared.startMediaTimer()
-        UIManager.shared.bigPanel.contentView?.layoutSubtreeIfNeeded()
+        UIManager.shared.smallPanel.contentView?.layoutSubtreeIfNeeded()
 
         DispatchQueue.main.async {
-            UIManager.shared.bigPanel.contentView?.needsDisplay = true
+            UIManager.shared.smallPanel.contentView?.needsDisplay = true
         }
     }
 }

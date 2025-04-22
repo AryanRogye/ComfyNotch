@@ -2,17 +2,15 @@ import AppKit
 
 class PanelProximityHandler: NSObject {
 
-    private weak var panel: NSWindow?
+    private weak var panel: NSPanel?
 
     private var localMonitor: Any?
     private var globalMonitor: Any?
 
     private var padding: CGFloat = 15
     private var distanceThreshold: CGFloat = 200
-    
-    var trackingArea: NSTrackingArea?
 
-    init(panel: NSWindow) {
+    init(panel: NSPanel) {
         self.panel = panel
         super.init()
 
@@ -20,9 +18,6 @@ class PanelProximityHandler: NSObject {
     }
 
     deinit {
-        if let area = trackingArea {
-            panel?.contentView?.removeTrackingArea(area)
-        }
         stopMonitoring()
     }
 
@@ -46,7 +41,6 @@ class PanelProximityHandler: NSObject {
                 userInfo: nil
             )
             contentView.addTrackingArea(trackingArea)
-            self.trackingArea = trackingArea
         }
     }
 
@@ -83,6 +77,8 @@ class PanelProximityHandler: NSObject {
             if distance > distanceThreshold && !SettingsModel.shared.isSettingsWindowOpen {
                 UIManager.shared.panelState = .closed
                 ScrollHandler.shared.closeFull()
+                PanelAnimationState.shared.isExpanded = false
+                PanelAnimationState.shared.bottomSectionHeight = 0
             }
         }
     }

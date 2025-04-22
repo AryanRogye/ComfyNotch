@@ -2,10 +2,9 @@ import AppKit
 import SwiftUI
 import Combine
 import MetalKit
-import Foundation
 
 /**
- * SmallPanelWidgetStore manages the widgets displayed in the notch panel area.
+ * CompactWidgetsStore manages the widgets displayed in the notch panel area.
  * It handles the organization and visibility state of widgets, separating them into
  * left and right aligned sections.
  *
@@ -15,7 +14,7 @@ import Foundation
  * - rightWidgetsHidden: Widgets aligned to the right that are currently hidden
  * - rightWidgetsShown: Widgets aligned to the right that are currently visible
  */
-class SmallPanelWidgetStore: PanelManager, ObservableObject {
+class CompactWidgetsStore: PanelManager, ObservableObject {
     @Published var leftWidgetsHidden: [WidgetEntry] = []
     @Published var leftWidgetsShown: [WidgetEntry] = []
     @Published var rightWidgetsHidden: [WidgetEntry] = []
@@ -107,18 +106,7 @@ class PanelAnimationState: ObservableObject {
     @Published var bottomSectionHeight: CGFloat = 0
     @Published var songText: String = AudioManager.shared.currentSongText
     @Published var playingColor: NSColor = AudioManager.shared.dominantColor
-    
-    
-    @Published var isBorderGlowing: Bool = false
-    
-    public func toggleBorderGlow() {
-        isBorderGlowing = true
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
-            self?.isBorderGlowing = false
-        }
-    }
-    
     private var cancellables = Set<AnyCancellable>()
 
     init() {
@@ -139,198 +127,44 @@ class PanelAnimationState: ObservableObject {
             .store(in: &cancellables)
     }
 }
-struct SmallPanelWidgetManager: View {
-    @EnvironmentObject var widgetStore: SmallPanelWidgetStore
-    @EnvironmentObject var priorityStore: BigPanelWidgetStore
+
+struct ComfyNotchView: View {
+
+    @EnvironmentObject var widgetStore: CompactWidgetsStore
+    @EnvironmentObject var bigWidgetStore: ExpandedWidgetsStore
 
     @ObservedObject var animationState = PanelAnimationState.shared
     @State private var isHovering: Bool = false
 
     private var paddingWidth: CGFloat = 20
     private var contentInset: CGFloat = 40
-    private var notchCornerRadius: CGFloat = 20
-    
+
     var body: some View {
         ZStack {
-            Color.black
+//           if animationState.isExpanded {
+//               GeometryReader { geo in
+//                   MetalBackgroundView(shade: $animationState.playingColor)
+//                       .frame(width: geo.size.width, height: geo.size.height)
+//                       .allowsHitTesting(false)
+//                   Image("noise")
+//                       .resizable()
+//                       .scaledToFill()
+//                       .opacity(0.05)
+//                       .blendMode(.overlay)
+//               }
+//           } else {
+            Color.black.opacity(1)
                 .clipShape(RoundedCornersShape(
-                    topLeft: 0, topRight: 0,
-                    bottomLeft: notchCornerRadius, bottomRight: notchCornerRadius
+                    topLeft: 0,
+                    topRight: 0,
+                    bottomLeft: 10,
+                    bottomRight: 10
                 ))
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .clipShape(RoundedCornersShape(
-                        topLeft: 0,
-                        topRight: 0,
-                        bottomLeft: 20,
-                        bottomRight: 20
-                 ))
-        .mask(
-            RoundedCornersShape(
-                topLeft: 0,
-                topRight: 0,
-                bottomLeft: 20,
-                bottomRight: 20
-            )
-        )
-        .panGesture(direction: .down) { delta, phase in
-            ScrollHandler.shared.handlePan(delta: delta, phase: phase)
-        }
-        .panGesture(direction: .up) { delta, phase in
-            ScrollHandler.shared.handlePan(delta: -delta, phase: phase)
-        }
-    }
-}
-
-struct SmallPanelWidgetManagerOLD: View {
-
-    @EnvironmentObject var widgetStore: SmallPanelWidgetStore
-    @EnvironmentObject var priorityStore: BigPanelWidgetStore
-
-    @ObservedObject var animationState = PanelAnimationState.shared
-    @State private var isHovering: Bool = false
-
-    private var paddingWidth: CGFloat = 20
-    private var contentInset: CGFloat = 40
-
-    var body: some View {
-        ZStack {
-            
-            GeometryReader { geo in
-//                MetalBackgroundView(
-//                  effect: $animationState.smallPanelEffect,
-//                  shade:  $animationState.playingColor
-//                )
-//                .frame(width: geo.size.width, height: geo.size.height)
-//                .allowsHitTesting(false)
-//                .onChange(of: animationState.isExpanded) { new in
-//                    if new {
-//                        animationState.smallPanelEffect = .fullGlow
-//                        MetalCoordinator.shared.pulseStrength = 1.0
-//                    } else {
-//                        animationState.smallPanelEffect = .none
-//                    }
-//
-//                    // 🔥 Force Metal to update its shade immediately
-//                    MetalCoordinator.shared.updateShade(
-//                        from: animationState.playingColor,
-//                        effect: animationState.smallPanelEffect
-//                    )
-//                }
-//                    .frame(width: geo.size.width, height: geo.size.height)
-//                    .allowsHitTesting(false)
-                // Image("noise")
-                //     .resizable()
-                //     .scaledToFill()
-                //     .opacity(0.05)
-                //     .blendMode(.overlay)
-            }
-            
-            if animationState.isExpanded {
-                Color.black.opacity(1)  // let the Metal / noise show through
-                    .clipShape(RoundedCornersShape(
-                        topLeft: 0, topRight: 0,
-                        bottomLeft: 20, bottomRight: 20
-                    ))
-            } else {
-                Color.black.opacity(1)
-                    .clipShape(RoundedCornersShape(
-                        topLeft: 0, topRight: 0,
-                        bottomLeft: 20, bottomRight: 20
-                    ))
-            }
-            
+//           }
             VStack(spacing: 0) {
-                HStack(spacing: 0) {
-                    // Left Widgets
-                    ZStack(alignment: .trailing) {
-                        HStack(spacing: 0) {
-                            ForEach(widgetStore.leftWidgetsShown.indices, id: \.self) { index in
-                                let widgetEntry = widgetStore.leftWidgetsShown[index]
-                                if widgetEntry.isVisible {
-                                    widgetEntry.widget.swiftUIView
-                                        .padding(.top, 2)
-                                }
-                            }
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-
-                    Spacer()
-                        .frame(width: getNotchWidth())
-                        .padding([.trailing, .leading], paddingWidth)
-                    // Right Widgets
-                    ZStack(alignment: .leading) {
-                        if !isHovering {
-                            HStack(spacing: 0) {
-                                ForEach(widgetStore.rightWidgetsShown.indices, id: \.self) { index in
-                                    let widgetEntry = widgetStore.rightWidgetsShown[index]
-                                    if widgetEntry.isVisible {
-                                        widgetEntry.widget.swiftUIView
-                                    }
-                                }
-                            }
-                        } else {
-                            HStack(spacing: 0) {
-                                //// If the widget is playing show pause
-                                if animationState.songText != "No Song Playing" {
-                                    Button(action: AudioManager.shared.togglePlayPause ) {
-                                        Image(systemName: "pause.fill")
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                            .frame(width: 17, height: 15)
-                                            .foregroundColor(Color(nsColor: animationState.playingColor))
-                                    }
-                                    .buttonStyle(.plain)
-                                    .padding(.trailing, 23)
-                                }
-                                /// if the widget is not playing show play
-                                else {
-                                    Button(action: AudioManager.shared.togglePlayPause ) {
-                                        Image(systemName: "play.fill")
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                            .frame(width: 17, height: 15)
-                                            .foregroundColor(Color(nsColor: animationState.playingColor))
-                                    }
-                                    .buttonStyle(.plain)
-                                    .padding(.trailing, 23)
-                                }
-                            }
-                        }
-                    }
-                    .onHover { hover in
-                        if animationState.isExpanded {
-                            isHovering = hover
-                        } else {
-                            isHovering = false
-                        }
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .top)
-
-                VStack {
-                    /**
-                     * This is the priority store section (IN PROGRESS)
-                    */
-                    if animationState.isExpanded {
-                        // show the last item in the priority store
-                        if let top = priorityStore.widgets.last(where: { $0.isVisible }) {
-                            top.widget.swiftUIView
-                        }
-                        // Text(animationState.songText)
-                        //     .font(.system(size: 16, weight: .bold))
-                        //     .foregroundStyle(Color(nsColor: animationState.playingColor))
-                        //     .transition(.move(edge: .bottom).combined(with: .opacity))
-                    }
-                }
-                .frame(height: animationState.bottomSectionHeight)
-                .clipped()
-                .animation(
-                            .easeInOut(duration: animationState.isExpanded ? 0.3 : 0.1),
-                            value: animationState.isExpanded
-                        )
-
+                /// Top Row Widgets
+                renderTopRow()
+                renderBottomWidgets()
                 Spacer()
             }
             .frame(maxWidth: .infinity, alignment: .top)
@@ -339,17 +173,18 @@ struct SmallPanelWidgetManagerOLD: View {
         .clipShape(RoundedCornersShape(
                         topLeft: 0,
                         topRight: 0,
-                        bottomLeft: 20,
-                        bottomRight: 20
+                        bottomLeft: 10,
+                        bottomRight: 10
                  ))
         .mask(
             RoundedCornersShape(
                 topLeft: 0,
                 topRight: 0,
-                bottomLeft: 20,
-                bottomRight: 20
+                bottomLeft: 10,
+                bottomRight: 10
             )
         )
+        /// For Scrolling the Panel
         .panGesture(direction: .down) { delta, phase in
             ScrollHandler.shared.handlePan(delta: delta, phase: phase)
         }
@@ -375,78 +210,112 @@ struct SmallPanelWidgetManagerOLD: View {
         // Default if we can't determine it
         return 180
     }
+
+    @ViewBuilder
+    private func renderBottomWidgets() -> some View {
+        VStack {
+            if animationState.isExpanded {
+                /// Big Panel Widgets
+                ZStack {
+                    Color.black.opacity(1)
+                        .clipShape(RoundedCornersShape(
+                            topLeft: 10,
+                            topRight: 10,
+                            bottomLeft: 10,
+                            bottomRight: 10
+                        ))
+
+                    HStack {
+                        ForEach(bigWidgetStore.widgets.indices, id: \.self) { index in
+                            let widgetEntry = bigWidgetStore.widgets[index]
+                            if widgetEntry.isVisible {
+                                widgetEntry.widget.swiftUIView
+                                    .padding(.horizontal, 2)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .frame(maxHeight: .infinity)
+        .clipped()
+        .animation(
+            .easeInOut(duration: animationState.isExpanded ? 0.3 : 0.1),
+            value: animationState.isExpanded
+        )
+    }
+
+    @ViewBuilder
+    private func renderTopRow() -> some View {
+        HStack(spacing: 0) {
+            // Left Widgets
+            ZStack(alignment: .trailing) {
+                HStack(spacing: 0) {
+                    ForEach(widgetStore.leftWidgetsShown.indices, id: \.self) { index in
+                        let widgetEntry = widgetStore.leftWidgetsShown[index]
+                        if widgetEntry.isVisible {
+                            widgetEntry.widget.swiftUIView
+                                .padding(.top, 2)
+                        }
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .trailing)
+
+            Spacer()
+                .frame(width: getNotchWidth())
+                .padding([.trailing, .leading], paddingWidth)
+            // Right Widgets
+            ZStack(alignment: .leading) {
+                if !isHovering {
+                    HStack(spacing: 0) {
+                        ForEach(widgetStore.rightWidgetsShown.indices, id: \.self) { index in
+                            let widgetEntry = widgetStore.rightWidgetsShown[index]
+                            if widgetEntry.isVisible {
+                                widgetEntry.widget.swiftUIView
+                            }
+                        }
+                    }
+                } else {
+                    HStack(spacing: 0) {
+                        //// If the widget is playing show pause
+                        if animationState.songText != "No Song Playing" {
+                            Button(action: AudioManager.shared.togglePlayPause ) {
+                                Image(systemName: "pause.fill")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 17, height: 15)
+                                    .foregroundColor(Color(nsColor: animationState.playingColor))
+                            }
+                            .buttonStyle(.plain)
+                            .padding(.trailing, 23)
+                        }
+                        /// if the widget is not playing show play
+                        else {
+                            Button(action: AudioManager.shared.togglePlayPause ) {
+                                Image(systemName: "play.fill")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 17, height: 15)
+                                    .foregroundColor(Color(nsColor: animationState.playingColor))
+                            }
+                            .buttonStyle(.plain)
+                            .padding(.trailing, 23)
+                        }
+                    }
+                }
+            }
+                .onHover { hover in
+                    if animationState.bottomSectionHeight == 0 {
+                        isHovering = hover
+                    } else {
+                        isHovering = false
+                    }
+                }
+        }
+        .padding(.bottom, 2)
+        .frame(maxWidth: .infinity, maxHeight: UIManager.shared.getNotchHeight(), alignment: .top)
+        // .border(Color.white, width: 0.5)
+        .padding(.top, animationState.isExpanded ? 10 : 0)
+    }
 }
-
-/// Preview is a bit messed up but it shows how it would look
-/// In a real scenario
-struct SmallPanelWidgetManager_Previews: PreviewProvider {
-  static var smallStore: SmallPanelWidgetStore = {
-    let store = SmallPanelWidgetStore()
-    let album      = AlbumWidgetView(model: .init())
-    let movingDots = MovingDotsView(model: .init())
-    let settings   = SettingsButtonView(model: .init())
-    // add & show each one:
-    store.addWidget(album)
-    store.showWidget(named: album.name)
-    
-    store.addWidget(movingDots)
-    store.showWidget(named: movingDots.name)
-    
-    store.addWidget(settings)
-    store.showWidget(named: settings.name)
-    return store
-  }()
-
-  static var priorityStore: BigPanelWidgetStore = {
-    let store = BigPanelWidgetStore()
-    let current = CurrentSongWidget(
-      model: MusicPlayerWidgetModel(),
-      movingDotsModel: MovingDotsViewModel()
-    )
-    store.addWidget(current)
-    store.showWidget(named: current.name)
-    return store
-  }()
-
-  static var previews: some View {
-    // Force expanded + give it some height
-    let state = PanelAnimationState.shared
-    state.isExpanded = true
-    state.bottomSectionHeight = 40
-
-    return SmallPanelWidgetManager()
-      .environmentObject(smallStore)
-      .environmentObject(priorityStore)
-      .frame(width: 400, height: 80)
-      .previewLayout(.sizeThatFits)
-  }
-}
-
-#Preview {
-  // 1) prepare stores
-  let smallStore = SmallPanelWidgetStore()
-  let album      = AlbumWidgetView(model: .init())
-  smallStore.addWidget(album); smallStore.showWidget(named: album.name)
-  // …add + show your other widgets…
-
-  let priorityStore = BigPanelWidgetStore()
-  let current = CurrentSongWidget(
-    model: MusicPlayerWidgetModel(),
-    movingDotsModel: MovingDotsViewModel()
-  )
-  priorityStore.addWidget(current)
-  priorityStore.showWidget(named: current.name)
-
-  // 2) expand panel
-  let state = PanelAnimationState.shared
-  state.isExpanded = true
-  state.bottomSectionHeight = 40
-
-  // 3) return your single View
-  return SmallPanelWidgetManager()
-    .environmentObject(smallStore)
-    .environmentObject(priorityStore)
-    .frame(width: 400, height: 80)
-}
-
-

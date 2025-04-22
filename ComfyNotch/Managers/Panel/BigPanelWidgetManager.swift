@@ -2,11 +2,11 @@ import AppKit
 import SwiftUI
 
 /**
- * `BigPanelWidgetStore` is a class that manages a collection of widgets for a "big panel" UI component.
+ * `ExpandedWidgetsStore` is a class that manages a collection of widgets for a "big panel" UI component.
  * It provides functionality to add, remove, show, hide, and clear widgets, while maintaining their visibility state.
  * The class is designed to work with SwiftUI and uses the `@Published` property wrapper to notify observers of changes.
  */
-class BigPanelWidgetStore: PanelManager, ObservableObject {
+class ExpandedWidgetsStore: PanelManager, ObservableObject {
     @Published var widgets: [WidgetEntry] = []
 
     /// Adds a widget to the big panel "store"
@@ -36,7 +36,7 @@ class BigPanelWidgetStore: PanelManager, ObservableObject {
       *  This is really the best way to "hide" or not show the widget
       *  when the panel is closed
       *  -  name: name of the widget to hide
-    ***/ 
+    ***/
     func hideWidget(named name: String) {
         if let index = widgets.firstIndex(where: { $0.widget.name == name }) {
             widgets[index].isVisible = false
@@ -64,34 +64,5 @@ class BigPanelWidgetStore: PanelManager, ObservableObject {
     func clearWidgets() {
         print("🗑️ Clearing all widgets from the big panel.")
         widgets.removeAll()
-    }
-}
-
-struct BigPanelWidgetManager: View {
-    @EnvironmentObject var widgetStore: BigPanelWidgetStore
-
-    var body: some View {
-        ZStack {
-            Color.black.opacity(1)
-                .clipShape(RoundedCornersShape(
-                    topLeft: 0,
-                    topRight: 0,
-                    bottomLeft: 20,
-                    bottomRight: 20
-                ))
-
-            HStack(spacing: 2) {
-                ForEach(widgetStore.widgets.indices, id: \.self) { index in
-                    let widgetEntry = widgetStore.widgets[index]
-                    if widgetEntry.isVisible {
-                        widgetEntry.widget.swiftUIView
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .padding(.horizontal, 2)
-                            .padding(.vertical, 5)
-                    }
-                }
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
