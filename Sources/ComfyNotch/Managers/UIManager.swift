@@ -41,7 +41,7 @@ class UIManager {
 
     var smallPanel: NSPanel!
 
-    var ComfyNotchView = ComfyNotchView()
+    var comfyNotch = ComfyNotchView()
 
     var panelState: PanelState = .closed
 
@@ -165,7 +165,7 @@ class UIManager {
 
         smallPanel.contentView?.layoutSubtreeIfNeeded()
     }
-    
+
     /// --Mark : Utility Methods
     private func displayCurrentBigPanelWidgets(with title: String = "Current Big Panel Widgets") {
         print("=====================================================")
@@ -185,7 +185,7 @@ class UIManager {
     }
 
     func addWidgetsToSmallPanel(_ widget: Widget) {
-        // ComfyNotchView.addWidget(widget)
+        // comfyNotch.addWidget(widget)
     }
 
     func getNotchHeight() -> CGFloat {
