@@ -73,58 +73,44 @@ class ScrollHandler {
         let current = panel.frame
         let screen  = NSScreen.main!
 
-        // 1) compute your true final frame
-        let trueFinalHeight = minPanelHeight + CGFloat(maxPullDistance)
-        let finalWidth      = maxPanelWidth
-        let widthDelta      = finalWidth - current.width
-        let newX            = current.origin.x - (widthDelta / 2)
-        let trueFinalY      = screen.frame.height - trueFinalHeight
+        // 1) true final
+        let trueH     = minPanelHeight + CGFloat(maxPullDistance)
+        let finalW    = maxPanelWidth
+        let dx        = finalW - current.width
+        let x         = current.origin.x - dx/2
+        let trueY     = screen.frame.height - trueH
+        let trueFrame = NSRect(x: x, y: trueY, width: finalW, height: trueH)
 
-        let trueFinalFrame = NSRect(
-            x: newX,
-            y: trueFinalY,
-            width: finalWidth,
-            height: trueFinalHeight
-        )
+        // 2) bigger overshoot (flowier)
+        let overshootAmount: CGFloat = 0   // ↑ more stretch
+        let overH     = trueH + overshootAmount
+        let overY     = screen.frame.height - overH
+        let overFrame = NSRect(x: x, y: overY, width: finalW, height: overH)
 
-        // 2) compute a small overshoot
-        let overshoot: CGFloat = 0                      // tweak this for “springiness”
-        let overshootHeight = trueFinalHeight + overshoot
-        let overshootY      = screen.frame.height - overshootHeight
+        // 3) super‑springy curves
+        let diveDur  : TimeInterval = 0.25
+        let recoDur  : TimeInterval = 0.2
+        let diveFn   = CAMediaTimingFunction(controlPoints: 0.2, 1.2, 0.4, 1.0)
+        let recoFn   = CAMediaTimingFunction(controlPoints: 0.6, 1.8, 0.4, 1.0)
 
-        let overshootFrame = NSRect(
-            x: newX,
-            y: overshootY,
-            width: finalWidth,
-            height: overshootHeight
-        )
-
-        // timing
-        let diveDuration    : TimeInterval = 0.2
-        let recoilDuration  : TimeInterval = 0.15
-        let diveCurve       = CAMediaTimingFunction(controlPoints: 0.65, 1.0, 0.5, 1.0)
-        let recoilCurve     = CAMediaTimingFunction(controlPoints: 0.75, 1.0, 0.8, 1.0)
-
-
-        // STEP A: Animate into overshoot
+        // STEP A: stretch past
         NSAnimationContext.runAnimationGroup({ ctx in
-            ctx.duration       = diveDuration
-            ctx.timingFunction = diveCurve
-            panel.animator().setFrame(overshootFrame, display: true)
-        }, completionHandler: {
-                // STEP B: Animate back to true final
+            ctx.duration       = diveDur
+            ctx.timingFunction = diveFn
+            panel.animator().setFrame(overFrame, display: true)
+        }) {
+                // STEP B: recoil into place
                 NSAnimationContext.runAnimationGroup({ ctx in
-                    ctx.duration       = recoilDuration
-                    ctx.timingFunction = recoilCurve
-                    panel.animator().setFrame(trueFinalFrame, display: true)
-                }, completionHandler: {
-                        // cleanup & state
-                        panel.setFrame(trueFinalFrame, display: true)
+                    ctx.duration       = recoDur
+                    ctx.timingFunction = recoFn
+                    panel.animator().setFrame(trueFrame, display: true)
+                }) {
+                        panel.setFrame(trueFrame, display: true)
                         self.isSnapping = false
-                        self.updateState(for: trueFinalHeight)
+                        self.updateState(for: trueH)
                         UIManager.shared.panelState = .open
-                    })
-            })
+                    }
+            }
     }
 
     func closeFull() {
@@ -134,41 +120,36 @@ class ScrollHandler {
         let screen       = NSScreen.main!
         let startYOffset = UIManager.shared.startPanelYOffset
 
-        // 1) true final closed frame
-        let finalHeight = minPanelHeight
-        let finalWidth  = minPanelWidth
-        let widthDelta  = finalWidth - panel.frame.width
-        let newX        = panel.frame.origin.x - (widthDelta / 2)
-        let trueFinalY  = screen.frame.height
-        - finalHeight
-        - startYOffset
+        // 1) fixed center‑of‑screen X
+        let finalWidth = minPanelWidth
+        let centerX    = (screen.frame.width - finalWidth) / 2
 
+        // 2) true final closed frame
+        let finalHeight   = minPanelHeight
+        let trueFinalY    = screen.frame.height - finalHeight - startYOffset
         let trueFinalFrame = NSRect(
-            x: newX,
+            x: centerX,
             y: trueFinalY,
             width: finalWidth,
             height: finalHeight
         )
 
-        // 2) undershoot = go a bit *below* the min height
-        let undershoot: CGFloat = 20                 // tweak “springiness”
+        // 3) undershoot ‑ go a bit *below* the min height
+        let undershoot: CGFloat = 20
         let underHeight = finalHeight - undershoot
-        let underY      = screen.frame.height
-        - underHeight
-        - startYOffset
-
+        let underY      = screen.frame.height - underHeight - startYOffset
         let undershootFrame = NSRect(
-            x: newX,
+            x: centerX,
             y: underY,
             width: finalWidth,
             height: underHeight
         )
 
-        // 3) collapse your SwiftUI bottom section *first*
-        PanelAnimationState.shared.isExpanded       = false
+        // 4) collapse your SwiftUI bottom section first
+        PanelAnimationState.shared.isExpanded         = false
         PanelAnimationState.shared.bottomSectionHeight = 0
 
-        // 4) define timing & curves (mirror your openFull values)
+        // 5) timing & curves
         let diveDuration   : TimeInterval = 0.2
         let recoilDuration : TimeInterval = 0.15
         let diveCurve      = CAMediaTimingFunction(controlPoints: 0.65, 1.0, 0.5, 1.0)
@@ -186,7 +167,7 @@ class ScrollHandler {
                     ctx.timingFunction = recoilCurve
                     panel.animator().setFrame(trueFinalFrame, display: true)
                 }, completionHandler: {
-                        // 5) cleanup & state
+                        // cleanup & state
                         panel.setFrame(trueFinalFrame, display: true)
                         self.isSnapping = false
                         self.updateState(for: finalHeight)
