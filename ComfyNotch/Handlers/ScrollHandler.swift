@@ -86,7 +86,7 @@ class ScrollHandler {
         let trueFrame = NSRect(x: x, y: trueY, width: finalW, height: trueH)
 
         // 2) bigger overshoot (flowier)
-        let overshootAmount: CGFloat = 0   // ↑ more stretch
+        let overshootAmount: CGFloat = -2   // ↑ more stretch
         let overH     = trueH + overshootAmount
         let overY     = screen.frame.height - overH
         let overFrame = NSRect(x: x, y: overY, width: finalW, height: overH)

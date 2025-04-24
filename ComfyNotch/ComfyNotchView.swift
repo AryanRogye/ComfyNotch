@@ -43,6 +43,7 @@ struct ComfyNotchView: View {
     @EnvironmentObject var bigWidgetStore: ExpandedWidgetsStore
 
     @ObservedObject var animationState = PanelAnimationState.shared
+    @ObservedObject var settings = SettingsModel.shared
     @State private var isHovering: Bool = false /// Hovering for Pause or Play
     
     @Binding private var isDroppingFiles: Bool
@@ -128,18 +129,27 @@ struct ComfyNotchView: View {
     }
     
     func handleDrop(providers: [NSItemProvider]) -> Bool {
+        
         for provider in providers {
             // File URL handling (e.g., from Finder)
             if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
                 provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, error in
                     if let data = item as? Data,
                        let url = NSURL(absoluteURLWithDataRepresentation: data, relativeTo: nil) as URL? {
+                        
                         print("✅ Dropped file path: \(url.path)")
-                        DispatchQueue.main.async {
-                            PanelAnimationState.shared.droppedFiles.append(url)
+
+                        let destURL = settings.fileTrayDefaultFolder.appendingPathComponent(url.lastPathComponent)
+
+                        do {
+                            try FileManager.default.copyItem(at: url, to: destURL)
+                            print("📁 Copied to: \(destURL.path)")
+                            DispatchQueue.main.async {
+                                PanelAnimationState.shared.droppedFiles.append(destURL)
+                            }
+                        } catch {
+                            print("❌ Failed to copy file: \(error)")
                         }
-                    } else {
-                        print("❌ Failed to get file URL from provider")
                     }
                 }
             }
@@ -154,7 +164,7 @@ struct ComfyNotchView: View {
                         if let tiffData = image.tiffRepresentation,
                            let bitmap = NSBitmapImageRep(data: tiffData),
                            let pngData = bitmap.representation(using: .png, properties: [:]) {
-                            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("DroppedImage-\(UUID().uuidString).png")
+                            let tempURL = settings.fileTrayDefaultFolder.appendingPathComponent("DroppedImage-\(UUID().uuidString).png")
                             do {
                                 try pngData.write(to: tempURL)
                                 print("✅ Saved image to: \(tempURL.path)")
@@ -248,7 +258,6 @@ struct ComfyNotchView: View {
                             bottomLeft: 10,
                             bottomRight: 10
                         ))
-
                     HStack(spacing: 0) {
                         ForEach(bigWidgetStore.widgets.indices, id: \.self) { index in
                             let widgetEntry = bigWidgetStore.widgets[index]
