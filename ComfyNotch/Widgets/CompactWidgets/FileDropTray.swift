@@ -15,13 +15,20 @@ struct FileDropTray: View, Widget {
         AnyView(self)
     }
 
-    @ObservedObject private var panelAnimationState: PanelAnimationState = .shared
+    @ObservedObject private var animationState: PanelAnimationState = .shared
 
     var body: some View {
-        ZStack {
-            Text("Drop Files Here")
+        Button(action: {
+            animationState.isShowingFileTray.toggle()
+        }) {
+            ZStack {
+                Text("Drop Files Here")
+                    .font(.system(size: 10))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: 400, maxHeight: .infinity)
+            }
+            .border(animationState.isDroppingFiles ? Color.blue : Color.white, width: 1)
         }
-        .frame(maxWidth: 400, maxHeight: .infinity)
-        .border(panelAnimationState.isDroppingFiles ? Color.blue : Color.white, width: 1)
+        .buttonStyle(.plain)
     }
 }

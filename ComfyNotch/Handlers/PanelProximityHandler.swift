@@ -8,7 +8,7 @@ class PanelProximityHandler: NSObject {
     private var globalMonitor: Any?
 
     private var padding: CGFloat = 15
-    private var distanceThreshold: CGFloat = 400
+    private var distanceThreshold: CGFloat = 300
 
     init(panel: NSPanel) {
         self.panel = panel

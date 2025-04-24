@@ -12,6 +12,10 @@ class PanelAnimationState: ObservableObject {
     @Published var songText: String = AudioManager.shared.currentSongText
     @Published var playingColor: NSColor = AudioManager.shared.dominantColor
     @Published var isDroppingFiles = false
+    @Published var droppedFiles: [URL] = []
+    
+    @Published var isShowingFileTray = false
+
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -42,7 +46,7 @@ struct ComfyNotchView: View {
     @State private var isHovering: Bool = false /// Hovering for Pause or Play
     
     @Binding private var isDroppingFiles: Bool
-    @State private var droppedFiles: [URL] = []
+    @Binding private var droppedFiles: [URL]
 
     private var paddingWidth: CGFloat = 20
     private var contentInset: CGFloat = 40
@@ -54,12 +58,18 @@ struct ComfyNotchView: View {
             get: { panelAnimationState.isDroppingFiles },
             set: { panelAnimationState.isDroppingFiles = $0 }
         )
+        let droppedFilesBinding = Binding<[URL]> (
+            get: { panelAnimationState.droppedFiles },
+            set: { panelAnimationState.droppedFiles = $0 }
+        )
+        
         _isDroppingFiles = isDroppingFilesBinding
+        _droppedFiles = droppedFilesBinding
     }
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.9)
+            Color.black
                 .clipShape(RoundedCornersShape(
                     topLeft: 0,
                     topRight: 0,
@@ -67,7 +77,7 @@ struct ComfyNotchView: View {
                     bottomRight: cornerRadius
                 ))
                 .contentShape(Rectangle()) // <- this makes the whole area droppable
-                .onDrop(of: [UTType.fileURL.identifier], isTargeted: $isDroppingFiles) { providers in
+                .onDrop(of: [UTType.fileURL.identifier, UTType.image.identifier], isTargeted: $isDroppingFiles) { providers in
                     handleDrop(providers: providers)
                 }
             
@@ -77,7 +87,12 @@ struct ComfyNotchView: View {
                 /// Compact Widgets
                 renderTopRow()
                 /// Big Widgets
-                renderBottomWidgets()
+                if !animationState.isShowingFileTray {
+                    renderBottomWidgets()
+                } else {
+                    renderFileTray()
+                        .padding(.bottom, 5)
+                }
                 Spacer()
             }
             .frame(maxWidth: .infinity, alignment: .top)
@@ -114,17 +129,47 @@ struct ComfyNotchView: View {
     
     func handleDrop(providers: [NSItemProvider]) -> Bool {
         for provider in providers {
+            // File URL handling (e.g., from Finder)
             if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
                 provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, error in
                     if let data = item as? Data,
                        let url = NSURL(absoluteURLWithDataRepresentation: data, relativeTo: nil) as URL? {
                         print("✅ Dropped file path: \(url.path)")
+                        DispatchQueue.main.async {
+                            PanelAnimationState.shared.droppedFiles.append(url)
+                        }
                     } else {
                         print("❌ Failed to get file URL from provider")
                     }
                 }
             }
+
+            // Screenshot or image (in-memory)
+            else if provider.canLoadObject(ofClass: NSImage.self) {
+                _ = provider.loadObject(ofClass: NSImage.self) { object, error in
+                    if let image = object as? NSImage {
+                        print("📸 Received image from drag")
+
+                        // Optional: Save image to temp dir
+                        if let tiffData = image.tiffRepresentation,
+                           let bitmap = NSBitmapImageRep(data: tiffData),
+                           let pngData = bitmap.representation(using: .png, properties: [:]) {
+                            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("DroppedImage-\(UUID().uuidString).png")
+                            do {
+                                try pngData.write(to: tempURL)
+                                print("✅ Saved image to: \(tempURL.path)")
+                                DispatchQueue.main.async {
+                                    PanelAnimationState.shared.droppedFiles.append(tempURL)
+                                }
+                            } catch {
+                                print("❌ Failed to save image: \(error)")
+                            }
+                        }
+                    }
+                }
+            }
         }
+
         return true
     }
 
@@ -145,7 +190,48 @@ struct ComfyNotchView: View {
         // Default if we can't determine it
         return 180
     }
-
+    
+    @ViewBuilder
+    private func renderFileTray() -> some View {
+        VStack(spacing: 0) {
+            if animationState.isExpanded {
+                if animationState.droppedFiles.isEmpty {
+                    Text("No Files Yet")
+                    Spacer()
+                } else {
+                    ScrollView {
+                        ForEach(animationState.droppedFiles, id: \.self) { fileURL in
+                            HStack {
+                                Text(fileURL.lastPathComponent)
+                                    .foregroundColor(.white)
+                                    .lineLimit(1)
+                                    .truncationMode(.middle)
+                                
+                                Spacer()
+                                
+                                Button(action: {
+                                    NSWorkspace.shared.open(fileURL)
+                                    /// Close the file tray
+                                    PanelAnimationState.shared.isShowingFileTray = false
+                                    ScrollHandler.shared.closeFull()
+                                }) {
+                                    Image(systemName: "eye")
+                                        .foregroundColor(.blue)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
+                    .background(Color.black)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+            }
+        }
+        .background(Color.black)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+    
     @ViewBuilder
     private func renderBottomWidgets() -> some View {
         VStack {
