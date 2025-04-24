@@ -116,13 +116,7 @@ class UIManager {
         compactWidgetStore.addWidget(settingsWidget)
         compactWidgetStore.addWidget(fileTrayWidget)
         
-        let panelAnimationState = PanelAnimationState.shared
-        let isDroppingFilesBinding = Binding<Bool>(
-            get: { panelAnimationState.isDroppingFiles },
-            set: { panelAnimationState.isDroppingFiles = $0 }
-        )
-        
-        let contentView = ComfyNotchView(isDroppingFiles: isDroppingFilesBinding)
+        let contentView = ComfyNotchView()
             .environmentObject(compactWidgetStore)
             .environmentObject(expandedWidgetStore)
 

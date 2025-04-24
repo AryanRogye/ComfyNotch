@@ -48,8 +48,13 @@ struct ComfyNotchView: View {
     private var contentInset: CGFloat = 40
     private var cornerRadius: CGFloat = 20
     
-    init(isDroppingFiles: Binding<Bool>) {
-        _isDroppingFiles = isDroppingFiles
+    init() {
+        let panelAnimationState = PanelAnimationState.shared
+        let isDroppingFilesBinding = Binding<Bool>(
+            get: { panelAnimationState.isDroppingFiles },
+            set: { panelAnimationState.isDroppingFiles = $0 }
+        )
+        _isDroppingFiles = isDroppingFilesBinding
     }
 
     var body: some View {
@@ -62,17 +67,16 @@ struct ComfyNotchView: View {
                     bottomRight: cornerRadius
                 ))
                 .contentShape(Rectangle()) // <- this makes the whole area droppable
-                .onDrop(of: [UTType.data, UTType.content, UTType.fileURL], isTargeted: $isDroppingFiles) { providers in
-                    print("🧲 GOT A DROP")
-                    print(providers.description)
-                    return handleDrop(providers: providers)
+                .onDrop(of: [UTType.fileURL.identifier], isTargeted: $isDroppingFiles) { providers in
+                    handleDrop(providers: providers)
                 }
             
             
             
             VStack(alignment: .leading,spacing: 0) {
-                /// Top Row Widgets
+                /// Compact Widgets
                 renderTopRow()
+                /// Big Widgets
                 renderBottomWidgets()
                 Spacer()
             }
@@ -109,32 +113,18 @@ struct ComfyNotchView: View {
     }
     
     func handleDrop(providers: [NSItemProvider]) -> Bool {
-        print("📥 Drop handler triggered with \(providers.count) providers")
-
         for provider in providers {
-            print("🔍 Available types: \(provider.registeredTypeIdentifiers)")
-
-            if provider.hasItemConformingToTypeIdentifier("public.file-url") {
-                print("✅ Provider has file-url")
-
-                provider.loadItem(forTypeIdentifier: "public.file-url", options: nil) { (data, error) in
-                    if let error = error {
-                        print("❌ Error loading item: \(error.localizedDescription)")
-                        return
-                    }
-
-                    if let data = data as? Data,
+            if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
+                provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, error in
+                    if let data = item as? Data,
                        let url = NSURL(absoluteURLWithDataRepresentation: data, relativeTo: nil) as URL? {
-                        print("✅ Successfully dropped file: \(url.path)")
+                        print("✅ Dropped file path: \(url.path)")
                     } else {
-                        print("❌ Failed to convert dropped data to URL")
+                        print("❌ Failed to get file URL from provider")
                     }
                 }
-            } else {
-                print("❌ Provider does NOT conform to public.file-url")
             }
         }
-
         return true
     }
 
