@@ -52,7 +52,7 @@ class SettingsModel: ObservableObject {
         if !isSelected {
             if selectedWidgets.contains(widgetName) {
                 selectedWidgets.removeAll { $0 == widgetName }
-                UIManager.shared.bigWidgetStore.removeWidget(named: widgetName)
+                UIManager.shared.expandedWidgetStore.removeWidget(named: widgetName)
                 print("Removed widget: \(widgetName)")
             } else {
                 print("Widget \(widgetName) not found in selected widgets")
@@ -90,7 +90,7 @@ class SettingsModel: ObservableObject {
 
             DispatchQueue.main.async {
                 UIManager.shared.smallPanel.contentView?.needsDisplay = true
-                UIManager.shared.showBigPanelWidgets()
+                UIManager.shared.applyExpandedWidgetLayout()
             }
         }
     }
@@ -99,7 +99,7 @@ class SettingsModel: ObservableObject {
         print("🔄 Rebuilding widgets in the panel based on the updated order.")
 
         // Clear all currently displayed widgets
-        UIManager.shared.bigWidgetStore.clearWidgets()
+        UIManager.shared.expandedWidgetStore.clearWidgets()
 
         // Iterate over the updated selectedWidgets list
         for widgetName in selectedWidgets {

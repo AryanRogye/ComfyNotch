@@ -8,7 +8,7 @@ class PanelProximityHandler: NSObject {
     private var globalMonitor: Any?
 
     private var padding: CGFloat = 15
-    private var distanceThreshold: CGFloat = 200
+    private var distanceThreshold: CGFloat = 400
 
     init(panel: NSPanel) {
         self.panel = panel
@@ -82,7 +82,7 @@ class PanelProximityHandler: NSObject {
             height: panelFrame.height + (padding * 2)
         )
 
-        // Don't open the panel with proximity, only allow closing
+        /// Don't open the panel with proximity, only allow closing
         if UIManager.shared.panelState == .open && !paddedFrame.contains(mouseLocation) {
             let distance = distanceFromPanel(to: mouseLocation, panelFrame: panelFrame)
 

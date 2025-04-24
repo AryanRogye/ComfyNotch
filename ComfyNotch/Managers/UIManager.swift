@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import CoreGraphics
 
 /**
  * Represents the current state of the panel display.
@@ -34,14 +35,12 @@ class FocusablePanel: NSPanel {
  */
 class UIManager {
     static let shared = UIManager()
-    let smallWidgetStore = CompactWidgetsStore()
-    let bigWidgetStore = ExpandedWidgetsStore()
+    let compactWidgetStore = CompactWidgetsStore()
+    let expandedWidgetStore = ExpandedWidgetsStore()
 
     var hoverHandler: HoverHandler?
 
     var smallPanel: NSPanel!
-
-    var comfyNotch = ComfyNotchView()
 
     var panelState: PanelState = .closed
 
@@ -84,13 +83,17 @@ class UIManager {
 
         smallPanel = FocusablePanel(
             contentRect: panelRect,
-            styleMask: [.borderless, .nonactivatingPanel],
+            styleMask: [.borderless, .nonactivatingPanel, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
+        smallPanel.registerForDraggedTypes([.fileURL])
 
         smallPanel.title = "ComfyNotch"
-        smallPanel.level = .screenSaver
+        
+        let overlayRaw = CGWindowLevelForKey(.overlayWindow)  // sits under screenSaver
+        smallPanel.level = NSWindow.Level(rawValue: Int(overlayRaw))
+        
         smallPanel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         smallPanel.isMovableByWindowBackground = false
         smallPanel.backgroundColor = .clear
@@ -103,65 +106,62 @@ class UIManager {
         let settingsWidgetModel = SettingsWidgetModel()
 
         let albumWidget = CompactAlbumWidget(model: albumWidgetModel)
-
         let movingDotsWidget = MovingDotsView(model: movingDotsModel)
-
         let settingsWidget = SettingsButtonWidget(model: settingsWidgetModel)
+        let fileTrayWidget = FileDropTray()
 
         // Add Widgets to the WidgetStore
-        smallWidgetStore.addWidget(albumWidget)
-        smallWidgetStore.addWidget(movingDotsWidget)
-        smallWidgetStore.addWidget(settingsWidget)
+        compactWidgetStore.addWidget(albumWidget)
+        compactWidgetStore.addWidget(movingDotsWidget)
+        compactWidgetStore.addWidget(settingsWidget)
+        compactWidgetStore.addWidget(fileTrayWidget)
+        
+        let panelAnimationState = PanelAnimationState.shared
+        let isDroppingFilesBinding = Binding<Bool>(
+            get: { panelAnimationState.isDroppingFiles },
+            set: { panelAnimationState.isDroppingFiles = $0 }
+        )
+        
+        let contentView = ComfyNotchView(isDroppingFiles: isDroppingFilesBinding)
+            .environmentObject(compactWidgetStore)
+            .environmentObject(expandedWidgetStore)
 
-        let contentView = ComfyNotchView()
-            .environmentObject(smallWidgetStore)
-            .environmentObject(bigWidgetStore)
-
-        smallPanel.contentView = NSHostingView(rootView: contentView)
+        let hostingView = NSHostingView(rootView: contentView)
+        hostingView.frame = panelRect  // ensure it's full size
+        smallPanel.contentView = hostingView
         smallPanel.makeKeyAndOrderFront(nil)
-
-        // hideSmallPanelSettingsWidget() // Ensure initial state is correct
     }
-
-    /**
-     * Widget visibility management methods for the small panel.
-     * Controls the display of settings and other widgets.
-     */
-    func hideSmallPanelSettingsWidget() {
-        smallWidgetStore.hideWidget(named: "Settings")
-        smallWidgetStore.showWidget(named: "AlbumWidget")
-        smallWidgetStore.showWidget(named: "MovingDotsWidget")
+    
+    
+    public func applyExpandedWidgetLayout() {
+        /// When the notch is expanded we want the top row to show the settings widget on the right
+        /// But we wanna first hide any of the shown stuff
+        compactWidgetStore.hideWidget(named: "MovingDotsWidget")
+        compactWidgetStore.hideWidget(named: "AlbumWidget")
+        compactWidgetStore.showWidget(named: "Settings")
+        compactWidgetStore.showWidget(named: "FileDropTray")
+        
+        /// Then we wanna show every possible widget cuz if its not added it wont actually show
+        expandedWidgetStore.showWidget(named: "MusicPlayerWidget")
+        expandedWidgetStore.showWidget(named: "TimeWidget")
+        expandedWidgetStore.showWidget(named: "NotesWidget")
+        expandedWidgetStore.showWidget(named: "CameraWidget")
+        expandedWidgetStore.showWidget(named: "AIChatWidget")
     }
-
-    func showSmallPanelSettingsWidget() {
-        smallWidgetStore.showWidget(named: "Settings")
-        smallWidgetStore.showWidget(named: "AlbumWidget")
-        smallWidgetStore.hideWidget(named: "MovingDotsWidget")
-    }
-
-    /**
-     * Widget visibility management methods for the big panel.
-     * Controls the display state of all big panel widgets.
-     */
-    func hideBigPanelWidgets() {
-        bigWidgetStore.hideWidget(named: "MusicPlayerWidget")
-        bigWidgetStore.hideWidget(named: "TimeWidget")
-        bigWidgetStore.hideWidget(named: "NotesWidget")
-        bigWidgetStore.hideWidget(named: "CameraWidget")
-        bigWidgetStore.hideWidget(named: "AIChatWidget")
-
-        smallPanel.makeKeyAndOrderFront(nil)
-        smallPanel.level = .screenSaver
-    }
-
-    func showBigPanelWidgets() {
-        bigWidgetStore.showWidget(named: "MusicPlayerWidget")
-        bigWidgetStore.showWidget(named: "TimeWidget")
-        bigWidgetStore.showWidget(named: "NotesWidget")
-        bigWidgetStore.showWidget(named: "CameraWidget")
-        bigWidgetStore.showWidget(named: "AIChatWidget")
-
-        smallPanel.contentView?.layoutSubtreeIfNeeded()
+    public func applyCompactWidgetLayout() {
+        /// When the notch is closed we wanna show the compact album on the left, and dots on the right and hide
+        /// The Settings Widget
+        compactWidgetStore.hideWidget(named: "FileDropTray")
+        compactWidgetStore.hideWidget(named: "Settings")
+        compactWidgetStore.showWidget(named: "AlbumWidget")
+        compactWidgetStore.showWidget(named: "MovingDotsWidget")
+        
+        /// Then we hide every possible widget
+        expandedWidgetStore.hideWidget(named: "MusicPlayerWidget")
+        expandedWidgetStore.hideWidget(named: "TimeWidget")
+        expandedWidgetStore.hideWidget(named: "NotesWidget")
+        expandedWidgetStore.hideWidget(named: "CameraWidget")
+        expandedWidgetStore.hideWidget(named: "AIChatWidget")
     }
 
     /// --Mark : Utility Methods
@@ -169,7 +169,7 @@ class UIManager {
         print("=====================================================")
         print("\(title)")
         print("=====================================================")
-        for widget in bigWidgetStore.widgets {
+        for widget in expandedWidgetStore.widgets {
             print("Name: \(widget.widget.name), Visible: \(widget.isVisible)")
         }
         print("=====================================================")
@@ -179,11 +179,10 @@ class UIManager {
      * Utility methods for widget management and panel dimensions.
      */
     func addWidgetToBigPanel(_ widget: Widget) {
-        bigWidgetStore.addWidget(widget)
+        expandedWidgetStore.addWidget(widget)
     }
 
     func addWidgetsToSmallPanel(_ widget: Widget) {
-        // comfyNotch.addWidget(widget)
     }
 
     func getNotchHeight() -> CGFloat {

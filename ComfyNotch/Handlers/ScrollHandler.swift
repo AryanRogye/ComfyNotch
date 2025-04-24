@@ -304,21 +304,16 @@ class ScrollHandler {
             ? (height - minPanelHeight)
             : 0
         
-        /// Show The AlbumWidget if isExpanded is .closed
-
         // 2️⃣ keep your existing panel‑store logic:
         if open {
             UIManager.shared.panelState = .open
-            UIManager.shared.showBigPanelWidgets()
-            UIManager.shared.showSmallPanelSettingsWidget()
+            UIManager.shared.applyExpandedWidgetLayout()
         } else if height <= minPanelHeight {
             UIManager.shared.panelState = .closed
-            UIManager.shared.hideBigPanelWidgets()
-            UIManager.shared.hideSmallPanelSettingsWidget()
+            UIManager.shared.applyCompactWidgetLayout()
         } else {
             UIManager.shared.panelState = .partiallyOpen
-            UIManager.shared.showBigPanelWidgets()
-            UIManager.shared.hideSmallPanelSettingsWidget()
+            UIManager.shared.applyExpandedWidgetLayout()
         }
     }
 

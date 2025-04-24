@@ -57,7 +57,9 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             DisplayHandler.shared.start()
             // Start listening for shortcuts
             ShortcutHandler.shared.startListening()
-            ScrollHandler.shared.openFull()
+//            ScrollHandler.shared.openFull()
+            UIManager.shared.applyCompactWidgetLayout()
+            ScrollHandler.shared.closeFull()
         }
     }
 
@@ -78,10 +80,10 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         let widgetRegistry = WidgetRegistry.shared
 
         // Get the current list of widgets in the store
-        let existingWidgets = UIManager.shared.bigWidgetStore.widgets.map { $0.widget.name }
+        let existingWidgets = UIManager.shared.expandedWidgetStore.widgets.map { $0.widget.name }
         // Remove widgets that are not selected anymore
         for widgetName in existingWidgets where !settings.selectedWidgets.contains(widgetName) {
-            UIManager.shared.bigWidgetStore.hideWidget(named: widgetName)
+            UIManager.shared.expandedWidgetStore.hideWidget(named: widgetName)
         }
 
         // Add or show selected widgets
@@ -94,9 +96,9 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
                 // Show or hide depending on the panel state
                 if UIManager.shared.panelState == .open {
-                    UIManager.shared.bigWidgetStore.showWidget(named: widgetName)
+                    UIManager.shared.expandedWidgetStore.showWidget(named: widgetName)
                 } else {
-                    UIManager.shared.bigWidgetStore.hideWidget(named: widgetName)
+                    UIManager.shared.expandedWidgetStore.hideWidget(named: widgetName)
                 }
             } else {
                 print("Widget \(widgetName) not found in WidgetRegistry")

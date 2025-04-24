@@ -32,14 +32,14 @@ class DisplayHandler {
             self,
             selector: #selector(handlePanelMoved),
             name: NSWindow.didChangeScreenNotification,
-            object: UIManager.shared.comfyNotch
+            object: UIManager.shared.smallPanel
         )
         
         notificationCenter.addObserver(
             self,
             selector: #selector(handlePanelMoved),
             name: NSWindow.didChangeScreenNotification,
-            object: UIManager.shared.comfyNotch
+            object: UIManager.shared.smallPanel
         )
     }
     

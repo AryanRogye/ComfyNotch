@@ -2,6 +2,7 @@ import AppKit
 import SwiftUI
 import Combine
 import MetalKit
+import UniformTypeIdentifiers   /// For the file drop
 
 class PanelAnimationState: ObservableObject {
     static let shared = PanelAnimationState()
@@ -10,6 +11,7 @@ class PanelAnimationState: ObservableObject {
     @Published var bottomSectionHeight: CGFloat = 0
     @Published var songText: String = AudioManager.shared.currentSongText
     @Published var playingColor: NSColor = AudioManager.shared.dominantColor
+    @Published var isDroppingFiles = false
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -33,31 +35,25 @@ class PanelAnimationState: ObservableObject {
 }
 
 struct ComfyNotchView: View {
-
     @EnvironmentObject var widgetStore: CompactWidgetsStore
     @EnvironmentObject var bigWidgetStore: ExpandedWidgetsStore
 
     @ObservedObject var animationState = PanelAnimationState.shared
-    @State private var isHovering: Bool = false
+    @State private var isHovering: Bool = false /// Hovering for Pause or Play
+    
+    @Binding private var isDroppingFiles: Bool
+    @State private var droppedFiles: [URL] = []
 
     private var paddingWidth: CGFloat = 20
     private var contentInset: CGFloat = 40
     private var cornerRadius: CGFloat = 20
+    
+    init(isDroppingFiles: Binding<Bool>) {
+        _isDroppingFiles = isDroppingFiles
+    }
 
     var body: some View {
         ZStack {
-//           if animationState.isExpanded {
-//               GeometryReader { geo in
-//                   MetalBackgroundView(shade: $animationState.playingColor)
-//                       .frame(width: geo.size.width, height: geo.size.height)
-//                       .allowsHitTesting(false)
-//                   Image("noise")
-//                       .resizable()
-//                       .scaledToFill()
-//                       .opacity(0.05)
-//                       .blendMode(.overlay)
-//               }
-//           } else {
             Color.black.opacity(0.9)
                 .clipShape(RoundedCornersShape(
                     topLeft: 0,
@@ -65,7 +61,15 @@ struct ComfyNotchView: View {
                     bottomLeft: cornerRadius,
                     bottomRight: cornerRadius
                 ))
-//           }
+                .contentShape(Rectangle()) // <- this makes the whole area droppable
+                .onDrop(of: [UTType.data, UTType.content, UTType.fileURL], isTargeted: $isDroppingFiles) { providers in
+                    print("🧲 GOT A DROP")
+                    print(providers.description)
+                    return handleDrop(providers: providers)
+                }
+            
+            
+            
             VStack(alignment: .leading,spacing: 0) {
                 /// Top Row Widgets
                 renderTopRow()
@@ -73,6 +77,12 @@ struct ComfyNotchView: View {
                 Spacer()
             }
             .frame(maxWidth: .infinity, alignment: .top)
+        }
+        .onChange(of: PanelAnimationState.shared.isDroppingFiles) { _, hovering in
+            if hovering && UIManager.shared.panelState == .closed {
+                animationState.isExpanded = true
+                ScrollHandler.shared.openFull()
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .clipShape(RoundedCornersShape(
@@ -96,6 +106,36 @@ struct ComfyNotchView: View {
         .panGesture(direction: .up) { delta, phase in
             ScrollHandler.shared.handlePan(delta: -delta, phase: phase)
         }
+    }
+    
+    func handleDrop(providers: [NSItemProvider]) -> Bool {
+        print("📥 Drop handler triggered with \(providers.count) providers")
+
+        for provider in providers {
+            print("🔍 Available types: \(provider.registeredTypeIdentifiers)")
+
+            if provider.hasItemConformingToTypeIdentifier("public.file-url") {
+                print("✅ Provider has file-url")
+
+                provider.loadItem(forTypeIdentifier: "public.file-url", options: nil) { (data, error) in
+                    if let error = error {
+                        print("❌ Error loading item: \(error.localizedDescription)")
+                        return
+                    }
+
+                    if let data = data as? Data,
+                       let url = NSURL(absoluteURLWithDataRepresentation: data, relativeTo: nil) as URL? {
+                        print("✅ Successfully dropped file: \(url.path)")
+                    } else {
+                        print("❌ Failed to convert dropped data to URL")
+                    }
+                }
+            } else {
+                print("❌ Provider does NOT conform to public.file-url")
+            }
+        }
+
+        return true
     }
 
     private func getNotchWidth() -> CGFloat {
@@ -167,7 +207,7 @@ struct ComfyNotchView: View {
             .frame(maxWidth: .infinity, alignment: .trailing)
 
             Spacer()
-                .frame(width: PanelAnimationState.shared.isExpanded ? 560 : getNotchWidth())
+                .frame(width: PanelAnimationState.shared.isExpanded ? 400 : getNotchWidth())
                 .padding([.trailing, .leading], paddingWidth)
             
             // Right Widgets
