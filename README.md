@@ -63,6 +63,8 @@ ComfyNotch brings life to your MacBook’s notch by providing a clean and intuit
 Hold down a modifier key (e.g. ⌘ or ⌥) and hover near the notch —  
 ComfyNotch will temporarily hide itself so you can access toolbar elements underneath.
 
+> Currently Not Working (cuz I reworked everything and wanna get a actual swiftpm to manage this)
+
 Perfect for apps with chunky UIs like Xcode, Finder, or Final Cut.
 
 > 🔥 Pretty sure no other notch utility does this.
@@ -103,6 +105,7 @@ Perfect for apps with chunky UIs like Xcode, Finder, or Final Cut.
 - [ ] **Pomodoro Timer**: Add a Pomodoro timer to help users manage their time effectively.
 - [ ] **Notifications Popup**: Right now there is a hover on the notch that pops down i'm sure we can reuse that for notifications
 - [ ] **Better Shortcut Management**: Implement a better shortcut management system to allow users to customize their shortcuts easily.
+- [ ] **File Tray**: Add a file tray to allow users to access their files easily.
 
 ### 🎨 **UI/UX Improvements**
 - [x] **Better Settings Menu**: Revamp the settings view for easier customization and better user experience.
@@ -119,77 +122,13 @@ Perfect for apps with chunky UIs like Xcode, Finder, or Final Cut.
 ```bash
 git clone https://github.com/YourUsername/ComfyNotch.git
 cd ComfyNotch
-./scripts/build_app.sh
+open ComfyNotch.xcodeproj
 ```
 
-### If you want to build manually:
+- Open the project in Xcode
+- Select the target `ComfyNotch` in the project navigator
+- Build the project (Cmd + B)
+- Run the project (Cmd + R)
 
-```bash
-git clone https://github.com/YourUsername/ComfyNotch.git
-cd ComfyNotch
-rm -rf ComfyNotch.app
-rm -rf ComfyNotch.app.zip
-
-mkdir -p ComfyNotch.app/Contents/MacOS
-mkdir -p ComfyNotch.app/Contents/Resources
-
-swift package clean
-swift build -c release
-
-# Copying the executable
-cp .build/release/ComfyNotchDev ComfyNotch.app/Contents/MacOS/
-
-# Making the executable executable
-chmod +x ComfyNotch.app/Contents/MacOS/ComfyNotch
-
-# Generating the icon files
-mkdir -p "Assets/ComfyNotchIcon.iconset"
-
-sips -z 16 16     "Assets/ComfyNotchLogo.png" --out "Assets/ComfyNotchIcon.iconset/icon_16x16.png"
-sips -z 32 32     "Assets/ComfyNotchLogo.png" --out "Assets/ComfyNotchIcon.iconset/icon_16x16@2x.png"
-sips -z 32 32     "Assets/ComfyNotchLogo.png" --out "Assets/ComfyNotchIcon.iconset/icon_32x32.png"
-sips -z 64 64     "Assets/ComfyNotchLogo.png" --out "Assets/ComfyNotchIcon.iconset/icon_32x32@2x.png"
-sips -z 128 128   "Assets/ComfyNotchLogo.png" --out "Assets/ComfyNotchIcon.iconset/icon_128x128.png"
-sips -z 256 256   "Assets/ComfyNotchLogo.png" --out "Assets/ComfyNotchIcon.iconset/icon_128x128@2x.png"
-sips -z 256 256   "Assets/ComfyNotchLogo.png" --out "Assets/ComfyNotchIcon.iconset/icon_256x256.png"
-sips -z 512 512   "Assets/ComfyNotchLogo.png" --out "Assets/ComfyNotchIcon.iconset/icon_256x256@2x.png"
-sips -z 512 512   "Assets/ComfyNotchLogo.png" --out "Assets/ComfyNotchIcon.iconset/icon_512x512.png"
-cp "Assets/ComfyNotchLogo.png" "Assets/ComfyNotchIcon.iconset/icon_512x512@2x.png"
-
-iconutil -c icns "Assets/ComfyNotchIcon.iconset" -o "Assets/ComfyNotchIcon.icns"
-rm -rf "Assets/ComfyNotchIcon.iconset"
-
-cp "Assets/ComfyNotchIcon.icns" "ComfyNotch.app/Contents/Resources/"
-
-# Generating Info.plist
-cat > ComfyNotch.app/Contents/Info.plist <<EOL
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>CFBundleName</key>
-    <string>ComfyNotch</string>
-    <key>CFBundleDisplayName</key>
-    <string>ComfyNotch</string>
-    <key>CFBundleIdentifier</key>
-    <string>com.yourname.ComfyNotch</string>
-    <key>CFBundleVersion</key>
-    <string>1.0</string>
-    <key>CFBundleExecutable</key>
-    <string>ComfyNotch</string>
-    <key>CFBundlePackageType</key>
-    <string>APPL</string>
-    <key>NSPrincipalClass</key>
-    <string>NSApplication</string>
-    <key>CFBundleIconFile</key>
-    <string>ComfyNotchIcon</string>
-    <key>NSCameraUsageDescription</key>
-    <string>ComfyNotch needs access to the camera for widget functionalities.</string>
-    <key>NSCameraUseContinuityCameraDeviceType</key>
-    <true/>
-    <key>LSUIElement</key>
-    <true/>
-</dict>
-</plist>
-EOL
-```
+- **Note:** You may need to set up your signing certificate in Xcode.
+- Products > Archive > Distribute App > Developer ID
