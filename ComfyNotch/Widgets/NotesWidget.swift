@@ -12,24 +12,26 @@ struct NotesWidget: View, Widget {
 
     var body: some View {
         ZStack {
-            HStack(spacing: 3) {
-                VStack(spacing: 0) {
-                    renderNotesSections()
-                    renderFontToggle()
-                }
-                .background(Color.clear)
-                .padding(.leading, 7)
-                .frame(maxWidth: 30)
-
-                renderTextEditor()
+            ScrollView(.vertical, showsIndicators: true) {
+                Text("Hello")
             }
-            if showFontControls {
-                renderFontControls()
-            }
+//            HStack(spacing: 3) {
+//                VStack(spacing: 0) {
+//                    renderNotesSections()
+//                    renderFontToggle()
+//                }
+//                .background(Color.clear)
+//                .frame(maxWidth: 20)
+//
+//                renderTextEditor()
+//            }
+//            if showFontControls {
+//                renderFontControls()
+//            }
         }
+        .fixedSize(horizontal: false, vertical: true)
         .background(Color.clear)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.vertical, 3)
     }
 
     @ViewBuilder
@@ -60,6 +62,7 @@ struct NotesWidget: View, Widget {
             .foregroundColor(.white)
             .background(Color.black)
             .cornerRadius(8)
+            .frame(height: 80)
             .onChange(of: model.text) {
                 model.saveNotes()
             }

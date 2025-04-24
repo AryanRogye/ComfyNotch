@@ -26,9 +26,7 @@ struct MusicPlayerWidget: View, Widget {
             .onEnded { _ in }
             .exclusively(before: DragGesture())
         )
-        .padding(.vertical, 5)
-        .padding(.horizontal, 2)
-        .border(Color.white.opacity(0.1), width: 1)
+        .padding(.top, 5)
     }
 
     @ViewBuilder
@@ -94,15 +92,15 @@ struct MusicPlayerWidget: View, Widget {
                 .frame(width: 85, height: 85)
                 .cornerRadius(8)
                 .padding(.leading, 7.5)
-                .padding(.vertical, 5)
-                .frame(maxHeight: .infinity, alignment: .center)
+                .padding(.bottom, 5)
+                .frame(height: .infinity, alignment: .center)
         } else {
             Rectangle()
                 .fill(Color.gray.opacity(0.3))
                 .frame(width: 85, height: 85)
                 .cornerRadius(8)
                 .padding(.leading, 7.5)
-                .padding(.vertical, 5)
+                .padding(.bottom, 5)
                 .frame(maxHeight: .infinity, alignment: .center)
                 .allowsHitTesting(false)
         }

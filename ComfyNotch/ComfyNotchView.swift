@@ -54,7 +54,7 @@ struct ComfyNotchView: View {
 
     private var paddingWidth: CGFloat = 20
     private var contentInset: CGFloat = 40
-    private var cornerRadius: CGFloat = 20
+    private var cornerRadius: CGFloat = 30
     
     init() {
         let panelAnimationState = PanelAnimationState.shared
@@ -95,7 +95,6 @@ struct ComfyNotchView: View {
                     renderBottomWidgets()
                 } else {
                     renderFileTray()
-                        .padding(.bottom, 5)
                 }
                 Spacer()
             }
@@ -139,7 +138,6 @@ struct ComfyNotchView: View {
     }
     
     func handleDrop(providers: [NSItemProvider]) -> Bool {
-        
         for provider in providers {
             // File URL handling (e.g., from Finder)
             if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
@@ -149,7 +147,8 @@ struct ComfyNotchView: View {
                         
                         print("✅ Dropped file path: \(url.path)")
 
-                        let destURL = settings.fileTrayDefaultFolder.appendingPathComponent(url.lastPathComponent)
+                        let renamedFile = "DroppedImage-\(UUID().uuidString)\(url.pathExtension.isEmpty ? "" : ".\(url.pathExtension)")"
+                        let destURL = settings.fileTrayDefaultFolder.appendingPathComponent(renamedFile)
 
                         do {
                             try FileManager.default.copyItem(at: url, to: destURL)
@@ -298,6 +297,9 @@ struct ComfyNotchView: View {
                             if widgetEntry.isVisible {
                                 widgetEntry.widget.swiftUIView
                                     .padding(.horizontal, 2)
+                                    .frame(maxWidth: .infinity)
+                                    .layoutPriority(1) // make them expand evenly
+                                    .padding(.horizontal, 2)
                             }
                         }
                     }
@@ -327,7 +329,7 @@ struct ComfyNotchView: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
-
+            
             Spacer()
                 .frame(width: PanelAnimationState.shared.isExpanded ? 400 : getNotchWidth())
                 .padding([.trailing, .leading], paddingWidth)
@@ -373,17 +375,31 @@ struct ComfyNotchView: View {
                     }
                 }
             }
-                .onHover { hover in
-                    if animationState.bottomSectionHeight == 0 {
-                        isHovering = hover
-                    } else {
-                        isHovering = false
-                    }
+            .onHover { hover in
+                if animationState.bottomSectionHeight == 0 {
+                    isHovering = hover
+                } else {
+                    isHovering = false
                 }
+            }
         }
         .padding(.bottom, 2)
         .frame(maxWidth: .infinity, maxHeight: UIManager.shared.getNotchHeight(), alignment: .top)
         // .border(Color.white, width: 0.5)
-        .padding(.top, animationState.isExpanded ? 10 : 0)
+        .padding(.top,
+                 animationState.isExpanded
+                 
+                 ? (animationState.isShowingFileTray
+                        /// This is to keep the Top Row Steady, if the filetray is showing
+                        ? -1
+                        /// This is when the fileTray is not showing and its just the widgets
+                        /// should have a -1 padding height
+                        /// Note: I realizes that having both being the same was the best in this case
+                        /// Old Value used to be 10, so if soemthing is fucked change it back
+                        : -1
+                 )
+                 /// This is when the panel is closed and we're just looking at it
+                 : 1
+        )
     }
 }
