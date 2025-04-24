@@ -229,7 +229,10 @@ struct ComfyNotchView: View {
             }
         }
         .background(Color.black)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .animation(
+            .easeInOut(duration: animationState.isExpanded ? 0.3 : 0.1),
+            value: animationState.isExpanded
+        )
     }
     
     @ViewBuilder

@@ -31,6 +31,7 @@ struct SettingsView: View {
                         case 0: MainSettingsView(settings: settings)
                         case 1: AISettingsView(settings: settings)
                         case 2: ShortcutView(settings: settings)
+                        case 3: FileTraySettingsView(settings: settings)
                         default: Text("Nothing Selected")
                         }
                     }
@@ -58,6 +59,12 @@ struct SettingsView: View {
                         title: "Shorcut",
                         isSelected: selectedTab == 2
                     ) { selectedTab = 2 }
+                    
+                    CustomTabItem(
+                        icon: "folder",
+                        title: "File Tray",
+                        isSelected: selectedTab == 3
+                    ) { selectedTab = 3 }
                     Spacer()
                 }
             }

@@ -16,6 +16,9 @@ class SettingsModel: ObservableObject {
     @Published var selectedOpenAIModel: OpenAIModel = .gpt3
     @Published var selectedAnthropicModel: AnthropicModel = .claudeV1
     @Published var selectedGoogleModel: GoogleModel = .palm
+    
+    
+    @Published var fileTrayDefaultFolder: URL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -39,6 +42,43 @@ class SettingsModel: ObservableObject {
         /// So I had to add this check, prolly gonna have to check that reason out <- TODO
         if !aiApiKey.isEmpty {
             defaults.set(aiApiKey, forKey: "aiApiKey")
+        }
+        
+        /// Save the fileTrayFolder
+        if fileTrayDefaultFolder.path.isEmpty {
+            /// Set Default to the FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+            fileTrayDefaultFolder = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        }
+        /// if we reach here, that means that the fileTray is populated no matter what so we can force it to get stored
+        if !fileTrayDefaultFolder.path.isEmpty {
+            defaults.set(fileTrayDefaultFolder.path(), forKey: "fileTrayDefaultFolder")
+        }
+    }
+    /// Loads the last saved settings from UserDefaults
+    func loadSettings() {
+        let defaults = UserDefaults.standard
+
+        // Loading the last state for the settings window
+        if let loadedWidgets = defaults.object(forKey: "selectedWidgets") as? [String] {
+            self.selectedWidgets = loadedWidgets
+        } else {
+            // Set default if nothing is saved
+            self.selectedWidgets = WidgetRegistry.shared.getDefaultWidgets()
+        }
+
+        // Loading the last state for camera flip
+        if defaults.object(forKey: "isCameraFlipped") != nil {
+            self.isCameraFlipped = defaults.bool(forKey: "isCameraFlipped")
+        }
+
+        // Loading the last api_key the user entered
+        if let apiKey = defaults.string(forKey: "aiApiKey") {
+            self.aiApiKey = apiKey
+        }
+        
+        /// Load in the fileTrayDefaultFolder
+        if let fileTrayDefaultFolder = defaults.string(forKey: "fileTrayDefaultFolder") {
+            self.fileTrayDefaultFolder = URL(fileURLWithPath: fileTrayDefaultFolder)
         }
     }
 
@@ -112,29 +152,6 @@ class SettingsModel: ObservableObject {
 
         // Finally, refresh the UI
         refreshUI()
-    }
-
-    /// Loads the last saved settings from UserDefaults
-    func loadSettings() {
-        let defaults = UserDefaults.standard
-
-        // Loading the last state for the settings window
-        if let loadedWidgets = defaults.object(forKey: "selectedWidgets") as? [String] {
-            self.selectedWidgets = loadedWidgets
-        } else {
-            // Set default if nothing is saved
-            self.selectedWidgets = WidgetRegistry.shared.getDefaultWidgets()
-        }
-
-        // Loading the last state for camera flip
-        if defaults.object(forKey: "isCameraFlipped") != nil {
-            self.isCameraFlipped = defaults.bool(forKey: "isCameraFlipped")
-        }
-
-        // Loading the last api_key the user entered
-        if let apiKey = defaults.string(forKey: "aiApiKey") {
-            self.aiApiKey = apiKey
-        }
     }
 }
 
