@@ -9,39 +9,82 @@ struct NotesWidget: View, Widget {
     @ObservedObject var model = NotesWidgetModel()  // Using your model
     @State var currentFontSize: CGFloat = 14
     @State var showFontControls: Bool = false
+    
+    @State private var addNewNoteOverlayIsPresented: Bool = false
+    @State private var newNoteName: String = ""
 
     var body: some View {
         ZStack {
-            ScrollView(.vertical, showsIndicators: true) {
-                Text("Hello")
-                Text("Hello")
-                Text("Hello")
-                Text("Hello")
-                Text("Hello")
-                Text("Hello")
-                Text("Hello")
-                Text("Hello")
-                Text("Hello")
-                Text("Hello")
-                Text("Hello")
-                Text("Hello")
+            if addNewNoteOverlayIsPresented {
+                /// Show a overlay to add a new note
+                VStack {
+                    HStack {
+                        Spacer()
+                        Button(action: { addNewNoteOverlayIsPresented = false } ) {
+                            Image(systemName: "xmark")
+                                .resizable()
+                                .frame(width: 16, height: 16)
+                        }
+                        .buttonStyle(.plain)
+                        .padding([.trailing, .top], 3)
+                    }
+                    TextField("Select A Name",text: $newNoteName)
+                        .padding(.horizontal, 10)
+                    
+                    Button(action: {} ) {
+                        Text("Add New Note")
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal, 5)
+            } else {
+                VStack {
+                    HStack {
+                        /// We wanna cool search bar here
+                        Spacer()
+                        Button(action: { addNewNoteOverlayIsPresented = true } ) {
+                            Image(systemName: "plus")
+                                .resizable()
+                                .frame(width: 16, height: 16)
+                        }
+                        .buttonStyle(.plain)
+                        .padding([.trailing, .top], 3)
+                    }
+                    /// Default 3 notes
+                    ScrollView(.vertical, showsIndicators: true) {
+                        Text("Hello")
+                        Text("Hello")
+                        Text("Hello")
+                        Text("Hello")
+                        Text("Hello")
+                        Text("Hello")
+                        Text("Hello")
+                        Text("Hello")
+                        Text("Hello")
+                        Text("Hello")
+                        Text("Hello")
+                        Text("Hello")
+                    }
+                }
+                //            HStack(spacing: 3) {
+                //                VStack(spacing: 0) {
+                //                    renderNotesSections()
+                //                    renderFontToggle()
+                //                }
+                //                .background(Color.clear)
+                //                .frame(maxWidth: 20)
+                //
+                //                renderTextEditor()
+                //            }
+                //            if showFontControls {
+                //                renderFontControls()
+                //            }
             }
-//            HStack(spacing: 3) {
-//                VStack(spacing: 0) {
-//                    renderNotesSections()
-//                    renderFontToggle()
-//                }
-//                .background(Color.clear)
-//                .frame(maxWidth: 20)
-//
-//                renderTextEditor()
-//            }
-//            if showFontControls {
-//                renderFontControls()
-//            }
         }
         .background(Color.clear)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .border(Color.white, width: 1)
+            
     }
 
     @ViewBuilder
