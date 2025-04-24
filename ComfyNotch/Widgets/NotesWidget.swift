@@ -14,6 +14,17 @@ struct NotesWidget: View, Widget {
         ZStack {
             ScrollView(.vertical, showsIndicators: true) {
                 Text("Hello")
+                Text("Hello")
+                Text("Hello")
+                Text("Hello")
+                Text("Hello")
+                Text("Hello")
+                Text("Hello")
+                Text("Hello")
+                Text("Hello")
+                Text("Hello")
+                Text("Hello")
+                Text("Hello")
             }
 //            HStack(spacing: 3) {
 //                VStack(spacing: 0) {
@@ -29,7 +40,6 @@ struct NotesWidget: View, Widget {
 //                renderFontControls()
 //            }
         }
-        .fixedSize(horizontal: false, vertical: true)
         .background(Color.clear)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

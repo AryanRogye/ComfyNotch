@@ -1,23 +1,32 @@
 import AppKit
 import SwiftUI
 import Combine
+
+
+struct MusicControlButton: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            // Keep general modifiers
+            .frame(width: 30, height: 30)
+            .opacity(configuration.isPressed ? 0.7 : 1.0) // Add visual feedback for press
+    }
+}
+
 struct MusicPlayerWidget: View, Widget {
     var name: String = "MusicPlayerWidget"
     @StateObject private var model = MusicPlayerWidgetModel()
     var body: some View {
-        HStack(alignment: .top, spacing: 10) {
+        HStack(spacing: 10) {
             // Album artwork
             renderAlbumCover()
             // Song info
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading) {
                 renderSongInformation()
                 // Control buttons
                 HStack(spacing: 5) {
                     renderSongMusicControls()
                 }
-                .padding(.vertical, 5)
             }
-            .padding(.trailing, 5)
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -26,44 +35,45 @@ struct MusicPlayerWidget: View, Widget {
             .onEnded { _ in }
             .exclusively(before: DragGesture())
         )
-        .padding(.top, 5)
     }
 
-    @ViewBuilder
+   @ViewBuilder
     func renderSongMusicControls() -> some View {
         Button(action: {
             AudioManager.shared.playPreviousTrack()
         }) {
+            // Apply image-specific modifiers here
             Image(systemName: "backward.fill")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 12, height: 12)
                 .foregroundColor(.white)
-                .frame(width: 30, height: 30)
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(MusicControlButton()) // Apply custom style
+
         Button(action: {
             AudioManager.shared.togglePlayPause()
         }) {
+            // Apply image-specific modifiers here
             Image(systemName: "playpause.fill")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 12, height: 12)
                 .foregroundColor(.white)
-                .frame(width: 30, height: 30)
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(MusicControlButton()) // Apply custom style
+
         Button(action: {
             AudioManager.shared.playNextTrack()
         }) {
+            // Apply image-specific modifiers here
             Image(systemName: "forward.fill")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 12, height: 12)
                 .foregroundColor(.white)
-                .frame(width: 30, height: 30)
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(MusicControlButton()) // Apply custom style
     }
 
     @ViewBuilder
@@ -92,15 +102,11 @@ struct MusicPlayerWidget: View, Widget {
                 .frame(width: 85, height: 85)
                 .cornerRadius(8)
                 .padding(.leading, 7.5)
-                .padding(.bottom, 5)
-                .frame(height: .infinity, alignment: .center)
         } else {
             Rectangle()
                 .fill(Color.gray.opacity(0.3))
-                .frame(width: 85, height: 85)
                 .cornerRadius(8)
                 .padding(.leading, 7.5)
-                .padding(.bottom, 5)
                 .frame(maxHeight: .infinity, alignment: .center)
                 .allowsHitTesting(false)
         }
