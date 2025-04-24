@@ -15,7 +15,10 @@ class PanelAnimationState: ObservableObject {
     @Published var droppedFiles: [URL] = []
     
     @Published var isShowingFileTray = false
-
+    /// This is used for iffffff the notch was opened by dragging
+    /// we wanna show a cool animation for it getting activated so the user
+    /// doesnt think its blue all the time lol
+    @Published var fileTriggeredTray: Bool = false
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -100,8 +103,15 @@ struct ComfyNotchView: View {
         }
         .onChange(of: PanelAnimationState.shared.isDroppingFiles) { _, hovering in
             if hovering && UIManager.shared.panelState == .closed {
+                animationState.fileTriggeredTray = true
+                animationState.isShowingFileTray = true
                 animationState.isExpanded = true
                 ScrollHandler.shared.openFull()
+                
+                /// We Reset THe FileTriggeredTray After a bit
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    animationState.fileTriggeredTray = false
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

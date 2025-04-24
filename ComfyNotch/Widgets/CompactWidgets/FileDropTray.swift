@@ -25,10 +25,32 @@ struct FileDropTray: View, Widget {
                 Text("Drop Files Here")
                     .font(.system(size: 10))
                     .foregroundColor(.white)
-                    .frame(maxWidth: 400, maxHeight: .infinity)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .border(animationState.isDroppingFiles ? Color.blue : Color.white, width: 1)
+            .frame(maxWidth: 200, maxHeight: .infinity)
+            .contentShape(RoundedRectangle(cornerRadius: 20)) // 👈 this is the REAL fix
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(
+                        style: StrokeStyle(
+                            lineWidth: 2,
+                            lineCap: .round,
+                            dash: [6, 4]
+                        )
+                    )
+                    .foregroundColor(animationState.isDroppingFiles ? Color.blue.opacity(0.8) : Color.white)
+                    .shadow(
+                        color: animationState.fileTriggeredTray
+                            ? Color.purple.opacity(0.5)
+                            : animationState.isDroppingFiles
+                              ? Color.blue.opacity(0.5)
+                              : .clear,
+                        radius: animationState.fileTriggeredTray ? 12 : 6
+                    )
+                    .animation(.easeInOut(duration: 0.4), value: animationState.fileTriggeredTray)
+            )
         }
         .buttonStyle(.plain)
+        .padding(.leading, 10)
     }
 }
