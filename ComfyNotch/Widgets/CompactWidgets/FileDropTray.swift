@@ -15,17 +15,7 @@ struct FileDropTray: View, Widget {
         AnyView(self)
     }
 
-    @Binding private var isDropping: Bool
     @ObservedObject private var panelAnimationState: PanelAnimationState = .shared
-
-    init() {
-        let panelAnimationState = PanelAnimationState.shared
-        let isDroppingFilesBinding = Binding<Bool>(
-            get: { panelAnimationState.isDroppingFiles },
-            set: { panelAnimationState.isDroppingFiles = $0 }
-        )
-        _isDropping = isDroppingFilesBinding
-    }
 
     var body: some View {
         ZStack {

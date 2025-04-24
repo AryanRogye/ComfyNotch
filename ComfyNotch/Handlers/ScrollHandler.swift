@@ -24,6 +24,12 @@ class ScrollHandler {
 
     /// Handle Pan is what the view will call when a pan gesture is made
     func handlePan(delta: CGFloat, phase: NSEvent.Phase) {
+        if UIManager.shared.panelState == .open,
+           delta < 0, phase == .began {
+            UIManager.shared.applyOpeningLayout()
+            closeFull()
+            return
+        }
         guard !isSnapping else {
             // If user starts a new gesture during snap, cancel snap and reset accumulation
             if phase == .began {
@@ -133,7 +139,7 @@ class ScrollHandler {
         )
         
         // 3) undershoot ‑ go a bit *below* the min height
-        let undershoot: CGFloat = 20
+        let undershoot: CGFloat = 0
         let underHeight = finalHeight - undershoot
         let underY      = screen.frame.height - underHeight - startYOffset
         let undershootFrame = NSRect(
@@ -172,30 +178,6 @@ class ScrollHandler {
                 UIManager.shared.panelState = .closed
             })
         })
-    }
-    
-    private func snapCloseHeight(
-        finalX: CGFloat,
-        finalY: CGFloat,
-        finalWidth: CGFloat,
-        finalHeight: CGFloat
-    ) {
-        guard let panel = UIManager.shared.smallPanel else {
-            isSnapping = false
-            return
-        }
-
-        let frame = NSRect(x: finalX, y: finalY, width: finalWidth, height: finalHeight)
-
-        NSAnimationContext.runAnimationGroup({ ctx in
-            ctx.duration = 0.2
-            ctx.timingFunction = CAMediaTimingFunction(name: .easeIn)
-            panel.animator().setFrame(frame, display: true)
-        }, completionHandler: {
-                self.isSnapping = false
-                self.updateState(for: finalHeight)
-                UIManager.shared.panelState = .closed
-            })
     }
 
     // MARK: – Internals
@@ -316,7 +298,7 @@ class ScrollHandler {
         } else {
             UIManager.shared.panelState = .partiallyOpen
             print("Applying Partial")
-            UIManager.shared.applyCompactWidgetLayout()
+            UIManager.shared.applyOpeningLayout()
         }
     }
 

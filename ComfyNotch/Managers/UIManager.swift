@@ -128,8 +128,8 @@ class UIManager {
     
     public func applyOpeningLayout() {
         /// Opening Layout is just hiding every possible widget
-        compactWidgetStore.hideWidget(named: "MovingDotsWidget")
-        compactWidgetStore.hideWidget(named: "AlbumWidget")
+        compactWidgetStore.showWidget(named: "MovingDotsWidget")
+        compactWidgetStore.showWidget(named: "AlbumWidget")
         compactWidgetStore.hideWidget(named: "Settings")
         compactWidgetStore.hideWidget(named: "FileDropTray")
         
