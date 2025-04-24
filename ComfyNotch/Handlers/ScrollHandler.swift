@@ -307,13 +307,16 @@ class ScrollHandler {
         // 2️⃣ keep your existing panel‑store logic:
         if open {
             UIManager.shared.panelState = .open
+            print("Opening")
             UIManager.shared.applyExpandedWidgetLayout()
         } else if height <= minPanelHeight {
             UIManager.shared.panelState = .closed
+            print("Closed")
             UIManager.shared.applyCompactWidgetLayout()
         } else {
             UIManager.shared.panelState = .partiallyOpen
-            UIManager.shared.applyExpandedWidgetLayout()
+            print("Applying Partial")
+            UIManager.shared.applyCompactWidgetLayout()
         }
     }
 

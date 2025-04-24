@@ -16,6 +16,7 @@ struct FileDropTray: View, Widget {
     }
 
     @Binding private var isDropping: Bool
+    @ObservedObject private var panelAnimationState: PanelAnimationState = .shared
 
     init() {
         let panelAnimationState = PanelAnimationState.shared
@@ -28,25 +29,9 @@ struct FileDropTray: View, Widget {
 
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 10)
-                .strokeBorder(isDropping ? Color.accentColor : Color.gray, lineWidth: 2)
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(isDropping ? Color.accentColor.opacity(0.2) : Color.clear)
-                )
-                .shadow(color: isDropping ? Color.accentColor.opacity(0.6) : .clear,
-                        radius: isDropping ? 10 : 0, x: 0, y: 0)
-                .scaleEffect(isDropping ? 1.05 : 1.0)
-                .animation(.spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0),
-                           value: isDropping)
-                .overlay(
-                    Text("Drop Files Here")
-                        .foregroundColor(.primary)
-                        .scaleEffect(isDropping ? 1.1 : 1.0)
-                        .animation(.spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0),
-                                   value: isDropping)
-                )
+            Text("Drop Files Here")
         }
-        .padding()
+        .frame(maxWidth: 400, maxHeight: .infinity)
+        .border(panelAnimationState.isDroppingFiles ? Color.blue : Color.white, width: 1)
     }
 }

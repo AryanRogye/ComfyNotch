@@ -126,7 +126,19 @@ class UIManager {
         smallPanel.makeKeyAndOrderFront(nil)
     }
     
-    
+    public func applyOpeningLayout() {
+        /// Opening Layout is just hiding every possible widget
+        compactWidgetStore.hideWidget(named: "MovingDotsWidget")
+        compactWidgetStore.hideWidget(named: "AlbumWidget")
+        compactWidgetStore.hideWidget(named: "Settings")
+        compactWidgetStore.hideWidget(named: "FileDropTray")
+        
+        expandedWidgetStore.hideWidget(named: "MusicPlayerWidget")
+        expandedWidgetStore.hideWidget(named: "TimeWidget")
+        expandedWidgetStore.hideWidget(named: "NotesWidget")
+        expandedWidgetStore.hideWidget(named: "CameraWidget")
+        expandedWidgetStore.hideWidget(named: "AIChatWidget")
+    }
     public func applyExpandedWidgetLayout() {
         /// When the notch is expanded we want the top row to show the settings widget on the right
         /// But we wanna first hide any of the shown stuff
