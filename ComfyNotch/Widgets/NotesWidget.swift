@@ -1,91 +1,175 @@
 import AppKit
 import SwiftUI
 
+enum WidgetViewState {
+    case viewList
+    case addNewNote
+    case editor(Note)
+}
 struct NotesWidget: View, Widget {
 
     var name: String = "NotesWidget"
     private var buttons: [String] = ["1", "2", "3"]
 
     @ObservedObject var model = NotesWidgetModel()  // Using your model
+    @State var notes: [Note] = []
+
     @State var currentFontSize: CGFloat = 14
     @State var showFontControls: Bool = false
-    
+
     @State private var addNewNoteOverlayIsPresented: Bool = false
     @State private var newNoteName: String = ""
 
+    @State private var showingContentForNote: Bool = false
+
+    @State private var currentView: WidgetViewState = .viewList
+
     var body: some View {
         ZStack {
-            if addNewNoteOverlayIsPresented {
-                /// Show a overlay to add a new note
-                VStack {
-                    HStack {
-                        Spacer()
-                        Button(action: { addNewNoteOverlayIsPresented = false } ) {
-                            Image(systemName: "xmark")
-                                .resizable()
-                                .frame(width: 16, height: 16)
-                        }
-                        .buttonStyle(.plain)
-                        .padding([.trailing, .top], 3)
-                    }
-                    TextField("Select A Name",text: $newNoteName)
-                        .padding(.horizontal, 10)
-                    
-                    Button(action: {} ) {
-                        Text("Add New Note")
-                    }
-                    Spacer()
-                }
-                .padding(.horizontal, 5)
-            } else {
-                VStack {
-                    HStack {
-                        /// We wanna cool search bar here
-                        Spacer()
-                        Button(action: { addNewNoteOverlayIsPresented = true } ) {
-                            Image(systemName: "plus")
-                                .resizable()
-                                .frame(width: 16, height: 16)
-                        }
-                        .buttonStyle(.plain)
-                        .padding([.trailing, .top], 3)
-                    }
-                    /// Default 3 notes
-                    ScrollView(.vertical, showsIndicators: true) {
-                        Text("Hello")
-                        Text("Hello")
-                        Text("Hello")
-                        Text("Hello")
-                        Text("Hello")
-                        Text("Hello")
-                        Text("Hello")
-                        Text("Hello")
-                        Text("Hello")
-                        Text("Hello")
-                        Text("Hello")
-                        Text("Hello")
-                    }
-                }
-                //            HStack(spacing: 3) {
-                //                VStack(spacing: 0) {
-                //                    renderNotesSections()
-                //                    renderFontToggle()
-                //                }
-                //                .background(Color.clear)
-                //                .frame(maxWidth: 20)
-                //
-                //                renderTextEditor()
-                //            }
-                //            if showFontControls {
-                //                renderFontControls()
-                //            }
+            switch currentView {
+                case .addNewNote:
+                    newNoteView()
+                case .viewList:
+                    showListView()
+                case .editor(let note):
+                    showEditorView(note: note)
             }
         }
         .background(Color.clear)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .border(Color.white, width: 1)
-            
+        .onAppear {
+            notes = model.notes
+        }
     }
+
+    @ViewBuilder
+    func showEditorView(note: Note?) -> some View {
+        if let note = note {
+            VStack {
+                HStack {
+                    Button(action: { 
+                            /// Save the note
+                            model.updateContent(for: note.id, newContent: model.text)
+                            model.text = ""
+                            // Close the editor and go back to the list
+                            currentView = .viewList 
+                        }) {
+                        Image(systemName: "xmark")
+                            .resizable()
+                            .frame(width: 16, height: 16)
+                            .foregroundColor(.white)
+                    }
+                    .buttonStyle(.plain)
+                    .padding([.leading, .top], 8)
+                    Spacer()
+                // Placeholder content so it forces height
+                Text("Editor for \(note.name)")
+                    .foregroundColor(.white)
+                    .padding()
+                }
+
+                Spacer()
+
+                TextEditor(text: $model.text)
+                    .font(.system(size: currentFontSize))
+                    .foregroundColor(.white)
+                    .background(Color.black)
+                    .cornerRadius(8)
+            }
+            .background(Color.black.opacity(0.1)) // Just for debug
+            .onAppear {
+                model.selectedNoteID = note.id
+                model.text = note.content
+            }
+        } else {
+            Text("No note selected")
+                .foregroundColor(.gray)
+        }
+    }
+
+
+    @ViewBuilder
+    func showListView() -> some View {
+        VStack {
+            HStack {
+                /// We wanna cool search bar here
+                Spacer()
+                Button(action: { currentView = .addNewNote } ) {
+                    Image(systemName: "plus")
+                        .resizable()
+                        .frame(width: 16, height: 16)
+                }
+                .buttonStyle(.plain)
+                .padding([.trailing, .top], 3)
+            }
+            /// Default 3 notes
+            ScrollView(.vertical, showsIndicators: true) {
+                ForEach(notes) { note in
+                    Button(action: {
+                        currentView = .editor(note)
+                    }) {
+                        HStack {
+                            Text(note.name)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 2)
+                                .foregroundColor(.white)
+                            Spacer()
+                                Button(action: {} ) {
+                                    Image(systemName: "trash")
+                                        .resizable()
+                                        .frame(width: 16, height: 16)
+                                }
+                                .buttonStyle(.plain)
+                        }
+                    }
+                    .background(Color.blue)
+                    .clipShape(RoundedRectangle(cornerRadius: 5))
+                    .padding(.vertical, 2)
+                    .padding(.horizontal, 10)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    func newNoteView() -> some View {
+        VStack {
+            VStack {
+                HStack {
+                    Spacer()
+                    Button(action: { currentView = .viewList }) {
+                        Image(systemName: "xmark")
+                            .resizable()
+                            .frame(width: 16, height: 16)
+                    }
+                    .buttonStyle(.plain)
+                    .padding([.trailing, .top], 3)
+                }
+                TextField("Select A Name",text: $newNoteName)
+                    .padding(.horizontal, 10)
+
+                Button(action: {
+                    model.addNote(title: newNoteName)
+                    addNewNoteOverlayIsPresented = false
+                    newNoteName = ""
+                    /// add new note to the list cuz it wont update
+                    notes = model.notes
+                }) {
+                    Text("Add New Note")
+                }
+                Spacer()
+            }
+            .padding(.horizontal, 5)
+        }
+    }
+
+        // ZStack {
+        //     if addNewNoteOverlayIsPresented {
+        //         /// Show a overlay to add a new note
+        //     } else {
+        //     }
+        // }
 
     @ViewBuilder
     func renderFontControls() -> some View {
@@ -117,7 +201,7 @@ struct NotesWidget: View, Widget {
             .cornerRadius(8)
             .frame(height: 80)
             .onChange(of: model.text) {
-                model.saveNotes()
+                // model.saveNotes()
             }
     }
 
@@ -126,7 +210,7 @@ struct NotesWidget: View, Widget {
         ForEach(buttons, id: \.self) { button in
             Button(action: {
                 model.selectedButton = button
-                model.loadNotes()  // Load the note for the selected button
+                // model.loadNotes()  // Load the note for the selected button
             }) {
                 Text(button)
                     .frame(maxWidth: .infinity)
@@ -156,8 +240,19 @@ struct NotesWidget: View, Widget {
         AnyView(self)
     }
 }
+struct Note: Identifiable, Codable, Equatable {
+    let id: UUID
+    var name: String
+    var content: String
+}
 
 class NotesWidgetModel: ObservableObject {
+    /// New Logic for NotesWidget
+    @Published var notes: [Note] = []
+    @Published var selectedNoteID: UUID?
+
+    private let storageKey = "notes_storage"
+
     @Published var text: String = ""
     @Published var selectedButton: String = "1"
 
@@ -165,14 +260,37 @@ class NotesWidgetModel: ObservableObject {
         loadNotes()  // Load initial note
     }
 
-    func loadNotes() {
-        let key = "\(selectedButton)_content"
-        let defaultText = "Hello, this is a test note.\nYou can edit this text."
-        let savedText = UserDefaults.standard.string(forKey: key) ?? defaultText
-        text = savedText
+    func addNote(title: String) {
+        let newNote = Note(id: UUID(), name: title, content: "")
+        notes.append(newNote)
+        selectedNoteID = newNote.id
+        saveNotes()
     }
 
-    func saveNotes() {
-        UserDefaults.standard.set(text, forKey: "\(selectedButton)_content")
+    func updateContent(for id: UUID, newContent: String) {
+        if let index = notes.firstIndex(where: { $0.id == id }) {
+            notes[index].content = newContent
+            saveNotes()
+        }
+    }
+
+    var selectedNote: Note? {
+        get {
+            notes.first { $0.id == selectedNoteID }
+        }
+    }
+
+    private func loadNotes() {
+        guard let data = UserDefaults.standard.data(forKey: storageKey) else { return }
+        if let decoded = try? JSONDecoder().decode([Note].self, from: data) {
+            notes = decoded
+            selectedNoteID = notes.first?.id
+        }
+    }
+
+    private func saveNotes() {
+        if let encoded = try? JSONEncoder().encode(notes) {
+            UserDefaults.standard.set(encoded, forKey: storageKey)
+        }
     }
 }
