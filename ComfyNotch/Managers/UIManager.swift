@@ -108,7 +108,7 @@ class UIManager {
         let albumWidget = CompactAlbumWidget(model: albumWidgetModel)
         let movingDotsWidget = MovingDotsView(model: movingDotsModel)
         let settingsWidget = SettingsButtonWidget(model: settingsWidgetModel)
-        let fileTrayWidget = FileDropTray()
+        let fileTrayWidget = QuickAccessWidget()
 
         // Add Widgets to the WidgetStore
         compactWidgetStore.addWidget(albumWidget)
@@ -131,7 +131,7 @@ class UIManager {
         compactWidgetStore.showWidget(named: "MovingDotsWidget")
         compactWidgetStore.showWidget(named: "AlbumWidget")
         compactWidgetStore.hideWidget(named: "Settings")
-        compactWidgetStore.hideWidget(named: "FileDropTray")
+        compactWidgetStore.hideWidget(named: "QuickAccessWidget")
         
         expandedWidgetStore.hideWidget(named: "MusicPlayerWidget")
         expandedWidgetStore.hideWidget(named: "TimeWidget")
@@ -145,7 +145,7 @@ class UIManager {
         compactWidgetStore.hideWidget(named: "MovingDotsWidget")
         compactWidgetStore.hideWidget(named: "AlbumWidget")
         compactWidgetStore.showWidget(named: "Settings")
-        compactWidgetStore.showWidget(named: "FileDropTray")
+        compactWidgetStore.showWidget(named: "QuickAccessWidget")
         
         /// Then we wanna show every possible widget cuz if its not added it wont actually show
         expandedWidgetStore.showWidget(named: "MusicPlayerWidget")
@@ -157,7 +157,7 @@ class UIManager {
     public func applyCompactWidgetLayout() {
         /// When the notch is closed we wanna show the compact album on the left, and dots on the right and hide
         /// The Settings Widget
-        compactWidgetStore.hideWidget(named: "FileDropTray")
+        compactWidgetStore.hideWidget(named: "QuickAccessWidget")
         compactWidgetStore.hideWidget(named: "Settings")
         compactWidgetStore.showWidget(named: "AlbumWidget")
         compactWidgetStore.showWidget(named: "MovingDotsWidget")

@@ -5,6 +5,9 @@
     
     <key>LSApplicationCategoryType</key>
     <string>public.app-category.utilities</string>
+
+    <key>CFBundleShortVersionString</key>
+    <string>0.1</string>
     
     <key>CFBundleName</key>
     <string>$APP_NAME</string>
@@ -27,11 +30,11 @@
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
 
-    <key>CFBundleIconFile</key>
-    <string>ComfyNotchIcon</string>
+    <!-- <key>CFBundleIconFile</key>
+    <string>ComfyNotchIcon</string> -->
 
     <key>NSAppleEventsUsageDescription</key>
-    <string>we use this to observe system notifications</string>
+    <string>we use this to observe system notifications and media playback</string>
 
     <key>NSCameraUsageDescription</key>
     <string>This app uses the camera for widget-related features.</string>
@@ -41,9 +44,6 @@
 
     <key>LSUIElement</key>
     <true/>
-
-    <key>NSAppleEventsUsageDescription</key>
-    <string>This app controls media playback.</string>
 
 </dict>
 </plist>

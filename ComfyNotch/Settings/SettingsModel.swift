@@ -16,6 +16,9 @@ class SettingsModel: ObservableObject {
     @Published var selectedOpenAIModel: OpenAIModel = .gpt3
     @Published var selectedAnthropicModel: AnthropicModel = .claudeV1
     @Published var selectedGoogleModel: GoogleModel = .palm
+
+    @Published var clipboardManagerMaxHistory: Int = 10
+    @Published var clipboardManagerPollingIntervalMS: Int = 1000
     
     
     @Published var fileTrayDefaultFolder: URL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
@@ -53,6 +56,12 @@ class SettingsModel: ObservableObject {
         if !fileTrayDefaultFolder.path.isEmpty {
             defaults.set(fileTrayDefaultFolder.path(), forKey: "fileTrayDefaultFolder")
         }
+        if clipboardManagerMaxHistory >= 0 {
+            defaults.set(clipboardManagerMaxHistory, forKey: "clipboardManagerMaxHistory")
+        }
+        if clipboardManagerPollingIntervalMS >= 0 {
+            defaults.set(clipboardManagerPollingIntervalMS, forKey: "clipboardManagerPollingIntervalMS")
+        }
     }
     /// Loads the last saved settings from UserDefaults
     func loadSettings() {
@@ -79,6 +88,15 @@ class SettingsModel: ObservableObject {
         /// Load in the fileTrayDefaultFolder
         if let fileTrayDefaultFolder = defaults.string(forKey: "fileTrayDefaultFolder") {
             self.fileTrayDefaultFolder = URL(fileURLWithPath: fileTrayDefaultFolder)
+        }
+
+        /// Load in the clipboardManagerMaxHistory
+        if let clipboardManagerMaxHistory = defaults.object(forKey: "clipboardManagerMaxHistory") as? Int {
+            self.clipboardManagerMaxHistory = clipboardManagerMaxHistory
+        }
+        /// Load in the clipboardManagerPollingIntervalMS
+        if let clipboardManagerPollingIntervalMS = defaults.object(forKey: "clipboardManagerPollingIntervalMS") as? Int {
+            self.clipboardManagerPollingIntervalMS = clipboardManagerPollingIntervalMS
         }
     }
 

@@ -4,7 +4,16 @@ import Combine
 import MetalKit
 import UniformTypeIdentifiers   /// For the file drop
 
+enum NotchViewState {
+    case home
+    case file_tray
+    case utils
+}
+
 class PanelAnimationState: ObservableObject {
+    
+
+
     static let shared = PanelAnimationState()
 
     @Published var isExpanded: Bool = false
@@ -14,7 +23,8 @@ class PanelAnimationState: ObservableObject {
     @Published var isDroppingFiles = false
     @Published var droppedFiles: [URL] = []
     
-    @Published var isShowingFileTray = false
+
+    @Published var currentPanelState: NotchViewState = .home
     /// This is used for iffffff the notch was opened by dragging
     /// we wanna show a cool animation for it getting activated so the user
     /// doesnt think its blue all the time lol
@@ -66,7 +76,7 @@ struct ComfyNotchView: View {
             get: { panelAnimationState.droppedFiles },
             set: { panelAnimationState.droppedFiles = $0 }
         )
-        
+         
         _isDroppingFiles = isDroppingFilesBinding
         _droppedFiles = droppedFilesBinding
     }
@@ -90,12 +100,14 @@ struct ComfyNotchView: View {
             VStack(alignment: .leading,spacing: 0) {
                 /// Compact Widgets
                 renderTopRow()
-                /// Big Widgets
-                if !animationState.isShowingFileTray {
-                    renderBottomWidgets()
-                } else {
-                    renderFileTray()
+                
+                /// see QuickAccessWidget.swift file to see how it works
+                switch animationState.currentPanelState {
+                case .home: renderBottomWidgets()
+                case .file_tray: renderFileTray()
+                case .utils: renderUtils()
                 }
+                
                 Spacer()
             }
             .frame(maxWidth: .infinity, alignment: .top)
@@ -103,7 +115,7 @@ struct ComfyNotchView: View {
         .onChange(of: PanelAnimationState.shared.isDroppingFiles) { _, hovering in
             if hovering && UIManager.shared.panelState == .closed {
                 animationState.fileTriggeredTray = true
-                animationState.isShowingFileTray = true
+                animationState.currentPanelState = .file_tray
                 animationState.isExpanded = true
                 ScrollHandler.shared.openFull()
                 
@@ -114,20 +126,6 @@ struct ComfyNotchView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-//        .clipShape(RoundedCornersShape(
-//                        topLeft: 0,
-//                        topRight: 0,
-//                        bottomLeft: cornerRadius,
-//                        bottomRight: cornerRadius
-//                 ))
-//        .mask(
-//            RoundedCornersShape(
-//                topLeft: 0,
-//                topRight: 0,
-//                bottomLeft: cornerRadius,
-//                bottomRight: cornerRadius
-//            )
-//        )
         /// For Scrolling the Panel
         .panGesture(direction: .down) { delta, phase in
             ScrollHandler.shared.handlePan(delta: delta, phase: phase)
@@ -232,6 +230,19 @@ struct ComfyNotchView: View {
         }
         return matchedFiles
     }
+
+    @ViewBuilder
+    private func renderUtils() -> some View {
+        VStack(spacing: 0) {
+            if animationState.isExpanded {
+            }
+        }
+        .background(Color.black)
+        .animation(
+            .easeInOut(duration: animationState.isExpanded ? 0.3 : 0.1),
+            value: animationState.isExpanded
+        )
+    }
     
     @ViewBuilder
     private func renderFileTray() -> some View {
@@ -255,7 +266,7 @@ struct ComfyNotchView: View {
                                 Button(action: {
                                     NSWorkspace.shared.open(fileURL)
                                     /// Close the file tray
-                                    PanelAnimationState.shared.isShowingFileTray = false
+                                    PanelAnimationState.shared.currentPanelState = .home
                                     ScrollHandler.shared.closeFull()
                                 }) {
                                     Image(systemName: "eye")
@@ -389,7 +400,7 @@ struct ComfyNotchView: View {
         .padding(.top,
                  animationState.isExpanded
                  
-                 ? (animationState.isShowingFileTray
+                 ? (animationState.currentPanelState == .file_tray
                         /// This is to keep the Top Row Steady, if the filetray is showing
                         ? -1
                         /// This is when the fileTray is not showing and its just the widgets
