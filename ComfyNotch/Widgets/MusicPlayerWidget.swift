@@ -102,13 +102,15 @@ struct MusicPlayerWidget: View, Widget {
                 .frame(width: 85, height: 85)
                 .cornerRadius(8)
                 .padding(.leading, 7.5)
+                .padding(.top, 7.5)
         } else {
             Rectangle()
                 .fill(Color.gray.opacity(0.3))
                 .cornerRadius(8)
                 .padding(.leading, 7.5)
-                .frame(maxHeight: .infinity, alignment: .center)
+                .frame(width: 85, height: 85)
                 .allowsHitTesting(false)
+                .padding(.top, 7.5)
         }
     }
 

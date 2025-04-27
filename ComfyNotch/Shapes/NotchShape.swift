@@ -1,107 +1,91 @@
 import SwiftUI
 
 struct RoundedCornersShape: Shape {
-    var topLeft: CGFloat = 0
-    var topRight: CGFloat = 0
-    var bottomLeft: CGFloat = 0
-    var bottomRight: CGFloat = 0
+  // your per-corner radii
+  var topLeft:     CGFloat = 12
+  var topRight:    CGFloat = 12
+  var bottomLeft:  CGFloat = 12
+  var bottomRight: CGFloat = 12
 
-    var notchWidth: CGFloat = 0
-    var notchHeight: CGFloat = 0
+  // notch (“pill”) size
+  var notchWidth:  CGFloat = 60
+  var notchHeight: CGFloat = 28
 
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
+  func path(in rect: CGRect) -> Path {
+    var p = Path()
 
-        let width = rect.size.width
-        let height = rect.size.height
+    // clamp radii so they never exceed half the rect
+    let tl = min(min(topLeft,    rect.height/2), rect.width/2)
+    let tr = min(min(topRight,   rect.height/2), rect.width/2)
+    let bl = min(min(bottomLeft, rect.height/2), rect.width/2)
+    let br = min(min(bottomRight,rect.height/2), rect.width/2)
 
-        let topLeftRadius = min(min(topLeft, height/2), width/2)
-        let topRightRadius = min(min(topRight, height/2), width/2)
-        let bottomLeftRadius = min(min(bottomLeft, height/2), width/2)
-        let bottomRightRadius = min(min(bottomRight, height/2), width/2)
+    let midX   = rect.midX
+    let nW     = notchWidth
+    let nH     = notchHeight
+    let startN = midX - nW/2
+    let endN   = midX + nW/2
 
-        let topEdgeLeftX = rect.minX + topLeftRadius
-        let topEdgeRightX = rect.maxX - topRightRadius
-        let midX = (topEdgeLeftX + topEdgeRightX) / 2
+    // 1) Start at top-left edge
+    p.move(to: CGPoint(x: rect.minX, y: rect.minY))
 
-        // 1) Start at top-left
-        path.move(to: CGPoint(x: topEdgeLeftX, y: rect.minY))
+    // 2) concave quarter-curve into top-left
+    p.addQuadCurve(
+      to:    CGPoint(x: rect.minX + tl,       y: rect.minY + tl),
+      control: CGPoint(x: rect.minX + tl,     y: rect.minY)
+    )
 
-        if notchWidth > 0 && notchHeight > 0 {
-            let notchStartX = midX - notchWidth / 2
-            let notchEndX = midX + notchWidth / 2
+    // 3) straight line up to just before notch
+    p.addLine(to: CGPoint(x: startN - nH/2, y: rect.minY + tl))
 
-            // Line to notch start
-            path.addLine(to: CGPoint(x: notchStartX - notchHeight / 2, y: rect.minY))
+    // 4) carve down into notch
+    p.addQuadCurve(
+      to:    CGPoint(x: startN,          y: rect.minY + tl + nH),
+      control: CGPoint(x: startN - nH/2, y: rect.minY + tl + nH/2)
+    )
 
-            // Curve down into notch
-            path.addQuadCurve(
-                to: CGPoint(x: notchStartX, y: rect.minY + notchHeight),
-                control: CGPoint(x: notchStartX - notchHeight / 2, y: rect.minY + notchHeight / 2)
-            )
+    // 5) across bottom of notch
+    p.addLine(to: CGPoint(x: endN,       y: rect.minY + tl + nH))
 
-            // Line across bottom of notch
-            path.addLine(to: CGPoint(x: notchEndX, y: rect.minY + notchHeight))
+    // 6) carve back up out of notch
+    p.addQuadCurve(
+      to:    CGPoint(x: endN + nH/2,    y: rect.minY + tl),
+      control: CGPoint(x: endN + nH/2,   y: rect.minY + tl + nH/2)
+    )
 
-            // Curve up out of notch
-            path.addQuadCurve(
-                to: CGPoint(x: notchEndX + notchHeight / 2, y: rect.minY),
-                control: CGPoint(x: notchEndX + notchHeight / 2, y: rect.minY + notchHeight / 2)
-            )
+    // 7) straight to just before top-right corner start
+    p.addLine(to: CGPoint(x: rect.maxX - tr, y: rect.minY + tl))
 
-            // Line to top-right corner start
-            path.addLine(to: CGPoint(x: topEdgeRightX, y: rect.minY))
-        } else {
-            // No notch, just line across
-            path.addLine(to: CGPoint(x: topEdgeRightX, y: rect.minY))
-        }
+    // 8) concave quarter-curve out to top-right
+    p.addQuadCurve(
+      to:    CGPoint(x: rect.maxX,             y: rect.minY),
+      control: CGPoint(x: rect.maxX - tr,      y: rect.minY)
+    )
 
-        // Top-right corner
-        path.addArc(
-            center: CGPoint(x: rect.maxX - topRightRadius, y: rect.minY + topRightRadius),
-            radius: topRightRadius,
-            startAngle: .degrees(-90),
-            endAngle: .degrees(0),
-            clockwise: false
-        )
+    // 9) right edge down to bottom-right
+    p.addLine(to: CGPoint(x: rect.maxX,              y: rect.maxY - br))
+    p.addArc(
+      center: CGPoint(x: rect.maxX - br,            y: rect.maxY - br),
+      radius: br,
+      startAngle: .degrees(0),
+      endAngle:   .degrees(90),
+      clockwise: false
+    )
 
-        // Right side
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY - bottomRightRadius))
+    // 10) bottom edge → bottom-left
+    p.addLine(to: CGPoint(x: rect.minX + bl,        y: rect.maxY))
+    p.addArc(
+      center: CGPoint(x: rect.minX + bl,            y: rect.maxY - bl),
+      radius: bl,
+      startAngle: .degrees(90),
+      endAngle:   .degrees(180),
+      clockwise: false
+    )
 
-        // Bottom-right corner
-        path.addArc(
-            center: CGPoint(x: rect.maxX - bottomRightRadius, y: rect.maxY - bottomRightRadius),
-            radius: bottomRightRadius,
-            startAngle: .degrees(0),
-            endAngle: .degrees(90),
-            clockwise: false
-        )
+    // 11) left edge back up to just below top-left
+    p.addLine(to: CGPoint(x: rect.minX,              y: rect.minY + tl))
 
-        // Bottom side
-        path.addLine(to: CGPoint(x: rect.minX + bottomLeftRadius, y: rect.maxY))
-
-        // Bottom-left corner
-        path.addArc(
-            center: CGPoint(x: rect.minX + bottomLeftRadius, y: rect.maxY - bottomLeftRadius),
-            radius: bottomLeftRadius,
-            startAngle: .degrees(90),
-            endAngle: .degrees(180),
-            clockwise: false
-        )
-
-        // Left side
-        path.addLine(to: CGPoint(x: rect.minX, y: rect.minY + topLeftRadius))
-
-        // Top-left corner
-        path.addArc(
-            center: CGPoint(x: rect.minX + topLeftRadius, y: rect.minY + topLeftRadius),
-            radius: topLeftRadius,
-            startAngle: .degrees(180),
-            endAngle: .degrees(270),
-            clockwise: false
-        )
-
-        path.closeSubpath()
-        return path
-    }
+    p.closeSubpath()
+    return p
+  }
 }

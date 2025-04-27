@@ -54,7 +54,7 @@ struct ComfyNotchView: View {
 
     private var paddingWidth: CGFloat = 20
     private var contentInset: CGFloat = 40
-    private var cornerRadius: CGFloat = 30
+    private var cornerRadius: CGFloat = 20
     
     init() {
         let panelAnimationState = PanelAnimationState.shared
@@ -73,13 +73,13 @@ struct ComfyNotchView: View {
 
     var body: some View {
         ZStack {
-            Color.black
-                .clipShape(RoundedCornersShape(
+            RoundedCornersShape(
                     topLeft: 0,
                     topRight: 0,
                     bottomLeft: cornerRadius,
                     bottomRight: cornerRadius
-                ))
+                )
+                .fill(Color.black, style: FillStyle(eoFill: true))
                 .contentShape(Rectangle()) // <- this makes the whole area droppable
                 .onDrop(of: [UTType.fileURL.identifier, UTType.image.identifier], isTargeted: $isDroppingFiles) { providers in
                     handleDrop(providers: providers)
@@ -114,20 +114,20 @@ struct ComfyNotchView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .clipShape(RoundedCornersShape(
-                        topLeft: 0,
-                        topRight: 0,
-                        bottomLeft: cornerRadius,
-                        bottomRight: cornerRadius
-                 ))
-        .mask(
-            RoundedCornersShape(
-                topLeft: 0,
-                topRight: 0,
-                bottomLeft: cornerRadius,
-                bottomRight: cornerRadius
-            )
-        )
+//        .clipShape(RoundedCornersShape(
+//                        topLeft: 0,
+//                        topRight: 0,
+//                        bottomLeft: cornerRadius,
+//                        bottomRight: cornerRadius
+//                 ))
+//        .mask(
+//            RoundedCornersShape(
+//                topLeft: 0,
+//                topRight: 0,
+//                bottomLeft: cornerRadius,
+//                bottomRight: cornerRadius
+//            )
+//        )
         /// For Scrolling the Panel
         .panGesture(direction: .down) { delta, phase in
             ScrollHandler.shared.handlePan(delta: delta, phase: phase)
