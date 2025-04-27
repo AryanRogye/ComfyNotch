@@ -103,7 +103,10 @@ struct ComfyNotchView: View {
                 
                 /// see QuickAccessWidget.swift file to see how it works
                 switch animationState.currentPanelState {
-                case .home: renderBottomWidgets()
+                case .home:
+                    // renderBottomWidgets()
+                    HomeNotchView()
+                        .environmentObject(bigWidgetStore)
                 case .file_tray: renderFileTray()
                 case .utils: renderUtils()
                 }
@@ -235,6 +238,7 @@ struct ComfyNotchView: View {
     private func renderUtils() -> some View {
         VStack(spacing: 0) {
             if animationState.isExpanded {
+                /// For now just the clipboard
             }
         }
         .background(Color.black)
@@ -283,41 +287,6 @@ struct ComfyNotchView: View {
             }
         }
         .background(Color.black)
-        .animation(
-            .easeInOut(duration: animationState.isExpanded ? 0.3 : 0.1),
-            value: animationState.isExpanded
-        )
-    }
-    
-    @ViewBuilder
-    private func renderBottomWidgets() -> some View {
-        VStack {
-            if animationState.isExpanded {
-                /// Big Panel Widgets
-                ZStack {
-                    Color.black.opacity(1)
-                        .clipShape(RoundedCornersShape(
-                            topLeft: 10,
-                            topRight: 10,
-                            bottomLeft: 10,
-                            bottomRight: 10
-                        ))
-                    HStack(spacing: 0) {
-                        ForEach(bigWidgetStore.widgets.indices, id: \.self) { index in
-                            let widgetEntry = bigWidgetStore.widgets[index]
-                            if widgetEntry.isVisible {
-                                widgetEntry.widget.swiftUIView
-                                    .padding(.horizontal, 2)
-                                    .frame(maxWidth: .infinity)
-                                    .layoutPriority(1) // make them expand evenly
-                                    .padding(.horizontal, 2)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        .frame(maxHeight: .infinity)
         .animation(
             .easeInOut(duration: animationState.isExpanded ? 0.3 : 0.1),
             value: animationState.isExpanded

@@ -50,6 +50,9 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
                 self.panelProximityHandler = PanelProximityHandler(panel: smallPanel)
             }
             
+            /// Begin The Clipboard Manger
+            ClipboardManager.shared.start()
+            
             // Set up the ui by loading the widgets from settings onto it
             self.loadWidgetsFromSettings()
             
