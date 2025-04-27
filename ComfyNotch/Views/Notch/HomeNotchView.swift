@@ -24,7 +24,8 @@ struct HomeNotchView: View {
                                     .padding(.horizontal, 2)
                                     .frame(maxWidth: .infinity)
                                     .layoutPriority(1) // make them expand evenly
-                                    .padding(.horizontal, 2)
+                                    .padding(.trailing, 2)
+                                    .padding(.leading, 4)
                             }
                         }
                     }

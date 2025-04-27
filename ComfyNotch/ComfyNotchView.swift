@@ -57,12 +57,10 @@ struct ComfyNotchView: View {
 
     @ObservedObject var animationState = PanelAnimationState.shared
     @ObservedObject var settings = SettingsModel.shared
-    @State private var isHovering: Bool = false /// Hovering for Pause or Play
     
     @Binding private var isDroppingFiles: Bool
     @Binding private var droppedFiles: [URL]
 
-    private var paddingWidth: CGFloat = 20
     private var contentInset: CGFloat = 40
     private var cornerRadius: CGFloat = 20
     
@@ -99,22 +97,21 @@ struct ComfyNotchView: View {
             
             VStack(alignment: .leading,spacing: 0) {
                 /// Compact Widgets
-                renderTopRow()
+                TopNotchView()
+                    .environmentObject(widgetStore)
                 
                 /// see QuickAccessWidget.swift file to see how it works
                 switch animationState.currentPanelState {
-                case .home:
-                    // renderBottomWidgets()
-                    HomeNotchView()
-                        .environmentObject(bigWidgetStore)
-                case .file_tray: renderFileTray()
-                case .utils: renderUtils()
+                case .home:         HomeNotchView().environmentObject(bigWidgetStore)
+                case .file_tray:    FileTrayView()
+                case .utils:        UtilsView()
                 }
                 
                 Spacer()
             }
             .frame(maxWidth: .infinity, alignment: .top)
         }
+        /// MODIFIERS
         .onChange(of: PanelAnimationState.shared.isDroppingFiles) { _, hovering in
             if hovering && UIManager.shared.panelState == .closed {
                 animationState.fileTriggeredTray = true
@@ -191,195 +188,5 @@ struct ComfyNotchView: View {
         }
 
         return true
-    }
-
-    private func getNotchWidth() -> CGFloat {
-        guard let screen = NSScreen.main else { return 180 } // Default to 180 if it fails
-
-        let screenWidth = screen.frame.width
-
-        // Rough estimates based on Apple specs
-        if screenWidth >= 3456 { // 16-inch MacBook Pro
-            return 180
-        } else if screenWidth >= 3024 { // 14-inch MacBook Pro
-            return 160
-        } else if screenWidth >= 2880 { // 15-inch MacBook Air
-            return 170
-        }
-
-        // Default if we can't determine it
-        return 180
-    }
-    
-    private func getFilesFromStoredDirectory() -> [URL] {
-        let fileManager = FileManager.default
-        let folderURL = settings.fileTrayDefaultFolder
-        var matchedFiles: [URL] = []
-        /// we wanna return the ones that start with a "DroppedImage" name
-        /// This is the one that we added to that selected "Directory", if the user wants to remove
-        /// or change the name then it wont show anymore and thats ok, thats up
-        /// to them
-        
-        /// settings.fileTrayDefaultFolder is the folder to watch for
-        do {
-            let contents = try fileManager.contentsOfDirectory(at: folderURL, includingPropertiesForKeys: nil)
-            for url in contents {
-                if url.lastPathComponent.hasPrefix("DroppedImage") {
-                    matchedFiles.append(url)
-                }
-            }
-        } catch {
-            print("There Was A Error Getting Paths \(error.localizedDescription)")
-        }
-        return matchedFiles
-    }
-
-    @ViewBuilder
-    private func renderUtils() -> some View {
-        VStack(spacing: 0) {
-            if animationState.isExpanded {
-                /// For now just the clipboard
-            }
-        }
-        .background(Color.black)
-        .animation(
-            .easeInOut(duration: animationState.isExpanded ? 0.3 : 0.1),
-            value: animationState.isExpanded
-        )
-    }
-    
-    @ViewBuilder
-    private func renderFileTray() -> some View {
-        VStack(spacing: 0) {
-            if animationState.isExpanded {
-                let droppedFiles = self.getFilesFromStoredDirectory()
-                if droppedFiles.isEmpty {
-                    Text("No Files Yet")
-                    Spacer()
-                } else {
-                    ScrollView {
-                        ForEach(droppedFiles, id: \.self) { fileURL in
-                            HStack {
-                                Text(fileURL.lastPathComponent)
-                                    .foregroundColor(.white)
-                                    .lineLimit(1)
-                                    .truncationMode(.middle)
-                                
-                                Spacer()
-                                
-                                Button(action: {
-                                    NSWorkspace.shared.open(fileURL)
-                                    /// Close the file tray
-                                    PanelAnimationState.shared.currentPanelState = .home
-                                    ScrollHandler.shared.closeFull()
-                                }) {
-                                    Image(systemName: "eye")
-                                        .foregroundColor(.blue)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                            .padding(.horizontal)
-                        }
-                    }
-                    .background(Color.black)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-            }
-        }
-        .background(Color.black)
-        .animation(
-            .easeInOut(duration: animationState.isExpanded ? 0.3 : 0.1),
-            value: animationState.isExpanded
-        )
-    }
-
-    @ViewBuilder
-    private func renderTopRow() -> some View {
-        HStack(spacing: 0) {
-            // Left Widgets
-            ZStack(alignment: .leading) {
-                HStack(spacing: 0) {
-                    ForEach(widgetStore.leftWidgetsShown.indices, id: \.self) { index in
-                        let widgetEntry = widgetStore.leftWidgetsShown[index]
-                        if widgetEntry.isVisible {
-                            widgetEntry.widget.swiftUIView
-                                .padding(.top, 2)
-                        }
-                    }
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .trailing)
-            
-            Spacer()
-                .frame(width: PanelAnimationState.shared.isExpanded ? 400 : getNotchWidth())
-                .padding([.trailing, .leading], paddingWidth)
-            
-            // Right Widgets
-            ZStack(alignment: .leading) {
-                if !isHovering {
-                    HStack(spacing: 0) {
-                        ForEach(widgetStore.rightWidgetsShown.indices, id: \.self) { index in
-                            let widgetEntry = widgetStore.rightWidgetsShown[index]
-                            if widgetEntry.isVisible {
-                                widgetEntry.widget.swiftUIView
-                                    .opacity(isHovering ? 0 : 1)
-                            }
-                        }
-                    }
-                } else {
-                    HStack(spacing: 0) {
-                        //// If the widget is playing show pause
-                        if animationState.songText != "No Song Playing" {
-                            Button(action: AudioManager.shared.togglePlayPause ) {
-                                Image(systemName: "pause.fill")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 17, height: 15)
-                                    .foregroundColor(Color(nsColor: animationState.playingColor))
-                            }
-                            .buttonStyle(.plain)
-                            .padding(.trailing, 23)
-                        }
-                        /// if the widget is not playing show play
-                        else {
-                            Button(action: AudioManager.shared.togglePlayPause ) {
-                                Image(systemName: "play.fill")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 17, height: 15)
-                                    .foregroundColor(Color(nsColor: animationState.playingColor))
-                            }
-                            .buttonStyle(.plain)
-                            .padding(.trailing, 23)
-                        }
-                    }
-                }
-            }
-            .onHover { hover in
-                if animationState.bottomSectionHeight == 0 {
-                    isHovering = hover
-                } else {
-                    isHovering = false
-                }
-            }
-        }
-        .padding(.bottom, 2)
-        .frame(maxWidth: .infinity, maxHeight: UIManager.shared.getNotchHeight(), alignment: .top)
-        // .border(Color.white, width: 0.5)
-        .padding(.top,
-                 animationState.isExpanded
-                 
-                 ? (animationState.currentPanelState == .file_tray
-                        /// This is to keep the Top Row Steady, if the filetray is showing
-                        ? -1
-                        /// This is when the fileTray is not showing and its just the widgets
-                        /// should have a -1 padding height
-                        /// Note: I realizes that having both being the same was the best in this case
-                        /// Old Value used to be 10, so if soemthing is fucked change it back
-                        : -1
-                 )
-                 /// This is when the panel is closed and we're just looking at it
-                 : 1
-        )
     }
 }
