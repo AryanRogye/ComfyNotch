@@ -119,6 +119,7 @@ class ScrollHandler {
 
     func closeFull() {
         guard let panel = UIManager.shared.smallPanel, !isSnapping else { return }
+        PanelAnimationState.shared.currentPanelState = .home
         isSnapping = true
         
         let screen       = NSScreen.main!

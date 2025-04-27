@@ -24,7 +24,7 @@ struct TopNotchView: View {
             .frame(maxWidth: .infinity, alignment: .trailing)
             
             Spacer()
-                .frame(width: PanelAnimationState.shared.isExpanded ? 400 : getNotchWidth())
+                .frame(width: PanelAnimationState.shared.isExpanded ? 450 : getNotchWidth())
                 .padding([.trailing, .leading], paddingWidth)
             
             // Right Widgets

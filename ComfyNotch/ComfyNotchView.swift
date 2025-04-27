@@ -110,6 +110,15 @@ struct ComfyNotchView: View {
                 Spacer()
             }
             .frame(maxWidth: .infinity, alignment: .top)
+            /// To make sure the notch doesnt go over the bottom of the screen
+            .clipShape(
+                RoundedCornersShape(
+                    topLeft: 0,
+                    topRight: 0,
+                    bottomLeft: cornerRadius,
+                    bottomRight: cornerRadius
+                )
+            )
         }
         /// MODIFIERS
         .onChange(of: PanelAnimationState.shared.isDroppingFiles) { _, hovering in
