@@ -18,39 +18,38 @@ struct FileDropTray: View, Widget {
     @ObservedObject private var animationState: PanelAnimationState = .shared
 
     var body: some View {
-        Button(action: {
-            animationState.isShowingFileTray.toggle()
-        }) {
-            ZStack {
-                Text("Drop Files Here")
-                    .font(.system(size: 10))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-            .frame(maxWidth: 200, maxHeight: .infinity)
-            .contentShape(RoundedRectangle(cornerRadius: 20)) // 👈 this is the REAL fix
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(
-                        style: StrokeStyle(
-                            lineWidth: 2,
-                            lineCap: .round,
-                            dash: [6, 4]
+        HStack {
+            Button(action: {
+                animationState.isShowingFileTray = false
+            }) {
+                    Image(systemName: "house")
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .foregroundColor(
+                            animationState.isShowingFileTray ? .white : .blue
                         )
-                    )
-                    .foregroundColor(animationState.isDroppingFiles ? Color.blue.opacity(0.8) : Color.white)
-                    .shadow(
-                        color: animationState.fileTriggeredTray
-                            ? Color.purple.opacity(0.5)
-                            : animationState.isDroppingFiles
-                              ? Color.blue.opacity(0.5)
-                              : .clear,
-                        radius: animationState.fileTriggeredTray ? 12 : 6
-                    )
-                    .animation(.easeInOut(duration: 0.4), value: animationState.fileTriggeredTray)
-            )
+                        .padding(5)
+                        .background(Color.black.opacity(0.5))
+                        .cornerRadius(10)
+                        .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 0)
+                }
+                .buttonStyle(.plain)
+            Button(action: {
+                animationState.isShowingFileTray = true
+            }) {
+                    Image(systemName: "tray.full")
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .foregroundColor(
+                            animationState.isShowingFileTray ? .blue : .white
+                        )
+                        .padding(5)
+                        .background(Color.black.opacity(0.5))
+                        .cornerRadius(10)
+                        .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 0)
+                }
+                .buttonStyle(.plain)
+                .padding(.leading, 10)
         }
-        .buttonStyle(.plain)
-        .padding(.leading, 10)
     }
 }
