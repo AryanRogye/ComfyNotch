@@ -134,12 +134,28 @@ struct ComfyNotchView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         /// For Scrolling the Panel
-        .panGesture(direction: .down) { delta, phase in
-            ScrollHandler.shared.handlePan(delta: delta, phase: phase)
+        .panGesture(direction: .down) { translation, phase in
+            guard UIManager.shared.panelState == .closed else { return }
+
+            if translation > 50 {
+                UIManager.shared.applyOpeningLayout()
+                ScrollHandler.shared.openFull()
+            }
         }
-        .panGesture(direction: .up) { delta, phase in
-            ScrollHandler.shared.handlePan(delta: -delta, phase: phase)
+        .panGesture(direction: .up) { translation, phase in
+            guard UIManager.shared.panelState == .open else { return }
+
+            if translation > 50 {
+                UIManager.shared.applyOpeningLayout()
+                ScrollHandler.shared.closeFull()
+            }
         }
+        // .panGesture(direction: .down) { delta, phase in
+        //     ScrollHandler.shared.handlePan(delta: delta, phase: phase)
+        // }
+        // .panGesture(direction: .up) { delta, phase in
+        //     ScrollHandler.shared.handlePan(delta: -delta, phase: phase)
+        // }
     }
     
     func handleDrop(providers: [NSItemProvider]) -> Bool {

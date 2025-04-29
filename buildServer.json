@@ -12,8 +12,8 @@
 	"argv": [
 		"/opt/homebrew/bin/xcode-build-server"
 	],
-	"workspace": "/Users/aryanrogye/Documents/CODE/BigProjects/ComfyNotch/ComfyNotch.xcodeproj/project.xcworkspace",
-	"build_root": "/Users/aryanrogye/Library/Developer/Xcode/DerivedData/ComfyNotch-glmrhjxbosntpgayovxdejqqihqj",
+	"workspace": "/Users/aryanrogye/Code/Projects/ComfyNotch/ComfyNotch.xcodeproj/project.xcworkspace",
+	"build_root": "/Users/aryanrogye/Library/Developer/Xcode/DerivedData/ComfyNotch-canamtbekdayxtenmikazmiavpqn",
 	"scheme": "ComfyNotch",
 	"kind": "xcode"
 }

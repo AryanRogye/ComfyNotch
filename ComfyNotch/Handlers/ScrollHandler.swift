@@ -24,12 +24,21 @@ class ScrollHandler {
 
     /// Handle Pan is what the view will call when a pan gesture is made
     func handlePan(delta: CGFloat, phase: NSEvent.Phase) {
+        /// Permananet Closing Logic, Works Perfectlly
         if UIManager.shared.panelState == .open,
            delta < 0, phase == .began {
             UIManager.shared.applyOpeningLayout()
             closeFull()
             return
         }
+        /// - Mark: This is New For Scrolling Downwards For Opening
+        if UIManager.shared.panelState == .closed,
+            delta > 0, phase == .began {
+                UIManager.shared.applyOpeningLayout()
+                openFull()
+                return
+        }        
+        return
         guard !isSnapping else {
             // If user starts a new gesture during snap, cancel snap and reset accumulation
             if phase == .began {
@@ -68,6 +77,7 @@ class ScrollHandler {
             break
         }
     }
+
 
     /// This animation makes sure that it just "expands"
     func openFull() {
@@ -115,7 +125,8 @@ class ScrollHandler {
                         UIManager.shared.panelState = .open
                     }
             }
-    }
+    } /// Mark - End Of Open Full (Debugging Needed)
+
 
     func closeFull() {
         guard let panel = UIManager.shared.smallPanel, !isSnapping else { return }
