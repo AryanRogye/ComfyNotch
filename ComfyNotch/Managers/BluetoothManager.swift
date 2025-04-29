@@ -8,10 +8,11 @@
 import Foundation
 import CoreBluetooth
 
-class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate {
+class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     public static let   shared = BluetoothManager()
-    private var         manager: CBCentralManager?
+    private var         manager: CBCentralManager!
     @Published var      userBluetoothConnections: [CBPeripheral] = []
+    @Published var connectionStates: [UUID: Bool] = [:]
     
     private let services: [CBUUID] = [
         CBUUID(string: "180A"), // Device Information
@@ -20,28 +21,71 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate {
     ]
 
     private override init() {
-        /// We can poll for connections later but for now we can do it here
         super.init()
+        manager = CBCentralManager(delegate: self, queue: nil)
     }
     
+    /// This is the Function that is needed by the CBCentralManagerDelegate
+    /// it makes sure that the bluetooth is on and then starts scanning for devices
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         guard central.state == .poweredOn else {
             print("Bluetooth not available: \(central.state.rawValue)")
             return
         }
-        retrieveConnected()
-        startScanning()
+        central.scanForPeripherals(withServices: nil, options: [CBCentralManagerScanOptionAllowDuplicatesKey: false])
     }
     
-    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
-                        advertisementData: [String : Any], rssi RSSI: NSNumber) {
-        addPeripheral(peripheral)
+    /// When a new Connection is discovered
+    func centralManager(_ central: CBCentralManager,
+                        didDiscover peripheral: CBPeripheral,
+                        advertisementData: [String: Any],
+                        rssi RSSI: NSNumber) {
+        if !userBluetoothConnections.contains(where: { $0.identifier == peripheral.identifier && $0.name == peripheral.name }) {
+            peripheral.delegate = self              // 🔑 must set delegate
+            userBluetoothConnections.append(peripheral)
+            connectionStates[peripheral.identifier] = false
+            print("➕ Discovered: \(peripheral.name ?? peripheral.identifier.uuidString)")
+        }
     }
 
     public func start() {
         if manager == nil {
             manager = CBCentralManager(delegate: self, queue: nil)
         }
+    }
+    
+    // 3) Connect method
+    func connect(_ peripheral: CBPeripheral) {
+        print("⏳ Attempting to connect to \(peripheral.name ?? peripheral.identifier.uuidString)...")
+        
+        // Check if peripheral is already connected
+        if peripheral.state == .connected {
+            print("⚠️ Device is already connected!")
+            return
+        }
+        
+        // Make sure the peripheral has a delegate
+        peripheral.delegate = self
+        
+        // Connect with timeout option for better reliability
+        manager.connect(peripheral, options: [
+            CBConnectPeripheralOptionNotifyOnConnectionKey: true,
+            CBConnectPeripheralOptionNotifyOnDisconnectionKey: true
+        ])
+    }
+
+    // 4) Disconnect method
+    func disconnect(_ peripheral: CBPeripheral) {
+        print("⏳ Attempting to disconnect from \(peripheral.name ?? peripheral.identifier.uuidString)...")
+        
+        // Check if peripheral is already disconnected
+        if peripheral.state != .connected {
+            print("⚠️ Device is already disconnected!")
+            return
+        }
+        
+        // Disconnect
+        manager.cancelPeripheralConnection(peripheral)
     }
     
     private func retrieveConnected() {
@@ -52,19 +96,26 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate {
     }
     
     private func startScanning() {
-        manager?.scanForPeripherals(withServices: nil, options: nil)
+        manager?.scanForPeripherals(withServices: nil, options: [CBCentralManagerScanOptionAllowDuplicatesKey: false])
         print("Started scanning for peripherals")
     }
     
     private func addPeripheral(_ peripheral: CBPeripheral) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            
-            if !self.userBluetoothConnections.contains(where: { $0.identifier == peripheral.identifier }) {
+
+            // Use name if available, fallback to UUID
+            let name = peripheral.name ?? peripheral.identifier.uuidString
+
+            // Deduplicate by name
+            if !self.userBluetoothConnections.contains(where: { $0.name == peripheral.name }) {
+                peripheral.delegate = self
                 self.userBluetoothConnections.append(peripheral)
+                print("➕ Discovered: \(name)")
             }
         }
     }
+
 
     public func stopScanning() {
         manager?.stopScan()

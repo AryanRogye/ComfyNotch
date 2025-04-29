@@ -1,8 +1,9 @@
 import SwiftUI
+import CoreBluetooth
 
 enum UtilsTab: String, CaseIterable {
     case clipboard = "Clipboard"
-    case wifi = "Wi-Fi"
+//    case wifi = "Wi-Fi"
     case bluetooth = "Bluetooth"
 }
 
@@ -56,34 +57,58 @@ struct UtilsView: View {
 
 struct Utils_BluetoothView: View {
     @ObservedObject private var bluetoothManager: BluetoothManager = .shared
-    init() {
-        bluetoothManager.start()
+    var devicesWithUniqueNames: [CBPeripheral] {
+        var uniqueNames = Set<String>()
+        var result: [CBPeripheral] = []
+        
+        for device in bluetoothManager.userBluetoothConnections {
+            guard let name = device.name else { continue } // Skip unnamed devices
+            
+            // If we haven't seen this name before, add it to our results
+            if !uniqueNames.contains(name) {
+                uniqueNames.insert(name)
+                result.append(device)
+            }
+        }
+        
+        return result
     }
     var body: some View {
         VStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 8) {
-                    ForEach(bluetoothManager.userBluetoothConnections, id: \.self) { index in
-                        if let name = index.name {
-                            HStack {
-                                Text(name)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(.horizontal, 8) // (optional) padding inside scroll items
-                                Spacer()
-                                
-                                Button(action: {} ) {
-                                    Image(systemName: "app.connected.to.app.below.fill")
-                                        .resizable()
-                                        .frame(width: 20, height: 24)
-                                }
-                                .buttonStyle(.plain)
+                    ForEach(devicesWithUniqueNames, id: \.self) { device in
+                        HStack {
+                            Text(device.name ?? "Unknown Device")
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, 8)
+                            Spacer()
+                            Button(action: { bluetoothManager.disconnect(device) }) {
+                                Image(systemName: "bolt.slash.circle.fill")
+                                    .resizable()
+                                    .frame(width: 20, height: 24)
                             }
+                            .buttonStyle(.plain)
+                            Button(action: { bluetoothManager.connect(device) }) {
+                                Image(systemName: "bolt.horizontal.circle.fill")
+                                    .resizable()
+                                    .frame(width: 20, height: 24)
+                            }
+                            .buttonStyle(.plain)
+                            .padding(.leading, 2)
                         }
                     }
+                    .padding(.horizontal, 2)
+                    .padding(.trailing, 8)
                 }
-                .padding(.horizontal, 2)
-                .padding(.trailing, 8)
+                
             }
+        }
+        .onAppear {
+            bluetoothManager.start()
+        }
+        .onDisappear {
+            bluetoothManager.stopScanning()
         }
         .padding(.top, 2)
         .frame(maxWidth:.infinity, maxHeight:.infinity, alignment:.top)
