@@ -36,7 +36,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         _ = SettingsModel.shared
 
         DispatchQueue.main.async {
-            NSApp.setActivationPolicy(.regular)
+            NSApp.setActivationPolicy(.prohibited)
             NSApp.activate(ignoringOtherApps: true)
             // Start the UI
             UIManager.shared.setupFrame()

@@ -23,6 +23,7 @@ class ScrollHandler {
     // MARK: – Public API
 
     /// Handle Pan is what the view will call when a pan gesture is made
+    // MARK: - Unused
     func handlePan(delta: CGFloat, phase: NSEvent.Phase) {
         /// Permananet Closing Logic, Works Perfectlly
         if UIManager.shared.panelState == .open,

@@ -30,8 +30,8 @@
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
 
-    <!-- <key>CFBundleIconFile</key>
-    <string>ComfyNotchIcon</string> -->
+     <key>CFBundleIconFile</key>
+    <string>ComfyNotchIcon</string> 
 
     <key>NSAppleEventsUsageDescription</key>
     <string>we use this to observe system notifications and media playback</string>
