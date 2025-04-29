@@ -20,7 +20,6 @@ class SettingsModel: ObservableObject {
     @Published var clipboardManagerMaxHistory: Int = 10
     @Published var clipboardManagerPollingIntervalMS: Int = 1000
     
-    
     @Published var fileTrayDefaultFolder: URL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
 
     private var cancellables = Set<AnyCancellable>()

@@ -4,41 +4,40 @@ struct FileTrayView: View {
 
     @ObservedObject var animationState = PanelAnimationState.shared
     @ObservedObject var settings = SettingsModel.shared
+    
+    @State var showDeleteFileAlert: Bool = false
+    @State var currentDeleteFileURL: URL?
 
     var body: some View {
         VStack(spacing: 0) {
             if animationState.isExpanded {
-                let droppedFiles = self.getFilesFromStoredDirectory()
-                if droppedFiles.isEmpty {
-                    Text("No Files Yet")
-                    Spacer()
-                } else {
-                    ScrollView {
-                        ForEach(droppedFiles, id: \.self) { fileURL in
-                            HStack {
-                                Text(fileURL.lastPathComponent)
-                                    .foregroundColor(.white)
-                                    .lineLimit(1)
-                                    .truncationMode(.middle)
-                                
-                                Spacer()
-                                
-                                Button(action: {
-                                    NSWorkspace.shared.open(fileURL)
-                                    /// Close the file tray
-                                    animationState.currentPanelState = .home
-                                    ScrollHandler.shared.closeFull()
-                                }) {
-                                    Image(systemName: "eye")
-                                        .foregroundColor(.blue)
+                if !showDeleteFileAlert {
+                    let droppedFiles = self.getFilesFromStoredDirectory()
+                    if droppedFiles.isEmpty {
+                        Text("No Files Yet")
+                            .font(.headline)
+                            .padding(.leading, 5)
+                        Spacer()
+                    } else {
+                        ScrollView {
+                            ForEach(droppedFiles, id: \.self) { fileURL in
+                                HStack {
+                                    showFileName(fileURL: fileURL)
+                                        .frame(maxWidth: 200)
+                                    showTimeStamp(fileURL: fileURL)
+                                    
+                                    Spacer()
+                                    showFile(fileURL: fileURL)
+                                    showDelete(fileURL: fileURL)
                                 }
-                                .buttonStyle(.plain)
+                                .padding(.horizontal)
                             }
-                            .padding(.horizontal)
                         }
+                        .background(Color.black)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
-                    .background(Color.black)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                } else {
+                    showPopup()
                 }
             }
         }
@@ -47,6 +46,126 @@ struct FileTrayView: View {
             .easeInOut(duration: animationState.isExpanded ? 0.3 : 0.1),
             value: animationState.isExpanded
         )
+    }
+    
+    private func getTimestamp(fileURL: URL) -> Date {
+        do {
+            let resourceVlaues =  try fileURL.resourceValues(forKeys: [.creationDateKey])
+            return resourceVlaues.creationDate ?? Date()
+        } catch {
+            print("Error Getting Timestamp \(error.localizedDescription)")
+        }
+        return Date()
+    }
+    
+    private func getFormattedTimestamp(for fileURL: URL) -> String {
+        let createdAt = getTimestamp(fileURL: fileURL)
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        return formatter.localizedString(for: createdAt, relativeTo: Date())
+    }
+    
+    private func getFormattedName(for fileURL: URL) -> String {
+        let fileName = fileURL.lastPathComponent
+
+        // Check if the filename contains "DroppedImage"
+        guard let range = fileName.range(of: "DroppedImage") else {
+            return fileName  // fallback: return original name if not found
+        }
+
+        // Cut everything after "DroppedImage"
+        let afterPrefix = fileName[range.upperBound...]
+
+        // Drop the extension
+        return afterPrefix.split(separator: ".").first.map(String.init) ?? String(afterPrefix)
+    }
+    
+    @ViewBuilder
+    func showPopup() -> some View {
+        if showDeleteFileAlert {
+            ZStack {
+                VStack(alignment: .center,spacing: 0) {
+                    Text("are you sure you want to delete this file?")
+                        .font(.headline)
+                        .multilineTextAlignment(.center)
+                    Text(currentDeleteFileURL?.lastPathComponent ?? "Unknown File")
+                    
+                    HStack {
+                        Button(action: { showDeleteFileAlert = false }) {
+                            Image(systemName: "x.circle")
+                                .resizable()
+                                .foregroundStyle(.red)
+                                .frame(width: 32, height: 32)
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        
+                        Button(action: {
+                            do {
+                                try FileManager.default.removeItem(at: currentDeleteFileURL!)
+                            } catch {
+                                print("There was a error deleting the file \(error.localizedDescription)")
+                            }
+                            // call your delete function here
+                            showDeleteFileAlert = false
+                            currentDeleteFileURL = nil
+                        }) {
+                            Image(systemName: "checkmark")
+                                .resizable()
+                                .foregroundStyle(.green)
+                                .frame(width: 32, height: 32)
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                    }
+                    .frame(maxWidth: 200)
+                    .cornerRadius(16)
+                    .shadow(radius: 10)
+                    .padding(.horizontal, 40)
+                }
+                .padding(.top, 10)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        }
+    }
+    
+    @ViewBuilder
+    func showTimeStamp(fileURL: URL) -> some View {
+        Text(getFormattedTimestamp(for: fileURL))
+    }
+    
+    @ViewBuilder
+    func showFileName(fileURL: URL) -> some View {
+        Text(getFormattedName(for: fileURL))
+            .foregroundColor(.white)
+            .lineLimit(1)
+            .truncationMode(.middle)
+    }
+    
+    @ViewBuilder
+    func showFile(fileURL: URL) -> some View {
+        Button(action: {
+            NSWorkspace.shared.open(fileURL)
+            /// Close the file tray
+            animationState.currentPanelState = .home
+            ScrollHandler.shared.closeFull()
+        }) {
+            Image(systemName: "eye")
+                .foregroundColor(.blue)
+        }
+        .buttonStyle(.plain)
+    }
+    
+    @ViewBuilder
+    func showDelete(fileURL: URL) -> some View {
+        Button(action: {
+            showDeleteFileAlert = true
+            currentDeleteFileURL = fileURL
+        }) {
+            Image(systemName: "trash")
+                .foregroundStyle(.red)
+        }
+        .buttonStyle(.plain)
     }
 
     private func getFilesFromStoredDirectory() -> [URL] {
