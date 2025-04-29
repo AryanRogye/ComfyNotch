@@ -12,8 +12,6 @@ enum NotchViewState {
 
 class PanelAnimationState: ObservableObject {
     
-
-
     static let shared = PanelAnimationState()
 
     @Published var isExpanded: Bool = false

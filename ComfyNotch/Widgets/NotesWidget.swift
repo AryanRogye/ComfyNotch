@@ -12,7 +12,6 @@ struct NotesWidget: View, Widget {
     private var buttons: [String] = ["1", "2", "3"]
 
     @ObservedObject var model = NotesWidgetModel()  // Using your model
-    @State var notes: [Note] = []
 
     @State var currentFontSize: CGFloat = 14
     @State var showFontControls: Bool = false
@@ -38,9 +37,6 @@ struct NotesWidget: View, Widget {
         .background(Color.clear)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .border(Color.white, width: 1)
-        .onAppear {
-            notes = model.notes
-        }
     }
 
     @ViewBuilder
@@ -105,7 +101,7 @@ struct NotesWidget: View, Widget {
             }
             /// Default 3 notes
             ScrollView(.vertical, showsIndicators: true) {
-                ForEach(notes) { note in
+                ForEach(model.notes) { note in
                     Button(action: {
                         currentView = .editor(note)
                     }) {
@@ -115,7 +111,7 @@ struct NotesWidget: View, Widget {
                                 .padding(.vertical, 2)
                                 .foregroundColor(.white)
                             Spacer()
-                                Button(action: {} ) {
+                                Button(action: { model.deleteNote(note) } ) {
                                     Image(systemName: "trash")
                                         .resizable()
                                         .frame(width: 16, height: 16)
@@ -154,7 +150,6 @@ struct NotesWidget: View, Widget {
                     addNewNoteOverlayIsPresented = false
                     newNoteName = ""
                     /// add new note to the list cuz it wont update
-                    notes = model.notes
                 }) {
                     Text("Add New Note")
                 }
@@ -272,6 +267,11 @@ class NotesWidgetModel: ObservableObject {
             notes[index].content = newContent
             saveNotes()
         }
+    }
+
+    func deleteNote(_ note: Note) {
+       notes.removeAll { $0.id == note.id }
+       saveNotes()
     }
 
     var selectedNote: Note? {
