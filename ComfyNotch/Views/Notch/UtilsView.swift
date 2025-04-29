@@ -3,6 +3,7 @@ import SwiftUI
 enum UtilsTab: String, CaseIterable {
     case clipboard = "Clipboard"
     case wifi = "Wi-Fi"
+    case bluetooth = "Bluetooth"
 }
 
 struct UtilsView: View {
@@ -37,7 +38,7 @@ struct UtilsView: View {
                     switch selectedTab {
                         case .clipboard: Utils_ClipboardView(clipboardManager: clipboardManager)
                                             .frame(maxWidth:.infinity, maxHeight:.infinity, alignment:.top)
-
+                        case .bluetooth: Utils_BluetoothView()
                         default: EmptyView()
                     }
                 /// For now just the clipboard
@@ -50,6 +51,42 @@ struct UtilsView: View {
             .easeInOut(duration: animationState.isExpanded ? 0.3 : 0.1),
             value: animationState.isExpanded
         )
+    }
+}
+
+struct Utils_BluetoothView: View {
+    @ObservedObject private var bluetoothManager: BluetoothManager = .shared
+    init() {
+        bluetoothManager.start()
+    }
+    var body: some View {
+        VStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(bluetoothManager.userBluetoothConnections, id: \.self) { index in
+                        if let name = index.name {
+                            HStack {
+                                Text(name)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.horizontal, 8) // (optional) padding inside scroll items
+                                Spacer()
+                                
+                                Button(action: {} ) {
+                                    Image(systemName: "app.connected.to.app.below.fill")
+                                        .resizable()
+                                        .frame(width: 20, height: 24)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal, 2)
+                .padding(.trailing, 8)
+            }
+        }
+        .padding(.top, 2)
+        .frame(maxWidth:.infinity, maxHeight:.infinity, alignment:.top)
     }
 }
 

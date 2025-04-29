@@ -144,6 +144,8 @@ struct ComfyNotchView: View {
         }
         .panGesture(direction: .up) { translation, phase in
             guard UIManager.shared.panelState == .open else { return }
+            
+            if animationState.currentPanelState == .file_tray || animationState.currentPanelState == .utils { return }
 
             if translation > 50 {
                 UIManager.shared.applyOpeningLayout()

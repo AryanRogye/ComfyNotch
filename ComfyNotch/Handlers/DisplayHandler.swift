@@ -44,36 +44,36 @@ class DisplayHandler {
     }
     
     @objc private func handleWakeNotification() {
-        logEvent("Screen Wake")
+//        logEvent("Screen Wake")
         refreshUI()
     }
     
     @objc private func handleScreenParametersChanged() {
-        logEvent("Screen Parameters Changed")
+//        logEvent("Screen Parameters Changed")
         refreshUI()
     }
     
     @objc private func handleSpaceChanged() {
-        logEvent("Space Changed")
+//        logEvent("Space Changed")
         refreshUI()
     }
     
     @objc private func handlePanelMoved() {
-        logEvent("Panel Moved Between Spaces/Screens")
+//        logEvent("Panel Moved Between Spaces/Screens")
         refreshUI()
     }
     
     private func refreshUI() {
         let now = Date()
         if let last = lastRefreshTime, now.timeIntervalSince(last) < 1.0 {
-            print("Skipping refresh (too soon)")
+//            print("Skipping refresh (too soon)")
             return
         }
         
         lastRefreshTime = now
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            print("🔄 Refreshing UI...")
+//            print("🔄 Refreshing UI...")
             SettingsModel.shared.refreshUI()
         }
     }
@@ -86,7 +86,7 @@ class DisplayHandler {
 
     @objc func handleScreenWake() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
-            print("Restarting app due to screen change...")
+//            print("Restarting app due to screen change...")
             self.restartApp()
         }
     }
@@ -94,7 +94,7 @@ class DisplayHandler {
     @objc private func handleScreenChange() {
         // Delay restart by 2 seconds
         DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
-            print("Restarting app due to screen change...")
+//            print("Restarting app due to screen change...")
             self.restartApp()
         }
     }
