@@ -12,8 +12,10 @@ struct CameraWidget: View, Widget {
     
     var body: some View {
         ZStack {
-            CameraPreviewView(session: model.session, flipCamera: model.flipCamera)
+            CameraPreviewView(session: model.session, flipCamera: model.flipCamera, zoom: model.zoomScale)
+                .frame(maxWidth: .infinity, minHeight: 120)
                 .cornerRadius(10)
+                .clipped()
                 .onAppear {
                     model.startSession()
                 }
@@ -24,14 +26,14 @@ struct CameraWidget: View, Widget {
                 Spacer()
                 /// We Add A Zoom here
                 VStack {
-                    Button(action: {} ) {
+                    Button(action: { model.zoomIn() } ) {
                         Image(systemName: "plus")
                             .resizable()
                             .frame(width: 15, height: 15)
                     }
                     .buttonStyle(.plain)
 
-                    Button(action: {} ) {
+                    Button(action: { model.zoomOut() } ) {
                         Image(systemName: "minus")
                             .resizable()
                             .frame(width: 15, height: 5)
@@ -58,6 +60,17 @@ class CameraWidgetModel: ObservableObject {
     @Published var flipCamera: Bool
     let session = AVCaptureSession()
     private var cancellables = Set<AnyCancellable>()
+    
+    @Published var zoomScale: CGFloat = 1.0   // 1× … 3×
+
+    func zoomIn(step: CGFloat = 0.25)  { adjust(by:  step) }
+    func zoomOut(step: CGFloat = 0.25) { adjust(by: -step) }
+
+    private func adjust(by delta: CGFloat) {
+        var next = zoomScale + delta
+        next = min(max(1.0, next), 3.0)       // clamp 1×-3×
+        zoomScale = next
+    }
     
     init() {
         self.flipCamera = SettingsModel.shared.isCameraFlipped
@@ -139,33 +152,47 @@ class CameraWidgetModel: ObservableObject {
 struct CameraPreviewView: NSViewRepresentable {
     let session: AVCaptureSession
     let flipCamera: Bool
+    let zoom: CGFloat            // ← NEW
+
     func makeNSView(context: Context) -> NSView {
         let view = NSView()
+        view.translatesAutoresizingMaskIntoConstraints = false
         view.wantsLayer = true
+
         let previewLayer = AVCaptureVideoPreviewLayer(session: session)
         previewLayer.videoGravity = .resizeAspectFill
-        previewLayer.frame = view.bounds
+
         previewLayer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
+        previewLayer.frame = view.bounds
+
         context.coordinator.previewLayer = previewLayer
         view.layer?.addSublayer(previewLayer)
+
         return view
     }
     func updateNSView(_ nsView: NSView, context: Context) {
-        guard let previewLayer = context.coordinator.previewLayer else { return }
-        // Ensure the layer covers the entire view
-        previewLayer.frame = nsView.bounds
-        // Update the flip transform
-        DispatchQueue.main.async {
-            CATransaction.begin()
-            CATransaction.setAnimationDuration(0.2)
-            if flipCamera {
-                previewLayer.setAffineTransform(CGAffineTransform(scaleX: -1, y: 1))
-            } else {
-                previewLayer.setAffineTransform(.identity)
-            }
-            CATransaction.commit()
+        guard let preview = context.coordinator.previewLayer else { return }
+
+        preview.frame = nsView.bounds
+
+        // cancel any outer panel scale
+        let parentScale = nsView.layer?.value(forKeyPath: "transform.scale.x") as? CGFloat ?? 1
+        let combined    = (1 / parentScale) * zoom        // <— INCLUDE zoom
+
+        preview.setAffineTransform(CGAffineTransform(scaleX: combined,
+                                                     y: combined))
+
+        // Flip if needed
+        CATransaction.begin()
+        CATransaction.setAnimationDuration(0.2)
+        if flipCamera {
+            preview.setAffineTransform(
+                preview.affineTransform().scaledBy(x: -1, y: 1)
+            )
         }
+        CATransaction.commit()
     }
+
     func makeCoordinator() -> Coordinator {
         Coordinator()
     }

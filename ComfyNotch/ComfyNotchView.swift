@@ -10,6 +10,20 @@ enum NotchViewState {
     case utils
 }
 
+struct Anim {
+    // macOS 14+ bouncy spring; fallback to a cubic curve
+    static var spring: Animation {
+        if #available(macOS 14, *) {
+            .spring(.bouncy(duration: 0.40))
+        } else {
+            .timingCurve(0.16, 1, 0.3, 1, duration: 0.70)
+        }
+    }
+    
+    /// What they call `.smooth` – a mild ease-out you can use for progress
+    static let smooth = Animation.easeOut(duration: 0.15)
+}
+
 class PanelAnimationState: ObservableObject {
     
     static let shared = PanelAnimationState()
@@ -58,6 +72,9 @@ struct ComfyNotchView: View {
     
     @Binding private var isDroppingFiles: Bool
     @Binding private var droppedFiles: [URL]
+    
+    /// Testing:
+    @State private var dragProgress: CGFloat = 0
 
     private var contentInset: CGFloat = 40
     private var cornerRadius: CGFloat = 20
@@ -87,6 +104,8 @@ struct ComfyNotchView: View {
                 )
                 .fill(Color.black, style: FillStyle(eoFill: true))
                 .contentShape(Rectangle()) // <- this makes the whole area droppable
+                .offset(y: dragProgress * 12) // 👈 Add this
+                .scaleEffect(1 + dragProgress * 0.03) // 👈 And this
                 .onDrop(of: [UTType.fileURL.identifier, UTType.image.identifier], isTargeted: $isDroppingFiles) { providers in
                     handleDrop(providers: providers)
                 }
@@ -154,12 +173,6 @@ struct ComfyNotchView: View {
                 ScrollHandler.shared.closeFull()
             }
         }
-        // .panGesture(direction: .down) { delta, phase in
-        //     ScrollHandler.shared.handlePan(delta: delta, phase: phase)
-        // }
-        // .panGesture(direction: .up) { delta, phase in
-        //     ScrollHandler.shared.handlePan(delta: -delta, phase: phase)
-        // }
     }
     
     func handleDrop(providers: [NSItemProvider]) -> Bool {

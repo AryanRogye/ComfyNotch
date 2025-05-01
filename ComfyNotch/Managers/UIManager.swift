@@ -127,47 +127,54 @@ class UIManager {
     }
     
     public func applyOpeningLayout() {
-        /// Opening Layout is just hiding every possible widget
-        compactWidgetStore.showWidget(named: "MovingDotsWidget")
-        compactWidgetStore.showWidget(named: "AlbumWidget")
-        compactWidgetStore.hideWidget(named: "Settings")
-        compactWidgetStore.hideWidget(named: "QuickAccessWidget")
-        
-        expandedWidgetStore.hideWidget(named: "MusicPlayerWidget")
-        expandedWidgetStore.hideWidget(named: "TimeWidget")
-        expandedWidgetStore.hideWidget(named: "NotesWidget")
-        expandedWidgetStore.hideWidget(named: "CameraWidget")
-        expandedWidgetStore.hideWidget(named: "AIChatWidget")
+        withAnimation(Anim.spring) {
+            /// Opening Layout is just hiding every possible widget
+            compactWidgetStore.hideWidget(named: "QuickAccessWidget")
+            compactWidgetStore.hideWidget(named: "AlbumWidget")
+            compactWidgetStore.hideWidget(named: "MovingDotsWidget")
+            compactWidgetStore.hideWidget(named: "Settings")
+            
+            expandedWidgetStore.hideWidget(named: "MusicPlayerWidget")
+            expandedWidgetStore.hideWidget(named: "TimeWidget")
+            expandedWidgetStore.hideWidget(named: "NotesWidget")
+            expandedWidgetStore.hideWidget(named: "CameraWidget")
+            expandedWidgetStore.hideWidget(named: "AIChatWidget")
+        }
     }
     public func applyExpandedWidgetLayout() {
-        /// When the notch is expanded we want the top row to show the settings widget on the right
-        /// But we wanna first hide any of the shown stuff
-        compactWidgetStore.hideWidget(named: "MovingDotsWidget")
-        compactWidgetStore.hideWidget(named: "AlbumWidget")
-        compactWidgetStore.showWidget(named: "Settings")
-        compactWidgetStore.showWidget(named: "QuickAccessWidget")
-        
-        /// Then we wanna show every possible widget cuz if its not added it wont actually show
-        expandedWidgetStore.showWidget(named: "MusicPlayerWidget")
-        expandedWidgetStore.showWidget(named: "TimeWidget")
-        expandedWidgetStore.showWidget(named: "NotesWidget")
-        expandedWidgetStore.showWidget(named: "CameraWidget")
-        expandedWidgetStore.showWidget(named: "AIChatWidget")
+        withAnimation(Anim.spring) {
+
+            /// When the notch is expanded we want the top row to show the settings widget on the right
+            /// But we wanna first hide any of the shown stuff
+            compactWidgetStore.hideWidget(named: "MovingDotsWidget")
+            compactWidgetStore.hideWidget(named: "AlbumWidget")
+            compactWidgetStore.showWidget(named: "Settings")
+            compactWidgetStore.showWidget(named: "QuickAccessWidget")
+            
+            /// Then we wanna show every possible widget cuz if its not added it wont actually show
+            expandedWidgetStore.showWidget(named: "MusicPlayerWidget")
+            expandedWidgetStore.showWidget(named: "TimeWidget")
+            expandedWidgetStore.showWidget(named: "NotesWidget")
+            expandedWidgetStore.showWidget(named: "CameraWidget")
+            expandedWidgetStore.showWidget(named: "AIChatWidget")
+        }
     }
     public func applyCompactWidgetLayout() {
-        /// When the notch is closed we wanna show the compact album on the left, and dots on the right and hide
-        /// The Settings Widget
-        compactWidgetStore.hideWidget(named: "QuickAccessWidget")
-        compactWidgetStore.hideWidget(named: "Settings")
-        compactWidgetStore.showWidget(named: "AlbumWidget")
-        compactWidgetStore.showWidget(named: "MovingDotsWidget")
-        
-        /// Then we hide every possible widget
-        expandedWidgetStore.hideWidget(named: "MusicPlayerWidget")
-        expandedWidgetStore.hideWidget(named: "TimeWidget")
-        expandedWidgetStore.hideWidget(named: "NotesWidget")
-        expandedWidgetStore.hideWidget(named: "CameraWidget")
-        expandedWidgetStore.hideWidget(named: "AIChatWidget")
+        withAnimation(Anim.spring) {
+            /// When the notch is closed we wanna show the compact album on the left, and dots on the right and hide
+            /// The Settings Widget
+            compactWidgetStore.hideWidget(named: "QuickAccessWidget")
+            compactWidgetStore.hideWidget(named: "Settings")
+            compactWidgetStore.showWidget(named: "AlbumWidget")
+            compactWidgetStore.showWidget(named: "MovingDotsWidget")
+            
+            /// Then we hide every possible widget
+            expandedWidgetStore.hideWidget(named: "MusicPlayerWidget")
+            expandedWidgetStore.hideWidget(named: "TimeWidget")
+            expandedWidgetStore.hideWidget(named: "NotesWidget")
+            expandedWidgetStore.hideWidget(named: "CameraWidget")
+            expandedWidgetStore.hideWidget(named: "AIChatWidget")
+        }
     }
 
     /// --Mark : Utility Methods

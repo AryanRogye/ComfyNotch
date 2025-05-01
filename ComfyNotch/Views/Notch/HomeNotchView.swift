@@ -19,29 +19,32 @@ struct HomeNotchView: View {
                     HStack(spacing: 2) {
                         ForEach(bigWidgetStore.widgets.indices, id: \.self) { index in
                             let widgetEntry = bigWidgetStore.widgets[index]
-                            if widgetEntry.isVisible {
-                                HStack(spacing: 0) {
-                                    widgetEntry.widget.swiftUIView
-                                        .padding(.horizontal, 2)
-                                        .frame(maxWidth: .infinity)
-                                        .layoutPriority(1) // make them expand evenly
-                                        .padding(.trailing, 2)
-                                        .padding(.leading, 4)
-                                    
-                                    if SettingsModel.shared.showDividerBetweenWidgets {
-                                        if index < bigWidgetStore.widgets.indices.last(where: { bigWidgetStore.widgets[$0].isVisible })! {
-                                            //                                        Rectangle()
-                                            //                                            .frame(width: 1)
-                                            //                                            .foregroundColor(.white.opacity(0.1))
-                                            //                                            .padding(.vertical, 12)
-                                            Divider()
-                                                .background(.ultraThinMaterial)
-                                                .frame(width: 1)
-                                                .padding(.vertical, 12)
+                            Group {
+                                if widgetEntry.isVisible {
+                                    HStack(spacing: 0) {
+                                        widgetEntry.widget.swiftUIView
+                                            .padding(.horizontal, 2)
+                                            .frame(maxWidth: .infinity)
+                                            .layoutPriority(1) // make them expand evenly
+                                            .padding(.trailing, 2)
+                                            .padding(.leading, 4)
+                                        
+                                        if SettingsModel.shared.showDividerBetweenWidgets {
+                                            if index < bigWidgetStore.widgets.indices.last(where: { bigWidgetStore.widgets[$0].isVisible })! {
+                                                //                                        Rectangle()
+                                                //                                            .frame(width: 1)
+                                                //                                            .foregroundColor(.white.opacity(0.1))
+                                                //                                            .padding(.vertical, 12)
+                                                Divider()
+                                                    .background(.ultraThinMaterial)
+                                                    .frame(width: 1)
+                                                    .padding(.vertical, 12)
+                                            }
                                         }
                                     }
                                 }
                             }
+                            .animation(Anim.spring, value: widgetEntry.isVisible ? 1 : 1)
                         }
                     }
                 }

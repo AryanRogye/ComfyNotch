@@ -26,8 +26,10 @@ class ExpandedWidgetsStore: PanelManager, ObservableObject {
         if widgets.isEmpty {
             return
         }
-        if let index = widgets.firstIndex(where: { $0.widget.name == name }) {
-            widgets.remove(at: index)
+        withAnimation(Anim.spring) {
+            if let index = widgets.firstIndex(where: { $0.widget.name == name }) {
+                widgets.remove(at: index)
+            }
         }
     }
 
