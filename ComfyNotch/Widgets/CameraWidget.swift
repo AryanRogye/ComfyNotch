@@ -6,7 +6,7 @@ import Combine
 struct CameraWidget: View, Widget {
     
     var name: String = "CameraWidget"
-    @StateObject private var model = CameraWidgetModel()
+    @StateObject private var model = CameraWidgetModel.shared
     
     @State var currentZoom: CGFloat = 1.0
     
@@ -56,6 +56,8 @@ struct CameraWidget: View, Widget {
 }
 
 class CameraWidgetModel: ObservableObject {
+    
+    static var shared = CameraWidgetModel()
     
     @Published var flipCamera: Bool
     let session = AVCaptureSession()
