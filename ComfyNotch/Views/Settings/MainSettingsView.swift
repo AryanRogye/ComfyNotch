@@ -15,6 +15,7 @@ struct MainSettingsView: View {
                 headerView
                 availableWidgetsSection
                 cameraSettingsSection
+                dividerSettingsSection
                 arrangeWidgetsSection
                 Spacer()
                 exitButton
@@ -22,6 +23,7 @@ struct MainSettingsView: View {
             .padding()
         }
     }
+    
     private var headerView: some View {
         VStack(spacing: 8) {
             Text("ComfyNotch Settings")
@@ -70,6 +72,24 @@ struct MainSettingsView: View {
             .labelsHidden()
         }
         .padding(.vertical, 8)
+    }
+    
+    private var dividerSettingsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Divider Settings")
+                    .font(.headline)
+                Spacer()
+            }
+            
+            Divider()
+            
+            Toggle("Enable Divider", isOn: $settings.showDividerBetweenWidgets)
+                .onChange(of: settings.showDividerBetweenWidgets) {
+                    settings.saveSettings()
+                }
+                .padding(.vertical, 8)
+        }
     }
 
     private var cameraSettingsSection: some View {

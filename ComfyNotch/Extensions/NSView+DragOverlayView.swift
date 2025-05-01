@@ -19,7 +19,7 @@ class DragOverlayView: NSView {
     }
 
     override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
-        print("📂 Drag entered panel area!")
+        debugLog("📂 Drag entered panel area!")
 
         // Open the panel when a file is dragged near
         DispatchQueue.main.async {
@@ -31,7 +31,7 @@ class DragOverlayView: NSView {
     }
 
     override func draggingExited(_ sender: NSDraggingInfo?) {
-        print("📂 Drag exited panel area!")
+        debugLog("📂 Drag exited panel area!")
     }
 
     override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {

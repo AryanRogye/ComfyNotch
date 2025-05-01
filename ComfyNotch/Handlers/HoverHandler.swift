@@ -207,12 +207,12 @@ class HoverHandler: NSObject {  // Note: Now inheriting from NSObject
     }
 
     @objc func mouseEntered(with event: NSEvent) {
-        print("Mouse entered view")
+        debugLog("Mouse entered view")
         triggerHapticFeedback()
     }
 
     @objc func mouseExited(with event: NSEvent) {
-        print("Mouse exited view")
+        debugLog("Mouse exited view")
     }
 
     private func animatePanel(expand: Bool) {

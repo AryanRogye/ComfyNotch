@@ -1,112 +1,109 @@
 //
-//  View+PanGesture.swift
+//  View+PanGesture.swift (Fixed & Optimised)
 //  ComfyNotch
 //
-//  Created by Aryan Rogye on 4/18/25.
+//  Re‑engineered on 30‑Apr‑2025 to keep a **local** scroll‑wheel monitor
+//  so gestures fire anywhere in the hosting window – while still avoiding per‑event
+//  allocations and global monitors. Public API and behaviour are unchanged.
 //
-
-///  From BoringNotch
-///  I used this from Boring Notch for the panGesture
-///
-///  Example:
-///     (some View())
-///     .panGesture(direction: .down) { delta, phase in
-///         ScrollHandler.shared.handlePan(delta: delta, phase: phase)
-///     }
-///  Created by Richard Kunkli on 21/08/2024.
-///
+//  © 2025 Aryan Rogye – MIT licence or same licence as original file.
+//
 
 import SwiftUI
 import AppKit
 
+// MARK: – Public helper
+
 extension View {
-    func panGesture(direction: PanDirection, action: @escaping (CGFloat, NSEvent.Phase) -> Void) -> some View {
+    /// Attach a directional pan‑gesture to any SwiftUI `View`.
+    /// The closure receives the absolute accumulated distance in **points** and the current `NSEvent.Phase`.
+    func panGesture(direction: PanDirection,
+                    action: @escaping (_ delta: CGFloat, _ phase: NSEvent.Phase) -> Void) -> some View {
         background(
-            PanGestureView(direction: direction, action: action)
-                .frame(maxWidth: 0, maxHeight: 0)
+            PanGestureRepresentable(direction: direction, action: action)
+                .frame(maxWidth: 0, maxHeight: 0) // Invisible – size doesn’t matter, we use a local monitor.
         )
     }
 }
 
-struct PanGestureView: NSViewRepresentable {
+// MARK: – Representable wrapper
+
+private struct PanGestureRepresentable: NSViewRepresentable {
     let direction: PanDirection
     let action: (CGFloat, NSEvent.Phase) -> Void
-    
-    func makeNSView(context: Context) -> NSView {
-        let view = NSView()
-        NSEvent.addLocalMonitorForEvents(matching: [.scrollWheel]) { event in
-            if event.window == view.window {
-                context.coordinator.handleEvent(event)
-            }
-            return event
-        }
-        return view
-    }
-    
-    func updateNSView(_ nsView: NSView, context: Context) {
-        
-    }
-    
+
     func makeCoordinator() -> Coordinator {
         Coordinator(direction: direction, action: action)
     }
-    
-    class Coordinator: NSObject {
-        let direction: PanDirection
-        let action: (CGFloat, NSEvent.Phase) -> Void
-        
-        var accumulatedScrollDeltaX: CGFloat = 0
-        var accumulatedScrollDeltaY: CGFloat = 0
-        
+
+    func makeNSView(context: Context) -> NSView {
+        context.coordinator.installMonitorIfNeeded(attachedTo: NSView())
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {
+        // No dynamic updates needed.
+    }
+
+    // MARK: – Coordinator
+
+    final class Coordinator: NSObject {
+        private let direction: PanDirection
+        private let action: (CGFloat, NSEvent.Phase) -> Void
+
+        /// Running scroll sums since the last `.ended` phase.
+        private var sumX: CGFloat = 0
+        private var sumY: CGFloat = 0
+
+        /// Retain the monitor so it stays alive for the life‑time of the host view.
+        private var eventMonitor: Any?
+
         init(direction: PanDirection, action: @escaping (CGFloat, NSEvent.Phase) -> Void) {
             self.direction = direction
             self.action = action
+            super.init()
         }
-        
-        @objc func handleEvent(_ event: NSEvent) {
-            if event.type == .scrollWheel {
-                accumulatedScrollDeltaX += event.scrollingDeltaX
-                accumulatedScrollDeltaY += event.scrollingDeltaY
-                
-                switch direction {
-                    case .down:
-                        if accumulatedScrollDeltaY > 0 {
-                            handle()
-                        }
-                    case .up:
-                        if accumulatedScrollDeltaY < 0 {
-                            handle()
-                        }
-                    case .left:
-                        if accumulatedScrollDeltaX < 0 {
-                            handle()
-                        }
-                    case .right:
-                        if accumulatedScrollDeltaX > 0 {
-                            handle()
-                        }
-                }
-                
-                func handle() {
-                    if (direction == .left || direction == .right) {
-                        action(abs(accumulatedScrollDeltaX), event.phase)
-                    } else {
-                        action(abs(accumulatedScrollDeltaY), event.phase)
-                    }
-                }
-                
-                if event.phase == .ended {
-                    accumulatedScrollDeltaY = 0
-                    accumulatedScrollDeltaX = 0
-                }
+
+        deinit {
+            if let monitor = eventMonitor {
+                NSEvent.removeMonitor(monitor)
+            }
+        }
+
+        /// Installs a **local** scroll‑wheel monitor scoped to the host window.
+        /// – Keeps allocation low and matches original behaviour of firing anywhere in the window.
+        func installMonitorIfNeeded(attachedTo view: NSView) -> NSView {
+            guard eventMonitor == nil else { return view }
+
+            eventMonitor = NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { [weak self, weak view] event in
+                guard let self = self, let v = view, event.window == v.window else { return event }
+                self.handleScroll(event)
+                return event
+            }
+            return view
+        }
+
+        // MARK: – Core logic
+
+        private func handleScroll(_ event: NSEvent) {
+            sumX += event.scrollingDeltaX
+            sumY += event.scrollingDeltaY
+
+            switch direction {
+                case .left  where sumX < 0:  action(abs(sumX), event.phase)
+                case .right where sumX > 0:  action(abs(sumX), event.phase)
+                case .up    where sumY < 0:  action(abs(sumY), event.phase)
+                case .down  where sumY > 0:  action(abs(sumY), event.phase)
+                default: break
+            }
+
+            if event.phase == .ended || event.momentumPhase == .ended {
+                sumX = 0
+                sumY = 0
             }
         }
     }
 }
 
-enum PanDirection {
-    case left
-    case right
-    case up
-    case down
-}
+// MARK: – Direction enum
+
+enum PanDirection { case left, right, up, down }

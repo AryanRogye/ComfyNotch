@@ -62,7 +62,7 @@ class ExpandedWidgetsStore: PanelManager, ObservableObject {
 
     /// Function to remove all widgets from the big panel
     func clearWidgets() {
-        print("🗑️ Clearing all widgets from the big panel.")
+        debugLog("🗑️ Clearing all widgets from the big panel.")
         widgets.removeAll()
     }
 }

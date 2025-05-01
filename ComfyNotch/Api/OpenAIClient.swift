@@ -42,7 +42,7 @@ class OpenAIClient: APIClient {
 
             do {
                 if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                    print("JSON Response: \(json)")
+                    debugLog("JSON Response: \(json)")
                     if let choices = json["choices"] as? [[String: Any]],
                        let message = choices.first?["message"] as? [String: Any],
                        let content = message["content"] as? String {

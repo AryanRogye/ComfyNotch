@@ -53,7 +53,7 @@ struct FileTrayView: View {
             let resourceVlaues =  try fileURL.resourceValues(forKeys: [.creationDateKey])
             return resourceVlaues.creationDate ?? Date()
         } catch {
-            print("Error Getting Timestamp \(error.localizedDescription)")
+            debugLog("Error Getting Timestamp \(error.localizedDescription)")
         }
         return Date()
     }
@@ -104,7 +104,7 @@ struct FileTrayView: View {
                             do {
                                 try FileManager.default.removeItem(at: currentDeleteFileURL!)
                             } catch {
-                                print("There was a error deleting the file \(error.localizedDescription)")
+                                debugLog("There was a error deleting the file \(error.localizedDescription)")
                             }
                             // call your delete function here
                             showDeleteFileAlert = false
@@ -186,7 +186,7 @@ struct FileTrayView: View {
                 }
             }
         } catch {
-            print("There Was A Error Getting Paths \(error.localizedDescription)")
+            debugLog("There Was A Error Getting Paths \(error.localizedDescription)")
         }
         return matchedFiles
     }

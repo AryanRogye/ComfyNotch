@@ -172,13 +172,13 @@ class UIManager {
 
     /// --Mark : Utility Methods
     private func displayCurrentBigPanelWidgets(with title: String = "Current Big Panel Widgets") {
-        print("=====================================================")
-        print("\(title)")
-        print("=====================================================")
+        debugLog("=====================================================")
+        debugLog("\(title)")
+        debugLog("=====================================================")
         for widget in expandedWidgetStore.widgets {
-            print("Name: \(widget.widget.name), Visible: \(widget.isVisible)")
+            debugLog("Name: \(widget.widget.name), Visible: \(widget.isVisible)")
         }
-        print("=====================================================")
+        debugLog("=====================================================")
     }
 
     /**

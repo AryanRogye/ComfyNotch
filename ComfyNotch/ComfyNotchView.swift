@@ -135,6 +135,7 @@ struct ComfyNotchView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         /// For Scrolling the Panel
         .panGesture(direction: .down) { translation, phase in
+            debugLog("Called Down")
             guard UIManager.shared.panelState == .closed else { return }
 
             if translation > 50 {
@@ -143,6 +144,7 @@ struct ComfyNotchView: View {
             }
         }
         .panGesture(direction: .up) { translation, phase in
+            debugLog("Called Up")
             guard UIManager.shared.panelState == .open else { return }
             
             if animationState.currentPanelState == .file_tray || animationState.currentPanelState == .utils { return }
@@ -168,19 +170,19 @@ struct ComfyNotchView: View {
                     if let data = item as? Data,
                        let url = NSURL(absoluteURLWithDataRepresentation: data, relativeTo: nil) as URL? {
                         
-                        print("✅ Dropped file path: \(url.path)")
+                        debugLog("✅ Dropped file path: \(url.path)")
 
                         let renamedFile = "DroppedImage-\(UUID().uuidString)\(url.pathExtension.isEmpty ? "" : ".\(url.pathExtension)")"
                         let destURL = settings.fileTrayDefaultFolder.appendingPathComponent(renamedFile)
 
                         do {
                             try FileManager.default.copyItem(at: url, to: destURL)
-                            print("📁 Copied to: \(destURL.path)")
+                            debugLog("📁 Copied to: \(destURL.path)")
                             DispatchQueue.main.async {
                                 PanelAnimationState.shared.droppedFiles.append(destURL)
                             }
                         } catch {
-                            print("❌ Failed to copy file: \(error)")
+                            debugLog("❌ Failed to copy file: \(error)")
                         }
                     }
                 }
@@ -190,7 +192,7 @@ struct ComfyNotchView: View {
             else if provider.canLoadObject(ofClass: NSImage.self) {
                 _ = provider.loadObject(ofClass: NSImage.self) { object, error in
                     if let image = object as? NSImage {
-                        print("📸 Received image from drag")
+                        debugLog("📸 Received image from drag")
 
                         // Optional: Save image to temp dir
                         if let tiffData = image.tiffRepresentation,
@@ -199,12 +201,12 @@ struct ComfyNotchView: View {
                             let tempURL = settings.fileTrayDefaultFolder.appendingPathComponent("DroppedImage-\(UUID().uuidString).png")
                             do {
                                 try pngData.write(to: tempURL)
-                                print("✅ Saved image to: \(tempURL.path)")
+                                debugLog("✅ Saved image to: \(tempURL.path)")
                                 DispatchQueue.main.async {
                                     PanelAnimationState.shared.droppedFiles.append(tempURL)
                                 }
                             } catch {
-                                print("❌ Failed to save image: \(error)")
+                                debugLog("❌ Failed to save image: \(error)")
                             }
                         }
                     }

@@ -30,7 +30,7 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter,
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        print("🔔 Notification received: \(notification.request.content.title) - \(notification.request.content.body)")
+        debugLog("🔔 Notification received: \(notification.request.content.title) - \(notification.request.content.body)")
 //        PanelAnimationState.shared.toggleBorderGlow()
     }
     
@@ -44,9 +44,9 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
                 /// If a request was able to be sent
                 center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
                     if let error = error {
-                        print("🛑 Notification auth error: \(error)")
+                        debugLog("🛑 Notification auth error: \(error)")
                     } else {
-                        print("🔔 Notifications \(granted ? "granted" : "denied")")
+                        debugLog("🔔 Notifications \(granted ? "granted" : "denied")")
                     }
                 }
             }

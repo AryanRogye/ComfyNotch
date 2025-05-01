@@ -104,7 +104,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
                     UIManager.shared.expandedWidgetStore.hideWidget(named: widgetName)
                 }
             } else {
-                print("Widget \(widgetName) not found in WidgetRegistry")
+                debugLog("Widget \(widgetName) not found in WidgetRegistry")
             }
         }
 

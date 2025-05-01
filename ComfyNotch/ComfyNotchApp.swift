@@ -21,6 +21,12 @@ func killOtherComfyNotches() {
     }
 }
 
+func debugLog(_ message: @autoclosure () -> Any) {
+    #if DEBUG
+    print(message())
+    #endif
+}
+
 @main
 struct ComfyNotchApp: App {
     

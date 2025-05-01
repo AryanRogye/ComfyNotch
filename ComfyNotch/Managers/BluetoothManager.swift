@@ -29,7 +29,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     /// it makes sure that the bluetooth is on and then starts scanning for devices
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         guard central.state == .poweredOn else {
-            print("Bluetooth not available: \(central.state.rawValue)")
+            debugLog("Bluetooth not available: \(central.state.rawValue)")
             return
         }
         central.scanForPeripherals(withServices: nil, options: [CBCentralManagerScanOptionAllowDuplicatesKey: false])
@@ -44,7 +44,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
             peripheral.delegate = self              // 🔑 must set delegate
             userBluetoothConnections.append(peripheral)
             connectionStates[peripheral.identifier] = false
-            print("➕ Discovered: \(peripheral.name ?? peripheral.identifier.uuidString)")
+            debugLog("➕ Discovered: \(peripheral.name ?? peripheral.identifier.uuidString)")
         }
     }
 
@@ -56,11 +56,11 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     
     // 3) Connect method
     func connect(_ peripheral: CBPeripheral) {
-        print("⏳ Attempting to connect to \(peripheral.name ?? peripheral.identifier.uuidString)...")
+        debugLog("⏳ Attempting to connect to \(peripheral.name ?? peripheral.identifier.uuidString)...")
         
         // Check if peripheral is already connected
         if peripheral.state == .connected {
-            print("⚠️ Device is already connected!")
+            debugLog("⚠️ Device is already connected!")
             return
         }
         
@@ -76,11 +76,11 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
 
     // 4) Disconnect method
     func disconnect(_ peripheral: CBPeripheral) {
-        print("⏳ Attempting to disconnect from \(peripheral.name ?? peripheral.identifier.uuidString)...")
+        debugLog("⏳ Attempting to disconnect from \(peripheral.name ?? peripheral.identifier.uuidString)...")
         
         // Check if peripheral is already disconnected
         if peripheral.state != .connected {
-            print("⚠️ Device is already disconnected!")
+            debugLog("⚠️ Device is already disconnected!")
             return
         }
         
@@ -97,7 +97,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     
     private func startScanning() {
         manager?.scanForPeripherals(withServices: nil, options: [CBCentralManagerScanOptionAllowDuplicatesKey: false])
-        print("Started scanning for peripherals")
+        debugLog("Started scanning for peripherals")
     }
     
     private func addPeripheral(_ peripheral: CBPeripheral) {
@@ -111,7 +111,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
             if !self.userBluetoothConnections.contains(where: { $0.name == peripheral.name }) {
                 peripheral.delegate = self
                 self.userBluetoothConnections.append(peripheral)
-                print("➕ Discovered: \(name)")
+                debugLog("➕ Discovered: \(name)")
             }
         }
     }

@@ -15,7 +15,7 @@ class MetalCoordinator: NSObject, MTKViewDelegate {
     var useBorder: Bool = false /// TODO: Replace with enum
     var currentEffect: ShaderEffect = .none {
         didSet {
-            print("[MetalCoordinator] currentEffect updated to \(currentEffect)")
+            debugLog("[MetalCoordinator] currentEffect updated to \(currentEffect)")
         }
     }
 

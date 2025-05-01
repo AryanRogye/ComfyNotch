@@ -21,6 +21,7 @@ class SettingsModel: ObservableObject {
     @Published var clipboardManagerPollingIntervalMS: Int = 1000
     
     @Published var fileTrayDefaultFolder: URL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+    @Published var showDividerBetweenWidgets: Bool = false /// False cuz i like it without
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -32,13 +33,11 @@ class SettingsModel: ObservableObject {
     func saveSettings() {
         let defaults = UserDefaults.standard
 
-        print("Saving Widget Settings: \(selectedWidgets)") // Debug print
-
         // Saving the last state for whatever widgets are selected
         defaults.set(selectedWidgets, forKey: "selectedWidgets")
 
         defaults.set(isCameraFlipped, forKey: "isCameraFlipped")
-        print("Saving camera flip state: \(isCameraFlipped)")
+        
 
         /// For some reason the api key was getting called to save even if it was empty
         /// So I had to add this check, prolly gonna have to check that reason out <- TODO
@@ -61,6 +60,7 @@ class SettingsModel: ObservableObject {
         if clipboardManagerPollingIntervalMS >= 0 {
             defaults.set(clipboardManagerPollingIntervalMS, forKey: "clipboardManagerPollingIntervalMS")
         }
+        defaults.set(showDividerBetweenWidgets, forKey: "showDividerBetweenWidgets")
     }
     /// Loads the last saved settings from UserDefaults
     func loadSettings() {
@@ -97,12 +97,15 @@ class SettingsModel: ObservableObject {
         if let clipboardManagerPollingIntervalMS = defaults.object(forKey: "clipboardManagerPollingIntervalMS") as? Int {
             self.clipboardManagerPollingIntervalMS = clipboardManagerPollingIntervalMS
         }
+        if let showDividerBetweenWidgets = defaults.object(forKey: "showDividerBetweenWidgets") as? Bool {
+            self.showDividerBetweenWidgets = showDividerBetweenWidgets
+        }
     }
 
     /// Updates `selectedWidgets` and triggers a reload notification immediately
     func updateSelectedWidgets(with widgetName: String, isSelected: Bool) {
 
-        print("Updating selected widgets with: \(widgetName), isSelected: \(isSelected)")
+        debugLog("Updating selected widgets with: \(widgetName), isSelected: \(isSelected)")
 
         // Starting With Remove Logic so we can clear out any old widgets
 
@@ -110,9 +113,9 @@ class SettingsModel: ObservableObject {
             if selectedWidgets.contains(widgetName) {
                 selectedWidgets.removeAll { $0 == widgetName }
                 UIManager.shared.expandedWidgetStore.removeWidget(named: widgetName)
-                print("Removed widget: \(widgetName)")
+                debugLog("Removed widget: \(widgetName)")
             } else {
-                print("Widget \(widgetName) not found in selected widgets")
+                debugLog("Widget \(widgetName) not found in selected widgets")
                 exit(0)
             }
         }
@@ -123,19 +126,19 @@ class SettingsModel: ObservableObject {
                 selectedWidgets.append(widgetName)
                 if let widget = WidgetRegistry.shared.getWidget(named: widgetName) {
                     UIManager.shared.addWidgetToBigPanel(widget)
-                    print("Added widget: \(widgetName)")
+                    debugLog("Added widget: \(widgetName)")
                 }
             }
         }
 
         saveSettings()
-        print("NEW Saved Settings: \(selectedWidgets)")
+        debugLog("NEW Saved Settings: \(selectedWidgets)")
 
         // Refresh the UI only if the panel is open
         if UIManager.shared.panelState == .open {
             refreshUI()
         } else {
-            print("Panel is not open, not refreshing UI")
+            debugLog("Panel is not open, not refreshing UI")
         }
     }
 
@@ -153,7 +156,7 @@ class SettingsModel: ObservableObject {
     }
 
     func removeAndAddBackCurrentWidgets() {
-        print("🔄 Rebuilding widgets in the panel based on the updated order.")
+        debugLog("🔄 Rebuilding widgets in the panel based on the updated order.")
 
         // Clear all currently displayed widgets
         UIManager.shared.expandedWidgetStore.clearWidgets()
@@ -163,7 +166,7 @@ class SettingsModel: ObservableObject {
             if let widget = WidgetRegistry.shared.getWidget(named: widgetName) {
                 UIManager.shared.addWidgetToBigPanel(widget)
             } else {
-                print("⚠️ Widget \(widgetName) not found in WidgetRegistry.")
+                debugLog("⚠️ Widget \(widgetName) not found in WidgetRegistry.")
             }
         }
 

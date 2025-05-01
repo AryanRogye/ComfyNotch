@@ -100,7 +100,7 @@ class ShortcutHandler: ObservableObject {
             
             if matchesModifiersExactly && matchesKey {
                 self.pressedShortcut = shortcut.name
-                print("Shortcut matched → \(shortcut.name) [\(shortcut.modifiers.map(\.rawValue).joined(separator: " + ")) + \(shortcut.key ?? "")]")
+                debugLog("Shortcut matched → \(shortcut.name) [\(shortcut.modifiers.map(\.rawValue).joined(separator: " + ")) + \(shortcut.key ?? "")]")
                 
                 handleShortcutAction(for: shortcut.name)
             }
@@ -139,7 +139,7 @@ class ShortcutHandler: ObservableObject {
     func updateModifier(for name: String, to newModifier: ModifierKey) {
         if let index = userShortcuts.firstIndex(where: { $0.name == name }) {
             userShortcuts[index].modifiers = [newModifier] // <<< wrap in array or set
-            print("Updated \(name) to modifier \(newModifier.rawValue)")
+            debugLog("Updated \(name) to modifier \(newModifier.rawValue)")
         }
     }
 
@@ -163,11 +163,11 @@ class ShortcutHandler: ObservableObject {
             if matchesModifiersExactly && !wasActiveBefore {
                 activeModifiers.formUnion(shortcut.modifiers) // insert all modifiers into activeModifiers
                 self.pressedShortcut = shortcut.name
-//                print("🔹 Modifier down → \(shortcut.name) [\(shortcut.modifiers.map(\.rawValue).joined(separator: " + "))]")
+//                debugLog("🔹 Modifier down → \(shortcut.name) [\(shortcut.modifiers.map(\.rawValue).joined(separator: " + "))]")
             }
             if !matchesModifiersExactly && wasActiveBefore {
                 activeModifiers.subtract(shortcut.modifiers) // remove all modifiers from activeModifiers
-//                print("🔻 Modifier up → \(shortcut.modifiers.map(\.rawValue).joined(separator: " + "))")
+//                debugLog("🔻 Modifier up → \(shortcut.modifiers.map(\.rawValue).joined(separator: " + "))")
             }
         }
     }

@@ -6,11 +6,11 @@ class ScrollHandler {
 
     // MARK: – Configuration
     var minPanelHeight: CGFloat = UIManager.shared.getNotchHeight()
-    var maxPanelHeight: CGFloat = 100
+    var maxPanelHeight: CGFloat = 150
     var minPanelWidth: CGFloat = 320
     var maxPanelWidth: CGFloat = 700
 
-    private let maxPullDistance = 100
+    private let maxPullDistance = 150
     /// Fine‑tune this multiplier to taste
     private let scrollSensitivity: CGFloat = 0.3
     private var panAccumulated: CGFloat = 0
@@ -302,15 +302,15 @@ class ScrollHandler {
         // 2️⃣ keep your existing panel‑store logic:
         if open {
             UIManager.shared.panelState = .open
-            print("Opening")
+            debugLog("Opening")
             UIManager.shared.applyExpandedWidgetLayout()
         } else if height <= minPanelHeight {
             UIManager.shared.panelState = .closed
-            print("Closed")
+            debugLog("Closed")
             UIManager.shared.applyCompactWidgetLayout()
         } else {
             UIManager.shared.panelState = .partiallyOpen
-            print("Applying Partial")
+            debugLog("Applying Partial")
             UIManager.shared.applyOpeningLayout()
         }
     }

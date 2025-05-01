@@ -36,7 +36,6 @@ struct NotesWidget: View, Widget {
         }
         .background(Color.clear)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .border(Color.white, width: 1)
     }
 
     @ViewBuilder
