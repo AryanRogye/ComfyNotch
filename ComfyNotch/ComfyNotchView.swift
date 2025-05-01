@@ -3,6 +3,7 @@ import SwiftUI
 import Combine
 import MetalKit
 import UniformTypeIdentifiers   /// For the file drop
+import CryptoKit
 
 enum NotchViewState {
     case home
@@ -177,20 +178,30 @@ struct ComfyNotchView: View {
     
     func handleDrop(providers: [NSItemProvider]) -> Bool {
         for provider in providers {
-            // File URL handling (e.g., from Finder)
+            // Handle files from Finder
             if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
                 provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, error in
                     if let data = item as? Data,
                        let url = NSURL(absoluteURLWithDataRepresentation: data, relativeTo: nil) as URL? {
                         
                         debugLog("✅ Dropped file path: \(url.path)")
-
-                        let renamedFile = "DroppedImage-\(UUID().uuidString)\(url.pathExtension.isEmpty ? "" : ".\(url.pathExtension)")"
+                        
+                        // Check if this is a duplicate file
+                        if !DroppedFileTracker.shared.isNewFile(url: url) {
+                            debugLog("❌ Duplicate file detected - ignoring")
+                            return
+                        }
+                        
+                        let renamedFile = "DroppedFile-\(UUID().uuidString)\(url.pathExtension.isEmpty ? "" : ".\(url.pathExtension)")"
                         let destURL = settings.fileTrayDefaultFolder.appendingPathComponent(renamedFile)
-
+                        
                         do {
                             try FileManager.default.copyItem(at: url, to: destURL)
                             debugLog("📁 Copied to: \(destURL.path)")
+                            
+                            // Register the file in our tracker
+                            DroppedFileTracker.shared.registerFile(url: destURL)
+                            
                             DispatchQueue.main.async {
                                 PanelAnimationState.shared.droppedFiles.append(destURL)
                             }
@@ -200,33 +211,96 @@ struct ComfyNotchView: View {
                     }
                 }
             }
-
-            // Screenshot or image (in-memory)
+            
+            // Handle screenshots or in-memory images
             else if provider.canLoadObject(ofClass: NSImage.self) {
                 _ = provider.loadObject(ofClass: NSImage.self) { object, error in
-                    if let image = object as? NSImage {
+                    if let image = object as? NSImage,
+                       let tiffData = image.tiffRepresentation,
+                       let bitmap = NSBitmapImageRep(data: tiffData),
+                       let pngData = bitmap.representation(using: .png, properties: [:]) {
+                        
                         debugLog("📸 Received image from drag")
-
-                        // Optional: Save image to temp dir
-                        if let tiffData = image.tiffRepresentation,
-                           let bitmap = NSBitmapImageRep(data: tiffData),
-                           let pngData = bitmap.representation(using: .png, properties: [:]) {
-                            let tempURL = settings.fileTrayDefaultFolder.appendingPathComponent("DroppedImage-\(UUID().uuidString).png")
-                            do {
-                                try pngData.write(to: tempURL)
-                                debugLog("✅ Saved image to: \(tempURL.path)")
-                                DispatchQueue.main.async {
-                                    PanelAnimationState.shared.droppedFiles.append(tempURL)
-                                }
-                            } catch {
-                                debugLog("❌ Failed to save image: \(error)")
+                        
+                        // Check if this is a duplicate image
+                        if !DroppedFileTracker.shared.isNewData(data: pngData) {
+                            debugLog("❌ Duplicate image detected - ignoring")
+                            return
+                        }
+                        
+                        let tempURL = settings.fileTrayDefaultFolder.appendingPathComponent("DroppedImage-\(UUID().uuidString).png")
+                        
+                        do {
+                            try pngData.write(to: tempURL)
+                            debugLog("✅ Saved image to: \(tempURL.path)")
+                            
+                            // Register the file in our tracker
+                            DroppedFileTracker.shared.registerFile(url: tempURL)
+                            
+                            DispatchQueue.main.async {
+                                PanelAnimationState.shared.droppedFiles.append(tempURL)
                             }
+                        } catch {
+                            debugLog("❌ Failed to save image: \(error)")
                         }
                     }
                 }
             }
         }
-
+        
         return true
+    }}
+
+class DroppedFileTracker {
+    static let shared = DroppedFileTracker()
+    
+    private var fileHashes: Set<String> = []
+    private let queue = DispatchQueue(label: "com.app.filetracker", attributes: .concurrent)
+    
+    func isNewFile(url: URL) -> Bool {
+        if let hash = fileHash(url: url) {
+            return isNewHash(hash)
+        }
+        return true
+    }
+    
+    func isNewData(data: Data) -> Bool {
+        let hash = dataHash(data: data)
+        return isNewHash(hash)
+    }
+    
+    func registerFile(url: URL) {
+        if let hash = fileHash(url: url) {
+            registerHash(hash)
+        }
+    }
+    
+    func registerData(data: Data) {
+        let hash = dataHash(data: data)
+        registerHash(hash)
+    }
+    
+    private func isNewHash(_ hash: String) -> Bool {
+        var isNew = false
+        queue.sync {
+            isNew = !fileHashes.contains(hash)
+        }
+        return isNew
+    }
+    
+    private func registerHash(_ hash: String) {
+        queue.async(flags: .barrier) {
+            self.fileHashes.insert(hash)
+        }
+    }
+    
+    func dataHash(data: Data) -> String {
+        let digest = SHA256.hash(data: data)
+        return digest.map { String(format: "%02x", $0) }.joined()
+    }
+    
+    func fileHash(url: URL) -> String? {
+        guard let data = try? Data(contentsOf: url) else { return nil }
+        return dataHash(data: data)
     }
 }

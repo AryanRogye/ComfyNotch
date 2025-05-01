@@ -31,6 +31,9 @@ struct FileTrayView: View {
                                     showDelete(fileURL: fileURL)
                                 }
                                 .padding(.horizontal)
+                                .onDrag {
+                                    NSItemProvider(contentsOf: fileURL)!
+                                }
                             }
                         }
                         .background(Color.black)
@@ -181,7 +184,7 @@ struct FileTrayView: View {
         do {
             let contents = try fileManager.contentsOfDirectory(at: folderURL, includingPropertiesForKeys: nil)
             for url in contents {
-                if url.lastPathComponent.hasPrefix("DroppedImage") {
+                if url.lastPathComponent.hasPrefix("Dropped") {
                     matchedFiles.append(url)
                 }
             }

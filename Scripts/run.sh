@@ -1,3 +1,3 @@
 pkill ComfyNotch
 ./Scripts/build.sh
-open ~/Library/Developer/Xcode/DerivedData/ComfyNotch-*/Build/Products/Debug/ComfyNotch.app
+open "$(find ~/Library/Developer/Xcode/DerivedData -type d -name 'ComfyNotch.app' -path '*Debug*' | sort -r | head -n1)"
