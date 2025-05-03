@@ -13,6 +13,12 @@ import CoreImage
  * - Auto-updates media information
  */
 class AudioManager: ObservableObject {
+    public enum MusicProver {
+        case none
+        case apple_music
+        case spotify
+    }
+    
     static let shared = AudioManager()
     
     /// Currently playing song title
@@ -29,6 +35,8 @@ class AudioManager: ObservableObject {
     @Published var currentSecondsSong: Double = 0.0
     /// Current Total Seconds of the Audio that is Playing
     @Published var totalSecondsSong: Double = 0.0
+    /// What Provder the user is currently listening to
+    @Published var musicProvider: MusicProver = .apple_music
     
     private var timer: Timer?
     var onNowPlayingInfoUpdated: (() -> Void)?
@@ -61,36 +69,27 @@ class AudioManager: ObservableObject {
      */
     func getNowPlayingInfo() {
         if !isSpotifyPlaying() && !isMusicPlaying() {
+            musicProvider = .none
             clearNowPlaying()
         } else if isSpotifyPlaying() {
             getSpotifyInfo { info in
                 if let info = info {
                     self.updateNowPlaying(with: info)
+                    self.musicProvider = .spotify
                 } else if self.isMusicPlaying(), let musicInfo = self.getMusicInfo() {
                     self.updateNowPlaying(with: musicInfo)
+                    self.musicProvider = .apple_music
                 } else {
                     self.clearNowPlaying()
+                    self.musicProvider = .none
                 }
             }
         } else if isMusicPlaying() {
             if let musicInfo = self.getMusicInfo() {
                 self.updateNowPlaying(with: musicInfo)
+                self.musicProvider = .apple_music
             }
         }
-        //        getSpotifyInfo { info in
-        //            if let info = info {
-        //                self.updateNowPlaying(with: info)
-        //            } else if let musicInfo = self.getMusicInfo() {
-        //                self.updateNowPlaying(with: musicInfo)
-        //            } else {
-        //                self.currentSongText = "No Song Playing"
-        //                self.currentArtistText = "Unknown Artist"
-        //                self.currentAlbumText = "Unknown Album"
-        //                self.currentArtworkImage = nil
-        //                self.dominantColor = .white
-        //                self.onNowPlayingInfoUpdated?()
-        //            }
-        //        }
     }
     
     /**

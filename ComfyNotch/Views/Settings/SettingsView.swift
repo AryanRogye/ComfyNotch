@@ -1,82 +1,85 @@
 import SwiftUI
 import Combine
 
+extension View {
+    func elevateToFloatingWindow() -> some View {
+        self.background(WindowAccessor { window in
+            window?.level = .floating
+            window?.makeKeyAndOrderFront(nil)
+        })
+    }
+}
+
+// This helper grabs the NSWindow from the view hierarchy
+private struct WindowAccessor: NSViewRepresentable {
+    var onResolve: (NSWindow?) -> Void
+    
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        DispatchQueue.main.async {
+            self.onResolve(view.window)
+        }
+        return view
+    }
+    
+    func updateNSView(_ nsView: NSView, context: Context) {}
+}
+
+import SwiftUI
+import Combine
+
 struct SettingsView: View {
     @ObservedObject var settings = SettingsModel.shared
-    @State private var selectedTab: Int? = 0
-    @State private var showTabBar: Bool = true
+    @State private var selectedTab: Tab = .general
 
-    let expandedSidebarWidth: CGFloat = 180
-    // <<< How much space does the button *actually* need visually? >>>
-    let collapsedVisibleWidth: CGFloat = 55 // Keep this definition for the spacer
+    enum Tab: String, CaseIterable, Identifiable, Equatable {
+        case general = "General"
+        case ai = "AI"
+        case shortcuts = "Shortcuts"
+        case filetray = "File Tray"
 
-    // <<< Calculate the offset needed to show JUST the button >>>
-    let collapsedOffsetValue: CGFloat = -69
-
-    var body: some View {
-        VStack(spacing: 0) {
-            /// Title of the screen will go here
-
-            ZStack(alignment: .leading) {
-                /// Main Content Area
-                HStack(spacing: 0) {
-                    /// Spacer to push the content to the right
-                    /// This simulates the actual tabbar being there
-                    Spacer()
-                        .frame(width: showTabBar ? expandedSidebarWidth : collapsedVisibleWidth)
-                        .animation(.easeInOut(duration: 0.25), value: showTabBar)
-                    /// The Actual View
-                    Group {
-                        switch selectedTab {
-                        case 0: MainSettingsView(settings: settings)
-                        case 1: AISettingsView(settings: settings)
-                        case 2: ShortcutView(settings: settings)
-                        case 3: FileTraySettingsView(settings: settings)
-                        default: Text("Nothing Selected")
-                        }
-                    }
-                    .padding(.leading, showTabBar ? 0 : (collapsedOffsetValue + 15))
-                    .animation(.easeInOut(duration: 0.25), value: showTabBar)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-                CustomSidebar(isExpanded: $showTabBar) {
-                    /// we have 3 right now
-                    CustomTabItem(
-                        icon: "gearshape",
-                        title: "Settings",
-                        isSelected: selectedTab == 0
-                    ) { selectedTab = 0 }
-
-                    CustomTabItem(
-                        icon: "brain.head.profile",
-                        title: "AI Settings",
-                        isSelected: selectedTab == 1
-                    ) { selectedTab = 1 }
-
-                    CustomTabItem(
-                        icon: "keyboard",
-                        title: "Shorcut",
-                        isSelected: selectedTab == 2
-                    ) { selectedTab = 2 }
-                    
-                    CustomTabItem(
-                        icon: "folder",
-                        title: "File Tray",
-                        isSelected: selectedTab == 3
-                    ) { selectedTab = 3 }
-                    Spacer()
-                }
+        var id: String { rawValue }
+        var label: String { rawValue }
+        var icon: String {
+            switch self {
+            case .general: return "gearshape"
+            case .ai: return "brain.head.profile"
+            case .shortcuts: return "keyboard"
+            case .filetray: return "folder"
             }
         }
-        .frame(maxWidth: 700, maxHeight: 600)
+
+        @ViewBuilder
+        func destination(settings: SettingsModel) -> some View {
+            switch self {
+            case .general: MainSettingsView(settings: settings)
+            case .ai: AISettingsView(settings: settings)
+            case .shortcuts: ShortcutView(settings: settings)
+            case .filetray: FileTraySettingsView(settings: settings)
+            }
+        }
+    }
+
+    var body: some View {
+        NavigationSplitView {
+            List(Tab.allCases, selection: $selectedTab) { tab in
+                Label(tab.label, systemImage: tab.icon)
+                    .tag(tab)
+            }
+            .listStyle(.sidebar)
+            .navigationTitle("Settings")
+        } detail: {
+            selectedTab.destination(settings: settings)
+                .frame(minWidth: 500, maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .frame(minWidth: 700, minHeight: 500)
+        .elevateToFloatingWindow()
+        .onAppear {
+            settings.isSettingsWindowOpen = true
+        }
         .onDisappear {
             settings.isSettingsWindowOpen = false
             SettingsModel.shared.refreshUI()
         }
     }
-}
-
-#Preview {
-    SettingsView(settings: SettingsModel.shared)
 }

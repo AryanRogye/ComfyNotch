@@ -1,6 +1,7 @@
 import AppKit
 import SwiftUI
 import Combine
+import SVGView
 
 
 struct MusicControlButton: ButtonStyle {
@@ -18,7 +19,8 @@ struct MusicPlayerWidget: View, Widget {
     var imageWidth: CGFloat = 120
     var imageHeight: CGFloat = 120
     
-    @StateObject private var model = MusicPlayerWidgetModel()
+    @StateObject private var model = MusicPlayerWidgetModel.shared
+    
     var body: some View {
         HStack(spacing: 10) {
             // Album artwork
@@ -37,6 +39,9 @@ struct MusicPlayerWidget: View, Widget {
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear {
+            debugLog("Bundle Path: \(Bundle.main.bundlePath)")
+        }
     }
     
     @ViewBuilder
@@ -169,22 +174,43 @@ struct MusicPlayerWidget: View, Widget {
 
     @ViewBuilder
     func renderAlbumCover() -> some View {
-        if let artwork = model.artworkImage {
-            Image(nsImage: artwork)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: imageWidth, height: imageHeight)
-                .cornerRadius(8)
-                .padding(.leading, 7.5)
-                .padding(.top, 7.5)
-        } else {
-            Rectangle()
-                .fill(Color.gray.opacity(0.3))
-                .cornerRadius(8)
-                .padding(.leading, 7.5)
-                .frame(width: imageWidth, height: imageHeight)
-                .allowsHitTesting(false)
-                .padding(.top, 7.5)
+        ZStack(alignment: .topLeading) {
+            if let artwork = model.artworkImage {
+                Image(nsImage: artwork)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: imageWidth, height: imageHeight)
+                    .cornerRadius(8)
+                    .padding(.leading, 7.5)
+                    .padding(.top, 7.5)
+            } else {
+                Rectangle()
+                    .fill(Color.gray.opacity(0.3))
+                    .cornerRadius(8)
+                    .padding(.leading, 7.5)
+                    .frame(width: imageWidth, height: imageHeight)
+                    .allowsHitTesting(false)
+                    .padding(.top, 7.5)
+            }
+            
+            Group {
+                /// Music Provider
+                switch model.musicProvider {
+                case .apple_music:
+                    if let url = Bundle.main.url(forResource: "apple_music", withExtension: "svg", subdirectory: "Assets") {
+                        SVGView(contentsOf: url)
+                            .frame(width: 24, height: 24)
+                            .padding(8)
+                    }
+                case .spotify:
+                    if let url = Bundle.main.url(forResource: "spotify", withExtension: "svg", subdirectory: "Assets") {
+                        SVGView(contentsOf: url)
+                            .frame(width: 24, height: 24)
+                            .padding(8)
+                    }
+                case .none: Text("None")
+                }
+            }
         }
     }
 
@@ -194,6 +220,8 @@ struct MusicPlayerWidget: View, Widget {
 }
 
 class MusicPlayerWidgetModel: ObservableObject {
+    static let shared = MusicPlayerWidgetModel()
+    
     @Published var songText: String = AudioManager.shared.currentSongText
     @Published var artistText: String = AudioManager.shared.currentArtistText
     @Published var albumText: String = AudioManager.shared.currentAlbumText
@@ -202,6 +230,7 @@ class MusicPlayerWidgetModel: ObservableObject {
     @Published var currentSecondsSongDuration: Double = AudioManager.shared.totalSecondsSong
     @Published var isDragging: Bool = false
     @Published var dominantColor: NSColor = AudioManager.shared.dominantColor
+    @Published var musicProvider: AudioManager.MusicProver = AudioManager.shared.musicProvider
 
 
     private var cancellables = Set<AnyCancellable>()
@@ -255,6 +284,11 @@ class MusicPlayerWidgetModel: ObservableObject {
                 self?.dominantColor = newColor
             }
             .store(in: &cancellables)
-        
+        AudioManager.shared.$musicProvider
+            .receive(on: RunLoop.main)
+            .sink { [weak self] newMusicProvider in
+                self?.musicProvider = newMusicProvider
+            }
+            .store(in: &cancellables)
     }
 }

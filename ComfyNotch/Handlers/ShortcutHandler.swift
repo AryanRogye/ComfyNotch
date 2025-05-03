@@ -109,8 +109,6 @@ class ShortcutHandler: ObservableObject {
     
     private func handleShortcutAction(for name: String) {
         switch name {
-        case "Open Settings":
-            SettingsWidgetModel.shared.action()
         case "Reload App":
             DisplayHandler.shared.restartApp()
         default:

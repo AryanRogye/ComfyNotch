@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		9B2889A82DC68E4400E5DB18 /* SVGView in Frameworks */ = {isa = PBXBuildFile; productRef = 9B2889A72DC68E4400E5DB18 /* SVGView */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		9BC3A5372DB2E78400FFD323 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -39,6 +43,9 @@
 			exceptions = (
 				9BC3A4D32DB1DE2200FFD323 /* Exceptions for "ComfyNotch" folder in "ComfyNotch" target */,
 			);
+			explicitFolders = (
+				Assets,
+			);
 			path = ComfyNotch;
 			sourceTree = "<group>";
 		};
@@ -49,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9B2889A82DC68E4400E5DB18 /* SVGView in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -100,6 +108,7 @@
 			);
 			name = ComfyNotch;
 			packageProductDependencies = (
+				9B2889A72DC68E4400E5DB18 /* SVGView */,
 			);
 			productName = ComfyNotch;
 			productReference = 9BC3A4622DB1D40000FFD323 /* ComfyNotch.app */;
@@ -130,6 +139,7 @@
 			mainGroup = 9BC3A4592DB1D40000FFD323;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				9B2889A62DC68E4400E5DB18 /* XCRemoteSwiftPackageReference "SVGView" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9BC3A4632DB1D40000FFD323 /* Products */;
@@ -356,6 +366,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		9B2889A62DC68E4400E5DB18 /* XCRemoteSwiftPackageReference "SVGView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/exyte/SVGView";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.6;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		9B2889A72DC68E4400E5DB18 /* SVGView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9B2889A62DC68E4400E5DB18 /* XCRemoteSwiftPackageReference "SVGView" */;
+			productName = SVGView;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 9BC3A45A2DB1D40000FFD323 /* Project object */;
 }

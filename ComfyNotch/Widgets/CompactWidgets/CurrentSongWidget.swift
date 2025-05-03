@@ -4,7 +4,7 @@ import SwiftUI
 struct CurrentSongWidget: View, Widget {
     var name: String = "CurrentSongWidget"
 
-    @ObservedObject var model: MusicPlayerWidgetModel
+    @ObservedObject var model: MusicPlayerWidgetModel = .shared
     @ObservedObject var movingDotsModel: MovingDotsViewModel
 
     var body: some View {

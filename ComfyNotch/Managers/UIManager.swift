@@ -103,11 +103,10 @@ class UIManager {
         // Create and add widgets to the store
         let albumWidgetModel = AlbumWidgetModel()
         let movingDotsModel = MovingDotsViewModel()
-        let settingsWidgetModel = SettingsWidgetModel()
 
         let albumWidget = CompactAlbumWidget(model: albumWidgetModel)
         let movingDotsWidget = MovingDotsView(model: movingDotsModel)
-        let settingsWidget = SettingsButtonWidget(model: settingsWidgetModel)
+        let settingsWidget = SettingsButtonWidget()
         let fileTrayWidget = QuickAccessWidget()
 
         // Add Widgets to the WidgetStore
