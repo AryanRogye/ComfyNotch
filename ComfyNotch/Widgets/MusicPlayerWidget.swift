@@ -194,22 +194,30 @@ struct MusicPlayerWidget: View, Widget {
             }
             
             Group {
-                /// Music Provider
-                switch model.musicProvider {
-                case .apple_music:
-                    if let url = Bundle.main.url(forResource: "apple_music", withExtension: "svg", subdirectory: "Assets") {
-                        SVGView(contentsOf: url)
-                            .frame(width: 24, height: 24)
-                            .padding(8)
+                    /// Music Provider
+                    switch model.musicProvider {
+                    case .apple_music:
+                        if let url = Bundle.main.url(forResource: "apple_music", withExtension: "svg", subdirectory: "Assets") {
+                            Button(action: AudioManager.shared.openProvider ) {
+                                SVGView(contentsOf: url)
+                                    .frame(width: 24, height: 24)
+                                    .padding(8)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    case .spotify:
+                        if let url = Bundle.main.url(forResource: "spotify", withExtension: "svg", subdirectory: "Assets") {
+                            Button(action: AudioManager.shared.openProvider) {
+                                SVGView(contentsOf: url)
+                                    .frame(width: 24, height: 24)
+                                    .padding(8)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    case .none: EmptyView()
                     }
-                case .spotify:
-                    if let url = Bundle.main.url(forResource: "spotify", withExtension: "svg", subdirectory: "Assets") {
-                        SVGView(contentsOf: url)
-                            .frame(width: 24, height: 24)
-                            .padding(8)
-                    }
-                case .none: Text("None")
-                }
             }
         }
     }

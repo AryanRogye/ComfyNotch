@@ -303,6 +303,7 @@ class AudioManager: ObservableObject {
         return false
     }
     
+    
     /**
      * Media control methods.
      * instead of attempting to open, we check if either
@@ -378,6 +379,36 @@ class AudioManager: ObservableObject {
             
         } else {
             // Do Nothing
+        }
+    }
+    
+    func openProvider() {
+        debugLog("Called Top Open Provded")
+        let appPath = "/Applications/"
+        if isSpotifyPlaying() {
+            debugLog("Opening Spotify")
+            if FileManager.default.fileExists(atPath: appPath + "Spotify.app") {
+                let appURL = URL(fileURLWithPath: appPath + "Spotify.app")
+                NSWorkspace.shared.openApplication(at: appURL,
+                                                   configuration: NSWorkspace.OpenConfiguration(),
+                                                   completionHandler: nil)
+                return
+            } else {
+                debugLog("Spotify App Couldnt Be Opened")
+            }
+        } else if isMusicPlaying() {
+            debugLog("Opening Music")
+            if FileManager.default.fileExists(atPath: appPath + "Music.app") {
+                let appURL = URL(fileURLWithPath: appPath + "Music.app")
+                NSWorkspace.shared.openApplication(at: appURL,
+                                                   configuration: NSWorkspace.OpenConfiguration(),
+                                                   completionHandler: nil)
+                return
+            } else {
+                debugLog("Music App Couldnt Be Opened")
+            }
+        } else {
+            /// Do Nothing
         }
     }
 }
