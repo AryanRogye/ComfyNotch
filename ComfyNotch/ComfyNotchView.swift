@@ -168,6 +168,10 @@ struct ComfyNotchView: View {
             debugLog("Called Up")
             guard UIManager.shared.panelState == .open else { return }
             
+            if WidgetHoverState.shared.isHoveringOverEventWidget {
+                debugLog("Ignoring scroll — hovering EventWidget")
+                return
+            }
             if animationState.currentPanelState == .file_tray || animationState.currentPanelState == .utils { return }
 
             if translation > 50 {

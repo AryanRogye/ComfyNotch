@@ -2,6 +2,7 @@ import AppKit
 import MediaPlayer
 import CoreAudio
 import Foundation
+import EventKit
 
 // _ = SettingsModel.shared
 
@@ -35,36 +36,52 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     public func applicationDidFinishLaunching(_ notification: Notification) {
         _ = SettingsModel.shared
 
-        DispatchQueue.main.async {
-            NSApp.setActivationPolicy(.prohibited)
-            NSApp.activate(ignoringOtherApps: true)
-            // Start the UI
-            UIManager.shared.setupFrame()
-            
-//            if let smallPanel = UIManager.shared.smallPanel {
-//                // Tiny Haptic Feedback when hovering
-//                self.hoverHandler = HoverHandler(panel: smallPanel)
-//            }
-            if let smallPanel = UIManager.shared.smallPanel {
-                // Proximity Handler for the Big Panel
-                self.panelProximityHandler = PanelProximityHandler(panel: smallPanel)
+//        DispatchQueue.main.async {
+            EventManager.shared.requestAcessToCalendar() { granted in
+                DispatchQueue.main.async {
+                    if !granted {
+                        // Temporarily show the app so macOS lets us ask for permissions
+                        NSApp.setActivationPolicy(.regular)
+                        NSApp.activate(ignoringOtherApps: true)
+                    } else {
+                        // Go back to your usual background style
+                        NSApp.setActivationPolicy(.prohibited)
+                        NSApp.activate(ignoringOtherApps: true)
+                        // Start the UI
+                        self.launchComfyNotch()
+                    }
+                }
             }
-            
-            /// Begin The Clipboard Manger
-            ClipboardManager.shared.start()
-            
-            // Set up the ui by loading the widgets from settings onto it
-            self.loadWidgetsFromSettings()
-            
-            // Any Screen errors that may happen, is handled in here
-            DisplayHandler.shared.start()
-            // Start listening for shortcuts
-            ShortcutHandler.shared.startListening()
-//            ScrollHandler.shared.openFull()
-            UIManager.shared.applyCompactWidgetLayout()
-            ScrollHandler.shared.closeFull()
-        }
+//        }
     }
+    
+    private func launchComfyNotch() {
+        UIManager.shared.setupFrame()
+        
+        //            if let smallPanel = UIManager.shared.smallPanel {
+        //                // Tiny Haptic Feedback when hovering
+        //                self.hoverHandler = HoverHandler(panel: smallPanel)
+        //            }
+        if let smallPanel = UIManager.shared.smallPanel {
+            // Proximity Handler for the Big Panel
+            self.panelProximityHandler = PanelProximityHandler(panel: smallPanel)
+        }
+        
+        /// Begin The Clipboard Manger
+        ClipboardManager.shared.start()
+        
+        // Set up the ui by loading the widgets from settings onto it
+        self.loadWidgetsFromSettings()
+        
+        // Any Screen errors that may happen, is handled in here
+        DisplayHandler.shared.start()
+        // Start listening for shortcuts
+        ShortcutHandler.shared.startListening()
+        //            ScrollHandler.shared.openFull()
+        UIManager.shared.applyCompactWidgetLayout()
+        ScrollHandler.shared.closeFull()
+    }
+
 
     /**
      * Loads and configures widgets based on user settings.

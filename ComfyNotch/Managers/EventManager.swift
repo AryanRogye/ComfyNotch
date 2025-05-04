@@ -13,7 +13,7 @@ class EventManager: ObservableObject {
     static let shared = EventManager()
     var store = EKEventStore()
     
-    @Published var calendar: Calendar?
+    @Published var calendars: [EKCalendar] = []
     @Published var reminders: [EKReminder] = []
     
     /// -- Mark: public API's
@@ -34,6 +34,19 @@ class EventManager: ObservableObject {
         }
     }
     
+    public func fetchUserCalendars() {
+        self.requestAcessToCalendar() { granted in
+            if granted {
+                print("Request Access to Calendar Granted")
+                DispatchQueue.main.async { [weak self] in
+                    self?.calendars = self?.store.calendars(for: .event) ?? []
+                }
+            } else {
+                print("Request Access to Calendar Denied")
+            }
+        }
+    }
+    
     public func removeUserReminders(for reminder: EKReminder) {
         DispatchQueue.main.async { [weak self] in
             do {
@@ -43,6 +56,24 @@ class EventManager: ObservableObject {
             } catch {
                 debugLog("There was an error removing the reminder")
             }
+        }
+    }
+    
+    public func requestAcessToCalendar(completion: @escaping (Bool) -> Void) {
+        store.requestFullAccessToEvents { granted, error in
+            if let error = error {
+                print("Error requesting access to calendar: \(error.localizedDescription)")
+                completion(false)
+                return
+            }
+            
+            guard granted else {
+                print("Access to calendar was not granted.")
+                completion(false)
+                return
+            }
+            
+            completion(true)
         }
     }
 
@@ -62,11 +93,6 @@ class EventManager: ObservableObject {
                 return
             }
             completion(true)
-        }
-    }
-    
-    private func requestAcessToCalendar() {
-        store.requestFullAccessToEvents { granted, error in
         }
     }
 }
