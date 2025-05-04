@@ -19,7 +19,6 @@ class ScrollHandler {
     private var cancellables = Set<AnyCancellable>()
 
     private init() {}
-
     // MARK: – Public API
 
     /// Handle Pan is what the view will call when a pan gesture is made

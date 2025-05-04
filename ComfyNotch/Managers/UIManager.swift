@@ -138,6 +138,7 @@ class UIManager {
             expandedWidgetStore.hideWidget(named: "NotesWidget")
             expandedWidgetStore.hideWidget(named: "CameraWidget")
             expandedWidgetStore.hideWidget(named: "AIChatWidget")
+            expandedWidgetStore.hideWidget(named: "EventWidget")
         }
     }
     public func applyExpandedWidgetLayout() {
@@ -156,6 +157,7 @@ class UIManager {
             expandedWidgetStore.showWidget(named: "NotesWidget")
             expandedWidgetStore.showWidget(named: "CameraWidget")
             expandedWidgetStore.showWidget(named: "AIChatWidget")
+            expandedWidgetStore.showWidget(named: "EventWidget")
         }
     }
     public func applyCompactWidgetLayout() {
@@ -173,6 +175,7 @@ class UIManager {
             expandedWidgetStore.hideWidget(named: "NotesWidget")
             expandedWidgetStore.hideWidget(named: "CameraWidget")
             expandedWidgetStore.hideWidget(named: "AIChatWidget")
+            expandedWidgetStore.hideWidget(named: "EventWidget")
         }
     }
 

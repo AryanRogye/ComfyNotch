@@ -156,6 +156,7 @@ struct ComfyNotchView: View {
         /// For Scrolling the Panel
         .panGesture(direction: .down) { translation, phase in
             debugLog("Called Down")
+            
             guard UIManager.shared.panelState == .closed else { return }
 
             if translation > 50 {

@@ -44,6 +44,12 @@
     
     <key>NSBluetoothAlwaysUsageDescription</key>
     <string>we use this to help you connect to your bluetooth devices faster</string>
+    
+    <key>NSCalendarsFullAccessUsageDescription</key>
+    <string>we need access to your calendar for easier management</string>
+
+    <key>NSRemindersFullAccessUsageDescription</key>
+    <string>we need access to your reminders for easier management</string>
 
     <key>LSUIElement</key>
     <true/>

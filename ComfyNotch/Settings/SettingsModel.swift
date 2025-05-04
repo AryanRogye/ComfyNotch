@@ -185,7 +185,8 @@ class WidgetRegistry {
         "TimeWidget": TimeWidget(),
         "NotesWidget": NotesWidget(),
         "CameraWidget": CameraWidget(),
-        "AIChatWidget": AIChatWidget()
+        "AIChatWidget": AIChatWidget(),
+        "EventWidget": EventWidget()
     ]
 
     func getWidget(named name: String) -> Widget? {

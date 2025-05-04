@@ -37,6 +37,8 @@ class AudioManager: ObservableObject {
     @Published var totalSecondsSong: Double = 0.0
     /// What Provder the user is currently listening to
     @Published var musicProvider: MusicProver = .apple_music
+    /// if is playing
+    @Published var isPlaying: Bool = false
     
     private var timer: Timer?
     var onNowPlayingInfoUpdated: (() -> Void)?
@@ -61,6 +63,7 @@ class AudioManager: ObservableObject {
         self.currentAlbumText = "Unknown Album"
         self.currentArtworkImage = nil
         self.dominantColor = .white
+        self.isPlaying = false
     }
     
     /**
