@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		9B2889A82DC68E4400E5DB18 /* SVGView in Frameworks */ = {isa = PBXBuildFile; productRef = 9B2889A72DC68E4400E5DB18 /* SVGView */; };
+		9B288A852DC722BF00E5DB18 /* ComfyCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = 9B288A842DC722BF00E5DB18 /* ComfyCalendar */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -57,6 +58,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9B2889A82DC68E4400E5DB18 /* SVGView in Frameworks */,
+				9B288A852DC722BF00E5DB18 /* ComfyCalendar in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -109,6 +111,7 @@
 			name = ComfyNotch;
 			packageProductDependencies = (
 				9B2889A72DC68E4400E5DB18 /* SVGView */,
+				9B288A842DC722BF00E5DB18 /* ComfyCalendar */,
 			);
 			productName = ComfyNotch;
 			productReference = 9BC3A4622DB1D40000FFD323 /* ComfyNotch.app */;
@@ -140,6 +143,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				9B2889A62DC68E4400E5DB18 /* XCRemoteSwiftPackageReference "SVGView" */,
+				9B288A832DC722BF00E5DB18 /* XCLocalSwiftPackageReference "../ComfyCalendar" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9BC3A4632DB1D40000FFD323 /* Products */;
@@ -367,6 +371,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		9B288A832DC722BF00E5DB18 /* XCLocalSwiftPackageReference "../ComfyCalendar" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../ComfyCalendar;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		9B2889A62DC68E4400E5DB18 /* XCRemoteSwiftPackageReference "SVGView" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -383,6 +394,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9B2889A62DC68E4400E5DB18 /* XCRemoteSwiftPackageReference "SVGView" */;
 			productName = SVGView;
+		};
+		9B288A842DC722BF00E5DB18 /* ComfyCalendar */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ComfyCalendar;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

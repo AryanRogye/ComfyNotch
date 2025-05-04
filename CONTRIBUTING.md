@@ -4,6 +4,11 @@ Thanks for your interest in contributing! ComfyNotch is an open project focused 
 
 ---
 
+## Currently Working on:
+- ComfyCalendar (https://github.com/AryanRogye/ComfyCalendar)
+- theres no real good calendar plugin for macOS, so i'm making a mini calendar plugin for ComfyNotch
+
+
 ## Areas Where Help Is Needed
 
 ### Smooth Animations
