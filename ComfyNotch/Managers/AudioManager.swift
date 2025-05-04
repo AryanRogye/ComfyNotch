@@ -2,6 +2,91 @@ import AppKit
 import MediaPlayer
 import CoreImage
 
+protocol NowPlaingProvider {
+    func isAvailable() -> Bool
+    
+    /// Actions
+    func playPreviousTrack() -> Void
+    func playNextTrack() -> Void
+    func togglePlayPause() -> Void
+    func playAtTime() -> Void
+}
+
+class AppleScriptWrapper : NowPlaingProvider {
+    /// --Mark: Exposed API's
+    /// --Mark: Internal API's
+
+    /// Always is available
+    func isAvailable() -> Bool {
+        return true
+    }
+    func playPreviousTrack() -> Void {
+        
+    }
+    func playNextTrack() -> Void {
+        
+    }
+    func togglePlayPause() -> Void {
+        
+    }
+    func playAtTime() -> Void {
+        
+    }
+}
+
+class MediaRemoteFrameworkWrapper: NowPlaingProvider {
+    /// --Mark: Internal API's
+    func isAvailable() -> Bool {
+        let frameworkURL = URL(fileURLWithPath: "/System/Library/PrivateFrameworks/MediaRemote.framework")
+        guard let bundle = CFBundleCreate(kCFAllocatorDefault, frameworkURL as CFURL) else {
+            print("❌ MediaRemote.framework not found.")
+            return false
+        }
+        
+        let fn = "MRMediaRemoteGetNowPlayingInfo" as CFString
+        let hasFunc = CFBundleGetFunctionPointerForName(bundle, fn)
+        
+        if hasFunc != nil {
+            print("✅ MediaRemote is available and MRMediaRemoteGetNowPlayingInfo is loaded.")
+            return true
+        } else {
+            print("⚠️ MediaRemote is present, but GetNowPlayingInfo function is missing.")
+            return false
+        }
+    }
+    
+    func playPreviousTrack() -> Void {
+        sendCommand(command: "MRMediaRemoteSendCommand", commandType: 5) // 0 = Previous Track
+    }
+    func playNextTrack() -> Void {
+        sendCommand(command: "MRMediaRemoteSendCommand", commandType: 4) // 1 = Next Track
+    }
+    func togglePlayPause() -> Void {
+        sendCommand(command: "MRMediaRemoteSendCommand", commandType: 2) // 2 = Play/Pause Toggle
+    }
+    func playAtTime() -> Void {
+        
+    }
+
+    private func sendCommand(command: String, commandType: Int) {
+        guard let bundle = CFBundleCreate(kCFAllocatorDefault, NSURL(fileURLWithPath: "/System/Library/PrivateFrameworks/MediaRemote.framework")) else {
+            debugLog("Failed to load MediaRemote framework")
+            return
+        }
+
+        guard let pointer = CFBundleGetFunctionPointerForName(bundle, command as CFString) else {
+            debugLog("Failed to get \(command) function pointer")
+            return
+        }
+
+        typealias MRMediaRemoteSendCommandFunction = @convention(c) (Int, Any?, Int) -> Void
+        let MRMediaRemoteSendCommand = unsafeBitCast(pointer, to: MRMediaRemoteSendCommandFunction.self)
+
+        // Send the command
+        MRMediaRemoteSendCommand(commandType, nil, 0)
+    }
+}
+
 /**
  * AudioManager handles media playback information and control across music applications.
  * Provides unified interface for Spotify and Apple Music integration.
@@ -71,6 +156,23 @@ class AudioManager: ObservableObject {
      * Checks Spotify first, then falls back to Music app if needed.
      */
     func getNowPlayingInfo() {
+        if isMediaRemoteAvailable() {
+            if !usePrivateFrameworkMethods() {
+                useAppleScriptMethods()
+            }
+        } else {
+            useAppleScriptMethods()
+        }
+    }
+    
+    /// This can fail so thats why the failsafe is the
+    /// useAppleScripts Method
+    private func usePrivateFrameworkMethods() -> Bool {
+        true
+    }
+    
+    private func useAppleScriptMethods() {
+        /// If Private Framework isnt laoding
         if !isSpotifyPlaying() && !isMusicPlaying() {
             musicProvider = .none
             clearNowPlaying()
@@ -178,21 +280,26 @@ class AudioManager: ObservableObject {
                 set currentTime to player position
                 set duration to duration of current track
                 try
-                    set artworkData to data of artwork 1 of current track
-                    set artworkPath to ((path to temporary items as text) & "currentArtwork.jpg")
-                    set artworkFile to open for access file artworkPath with write permission
-                    write artworkData to artworkFile
-                    close access artworkFile
-                    return trackName & " - " & artistName & " - " & albumName & " - " & artworkPath & " - " & currentTime & " - " & duration
-                on error
-                    return trackName & " - " & artistName & " - " & albumName & " - " & "NoArtwork" & " - " & currentTime & " - " & duration
+                    if (count of artworks of current track) > 0 then
+                        set theArtwork to artwork 1 of current track
+                        if class of theArtwork is artwork then
+                            set artworkData to data of theArtwork
+                            set artworkPath to ((path to temporary items as text) & "currentArtwork.jpg")
+                            set artworkFile to open for access file artworkPath with write permission
+                            set eof of artworkFile to 0
+                            write artworkData to artworkFile
+                            close access artworkFile
+                            return trackName & " ||| " & artistName & " ||| " & albumName & " ||| " & artworkPath & " ||| " & currentTime & " ||| " & duration
+                        end if
+                    end if
                 end try
+                return trackName & " ||| " & artistName & " ||| " & albumName & " ||| NoArtwork ||| " & currentTime & " ||| " & duration
             end if
         end tell
         """
         
         if let output = runAppleScript(script) {
-            let components = output.components(separatedBy: " - ")
+            let components = output.components(separatedBy: " ||| ")
             if components.count == 6 {
                 let trackName = components[0]
                 let artistName = components[1]
@@ -385,6 +492,83 @@ class AudioManager: ObservableObject {
         }
     }
     
+        func MediaRemote_PlayPreviousTrack() {
+            sendCommand(command: "MRMediaRemoteSendCommand", commandType: 5) // 0 = Previous Track
+        }
+         
+        func MediaRemote_PlayNextTrack() {
+            sendCommand(command: "MRMediaRemoteSendCommand", commandType: 4) // 1 = Next Track
+        }
+         
+        func MediaRemote_TogglePlayPause() {
+            sendCommand(command: "MRMediaRemoteSendCommand", commandType: 2) // 2 = Play/Pause Toggle
+        }
+         
+        private func sendCommand(command: String, commandType: Int) {
+            guard let bundle = CFBundleCreate(kCFAllocatorDefault, NSURL(fileURLWithPath: "/System/Library/PrivateFrameworks/MediaRemote.framework")) else {
+                debugLog("Failed to load MediaRemote framework")
+                return
+            }
+    
+            guard let pointer = CFBundleGetFunctionPointerForName(bundle, command as CFString) else {
+                debugLog("Failed to get \(command) function pointer")
+                return
+            }
+    
+            typealias MRMediaRemoteSendCommandFunction = @convention(c) (Int, Any?, Int) -> Void
+            let MRMediaRemoteSendCommand = unsafeBitCast(pointer, to: MRMediaRemoteSendCommandFunction.self)
+    
+            // Send the command
+            MRMediaRemoteSendCommand(commandType, nil, 0)
+        }
+    
+    func MediaRemote_getNowPlayingInfo() -> Void {
+        guard let bundle = CFBundleCreate(kCFAllocatorDefault, NSURL(fileURLWithPath: "/System/Library/PrivateFrameworks/MediaRemote.framework")) else {
+            debugLog("Failed to load MediaRemote framework")
+            return
+        }
+        
+        guard let pointer = CFBundleGetFunctionPointerForName(bundle, "MRMediaRemoteGetNowPlayingInfo" as CFString) else {
+            debugLog("Failed to get MRMediaRemoteGetNowPlayingInfo function pointer")
+            return
+        }
+        
+        typealias MRMediaRemoteGetNowPlayingInfoFunction = @convention(c) (DispatchQueue, @escaping ([String: Any]?) -> Void) -> Void
+        let MRMediaRemoteGetNowPlayingInfo = unsafeBitCast(pointer, to: MRMediaRemoteGetNowPlayingInfoFunction.self)
+        
+        MRMediaRemoteGetNowPlayingInfo(DispatchQueue.main) { (info) in
+            if let info = info {
+                let artist = info["kMRMediaRemoteNowPlayingInfoArtist"] as? String ?? "Unknown Artist"
+                let title = info["kMRMediaRemoteNowPlayingInfoTitle"] as? String ?? "Nothing Currently Playing"
+                let album = info["kMRMediaRemoteNowPlayingInfoAlbum"] as? String ?? "Unknown Album"
+                
+                self.currentSongText = title
+                self.currentArtistText = artist
+                self.currentAlbumText = album
+                
+                // debugLog("Current Song: \(self.currentSongText) by \(self.currentArtistText) from \(self.currentAlbumText)")
+                
+                if let artworkData = info["kMRMediaRemoteNowPlayingInfoArtworkData"] as? Data,
+                   let artworkImage = NSImage(data: artworkData) {
+                    self.currentArtworkImage = artworkImage
+                    self.dominantColor = self.getDominantColor(from: artworkImage) ?? .white
+                }
+                
+                // Call the callback to notify the UI about the update
+                self.onNowPlayingInfoUpdated?()
+            } else {
+                self.currentSongText = "No Song Playing"
+                self.currentArtistText = "Unknown Artist"
+                self.currentAlbumText = "Unknown Album"
+                self.currentArtworkImage = nil
+                self.dominantColor = .white
+                
+                // Notify about the update
+                self.onNowPlayingInfoUpdated?()
+            }
+        }
+    }
+
     func openProvider() {
         debugLog("Called Top Open Provded")
         let appPath = "/Applications/"
@@ -414,6 +598,25 @@ class AudioManager: ObservableObject {
             /// Do Nothing
         }
     }
+    
+    func isMediaRemoteAvailable() -> Bool {
+        let frameworkURL = URL(fileURLWithPath: "/System/Library/PrivateFrameworks/MediaRemote.framework")
+        guard let bundle = CFBundleCreate(kCFAllocatorDefault, frameworkURL as CFURL) else {
+            print("❌ MediaRemote.framework not found.")
+            return false
+        }
+        
+        let fn = "MRMediaRemoteGetNowPlayingInfo" as CFString
+        let hasFunc = CFBundleGetFunctionPointerForName(bundle, fn)
+        
+        if hasFunc != nil {
+            print("✅ MediaRemote is available and MRMediaRemoteGetNowPlayingInfo is loaded.")
+            return true
+        } else {
+            print("⚠️ MediaRemote is present, but GetNowPlayingInfo function is missing.")
+            return false
+        }
+    }
 }
 
 //import AppKit
@@ -435,17 +638,6 @@ class AudioManager: ObservableObject {
 //
 //    private init() {}
 //
-//    func playPreviousTrack() {
-//        sendCommand(command: "MRMediaRemoteSendCommand", commandType: 5) // 0 = Previous Track
-//    }
-//
-//    func playNextTrack() {
-//        sendCommand(command: "MRMediaRemoteSendCommand", commandType: 4) // 1 = Next Track
-//    }
-//
-//    func togglePlayPause() {
-//        sendCommand(command: "MRMediaRemoteSendCommand", commandType: 2) // 2 = Play/Pause Toggle
-//    }
 //
 //    /**
 //     *
@@ -454,70 +646,7 @@ class AudioManager: ObservableObject {
 //     * error it will return "Error: \(error)"
 //     *
 //     **/
-//    func getNowPlayingInfo() -> Void {
-//        guard let bundle = CFBundleCreate(kCFAllocatorDefault, NSURL(fileURLWithPath: "/System/Library/PrivateFrameworks/MediaRemote.framework")) else {
-//            debugLog("Failed to load MediaRemote framework")
-//            return
-//        }
 //
-//        guard let pointer = CFBundleGetFunctionPointerForName(bundle, "MRMediaRemoteGetNowPlayingInfo" as CFString) else {
-//            debugLog("Failed to get MRMediaRemoteGetNowPlayingInfo function pointer")
-//            return
-//        }
-//
-//        typealias MRMediaRemoteGetNowPlayingInfoFunction = @convention(c) (DispatchQueue, @escaping ([String: Any]?) -> Void) -> Void
-//        let MRMediaRemoteGetNowPlayingInfo = unsafeBitCast(pointer, to: MRMediaRemoteGetNowPlayingInfoFunction.self)
-//
-//        MRMediaRemoteGetNowPlayingInfo(DispatchQueue.main) { (info) in
-//            if let info = info {
-//                let artist = info["kMRMediaRemoteNowPlayingInfoArtist"] as? String ?? "Unknown Artist"
-//                let title = info["kMRMediaRemoteNowPlayingInfoTitle"] as? String ?? "Nothing Currently Playing"
-//                let album = info["kMRMediaRemoteNowPlayingInfoAlbum"] as? String ?? "Unknown Album"
-//
-//                self.currentSongText = title
-//                self.currentArtistText = artist
-//                self.currentAlbumText = album
-//
-//                // debugLog("Current Song: \(self.currentSongText) by \(self.currentArtistText) from \(self.currentAlbumText)")
-//
-//                if let artworkData = info["kMRMediaRemoteNowPlayingInfoArtworkData"] as? Data,
-//                   let artworkImage = NSImage(data: artworkData) {
-//                    self.currentArtworkImage = artworkImage
-//                    self.dominantColor = self.getDominantColor(from: artworkImage) ?? .white
-//                }
-//
-//                // Call the callback to notify the UI about the update
-//                self.onNowPlayingInfoUpdated?()
-//            } else {
-//                self.currentSongText = "No Song Playing"
-//                self.currentArtistText = "Unknown Artist"
-//                self.currentAlbumText = "Unknown Album"
-//                self.currentArtworkImage = nil
-//                self.dominantColor = .white
-//
-//                // Notify about the update
-//                self.onNowPlayingInfoUpdated?()
-//            }
-//        }
-//    }
-//
-//    private func sendCommand(command: String, commandType: Int) {
-//        guard let bundle = CFBundleCreate(kCFAllocatorDefault, NSURL(fileURLWithPath: "/System/Library/PrivateFrameworks/MediaRemote.framework")) else {
-//            debugLog("Failed to load MediaRemote framework")
-//            return
-//        }
-//
-//        guard let pointer = CFBundleGetFunctionPointerForName(bundle, command as CFString) else {
-//            debugLog("Failed to get \(command) function pointer")
-//            return
-//        }
-//
-//        typealias MRMediaRemoteSendCommandFunction = @convention(c) (Int, Any?, Int) -> Void
-//        let MRMediaRemoteSendCommand = unsafeBitCast(pointer, to: MRMediaRemoteSendCommandFunction.self)
-//
-//        // Send the command
-//        MRMediaRemoteSendCommand(commandType, nil, 0)
-//    }
 //
 //    func startMediaTimer() {
 //        self.getNowPlayingInfo()  // Initial call
