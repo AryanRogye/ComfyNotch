@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-class AppleScriptMusicController: NowPlayingProvider {
+final class AppleScriptMusicController: NowPlayingProvider {
 
     @ObservedObject var nowPlayingInfo: NowPlayingInfo
 
@@ -23,26 +23,44 @@ class AppleScriptMusicController: NowPlayingProvider {
         true
     }
     
-    func getNowPlayingInfo() -> Void {
+    func getNowPlayingInfo(completion: @escaping (Bool)->Void) {
         if !isSpotifyPlaying() && !isAppleMusicPlaying() {
             /// If Nethier Spotify nor Apple Music is playing
             /// Clear the now playing info
             clearNowPlaying()
+            self.nowPlayingInfo.musicProvider = .none
+            print("Neither Playing")
         } else if isSpotifyPlaying() {
+            print("Playing Spotify")
             /// If Spotify is playing, get the info from Spotify
             getSpotifyInfo { info in
                 if let info = info {
                     self.updateNowPlaying(with: info)
+                    self.nowPlayingInfo.musicProvider = .spotify
                 } else if self.isAppleMusicPlaying(), let musicInfo = self.getMusicInfo() {
                     /// If the Data we got back from Spotify is nil then
                     /// we try to get the info from Apple Music
                     self.updateNowPlaying(with: musicInfo)
+                    self.nowPlayingInfo.musicProvider = .apple_music
                 } else {
                     /// If both are nil, clear the now playing info
                     self.clearNowPlaying()
+                    self.nowPlayingInfo.musicProvider = .none
                 }
             }
+        } else {
+            print("Music Trying")
+            if let info = self.getMusicInfo() {
+                self.updateNowPlaying(with: info)
+                self.nowPlayingInfo.musicProvider = .apple_music
+            } else {
+                self.clearNowPlaying()
+                self.nowPlayingInfo.musicProvider = .none
+            }
         }
+        /// Function will always return true, the Bool is mostly for
+        /// the other protocols that it may fail for
+        completion(true)
     }
     
     /// Actions
@@ -119,14 +137,14 @@ class AppleScriptMusicController: NowPlayingProvider {
 
 
 
-    /// -- Mark: Internal Functions
-    private func isSpotifyPlaying() -> Bool {
+    func isSpotifyPlaying() -> Bool {
         return isAppRunning("Spotify")
     }
-    private func isAppleMusicPlaying() -> Bool {
+   func isAppleMusicPlaying() -> Bool {
         return isAppRunning("Music")
     }
     
+    /// -- Mark: Internal Functions
     /// Function to check if a specific app is running
     private func isAppRunning(_ appName: String) -> Bool {
         let script = """
@@ -243,50 +261,57 @@ class AppleScriptMusicController: NowPlayingProvider {
     private func getMusicInfo() -> (String, String, String, NSImage?, Double, Double)? {
         let script = """
         tell application "Music"
-            if player state is playing then
-                set trackName to name of current track
-                set artistName to artist of current track
-                set albumName to album of current track
-                set currentTime to player position
-                set duration to duration of current track
+            set isRunning to true
+            try
+                set playerState to player state is playing
+                set currentTrackName to name of current track
+                set currentTrackArtist to artist of current track
+                set currentTrackAlbum to album of current track
+                set trackPosition to player position
+                set trackDuration to duration of current track
+                set shuffleState to shuffle enabled
+                set repeatState to false
                 try
-                    if (count of artworks of current track) > 0 then
-                        set theArtwork to artwork 1 of current track
-                        if class of theArtwork is artwork then
-                            set artworkData to data of theArtwork
-                            set artworkPath to ((path to temporary items as text) & "currentArtwork.jpg")
-                            set artworkFile to open for access file artworkPath with write permission
-                            set eof of artworkFile to 0
-                            write artworkData to artworkFile
-                            close access artworkFile
-                            return trackName & " ||| " & artistName & " ||| " & albumName & " ||| " & artworkPath & " ||| " & currentTime & " ||| " & duration
-                        end if
-                    end if
+                    set artData to data of artwork 1 of current track
+                on error
+                    set artData to ""
                 end try
-                return trackName & " ||| " & artistName & " ||| " & albumName & " ||| NoArtwork ||| " & currentTime & " ||| " & duration
-            end if
+                return {playerState, currentTrackName, currentTrackArtist, currentTrackAlbum, trackPosition, trackDuration, shuffleState, repeatState, artData}
+            on error
+                return {false, "Not Playing", "Unknown", "Unknown", 0, 0, false, false, ""}
+            end try
         end tell
         """
 
         if let output = runAppleScript(script) {
-            let components = output.components(separatedBy: " ||| ")
-            if components.count == 6 {
-                let trackName = components[0]
-                let artistName = components[1]
-                let albumName = components[2]
-                let artworkPath = components[3]
+            let cleaned = output
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .replacingOccurrences(of: "{", with: "")
+                .replacingOccurrences(of: "}", with: "")
+            
+            let components = cleaned.components(separatedBy: ", ")
+
+            if components.count >= 9 {
+                let trackName = components[1].trimmingCharacters(in: .punctuationCharacters)
+                let artistName = components[2].trimmingCharacters(in: .punctuationCharacters)
+                let albumName = components[3].trimmingCharacters(in: .punctuationCharacters)
                 let positionSeconds = Double(components[4]) ?? 0.0
                 let durationSeconds = Double(components[5]) ?? 0.0
+                let artDataRaw = components[8]
 
-                var artworkImage: NSImage?
-
-                if artworkPath != "NoArtwork", let image = NSImage(contentsOfFile: artworkPath) {
-                    artworkImage = image
+                var artworkImage: NSImage? = nil
+                if artDataRaw != "\"\"" {
+                    // Clean the base64 string
+                    let cleanedData = artDataRaw.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+                    if let data = Data(base64Encoded: cleanedData) {
+                        artworkImage = NSImage(data: data)
+                    }
                 }
 
                 return (trackName, artistName, albumName, artworkImage, positionSeconds, durationSeconds)
             }
         }
+
         return nil
     }
     /**
