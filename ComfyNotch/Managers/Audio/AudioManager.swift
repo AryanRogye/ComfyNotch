@@ -1,48 +1,55 @@
 import AppKit
 
 /**
- * AudioManager handles media playback information and control across music applications.
- * Provides unified interface for Spotify and Apple Music integration.
+ * AudioManager provides a unified interface for managing and controlling media playback across Spotify and Apple Music.
  *
- * Key Features:
- * - Tracks current playing media information
- * - Manages artwork and dominant color extraction
- * - Provides playback controls
- * - Auto-updates media information
+ * Responsibilities:
+ * - Tracks and updates current media playback information (track, artist, album, artwork, playback state)
+ * - Integrates with both MediaRemote (private API) and AppleScript for robust provider fallback
+ * - Exposes playback controls (play/pause, next, previous, seek)
+ * - Periodically refreshes media info using a timer
+ * - Notifies observers of changes via published properties and callbacks
+ *
+ * Usage:
+ * Use AudioManager.shared to access the singleton instance. Observe nowPlayingInfo for updates.
  */
 class AudioManager: ObservableObject {
+    /// Singleton instance for global access
     static let shared = AudioManager()
-    
+
+    /// Published info about the currently playing media
     @Published var nowPlayingInfo: NowPlayingInfo = NowPlayingInfo()
-    
+
+    /// Controller for AppleScript-based music control (fallback)
     lazy var appleScriptMusicController: AppleScriptMusicController = {
         AppleScriptMusicController(nowPlayingInfo: self.nowPlayingInfo)
     }()
+    /// Controller for MediaRemote-based music control (primary)
     lazy var mediaRemoteMusicController: MediaRemoteMusicController = {
         MediaRemoteMusicController(nowPlayingInfo: self.nowPlayingInfo)
     }()
-    
+
     private var timer: Timer?
+    /// Optional callback invoked when nowPlayingInfo is updated
     var onNowPlayingInfoUpdated: (() -> Void)?
-    
+
     /**
-     * Initializes the audio manager and starts the media update timer.
+     * Initializes the AudioManager and starts periodic media info updates.
+     * Use the shared instance; direct initialization is private.
      */
     private init() {
         startMediaTimer()
     }
-    
+
     /**
-     * Fetches and updates current playing media information.
-     * Checks Spotify first, then falls back to Music app if needed.
+     * Fetches and updates the current playing media information.
+     * Tries MediaRemote (Spotify/Apple Music) first, falls back to AppleScript if needed.
      */
     func getNowPlayingInfo() {
-        /// Helper to call functions because some information
-        /// Gathering might fail
+        // Attempt to use MediaRemote; fallback to AppleScript if unavailable or fails
         if mediaRemoteMusicController.isAvailable() {
             print("Is Available")
             mediaRemoteMusicController.getNowPlayingInfo { success in
-                // 2) if it failed to return *usable* data, fall back:
                 if !success {
                     self.appleScriptMusicController.getNowPlayingInfo { _ in }
                 }
@@ -52,10 +59,10 @@ class AudioManager: ObservableObject {
             appleScriptMusicController.getNowPlayingInfo { _ in }
         }
     }
-    
+
     /**
-     * Starts the timer that periodically updates media information.
-     * Timer runs every second in common run loop mode.
+     * Starts a timer to periodically refresh media information (every second).
+     * Timer runs in the common run loop mode.
      */
     func startMediaTimer() {
         timer?.invalidate()
@@ -64,36 +71,51 @@ class AudioManager: ObservableObject {
         }
         RunLoop.main.add(timer!, forMode: .common)
     }
-    
+
     /**
-     * Stops the media update timer.
+     * Stops the periodic media info update timer.
      */
     func stopMediaTimer() {
         timer?.invalidate()
         timer = nil
     }
-    
+
+    // MARK: - Playback Controls
+
     /**
-     * Media control methods.
-     * instead of attempting to open, we check if either
-     * spotify is open first, then music, do the action,
-     * or do nothing
+     * Skips to the previous track in the current provider.
+     * Checks which provider is active before sending the command.
      */
     func playPreviousTrack() {
         appleScriptMusicController.playPreviousTrack()
     }
-    
+
+    /**
+     * Skips to the next track in the current provider.
+     */
     func playNextTrack() {
         appleScriptMusicController.playNextTrack()
     }
+
+    /**
+     * Toggles play/pause state for the current provider.
+     */
     func togglePlayPause() {
         appleScriptMusicController.togglePlayPause()
     }
-    
+
+    /**
+     * Seeks to a specific time (in seconds) in the current track.
+     * @param time The position (in seconds) to seek to.
+     */
     func playAtTime(to time: Double) {
         appleScriptMusicController.playAtTime(to: time)
     }
-    
+
+    /**
+     * Opens the currently active music provider (Spotify or Music app).
+     * If neither is active, does nothing.
+     */
     func openProvider() {
         if appleScriptMusicController.isAvailable() {
             debugLog("Called Top Open Provded")
@@ -121,7 +143,7 @@ class AudioManager: ObservableObject {
                     debugLog("Music App Couldnt Be Opened")
                 }
             } else {
-                /// Do Nothing
+                // No provider is currently playing
             }
         }
     }

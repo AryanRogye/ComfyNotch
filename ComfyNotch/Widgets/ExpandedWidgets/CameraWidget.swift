@@ -49,6 +49,7 @@ struct CameraWidget: View, Widget {
             // Force refresh when widgets are reloaded
             model.updateFlipState()
         }
+        .frame(minWidth: 100)
     }
     var swiftUIView: AnyView {
         AnyView(self)

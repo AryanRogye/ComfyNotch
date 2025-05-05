@@ -1,6 +1,6 @@
 import Foundation
 
-public enum MusicProver {
+public enum MusicProvider {
     case none
     case apple_music
     case spotify

@@ -7,23 +7,33 @@
 
 import SwiftUI
 
+/// Protocol defining the interface for a provider that supplies now playing information and playback controls.
+/// Implementations should provide mechanisms to fetch current media info and control playback actions.
 protocol NowPlayingProvider {
+    /// Checks if the provider is available for use (e.g., required APIs or services are accessible).
+    /// - Returns: `true` if the provider can be used, otherwise `false`.
     func isAvailable() -> Bool
     
+    /// Fetches the current now playing information asynchronously.
+    /// - Parameter completion: Closure called with a `Bool` indicating success or failure.
     func getNowPlayingInfo(completion: @escaping (Bool)->Void)
     
-    /// Actions
+    /// Skips to the previous track in the playback queue.
     func playPreviousTrack() -> Void
+    /// Skips to the next track in the playback queue.
     func playNextTrack() -> Void
+    /// Toggles between play and pause states for the current media.
     func togglePlayPause() -> Void
+    /// Seeks playback to a specific time within the current track.
+    /// - Parameter time: The time (in seconds) to seek to.
     func playAtTime(to time: Double) -> Void
 }
 
 extension NowPlayingProvider {
-    /**
-     * Extracts the dominant color from an image.
-     * Ensures minimum brightness for visibility.
-     */
+    /// Extracts the dominant color from an image, ensuring a minimum brightness for visibility.
+    /// This can be used to theme UI elements based on album artwork or other images.
+    /// - Parameter image: The `NSImage` to analyze.
+    /// - Returns: The dominant `NSColor`, or `nil` if extraction fails.
     func getDominantColor(from image: NSImage) -> NSColor? {
         guard let tiffData = image.tiffRepresentation,
             let ciImage = CIImage(data: tiffData) else { return nil }
