@@ -42,13 +42,13 @@ struct TopNotchView: View {
                 } else {
                     HStack(spacing: 0) {
                         //// If the widget is playing show pause
-                        if animationState.songText != "No Song Playing" {
+                        if animationState.musicModel.nowPlayingInfo.trackName != "No Song Playing" {
                             Button(action: AudioManager.shared.togglePlayPause ) {
                                 Image(systemName: "pause.fill")
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
                                     .frame(width: 17, height: 15)
-                                    .foregroundColor(Color(nsColor: animationState.playingColor))
+                                    .foregroundColor(Color(nsColor: animationState.musicModel.nowPlayingInfo.dominantColor))
                             }
                             .buttonStyle(.plain)
                             .padding(.trailing, 23)
@@ -60,7 +60,7 @@ struct TopNotchView: View {
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
                                     .frame(width: 17, height: 15)
-                                    .foregroundColor(Color(nsColor: animationState.playingColor))
+                                    .foregroundColor(Color(nsColor: animationState.musicModel.nowPlayingInfo.dominantColor))
                             }
                             .buttonStyle(.plain)
                             .padding(.trailing, 23)

@@ -6,20 +6,20 @@ struct CompactAlbumWidget: View, Widget {
     var alignment: WidgetAlignment? = .left
     var name: String = "AlbumWidget"
 
-    @ObservedObject var model: AlbumWidgetModel
+    @ObservedObject var model: MusicPlayerWidgetModel = .shared
     var scrollManager = ScrollHandler.shared
 
     var body: some View {
         ZStack {
             if !PanelAnimationState.shared.isExpanded {
                 panelButton {
-                    Image(nsImage: model.image ?? NSImage())
+                    Image(nsImage: model.nowPlayingInfo.artworkImage ?? NSImage())
                         .resizable()
                         .scaledToFit()
                         .frame(width: 25, height: 22)
                         .cornerRadius(4)
                         .padding(.top, 2)
-                        .opacity(model.image != nil ? 1 : 0)
+                        .opacity(model.nowPlayingInfo.artworkImage != nil ? 1 : 0)
                 }
                 
                 panelButton {
@@ -32,14 +32,14 @@ struct CompactAlbumWidget: View, Widget {
                             .foregroundColor(.white)
                     }
                     .padding(.top, 1)
-                    .opacity(model.image == nil ? 1 : 0)
+                    .opacity(model.nowPlayingInfo.artworkImage == nil ? 1 : 0)
                 }
             } else {
                 Text("")
             }
         }
         .padding(.trailing, 22)
-        .animation(.easeInOut(duration: 0.25), value: model.image != nil)
+        .animation(.easeInOut(duration: 0.25), value: model.nowPlayingInfo.artworkImage != nil)
     }
 
     private func panelButton<Label: View>(@ViewBuilder label: () -> Label) -> some View {
@@ -51,19 +51,5 @@ struct CompactAlbumWidget: View, Widget {
 
     var swiftUIView: AnyView {
         AnyView(self)
-    }
-}
-
-class AlbumWidgetModel: ObservableObject {
-    @Published var image: NSImage?
-    private var cancellables = Set<AnyCancellable>()
-
-    init() {
-        AudioManager.shared.$currentArtworkImage
-            .receive(on: RunLoop.main)
-            .sink { [weak self] newImage in
-                self?.image = newImage
-            }
-            .store(in: &cancellables)
     }
 }

@@ -38,55 +38,26 @@ struct AnimatedDot: View {
     }
 }
 
-// The view model for the moving dots.
-class MovingDotsViewModel: ObservableObject {
-    @Published var isPlaying: Bool = false
-    @Published var playingColor: NSColor = .white
-
-    private var cancellables = Set<AnyCancellable>()
-
-    init() {
-        // Subscribe to changes in the AudioManager's current song text and color.
-        AudioManager.shared.$currentSongText
-            .receive(on: RunLoop.main)
-            .sink { [weak self] text in
-                DispatchQueue.main.async {
-                    self?.isPlaying = text != "No Song Playing"
-                }
-            }
-            .store(in: &cancellables)
-
-        AudioManager.shared.$dominantColor
-            .receive(on: RunLoop.main)
-            .sink { [weak self] color in
-                DispatchQueue.main.async {
-                    self?.playingColor = color
-                }
-            }
-            .store(in: &cancellables)
-    }
-}
-
 // The parent view that shows three dots.
 // When isPlaying is true, it shows animated dots; otherwise, static dots.
 struct MovingDotsView: View, Widget {
     var name: String = "MovingDotsWidget"
     var alignment: WidgetAlignment? = .right
-    @ObservedObject var model: MovingDotsViewModel
+    @ObservedObject var model: MusicPlayerWidgetModel = .shared
 
     var body: some View {
         HStack(spacing: 6) {
             ForEach(0..<3) { index in
                 AnimatedDot(
                     delay: Double(index) * 0.2,
-                    color: Color(model.playingColor),
-                    shouldAnimate: model.isPlaying  // controls bounce
+                    color: Color(model.nowPlayingInfo.dominantColor),
+                    shouldAnimate: model.nowPlayingInfo.isPlaying  // controls bounce
                 )
             }
         }
         .padding(.trailing, 10)
         // Optionally add an explicit animation for the change in bounce state:
-        .animation(.easeInOut(duration: 0.3), value: model.isPlaying)
+        .animation(.easeInOut(duration: 0.3), value: model.nowPlayingInfo.isPlaying)
     }
 
     var swiftUIView: AnyView {

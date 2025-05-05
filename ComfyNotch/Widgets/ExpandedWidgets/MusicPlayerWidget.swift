@@ -58,15 +58,15 @@ struct MusicPlayerWidget: View, Widget {
                     
                     // Progress bar
                     Rectangle()
-                        .fill(Color(nsColor: model.dominantColor))
-                        .frame(width: max(CGFloat(model.currentSecondsSong / max(model.currentSecondsSongDuration, 1)) * geometry.size.width, 0), height: 4)
+                        .fill(Color(nsColor: model.nowPlayingInfo.dominantColor))
+                        .frame(width: max(CGFloat(model.nowPlayingInfo.positionSeconds / max(model.nowPlayingInfo.durationSeconds,1)) * geometry.size.width, 0), height: 4)
                         .cornerRadius(2)
                     
                     // Thumb
                     Circle()
-                        .fill(Color(nsColor: model.dominantColor))
+                        .fill(Color(nsColor: model.nowPlayingInfo.dominantColor))
                         .frame(width: 12, height: 12)
-                        .offset(x: max(CGFloat(model.currentSecondsSong / max(model.currentSecondsSongDuration, 1)) * geometry.size.width - 6, -6))
+                        .offset(x: max(CGFloat(model.nowPlayingInfo.positionSeconds / max(model.nowPlayingInfo.durationSeconds, 1)) * geometry.size.width - 6, -6))
                 }
                 .gesture(
                     DragGesture(minimumDistance: 0)
@@ -74,19 +74,19 @@ struct MusicPlayerWidget: View, Widget {
                             // Set the dragging flag to true
                             model.isDragging = true
                             let percentage = min(max(0, value.location.x / geometry.size.width), 1)
-                            model.currentSecondsSong = Double(percentage) * model.currentSecondsSongDuration
+                            model.nowPlayingInfo.positionSeconds = Double(percentage) * model.nowPlayingInfo.durationSeconds
                         }
                         .onEnded { value in
                             let percentage = min(max(0, value.location.x / geometry.size.width), 1)
 
                             // Convert % ➜ absolute seconds
-                            let newTimeInSeconds = percentage * model.currentSecondsSongDuration
+                            let newTimeInSeconds = percentage * model.nowPlayingInfo.durationSeconds
 
                             // 1. Seek the real player
                             AudioManager.shared.playAtTime(to: newTimeInSeconds)
 
                             // 2. Keep the thumb where the user left it (UI won’t flash back)
-                            model.currentSecondsSong = newTimeInSeconds
+                            model.nowPlayingInfo.positionSeconds = newTimeInSeconds
 
                             // 3. Re-enable live updates after a brief grace period
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -99,13 +99,13 @@ struct MusicPlayerWidget: View, Widget {
             
             // Time labels
             HStack {
-                Text(formatDuration(model.currentSecondsSong))
+                Text(formatDuration(model.nowPlayingInfo.positionSeconds))
                     .font(.caption)
                     .foregroundColor(.secondary)
                 
                 Spacer()
                 
-                Text(formatDuration(model.currentSecondsSongDuration))
+                Text(formatDuration(model.nowPlayingInfo.durationSeconds))
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -158,15 +158,15 @@ struct MusicPlayerWidget: View, Widget {
 
     @ViewBuilder
     func renderSongInformation() -> some View {
-        Text(model.songText)
+        Text(model.nowPlayingInfo.trackName)
             .font(.system(size: 13, weight: .medium))
             .foregroundColor(.white)
             .lineLimit(1)
-        Text(model.artistText)
+        Text(model.nowPlayingInfo.artistName)
             .font(.system(size: 11, weight: .regular))
             .foregroundColor(.white)
             .lineLimit(1)
-        Text(model.albumText)
+        Text(model.nowPlayingInfo.albumName)
             .font(.system(size: 11, weight: .light))
             .foregroundColor(.white)
             .lineLimit(1)
@@ -175,7 +175,7 @@ struct MusicPlayerWidget: View, Widget {
     @ViewBuilder
     func renderAlbumCover() -> some View {
         ZStack(alignment: .topLeading) {
-            if let artwork = model.artworkImage {
+            if let artwork = model.nowPlayingInfo.artworkImage {
                 Image(nsImage: artwork)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
@@ -195,7 +195,7 @@ struct MusicPlayerWidget: View, Widget {
             
             Group {
                     /// Music Provider
-                    switch model.musicProvider {
+                    switch model.nowPlayingInfo.musicProvider {
                     case .apple_music:
                         if let url = Bundle.main.url(forResource: "apple_music", withExtension: "svg", subdirectory: "Assets") {
                             Button(action: AudioManager.shared.openProvider ) {
@@ -230,72 +230,16 @@ struct MusicPlayerWidget: View, Widget {
 class MusicPlayerWidgetModel: ObservableObject {
     static let shared = MusicPlayerWidgetModel()
     
-    @Published var songText: String = AudioManager.shared.currentSongText
-    @Published var artistText: String = AudioManager.shared.currentArtistText
-    @Published var albumText: String = AudioManager.shared.currentAlbumText
-    @Published var artworkImage: NSImage? = AudioManager.shared.currentArtworkImage
-    @Published var currentSecondsSong: Double = AudioManager.shared.currentSecondsSong
-    @Published var currentSecondsSongDuration: Double = AudioManager.shared.totalSecondsSong
+    @ObservedObject var nowPlayingInfo = AudioManager.shared.nowPlayingInfo
     @Published var isDragging: Bool = false
-    @Published var dominantColor: NSColor = AudioManager.shared.dominantColor
-    @Published var musicProvider: AudioManager.MusicProver = AudioManager.shared.musicProvider
-
-
+    
     private var cancellables = Set<AnyCancellable>()
 
     init() {
-        AudioManager.shared.$currentSongText
+        nowPlayingInfo.objectWillChange
             .receive(on: RunLoop.main)
-            .sink { [weak self] newSong in
-                self?.songText = newSong
-            }
-            .store(in: &cancellables)
-
-        AudioManager.shared.$currentArtistText
-            .receive(on: RunLoop.main)
-            .sink { [weak self] newArtist in
-                self?.artistText = newArtist
-            }
-            .store(in: &cancellables)
-
-        AudioManager.shared.$currentAlbumText
-            .receive(on: RunLoop.main)
-            .sink { [weak self] newAlbum in
-                self?.albumText = newAlbum
-            }
-            .store(in: &cancellables)
-
-        AudioManager.shared.$currentArtworkImage
-            .receive(on: RunLoop.main)
-            .sink { [weak self] newImage in
-                self?.artworkImage = newImage
-            }
-            .store(in: &cancellables)
-        AudioManager.shared.$currentSecondsSong
-            .receive(on: RunLoop.main)
-            .sink { [weak self] newCurrentSecondsSong in
-                guard let self = self else { return }
-                if !self.isDragging {
-                    self.currentSecondsSong = newCurrentSecondsSong
-                }
-            }
-            .store(in: &cancellables)
-        AudioManager.shared.$totalSecondsSong
-            .receive(on: RunLoop.main)
-            .sink { [weak self] newTotalSecondsSong in
-                self?.currentSecondsSongDuration = newTotalSecondsSong
-            }
-            .store(in: &cancellables)
-        AudioManager.shared.$dominantColor
-            .receive(on: RunLoop.main)
-            .sink { [weak self] newColor in
-                self?.dominantColor = newColor
-            }
-            .store(in: &cancellables)
-        AudioManager.shared.$musicProvider
-            .receive(on: RunLoop.main)
-            .sink { [weak self] newMusicProvider in
-                self?.musicProvider = newMusicProvider
+            .sink { [weak self] in
+                self?.objectWillChange.send() // Force view update
             }
             .store(in: &cancellables)
     }

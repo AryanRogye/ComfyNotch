@@ -5,12 +5,11 @@ struct CurrentSongWidget: View, Widget {
     var name: String = "CurrentSongWidget"
 
     @ObservedObject var model: MusicPlayerWidgetModel = .shared
-    @ObservedObject var movingDotsModel: MovingDotsViewModel
 
     var body: some View {
-        Text("\(model.songText)")
+        Text("\(model.nowPlayingInfo.trackName)")
             .font(.system(size: 16, weight: .bold))
-            .foregroundStyle(Color(nsColor: movingDotsModel.playingColor))
+            .foregroundStyle(Color(nsColor: model.nowPlayingInfo.dominantColor))
             .transition(.move(edge: .bottom).combined(with: .opacity))
     }
 

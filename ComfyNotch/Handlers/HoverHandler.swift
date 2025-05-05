@@ -12,15 +12,15 @@ class HoverHandlerModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
 
     init() {
-        // Subscribe to changes in the AudioManager's current song text and color.
-        AudioManager.shared.$currentSongText
-            .receive(on: RunLoop.main)
-            .sink { [weak self] text in
-                DispatchQueue.main.async {
-                    self?.isPlaying = text != "No Song Playing"
-                }
-            }
-            .store(in: &cancellables)
+//        // Subscribe to changes in the AudioManager's current song text and color.
+//        AudioManager.shared.$currentSongText
+//            .receive(on: RunLoop.main)
+//            .sink { [weak self] text in
+//                DispatchQueue.main.async {
+//                    self?.isPlaying = text != "No Song Playing"
+//                }
+//            }
+//            .store(in: &cancellables)
     }
 }
 

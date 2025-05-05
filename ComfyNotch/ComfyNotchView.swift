@@ -31,8 +31,7 @@ class PanelAnimationState: ObservableObject {
 
     @Published var isExpanded: Bool = false
     @Published var bottomSectionHeight: CGFloat = 0
-    @Published var songText: String = AudioManager.shared.currentSongText
-    @Published var playingColor: NSColor = AudioManager.shared.dominantColor
+    @ObservedObject var musicModel: MusicPlayerWidgetModel = .shared
     @Published var isDroppingFiles = false
     @Published var droppedFiles: [URL] = []
     
@@ -44,24 +43,6 @@ class PanelAnimationState: ObservableObject {
     @Published var fileTriggeredTray: Bool = false
 
     private var cancellables = Set<AnyCancellable>()
-
-    init() {
-        AudioManager.shared.$currentSongText
-            .receive(on: RunLoop.main)
-            .sink { [weak self] newSong in
-                self?.songText = newSong
-            }
-            .store(in: &cancellables)
-
-        AudioManager.shared.$dominantColor
-            .receive(on: RunLoop.main)
-            .sink { [weak self] color in
-                DispatchQueue.main.async {
-                    self?.playingColor = color
-                }
-            }
-            .store(in: &cancellables)
-    }
 }
 
 struct ComfyNotchView: View {

@@ -16,7 +16,7 @@ struct SettingsButtonWidget: View, Widget {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 20, height: 15)
-                .foregroundColor(Color(nsColor: model.dominantColor))
+                .foregroundColor(Color(nsColor: model.nowPlayingInfo.dominantColor))
                 .background(Color.clear)
         })
         .buttonStyle(.plain)

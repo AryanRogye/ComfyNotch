@@ -101,11 +101,9 @@ class UIManager {
         smallPanel.hasShadow = false
 
         // Create and add widgets to the store
-        let albumWidgetModel = AlbumWidgetModel()
-        let movingDotsModel = MovingDotsViewModel()
 
-        let albumWidget = CompactAlbumWidget(model: albumWidgetModel)
-        let movingDotsWidget = MovingDotsView(model: movingDotsModel)
+        let albumWidget = CompactAlbumWidget()
+        let movingDotsWidget = MovingDotsView()
         let settingsWidget = SettingsButtonWidget()
         let fileTrayWidget = QuickAccessWidget()
 
@@ -126,7 +124,7 @@ class UIManager {
     }
     
     public func applyOpeningLayout() {
-        withAnimation(Anim.spring) {
+        // withAnimation(Anim.spring) {
             /// Opening Layout is just hiding every possible widget
             compactWidgetStore.hideWidget(named: "QuickAccessWidget")
             compactWidgetStore.hideWidget(named: "AlbumWidget")
@@ -139,7 +137,7 @@ class UIManager {
             expandedWidgetStore.hideWidget(named: "CameraWidget")
             expandedWidgetStore.hideWidget(named: "AIChatWidget")
             expandedWidgetStore.hideWidget(named: "EventWidget")
-        }
+        // }
     }
     public func applyExpandedWidgetLayout() {
         withAnimation(Anim.spring) {
