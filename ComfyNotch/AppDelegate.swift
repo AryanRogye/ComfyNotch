@@ -69,6 +69,8 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         
         /// Begin The Clipboard Manger
         ClipboardManager.shared.start()
+        /// Start the hover handler, this also listens for music playing closing and opening slightly
+        PanelAnimator.shared.startAnimationListeners()
         
         // Set up the ui by loading the widgets from settings onto it
         self.loadWidgetsFromSettings()
@@ -77,7 +79,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         DisplayHandler.shared.start()
         // Start listening for shortcuts
         ShortcutHandler.shared.startListening()
-        //            ScrollHandler.shared.openFull()
+        
         UIManager.shared.applyCompactWidgetLayout()
         ScrollHandler.shared.closeFull()
     }

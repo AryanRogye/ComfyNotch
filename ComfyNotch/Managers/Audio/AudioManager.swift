@@ -48,14 +48,12 @@ class AudioManager: ObservableObject {
     func getNowPlayingInfo() {
         // Attempt to use MediaRemote; fallback to AppleScript if unavailable or fails
         if mediaRemoteMusicController.isAvailable() {
-            print("Is Available")
             mediaRemoteMusicController.getNowPlayingInfo { success in
                 if !success {
                     self.appleScriptMusicController.getNowPlayingInfo { _ in }
                 }
             }
         } else {
-            print("Getting Music Info from AppleScript")
             appleScriptMusicController.getNowPlayingInfo { _ in }
         }
     }

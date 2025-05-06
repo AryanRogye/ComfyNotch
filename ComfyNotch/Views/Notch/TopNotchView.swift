@@ -1,4 +1,11 @@
 import SwiftUI
+
+enum TopNotchViewStates {
+    case noMusicPlaying
+    case musicPlaying
+    case openedNotch
+}
+
 struct TopNotchView: View {
 
     @EnvironmentObject var widgetStore: CompactWidgetsStore
@@ -26,6 +33,18 @@ struct TopNotchView: View {
             Spacer()
                 .frame(width: PanelAnimationState.shared.isExpanded ? 450 : getNotchWidth())
                 .padding([.trailing, .leading], paddingWidth)
+            
+//            Spacer()
+//                .frame(width: calculatedSpacerWidth)
+//                .padding(.horizontal, animationState.currentPanelWidth >= 320 ? paddingWidth : 0)
+//                .animation(.interpolatingSpring(stiffness: 180, damping: 18), value: animationState.currentPanelWidth)
+            
+//            Spacer()
+//                .frame(width: animationState.currentPanelWidth >= 320
+//                       ? (animationState.isExpanded ? 450 : getNotchWidth())
+//                       : 0)
+//                .padding([.trailing, .leading], animationState.currentPanelWidth >= 320 ? paddingWidth : 0)
+//                .animation(.spring(response: 0.35, dampingFraction: 0.75), value: animationState.currentPanelWidth)
             
             // Right Widgets
             ZStack(alignment: .leading) {
@@ -96,7 +115,7 @@ struct TopNotchView: View {
         )
     }
 
-    private func getNotchWidth() -> CGFloat {
+    func getNotchWidth() -> CGFloat {
         guard let screen = NSScreen.main else { return 180 } // Default to 180 if it fails
 
         let screenWidth = screen.frame.width

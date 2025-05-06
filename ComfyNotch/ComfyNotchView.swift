@@ -7,6 +7,7 @@ enum NotchViewState {
     case home
     case file_tray
     case utils
+    case popInPresentation
 }
 
 struct Anim {
@@ -29,6 +30,7 @@ class PanelAnimationState: ObservableObject {
 
     @Published var isExpanded: Bool = false
     @Published var bottomSectionHeight: CGFloat = 0
+    @Published var currentPanelWidth: CGFloat = UIManager.shared.startPanelWidth
     @ObservedObject var musicModel: MusicPlayerWidgetModel = .shared
     @Published var isDroppingFiles = false
     @Published var droppedFiles: [URL] = []
@@ -102,6 +104,7 @@ struct ComfyNotchView: View {
                 case .home:         HomeNotchView().environmentObject(bigWidgetStore)
                 case .file_tray:    FileTrayView()
                 case .utils:        UtilsView()
+                case .popInPresentation: PopInPresenter()
                 }
                 
                 Spacer()
@@ -134,11 +137,13 @@ struct ComfyNotchView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         /// For Scrolling the Panel
         .panGesture(direction: .down) { translation, phase in
-            debugLog("Called Down")
             
             guard UIManager.shared.panelState == .closed else { return }
-
-            if translation > 50 {
+            
+            let threshhold : CGFloat = PanelAnimationState.shared.currentPanelState == .popInPresentation ? 120 : 50
+            if translation > threshhold {
+                debugLog("Called Down With Threshold \(translation)")
+                PanelAnimationState.shared.currentPanelState = .home
                 UIManager.shared.applyOpeningLayout()
                 ScrollHandler.shared.openFull()
             }
@@ -151,7 +156,7 @@ struct ComfyNotchView: View {
                 debugLog("Ignoring scroll — hovering EventWidget")
                 return
             }
-            if animationState.currentPanelState == .file_tray || animationState.currentPanelState == .utils { return }
+            if animationState.currentPanelState == .file_tray || animationState.currentPanelState == .utils || animationState.currentPanelState == .popInPresentation { return }
 
             if translation > 50 {
                 UIManager.shared.applyOpeningLayout()
