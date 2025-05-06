@@ -22,6 +22,7 @@ struct NotesWidget: View, Widget {
     @State private var showingContentForNote: Bool = false
 
     @State private var currentView: WidgetViewState = .viewList
+    @ObservedObject private var hoverState = WidgetHoverState.shared
 
     var body: some View {
         ZStack {
@@ -36,6 +37,9 @@ struct NotesWidget: View, Widget {
         }
         .background(Color.clear)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onHover { hovering in
+            hoverState.isHoveringOverEventWidget = hovering
+        }
     }
 
     @ViewBuilder

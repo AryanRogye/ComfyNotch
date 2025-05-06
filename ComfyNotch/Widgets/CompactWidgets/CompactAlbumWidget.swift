@@ -43,7 +43,10 @@ struct CompactAlbumWidget: View, Widget {
     }
 
     private func panelButton<Label: View>(@ViewBuilder label: () -> Label) -> some View {
-        Button(action: scrollManager.openFull ) {
+        Button(action: {
+            PanelAnimationState.shared.currentPanelState = .home
+            scrollManager.openFull()
+        }) {
             label()
         }
         .buttonStyle(.plain)
