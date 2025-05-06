@@ -120,6 +120,13 @@ struct ComfyNotchView: View {
                 )
             )
         }
+        .onChange(of: UIManager.shared.panelState) { _, newState in
+            if newState == .open {
+                if PanelAnimationState.shared.currentPanelState == .popInPresentation {
+                    PanelAnimationState.shared.currentPanelState = .home
+                }
+            }
+        }
         /// MODIFIERS
         .onChange(of: PanelAnimationState.shared.isDroppingFiles) { _, hovering in
             if hovering && UIManager.shared.panelState == .closed {

@@ -1,5 +1,18 @@
 import SwiftUI
+import AppKit
 
+struct FileRow: View {
+    let fileURL: URL
+    
+    var body: some View {
+        HStack {
+                ShareLink(item: fileURL) {
+                    Image(systemName: "square.and.arrow.up")
+                }
+                .buttonStyle(.plain)
+        }
+    }
+}
 struct FileTrayView: View {
 
     @ObservedObject var animationState = PanelAnimationState.shared
@@ -7,6 +20,7 @@ struct FileTrayView: View {
     
     @State var showDeleteFileAlert: Bool = false
     @State var currentDeleteFileURL: URL?
+    
 
     var body: some View {
         VStack(spacing: 0) {
@@ -27,6 +41,7 @@ struct FileTrayView: View {
                                     showTimeStamp(fileURL: fileURL)
                                     
                                     Spacer()
+//                                    FileRow(fileURL: fileURL)
                                     showFile(fileURL: fileURL)
                                     showDelete(fileURL: fileURL)
                                 }

@@ -79,7 +79,6 @@ final class PanelAnimator {
         } else {
             ScrollHandler.shared.expandWidth()
         }
-
     }
 
     /// HOVER LISTENER
@@ -98,17 +97,19 @@ final class PanelAnimator {
         let panelFrame = panel.frame.insetBy(dx: -10, dy: -10)
             
         if musicModel.nowPlayingInfo.trackName == "No Song Playing" { return }
-        if panelFrame.contains(mouseLocation) {
-            if !isHovering {
-                isHovering = true
-                startHoverTimer()
+        if UIManager.shared.panelState != .open {
+            if panelFrame.contains(mouseLocation) {
+                if !isHovering {
+                    isHovering = true
+                    startHoverTimer()
+                }
+            } else {
+                isHovering = false
+                hoverTimer?.invalidate()
+                hoverTimer = nil
+                PanelAnimationState.shared.currentPanelState = .home
+                ScrollHandler.shared.peekClose()
             }
-        } else {
-            isHovering = false
-            hoverTimer?.invalidate()
-            hoverTimer = nil
-            PanelAnimationState.shared.currentPanelState = .home
-            ScrollHandler.shared.peekClose()
         }
     }
 
@@ -122,7 +123,9 @@ final class PanelAnimator {
                 /// Delay the animation by 0.25 seconds so it doesnt jitter
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
                     withAnimation(.easeOut(duration: 0.2)) {
-                        PanelAnimationState.shared.currentPanelState = .popInPresentation
+                        if UIManager.shared.panelState != .open {
+                            PanelAnimationState.shared.currentPanelState = .popInPresentation
+                        }
                     }
                 }
                 ScrollHandler.shared.peekOpen()

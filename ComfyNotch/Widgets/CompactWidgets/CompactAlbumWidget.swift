@@ -44,8 +44,15 @@ struct CompactAlbumWidget: View, Widget {
 
     private func panelButton<Label: View>(@ViewBuilder label: () -> Label) -> some View {
         Button(action: {
-            PanelAnimationState.shared.currentPanelState = .home
-            scrollManager.openFull()
+            withAnimation(Anim.spring) {
+                UIManager.shared.applyOpeningLayout()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    scrollManager.openFull()
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    PanelAnimationState.shared.currentPanelState = .home
+                }
+            }
         }) {
             label()
         }
