@@ -37,12 +37,12 @@ class EventManager: ObservableObject {
     public func fetchUserCalendars() {
         self.requestAcessToCalendar() { granted in
             if granted {
-                print("Request Access to Calendar Granted")
+                debugLog("Request Access to Calendar Granted")
                 DispatchQueue.main.async { [weak self] in
                     self?.calendars = self?.store.calendars(for: .event) ?? []
                 }
             } else {
-                print("Request Access to Calendar Denied")
+                debugLog("Request Access to Calendar Denied")
             }
         }
     }
@@ -62,13 +62,13 @@ class EventManager: ObservableObject {
     public func requestAcessToCalendar(completion: @escaping (Bool) -> Void) {
         store.requestFullAccessToEvents { granted, error in
             if let error = error {
-                print("Error requesting access to calendar: \(error.localizedDescription)")
+                debugLog("Error requesting access to calendar: \(error.localizedDescription)")
                 completion(false)
                 return
             }
             
             guard granted else {
-                print("Access to calendar was not granted.")
+                debugLog("Access to calendar was not granted.")
                 completion(false)
                 return
             }
@@ -82,13 +82,13 @@ class EventManager: ObservableObject {
         store.requestFullAccessToReminders { granted, error in
 
             if let error = error {
-                print("Error requesting access to reminders: \(error.localizedDescription)")
+                debugLog("Error requesting access to reminders: \(error.localizedDescription)")
                 completion(false)
                 return
             }
 
             guard granted else {
-                print("Access to reminders was not granted.")
+                debugLog("Access to reminders was not granted.")
                 completion(false)
                 return
             }

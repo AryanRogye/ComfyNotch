@@ -178,7 +178,7 @@ final class AppleScriptMusicController: NowPlayingProvider {
         if let scriptObject = NSAppleScript(source: script) {
             let result = scriptObject.executeAndReturnError(&error)
             if let error = error {
-                print("AppleScript Error: \(error)")
+                debugLog("AppleScript Error: \(error)")
             }
             return result.stringValue
         }

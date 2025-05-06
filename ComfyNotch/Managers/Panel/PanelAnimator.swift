@@ -76,10 +76,8 @@ final class PanelAnimator {
         /// check if track name is == No Song Playing
         if currentTrack == "No Song Playing" {
             ScrollHandler.shared.reduceWidth()
-            print("Reduced")
         } else {
             ScrollHandler.shared.expandWidth()
-            print("Expanded")
         }
 
     }
