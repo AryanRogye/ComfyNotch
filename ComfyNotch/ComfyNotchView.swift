@@ -78,6 +78,8 @@ struct ComfyNotchView: View {
 
     var body: some View {
         ZStack {
+//            MetalBlobView()
+//                    .ignoresSafeArea()
             RoundedCornersShape(
                     topLeft: 0,
                     topRight: 0,

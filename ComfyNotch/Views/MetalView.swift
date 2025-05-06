@@ -3,137 +3,69 @@ import AppKit
 import Combine
 import MetalKit
 
-
-
-class MetalCoordinator: NSObject, MTKViewDelegate {
-
-    static let shared = MetalCoordinator(device: MTLCreateSystemDefaultDevice()!)
-
-    let pipelineBorder: MTLRenderPipelineState
-    let pipelineFull: MTLRenderPipelineState
-
-    var useBorder: Bool = false /// TODO: Replace with enum
-    var currentEffect: ShaderEffect = .none {
-        didSet {
-            debugLog("[MetalCoordinator] currentEffect updated to \(currentEffect)")
-        }
-    }
-
-    var time: Float = 0
-    var shadeColor = SIMD3<Float>(0.2, 0.2, 0.2) // Default comfy fallback
-    var pulseStrength: Float = 0 
-
-    // MARK: – Init builds both pipelines from Shaders.metal file
-    init(device: MTLDevice) {
-        // 1️⃣ load the compiled metallib automatically
-        guard let library = device.makeDefaultLibrary() else {
-            fatalError("Couldn't find default metallib in app bundle")
-        }
-
-        // 2️⃣ build the pipelines
-        let descBorder = MTLRenderPipelineDescriptor()
-        descBorder.vertexFunction   = library.makeFunction(name: "vertex_main")
-        descBorder.fragmentFunction = library.makeFunction(name: "fragment_borderGlow")
-        descBorder.colorAttachments[0].pixelFormat = .bgra8Unorm
-        pipelineBorder = try! device.makeRenderPipelineState(descriptor: descBorder)
-
-        let descFull = MTLRenderPipelineDescriptor()
-        descFull.vertexFunction   = library.makeFunction(name: "vertex_main")
-        descFull.fragmentFunction = library.makeFunction(name: "fragment_fullGlow")
-        descFull.colorAttachments[0].pixelFormat = .bgra8Unorm
-        pipelineFull = try! device.makeRenderPipelineState(descriptor: descFull)
-
-        super.init()
-    }
-    
-    convenience override init() {
-        fatalError("Use shared instance")
-    }
-
-    func updateShade(from nsColor: NSColor, effect: ShaderEffect = .none) {
-        let rgb = nsColor.usingColorSpace(.deviceRGB) ?? NSColor.black
-        shadeColor = SIMD3<Float>(
-            Float(rgb.redComponent),
-            Float(rgb.greenComponent),
-            Float(rgb.blueComponent)
-        )
-        self.currentEffect = effect
-    }
-    
-    /// It’s required by the protocol
-    /// Dont need it unless we change the size of the view
-    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
-    
-    /// Every 60 seconds it tells Metal: "Hey Metal! Here’s what I want to draw next""
-    func draw(in view: MTKView) {
-        /// Get where to draw. (basically like "give me a fresh canvas")
-        guard let passDesc = view.currentRenderPassDescriptor,
-            let drawable = view.currentDrawable,                                // Get the actual texture (image) that will be shown on screen.
-            let queue    = view.device?.makeCommandQueue(),                     // Create a command queue (kinda like a todo list for the GPU).
-            let buf      = queue.makeCommandBuffer(),                           // Create a command buffer (the specific todo list).
-            let enc      = buf.makeRenderCommandEncoder(descriptor: passDesc)   // Create a command encoder (start writing the drawing commands).
-            else { return }
-
-        time += 0.03
-
-        var t = time
-        enc.setFragmentBytes(&t, length: MemoryLayout<Float>.size, index: 0)
-
-        switch currentEffect {
-        case .none:
-            enc.endEncoding()
-            buf.present(drawable)
-            buf.commit()
-            return
-        case .borderGlow:
-            enc.setRenderPipelineState(pipelineBorder)
-            var pulseInfo = SIMD4(shadeColor, pulseStrength)
-            enc.setFragmentBytes(&pulseInfo, length: MemoryLayout<SIMD4<Float>>.size, index: 1)
-        case .fullGlow:
-            enc.setRenderPipelineState(pipelineFull)
-            var color = shadeColor
-            enc.setFragmentBytes(&color, length: MemoryLayout<SIMD3<Float>>.size, index: 1)
-        }
-        // draw quad
-        enc.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
-        enc.endEncoding()
-        buf.present(drawable)
-        buf.commit()
-
-        // decay AFTER commit so this frame uses the original strength
-        pulseStrength = max(pulseStrength - 0.003, 0)   // ≈5 s fade‑out
-        if pulseStrength == 0 { useBorder = false }     // return to full glow
-    }
-}
-
-
-enum ShaderEffect {
-    case none
-    case borderGlow
-    case fullGlow
-}
-
-struct MetalBackgroundView: NSViewRepresentable {
-
-    @Binding var effect: ShaderEffect
-    @Binding var shade: NSColor
-
-    func makeCoordinator() -> MetalCoordinator {
-        MetalCoordinator.shared
-    }
+struct MetalBlobView: NSViewRepresentable {
+    func makeCoordinator() -> RendererCoordinator { RendererCoordinator() }
 
     func makeNSView(context: Context) -> MTKView {
-        let view = MTKView()
-        view.device = context.coordinator.pipelineBorder.device
-        view.delegate = context.coordinator
-        view.isPaused = false
-        view.enableSetNeedsDisplay = false
-        view.preferredFramesPerSecond = 0
-        return view
+        let mtkView = MTKView()
+        mtkView.device = MTLCreateSystemDefaultDevice()
+        mtkView.delegate = context.coordinator
+        mtkView.framebufferOnly = false
+        mtkView.isPaused = false
+        mtkView.enableSetNeedsDisplay = false
+        mtkView.preferredFramesPerSecond = 120
+        return mtkView
     }
 
-    func updateNSView(_ nsView: MTKView, context: Context) {
-        context.coordinator.updateShade(from: shade, effect: effect)
-        nsView.setNeedsDisplay(nsView.bounds) // 🔥 force a refresh of the frame
+    func updateNSView(_ nsView: MTKView, context: Context) {}
+
+    class RendererCoordinator: NSObject, MTKViewDelegate {
+        private var startTime = CACurrentMediaTime()
+        private var pipelineState: MTLRenderPipelineState!
+        private var commandQueue: MTLCommandQueue!
+        private var vertexBuffer: MTLBuffer!
+
+        override init() {
+            super.init()
+            let device = MTLCreateSystemDefaultDevice()!
+            let library = device.makeDefaultLibrary()!
+
+            let pipelineDescriptor = MTLRenderPipelineDescriptor()
+            pipelineDescriptor.vertexFunction = library.makeFunction(name: "vertexPassthrough")
+            pipelineDescriptor.fragmentFunction = library.makeFunction(name: "blobFragment")
+            pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+
+            pipelineState = try! device.makeRenderPipelineState(descriptor: pipelineDescriptor)
+            commandQueue = device.makeCommandQueue()
+
+            let quadVertices: [Float] = [
+                -1, -1,  0, 1,
+                 1, -1,  1, 1,
+                -1,  1,  0, 0,
+                 1,  1,  1, 0,
+            ]
+            vertexBuffer = device.makeBuffer(bytes: quadVertices, length: MemoryLayout<Float>.size * quadVertices.count, options: [])
+        }
+
+        func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
+
+        func draw(in view: MTKView) {
+            guard let drawable = view.currentDrawable,
+                  let renderPassDescriptor = view.currentRenderPassDescriptor else { return }
+
+            let commandBuffer = commandQueue.makeCommandBuffer()!
+            let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
+            encoder.setRenderPipelineState(pipelineState)
+            encoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
+
+            var time = Float(CACurrentMediaTime() - startTime)
+            encoder.setFragmentBytes(&time, length: MemoryLayout<Float>.size, index: 0)
+
+            encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
+            encoder.endEncoding()
+
+            commandBuffer.present(drawable)
+            commandBuffer.commit()
+        }
     }
 }

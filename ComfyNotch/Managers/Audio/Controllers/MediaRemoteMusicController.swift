@@ -8,90 +8,87 @@
 import Foundation
 import SwiftUI
 
-final class MediaRemoteMusicController: NowPlayingProvider  {
+final class MediaRemoteMusicController: NowPlayingProvider {
     @ObservedObject var nowPlayingInfo: NowPlayingInfo
+    private let mediaRemotePath = "/System/Library/PrivateFrameworks/MediaRemote.framework/MediaRemote"
+    private let handle: UnsafeMutableRawPointer?
 
-init(nowPlayingInfo: NowPlayingInfo) {
+    init(nowPlayingInfo: NowPlayingInfo) {
         self.nowPlayingInfo = nowPlayingInfo
+        self.handle = dlopen(mediaRemotePath, RTLD_NOW)
+        if handle == nil {
+            debugLog("❌ Failed to open MediaRemote via dlopen.")
+        }
+    }
+
+    deinit {
+        if let handle = handle {
+            dlclose(handle)
+        }
     }
 
     func isAvailable() -> Bool {
         return false
-        let frameworkURL = URL(fileURLWithPath: "/System/Library/PrivateFrameworks/MediaRemote.framework")
-        guard let bundle = CFBundleCreate(kCFAllocatorDefault, frameworkURL as CFURL) else {
-            debugLog("❌ MediaRemote.framework not found.")
-            return false
-        }
-
-        let fn = "MRMediaRemoteGetNowPlayingInfo" as CFString
-        let hasFunc = CFBundleGetFunctionPointerForName(bundle, fn)
-
-        if hasFunc != nil {
-            debugLog("✅ MediaRemote is available and MRMediaRemoteGetNowPlayingInfo is loaded.")
-            return true
-        } else {
-            debugLog("⚠️ MediaRemote is present, but GetNowPlayingInfo function is missing.")
-            return false
-        }
+        guard let handle = handle else { return false }
+        return dlsym(handle, "MRMediaRemoteGetNowPlayingInfo") != nil
     }
 
-    func getNowPlayingInfo(completion: @escaping (Bool)->Void) {
-        guard let bundle = CFBundleCreate(kCFAllocatorDefault, NSURL(fileURLWithPath: "/System/Library/PrivateFrameworks/MediaRemote.framework")),
-              let ptr = CFBundleGetFunctionPointerForName(bundle, "MRMediaRemoteGetNowPlayingInfo" as CFString)
+    func getNowPlayingInfo(completion: @escaping (Bool) -> Void) {
+        guard let handle = handle,
+              let ptr = dlsym(handle, "MRMediaRemoteGetNowPlayingInfo")
         else {
+            debugLog("❌ MRMediaRemoteGetNowPlayingInfo not found.")
             return completion(false)
         }
-        
-        typealias MRFunc = @convention(c) (DispatchQueue, @escaping ([String:Any]?) -> Void) -> Void
+
+        typealias MRFunc = @convention(c) (DispatchQueue, @escaping ([String: Any]?) -> Void) -> Void
         let MR = unsafeBitCast(ptr, to: MRFunc.self)
-        
+
         MR(DispatchQueue.main) { info in
-            // if we didn’t actually get a title back, consider it a failure
             guard let info = info,
                   let title = info["kMRMediaRemoteNowPlayingInfoTitle"] as? String
             else {
                 return completion(false)
             }
-            
-            // populate your nowPlayingInfo…
-            self.nowPlayingInfo.trackName  = title
+
+            self.nowPlayingInfo.trackName = title
             self.nowPlayingInfo.artistName = info["kMRMediaRemoteNowPlayingInfoArtist"] as? String ?? "Unknown"
-            self.nowPlayingInfo.albumName  = info["kMRMediaRemoteNowPlayingInfoAlbum"] as? String  ?? "Unknown"
-            // …and artwork/color, isPlaying = true, etc.
-            
+            self.nowPlayingInfo.albumName  = info["kMRMediaRemoteNowPlayingInfoAlbum"]  as? String ?? "Unknown"
+            // You can add artwork/color, isPlaying, etc. here
+
             completion(true)
         }
     }
 
-    /// Actions
-    func playPreviousTrack() -> Void {
-        sendCommand(command: "MRMediaRemoteSendCommand", commandType: 5) // 0 = Previous Track
+    // MARK: - Actions
+
+    func playPreviousTrack() {
+        sendCommand(commandType: 0) // Previous
     }
-    func playNextTrack() -> Void {
-        sendCommand(command: "MRMediaRemoteSendCommand", commandType: 4) // 1 = Next Track
+
+    func playNextTrack() {
+        sendCommand(commandType: 1) // Next
     }
-    func togglePlayPause() -> Void {
-        sendCommand(command: "MRMediaRemoteSendCommand", commandType: 2) // 2 = Play/Pause Toggle
+
+    func togglePlayPause() {
+        sendCommand(commandType: 2) // Toggle
     }
-    func playAtTime(to time: Double) -> Void {
-        
+
+    func playAtTime(to time: Double) {
+        // Not implemented
     }
-    
-    private func sendCommand(command: String, commandType: Int) {
-        guard let bundle = CFBundleCreate(kCFAllocatorDefault, NSURL(fileURLWithPath: "/System/Library/PrivateFrameworks/MediaRemote.framework")) else {
-            debugLog("Failed to load MediaRemote framework")
+
+    private func sendCommand(commandType: Int) {
+        guard let handle = handle,
+              let ptr = dlsym(handle, "MRMediaRemoteSendCommand")
+        else {
+            debugLog("❌ MRMediaRemoteSendCommand not found.")
             return
         }
-        
-        guard let pointer = CFBundleGetFunctionPointerForName(bundle, command as CFString) else {
-            debugLog("Failed to get \(command) function pointer")
-            return
-        }
-        
-        typealias MRMediaRemoteSendCommandFunction = @convention(c) (Int, Any?, Int) -> Void
-        let MRMediaRemoteSendCommand = unsafeBitCast(pointer, to: MRMediaRemoteSendCommandFunction.self)
-        
-        // Send the command
-        MRMediaRemoteSendCommand(commandType, nil, 0)
+
+        typealias SendCommandFunc = @convention(c) (Int, Any?, Int) -> Void
+        let sendCommand = unsafeBitCast(ptr, to: SendCommandFunc.self)
+
+        sendCommand(commandType, nil, 0)
     }
 }
