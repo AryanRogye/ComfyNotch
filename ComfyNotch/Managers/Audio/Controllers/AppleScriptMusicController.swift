@@ -38,9 +38,7 @@ final class AppleScriptMusicController: NowPlayingProvider {
             /// If neither Spotify nor Apple Music is playing, clear the now playing info.
             clearNowPlaying()
             self.nowPlayingInfo.musicProvider = .none
-            print("Neither Playing")
         } else if isSpotifyPlaying() {
-            print("Playing Spotify")
             /// If Spotify is playing, get the info from Spotify.
             getSpotifyInfo { info in
                 if let info = info {
@@ -57,7 +55,6 @@ final class AppleScriptMusicController: NowPlayingProvider {
                 }
             }
         } else {
-            print("Music Trying")
             if let info = self.getMusicInfo() {
                 self.updateNowPlaying(with: info)
                 self.nowPlayingInfo.musicProvider = .apple_music

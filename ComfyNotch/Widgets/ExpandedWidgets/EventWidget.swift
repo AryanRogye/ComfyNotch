@@ -45,7 +45,8 @@ struct EventWidget: View, Widget {
                 .frame(height: 22)
                 .padding(.top, 2)
                 
-                ComfyCalendarView(calendars: $model.calendars,
+                ComfyCalendarView(eventStore: $model.store,
+                                  calendars: $model.calendars,
                                   reminders: $model.reminders,
                                   with: $selectedCalendarViewOption
                     )

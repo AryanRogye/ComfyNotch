@@ -11,7 +11,7 @@ import EventKit
 
 class EventManager: ObservableObject {
     static let shared = EventManager()
-    var store = EKEventStore()
+    @Published var store = EKEventStore()
     
     @Published var calendars: [EKCalendar] = []
     @Published var reminders: [EKReminder] = []
