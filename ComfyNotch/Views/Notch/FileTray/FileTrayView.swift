@@ -42,11 +42,22 @@ struct FileTrayView: View {
                         HStack {
                             /// Add File Look
                             VStack {
-                                Text("Add Files Here")
-                                    .font(.headline)
-                                    .foregroundColor(.gray)
-                                    .multilineTextAlignment(.center)
-                                    .padding()
+                                if let dropped = animationState.droppedFile {
+                                    VStack {
+                                        showFileThumbnail(fileURL: dropped)
+                                        showFileName(fileURL: dropped)
+                                        HStack {
+                                            
+                                        }
+                                    }
+                                } else {
+                                    Text("Add Files Here")
+                                        .font(.headline)
+                                        .foregroundColor(.gray)
+                                        .multilineTextAlignment(.center)
+                                        .padding()
+                                }
+                                Spacer()
                             }
                             .padding(.horizontal, 10)
                             .frame(width: 150, height: 150)
@@ -148,12 +159,21 @@ struct FileTrayView: View {
     
     @ViewBuilder
     func showFileThumbnail(fileURL: URL) -> some View {
-        AsyncImage(url: fileURL) { image in
-            image
-                .resizable()
-                .scaledToFit()
-        } placeholder: {
-            ProgressView()
+        AsyncImage(url: fileURL) { phase in
+            switch phase {
+            case .success(let image):
+                image
+                    .resizable()
+                    .scaledToFit()
+            case .failure(_), .empty:
+                Image(systemName: "doc.fill") // or "doc.text.fill", "doc.richtext", etc.
+                    .resizable()
+                    .scaledToFit()
+                    .foregroundColor(.gray)
+                    .padding(10)
+            @unknown default:
+                EmptyView()
+            }
         }
         .frame(width: 80, height: 80)
         .clipShape(RoundedRectangle(cornerRadius: 10))

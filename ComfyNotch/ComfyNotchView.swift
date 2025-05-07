@@ -41,6 +41,8 @@ class PanelAnimationState: ObservableObject {
     /// we wanna show a cool animation for it getting activated so the user
     /// doesnt think its blue all the time lol
     @Published var fileTriggeredTray: Bool = false
+    
+    @Published var droppedFile: URL?
 
     private var cancellables = Set<AnyCancellable>()
 }
@@ -213,14 +215,15 @@ struct ComfyNotchView: View {
                         let destURL = settings.fileTrayDefaultFolder.appendingPathComponent(renamedFile)
                         
                         do {
-                            try FileManager.default.copyItem(at: url, to: destURL)
+//                            try FileManager.default.copyItem(at: url, to: destURL)
                             debugLog("📁 Copied to: \(destURL.path)")
                             
                             // Register the file in our tracker
                             DroppedFileTracker.shared.registerFile(url: destURL)
                             
                             DispatchQueue.main.async {
-                                PanelAnimationState.shared.droppedFiles.append(destURL)
+//                                PanelAnimationState.shared.droppedFiles.append(destURL)
+                                PanelAnimationState.shared.droppedFile = destURL
                             }
                         } catch {
                             debugLog("❌ Failed to copy file: \(error)")
@@ -248,14 +251,15 @@ struct ComfyNotchView: View {
                         let tempURL = settings.fileTrayDefaultFolder.appendingPathComponent("DroppedImage-\(UUID().uuidString).png")
                         
                         do {
-                            try pngData.write(to: tempURL)
+//                            try pngData.write(to: tempURL)
                             debugLog("✅ Saved image to: \(tempURL.path)")
                             
                             // Register the file in our tracker
                             DroppedFileTracker.shared.registerFile(url: tempURL)
                             
                             DispatchQueue.main.async {
-                                PanelAnimationState.shared.droppedFiles.append(tempURL)
+//                                PanelAnimationState.shared.droppedFiles.append(tempURL)
+                                PanelAnimationState.shared.droppedFile = tempURL
                             }
                         } catch {
                             debugLog("❌ Failed to save image: \(error)")

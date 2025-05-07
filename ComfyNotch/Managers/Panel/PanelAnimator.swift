@@ -96,9 +96,10 @@ final class PanelAnimator {
         let mouseLocation = NSEvent.mouseLocation
         let panelFrame = panel.frame.insetBy(dx: -10, dy: -10)
             
-        if musicModel.nowPlayingInfo.trackName == "No Song Playing" { return }
+        
         if UIManager.shared.panelState != .open {
             if panelFrame.contains(mouseLocation) {
+                if musicModel.nowPlayingInfo.trackName == "No Song Playing" { return }
                 if !isHovering {
                     isHovering = true
                     startHoverTimer()
