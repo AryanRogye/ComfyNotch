@@ -48,7 +48,7 @@ class PanelAnimationState: ObservableObject {
 struct ComfyNotchView: View {
     @EnvironmentObject var widgetStore: CompactWidgetsStore
     @EnvironmentObject var bigWidgetStore: ExpandedWidgetsStore
-
+    
     @ObservedObject var animationState = PanelAnimationState.shared
     @ObservedObject var settings = SettingsModel.shared
     
@@ -57,7 +57,7 @@ struct ComfyNotchView: View {
     
     /// Testing:
     @State private var dragProgress: CGFloat = 0
-
+    
     private var contentInset: CGFloat = 40
     private var cornerRadius: CGFloat = 20
     
@@ -71,28 +71,35 @@ struct ComfyNotchView: View {
             get: { panelAnimationState.droppedFiles },
             set: { panelAnimationState.droppedFiles = $0 }
         )
-         
+        
         _isDroppingFiles = isDroppingFilesBinding
         _droppedFiles = droppedFilesBinding
     }
-
+    
     var body: some View {
         ZStack {
-//            MetalBlobView()
-//                    .ignoresSafeArea()
-            RoundedCornersShape(
-                    topLeft: 0,
-                    topRight: 0,
-                    bottomLeft: cornerRadius,
-                    bottomRight: cornerRadius
-                )
-                .fill(Color.black, style: FillStyle(eoFill: true))
+            //            MetalBlobView()
+            //                    .ignoresSafeArea()
+            Color.clear
                 .contentShape(Rectangle())
-                .offset(y: dragProgress * 12)
-                .scaleEffect(1 + dragProgress * 0.03)
+                .padding(-100) // expands hit area
                 .onDrop(of: [UTType.fileURL.identifier, UTType.image.identifier], isTargeted: $isDroppingFiles) { providers in
                     handleDrop(providers: providers)
-                }
+                    }
+            
+            RoundedCornersShape(
+                topLeft: 0,
+                topRight: 0,
+                bottomLeft: cornerRadius,
+                bottomRight: cornerRadius
+            )
+            .fill(Color.black, style: FillStyle(eoFill: true))
+            .contentShape(Rectangle())
+//            .offset(y: dragProgress * 12)
+//            .scaleEffect(1 + dragProgress * 0.03)
+//            .onDrop(of: [UTType.fileURL.identifier, UTType.image.identifier], isTargeted: $isDroppingFiles) { providers in
+//                handleDrop(providers: providers)
+//            }
             
             
             
@@ -122,6 +129,9 @@ struct ComfyNotchView: View {
                 )
             )
         }
+        /// MODIFIERS
+        /// This manager was added in to make sure that the popInPresentation is playing
+        /// when we open it, it doesnt bug out
         .onChange(of: UIManager.shared.panelState) { _, newState in
             if newState == .open {
                 if PanelAnimationState.shared.currentPanelState == .popInPresentation {
@@ -129,16 +139,25 @@ struct ComfyNotchView: View {
                 }
             }
         }
-        /// MODIFIERS
+        /// This is to show the file tray area when dropped
         .onChange(of: PanelAnimationState.shared.isDroppingFiles) { _, hovering in
             if hovering && UIManager.shared.panelState == .closed {
                 animationState.fileTriggeredTray = true
+                /// Set the page of the notch to be the file tray
                 animationState.currentPanelState = .file_tray
-                animationState.isExpanded = true
-                ScrollHandler.shared.openFull()
+                /// Open the panel
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    UIManager.shared.applyOpeningLayout()
+                }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                    animationState.isExpanded = true
+                    ScrollHandler.shared.openFull()
+                }
                 
                 /// We Reset THe FileTriggeredTray After a bit
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                     animationState.fileTriggeredTray = false
                 }
             }
@@ -166,7 +185,7 @@ struct ComfyNotchView: View {
                 return
             }
             if animationState.currentPanelState == .file_tray || animationState.currentPanelState == .utils || animationState.currentPanelState == .popInPresentation { return }
-
+            
             if translation > 50 {
                 UIManager.shared.applyOpeningLayout()
                 ScrollHandler.shared.closeFull()
@@ -247,4 +266,5 @@ struct ComfyNotchView: View {
         }
         
         return true
-    }}
+    }
+}

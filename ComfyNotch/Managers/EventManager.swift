@@ -7,6 +7,7 @@
 
 import Foundation
 import EventKit
+import AppKit
 
 
 class EventManager: ObservableObject {
@@ -60,20 +61,28 @@ class EventManager: ObservableObject {
     }
     
     public func requestAcessToCalendar(completion: @escaping (Bool) -> Void) {
-        store.requestFullAccessToEvents { granted, error in
-            if let error = error {
-                debugLog("Error requesting access to calendar: \(error.localizedDescription)")
-                completion(false)
-                return
-            }
-            
-            guard granted else {
-                debugLog("Access to calendar was not granted.")
-                completion(false)
-                return
-            }
-            
+        let status = EKEventStore.authorizationStatus(for: .event)
+
+        switch status {
+        case .authorized:
             completion(true)
+        case .denied, .restricted:
+            completion(false)
+        case .notDetermined:
+            store.requestFullAccessToEvents { granted, error in
+                if let error = error {
+                    debugLog("Error requesting access to calendar: \(error.localizedDescription)")
+                    completion(false)
+                    return
+                }
+                completion(granted)
+            }
+        case .fullAccess:
+            completion(true)
+        case .writeOnly:
+            completion(true)
+        @unknown default:
+            completion(false)
         }
     }
 

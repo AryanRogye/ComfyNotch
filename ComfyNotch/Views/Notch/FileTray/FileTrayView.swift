@@ -5,56 +5,83 @@ struct FileRow: View {
     let fileURL: URL
     
     var body: some View {
-        HStack {
-                ShareLink(item: fileURL) {
-                    Image(systemName: "square.and.arrow.up")
-                }
-                .buttonStyle(.plain)
+        Button(action: {
+        }) {
+            Image(systemName: "square.and.arrow.up")
+                .resizable()
+                .frame(width: 12, height: 15)
+                .foregroundStyle(.blue)
         }
+        .buttonStyle(.plain)
     }
 }
 struct FileTrayView: View {
-
+    
     @ObservedObject var animationState = PanelAnimationState.shared
     @ObservedObject var settings = SettingsModel.shared
     
     @State var showDeleteFileAlert: Bool = false
     @State var currentDeleteFileURL: URL?
     
-
     var body: some View {
+        let columns = [
+            GridItem(.adaptive(minimum: 100))
+        ]
+        
         VStack(spacing: 0) {
-            if animationState.isExpanded {
+            if animationState.isExpanded
+            {
+                /// Conditional to show the delete page
                 if !showDeleteFileAlert {
                     let droppedFiles = self.getFilesFromStoredDirectory()
+                    /// If No Files
                     if droppedFiles.isEmpty {
-                        Text("No Files Yet")
-                            .font(.headline)
-                            .padding(.leading, 5)
-                        Spacer()
+                        
                     } else {
-                        ScrollView {
-                            ForEach(droppedFiles, id: \.self) { fileURL in
-                                HStack {
-                                    showFileName(fileURL: fileURL)
-                                        .frame(maxWidth: 200)
-                                    showTimeStamp(fileURL: fileURL)
-                                    
-                                    Spacer()
-//                                    FileRow(fileURL: fileURL)
-                                    showFile(fileURL: fileURL)
-                                    showDelete(fileURL: fileURL)
-                                }
-                                .padding(.horizontal)
-                                .onDrag {
-                                    NSItemProvider(contentsOf: fileURL)!
+                        /// If Files Are There
+                        HStack {
+                            /// Add File Look
+                            VStack {
+                                Text("Add Files Here")
+                                    .font(.headline)
+                                    .foregroundColor(.gray)
+                                    .multilineTextAlignment(.center)
+                                    .padding()
+                            }
+                            .padding(.horizontal, 10)
+                            .frame(width: 150, height: 150)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(animationState.isDroppingFiles ? Color.blue.opacity(0.8) : Color.gray, style: StrokeStyle(lineWidth: 1, dash: [5]))
+                                    .foregroundColor(.gray.opacity(0.5))
+                                    .animation(.easeInOut(duration: 0.3), value: animationState.isDroppingFiles)
+                            )
+                            .padding(.vertical, 5)
+                            .padding(.leading, 10)
+                            
+                            Spacer()
+                            
+                            /// What Files Are There
+                            ScrollView {
+                                LazyVGrid(columns: columns, spacing: 1) {
+                                    ForEach(droppedFiles, id: \.self) { fileURL in
+                                        showFile(for: fileURL)
+                                    }
                                 }
                             }
+                            .padding(.horizontal, 10)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
+                                    .foregroundColor(.white.opacity(0.5))
+                            )
+                            .frame(maxWidth: .infinity)
+                            .padding(4)
                         }
-                        .background(Color.black)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
-                } else {
+                }
+                /// If Delete is pressed
+                else {
                     showPopup()
                 }
             }
@@ -64,6 +91,75 @@ struct FileTrayView: View {
             .easeInOut(duration: animationState.isExpanded ? 0.3 : 0.1),
             value: animationState.isExpanded
         )
+    }
+    
+    @ViewBuilder
+    func showFile(for fileURL: URL) -> some View {
+        VStack(spacing: 0) {
+            showFileThumbnail(fileURL: fileURL)
+            HStack(alignment: .center ,spacing: 0) {
+                showFileName(fileURL: fileURL)
+                showMenu(fileURL: fileURL)
+            }
+                .padding([.horizontal, .top], 5)
+            
+            showTimeStamp(fileURL: fileURL)
+        }
+    }
+    
+    @ViewBuilder
+    func showMenu(fileURL: URL) -> some View {
+        Menu {
+            Button("delete") { activateDelete(fileURL: fileURL) }
+            Button("show file") { openFile(fileURL: fileURL) }
+            Button("share") { share(fileURL: fileURL) }
+        } label: {
+            Image(systemName: "ellipsis")
+                .resizable()
+                .rotationEffect(.degrees(90))
+                .frame(width: 10, height: 13)
+        }
+        .buttonStyle(.plain)
+    }
+    
+    func share(fileURL: URL) {
+        AppModeSwitcher.switchToUI()
+        
+        let service = NSSharingService(named: .sendViaAirDrop)
+        service?.perform(withItems: [fileURL])
+        
+        // Delay hiding again until AirDrop panel likely closed
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            AppModeSwitcher.switchToAccessory()
+        }
+    }
+    
+    func activateDelete(fileURL: URL) {
+        showDeleteFileAlert = true
+        currentDeleteFileURL = fileURL
+    }
+    
+    func openFile(fileURL: URL) {
+        NSWorkspace.shared.open(fileURL)
+        /// Close the file tray
+        animationState.currentPanelState = .home
+        ScrollHandler.shared.closeFull()
+    }
+    
+    @ViewBuilder
+    func showFileThumbnail(fileURL: URL) -> some View {
+        AsyncImage(url: fileURL) { image in
+            image
+                .resizable()
+                .scaledToFit()
+        } placeholder: {
+            ProgressView()
+        }
+        .frame(width: 80, height: 80)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .onDrag {
+            NSItemProvider(contentsOf: fileURL)!
+        }
     }
     
     private func getTimestamp(fileURL: URL) -> Date {
@@ -119,10 +215,12 @@ struct FileTrayView: View {
                         .frame(maxWidth: .infinity)
                         
                         Button(action: {
-                            do {
-                                try FileManager.default.removeItem(at: currentDeleteFileURL!)
-                            } catch {
-                                debugLog("There was a error deleting the file \(error.localizedDescription)")
+                            if let url = currentDeleteFileURL {
+                                do {
+                                    try FileManager.default.removeItem(at: url)
+                                } catch {
+                                    debugLog("There was an error deleting the file \(error.localizedDescription)")
+                                }
                             }
                             // call your delete function here
                             showDeleteFileAlert = false
@@ -155,35 +253,11 @@ struct FileTrayView: View {
     @ViewBuilder
     func showFileName(fileURL: URL) -> some View {
         Text(getFormattedName(for: fileURL))
+            .font(.system(size: 10, weight: .regular))
             .foregroundColor(.white)
             .lineLimit(1)
-            .truncationMode(.middle)
-    }
-    
-    @ViewBuilder
-    func showFile(fileURL: URL) -> some View {
-        Button(action: {
-            NSWorkspace.shared.open(fileURL)
-            /// Close the file tray
-            animationState.currentPanelState = .home
-            ScrollHandler.shared.closeFull()
-        }) {
-            Image(systemName: "eye")
-                .foregroundColor(.blue)
-        }
-        .buttonStyle(.plain)
-    }
-    
-    @ViewBuilder
-    func showDelete(fileURL: URL) -> some View {
-        Button(action: {
-            showDeleteFileAlert = true
-            currentDeleteFileURL = fileURL
-        }) {
-            Image(systemName: "trash")
-                .foregroundStyle(.red)
-        }
-        .buttonStyle(.plain)
+            .truncationMode(.tail)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func getFilesFromStoredDirectory() -> [URL] {
