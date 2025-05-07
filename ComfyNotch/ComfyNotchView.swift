@@ -155,13 +155,11 @@ struct ComfyNotchView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                     animationState.isExpanded = true
                     ScrollHandler.shared.openFull()
-                    animationState.currentPanelState = .home
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                    animationState.currentPanelState = .file_tray
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                    animationState.currentPanelState = .file_tray
-                    animationState.fileTriggeredTray = false
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.9) {
                     animationState.fileTriggeredTray = false
                 }
             }
@@ -198,79 +196,93 @@ struct ComfyNotchView: View {
     }
     
     func handleDrop(providers: [NSItemProvider]) -> Bool {
+        
+        let fm = FileManager.default
+        let sessionDir = fm.temporaryDirectory.appendingPathComponent("FileDropperSession-\(UUID().uuidString)", isDirectory: true)
+        try? fm.createDirectory(at: sessionDir, withIntermediateDirectories: true)
+        
         for provider in providers {
-            // Handle files from Finder
+            
+            /// ---------- Finder files ----------
             if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
-                provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, error in
-                    if let data = item as? Data,
-                       let url = NSURL(absoluteURLWithDataRepresentation: data, relativeTo: nil) as URL? {
-                        
-                        debugLog("✅ Dropped file path: \(url.path)")
-                        
-                        // Check if this is a duplicate file
-                        if !DroppedFileTracker.shared.isNewFile(url: url) {
-                            debugLog("❌ Duplicate file detected - ignoring")
-                            return
-                        }
-                        
-                        let renamedFile = "DroppedFile-\(UUID().uuidString)\(url.pathExtension.isEmpty ? "" : ".\(url.pathExtension)")"
-                        let destURL = settings.fileTrayDefaultFolder.appendingPathComponent(renamedFile)
-                        
-                        do {
-//                            try FileManager.default.copyItem(at: url, to: destURL)
-                            debugLog("📁 Copied to: \(destURL.path)")
-                            
-                            // Register the file in our tracker
-                            DroppedFileTracker.shared.registerFile(url: destURL)
-                            
-                            DispatchQueue.main.async {
-//                                PanelAnimationState.shared.droppedFiles.append(destURL)
-                                PanelAnimationState.shared.droppedFile = destURL
-                            }
-                        } catch {
-                            debugLog("❌ Failed to copy file: \(error)")
-                        }
+                
+                provider.loadInPlaceFileRepresentation(forTypeIdentifier: UTType.fileURL.identifier) {
+                    url, inPlace, _ in
+                    guard let srcURL = url else { return }
+                    
+                    processFile(at: srcURL,
+                                copyIfNeeded: !inPlace,
+                                sessionDir: sessionDir)
+                    
+                }
+                
+            // ---------- Images / screenshots ----------
+            } else if provider.canLoadObject(ofClass: NSImage.self) {
+                _ = provider.loadObject(ofClass: NSImage.self) { object, _ in
+                    guard let img = object as? NSImage,
+                          let tiff = img.tiffRepresentation,
+                          let rep  = NSBitmapImageRep(data: tiff),
+                          let png  = rep.representation(using: .png, properties: [:])
+                    else { return }
+                    
+                    let tmpURL = sessionDir.appendingPathComponent(
+                        "DroppedImage-\(UUID()).png")
+                    
+                    Task.detached(priority: .utility) {
+                        try? png.write(to: tmpURL)   // fast, one write
+                        await processFile(at: tmpURL,
+                                          copyIfNeeded: false,
+                                          sessionDir: sessionDir)
                     }
                 }
             }
             
-            // Handle screenshots or in-memory images
-            else if provider.canLoadObject(ofClass: NSImage.self) {
-                _ = provider.loadObject(ofClass: NSImage.self) { object, error in
-                    if let image = object as? NSImage,
-                       let tiffData = image.tiffRepresentation,
-                       let bitmap = NSBitmapImageRep(data: tiffData),
-                       let pngData = bitmap.representation(using: .png, properties: [:]) {
-                        
-                        debugLog("📸 Received image from drag")
-                        
-                        // Check if this is a duplicate image
-                        if !DroppedFileTracker.shared.isNewData(data: pngData) {
-                            debugLog("❌ Duplicate image detected - ignoring")
-                            return
-                        }
-                        
-                        let tempURL = settings.fileTrayDefaultFolder.appendingPathComponent("DroppedImage-\(UUID().uuidString).png")
-                        
-                        do {
-//                            try pngData.write(to: tempURL)
-                            debugLog("✅ Saved image to: \(tempURL.path)")
-                            
-                            // Register the file in our tracker
-                            DroppedFileTracker.shared.registerFile(url: tempURL)
-                            
-                            DispatchQueue.main.async {
-//                                PanelAnimationState.shared.droppedFiles.append(tempURL)
-                                PanelAnimationState.shared.droppedFile = tempURL
-                            }
-                        } catch {
-                            debugLog("❌ Failed to save image: \(error)")
-                        }
+            // ---------- Promised files ----------
+            else if provider.registeredTypeIdentifiers.contains("com.apple.filepromise") {
+                provider.loadDataRepresentation(forTypeIdentifier: "com.apple.filepromise") { _, error in
+                    if let error = error {
+                        debugLog("❌ Failed to receive file promise: \(error)")
+                        return
                     }
+                    // This is where it gets tricky — you can’t use the promise directly.
+                    // Instead, macOS handles it for you via drag-and-drop if the view supports NSFilePromiseReceiverReading.
+                    // But from a pure `NSItemProvider`, you’d need to back out and rethink how you’re handling it.
+                    debugLog("ℹ️ File promise received — but not handled in this version")
                 }
             }
         }
         
         return true
     }
+    
+    private func processFile(at url: URL,
+                             copyIfNeeded: Bool,
+                             sessionDir: URL) {
+        Task.detached(priority: .utility) {
+            guard let (size, hash) = DroppedFileTracker.shared.quickHash(url: url),
+                  DroppedFileTracker.shared.isNewFile(size: size, hash: hash) else {
+                debugLog("Duplicate File Detected: \(url)")
+                return
+            }
+            
+            let finalURL: URL
+            if copyIfNeeded {
+                let dest = sessionDir.appendingPathComponent(url.lastPathComponent)
+                try? FileManager.default.copyItem(at: url, to: dest)
+                finalURL = dest
+            } else {
+                finalURL = url
+            }
+            
+            DroppedFileTracker.shared.registerFile(size: size,
+                                                   hash: hash,
+                                                   url: finalURL)
+            // 3. Tell SwiftUI
+            await MainActor.run {
+                PanelAnimationState.shared.droppedFile = finalURL
+            }
+        }
+    }
+    
+    
 }

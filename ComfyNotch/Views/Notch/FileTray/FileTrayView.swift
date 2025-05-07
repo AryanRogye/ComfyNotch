@@ -15,6 +15,7 @@ struct FileRow: View {
         .buttonStyle(.plain)
     }
 }
+
 struct FileTrayView: View {
     
     @ObservedObject var animationState = PanelAnimationState.shared
@@ -31,77 +32,86 @@ struct FileTrayView: View {
         VStack(spacing: 0) {
             if animationState.isExpanded
             {
-                /// Conditional to show the delete page
-                if !showDeleteFileAlert {
-                    let droppedFiles = self.getFilesFromStoredDirectory()
-                    /// If No Files
-                    if droppedFiles.isEmpty {
-                        
-                    } else {
-                        /// If Files Are There
-                        HStack {
-                            /// Add File Look
-                            VStack {
-                                if let dropped = animationState.droppedFile {
-                                    VStack {
-                                        showFileThumbnail(fileURL: dropped)
-                                        showFileName(fileURL: dropped)
-                                        HStack {
-                                            
+                Group {
+                    /// Conditional to show the delete page
+                    if !showDeleteFileAlert {
+                        let droppedFiles = self.getFilesFromStoredDirectory()
+                        /// If No Files
+                        if droppedFiles.isEmpty {
+                            
+                        } else {
+                            /// If Files Are There
+                            HStack {
+                                /// Add File Look
+                                addFilesTray()
+                                
+                                    .padding(.horizontal, 10)
+                                    .frame(width: 150, height: 150)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(animationState.isDroppingFiles ? Color.blue.opacity(0.8) : Color.gray, style: StrokeStyle(lineWidth: 1, dash: [5]))
+                                            .foregroundColor(.gray.opacity(0.5))
+                                            .animation(.easeInOut(duration: 0.3), value: animationState.isDroppingFiles)
+                                    )
+                                    .padding(.vertical, 5)
+                                    .padding(.leading, 10)
+                                
+                                Spacer()
+                                
+                                /// What Files Are There
+                                ScrollView {
+                                    LazyVGrid(columns: columns, spacing: 1) {
+                                        ForEach(droppedFiles, id: \.self) { fileURL in
+                                            showFile(for: fileURL)
                                         }
                                     }
-                                } else {
-                                    Text("Add Files Here")
-                                        .font(.headline)
-                                        .foregroundColor(.gray)
-                                        .multilineTextAlignment(.center)
-                                        .padding()
                                 }
-                                Spacer()
+                                .padding(.horizontal, 10)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
+                                        .foregroundColor(.white.opacity(0.5))
+                                )
+                                .frame(maxWidth: .infinity)
+                                .padding(4)
                             }
-                            .padding(.horizontal, 10)
-                            .frame(width: 150, height: 150)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(animationState.isDroppingFiles ? Color.blue.opacity(0.8) : Color.gray, style: StrokeStyle(lineWidth: 1, dash: [5]))
-                                    .foregroundColor(.gray.opacity(0.5))
-                                    .animation(.easeInOut(duration: 0.3), value: animationState.isDroppingFiles)
-                            )
-                            .padding(.vertical, 5)
-                            .padding(.leading, 10)
-                            
-                            Spacer()
-                            
-                            /// What Files Are There
-                            ScrollView {
-                                LazyVGrid(columns: columns, spacing: 1) {
-                                    ForEach(droppedFiles, id: \.self) { fileURL in
-                                        showFile(for: fileURL)
-                                    }
-                                }
-                            }
-                            .padding(.horizontal, 10)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
-                                    .foregroundColor(.white.opacity(0.5))
-                            )
-                            .frame(maxWidth: .infinity)
-                            .padding(4)
                         }
                     }
+                    /// If Delete is pressed
+                    else {
+                        showPopup()
+                    }
                 }
-                /// If Delete is pressed
-                else {
-                    showPopup()
-                }
+                .transition(.opacity) // 👈 adds fade in/out
             }
         }
         .background(Color.black)
         .animation(
-            .easeInOut(duration: animationState.isExpanded ? 0.3 : 0.1),
+            .easeInOut(duration: animationState.isExpanded ? 2 : 0.1),
             value: animationState.isExpanded
         )
+    }
+    
+    @ViewBuilder
+    func addFilesTray() -> some View {
+        VStack {
+            if let dropped = animationState.droppedFile {
+                VStack {
+                    showFileThumbnail(fileURL: dropped)
+                    showFileName(fileURL: dropped)
+                    HStack {
+                        
+                    }
+                }
+            } else {
+                Text("Add Files Here")
+                    .font(.headline)
+                    .foregroundColor(.gray)
+                    .multilineTextAlignment(.center)
+                    .padding()
+            }
+            Spacer()
+        }
     }
     
     @ViewBuilder
