@@ -23,6 +23,7 @@ struct FileTrayView: View {
     
     @State var showDeleteFileAlert: Bool = false
     @State var currentDeleteFileURL: URL?
+    @State var droppedFileInfo : FileInfo = FileInfo()
     
     var body: some View {
         let columns = [
@@ -97,10 +98,30 @@ struct FileTrayView: View {
         VStack {
             if let dropped = animationState.droppedFile {
                 VStack {
-                    showFileThumbnail(fileURL: dropped)
-                    showFileName(fileURL: dropped)
-                    HStack {
+                    ScrollView {
+                        showFileThumbnail(fileURL: dropped)
+                        showFileName(fileURL: dropped)
                         
+                        Text("Are file?")
+                        HStack {
+                            Button(action: {animationState.droppedFile = nil}) {
+                                Image(systemName: "x.circle")
+                                    .resizable()
+                                    .frame(width: 18, height: 18)
+                            }
+                            .buttonStyle(.plain)
+                            Button(action: {}) {
+                                Image(systemName: "checkmark")
+                                    .resizable()
+                                    .frame(width: 18, height: 18)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        /// Description about the file
+                        Text(String("Type: \(droppedFileInfo.realType)"))
+                        Text("Dimensions: \(droppedFileInfo.dimensions ?? "No Size" )")
+                        Text("Size(KB): \(droppedFileInfo.sizeInKB)")
+                        Text("Created: \(droppedFileInfo.creationDate)")
                     }
                 }
             } else {
@@ -111,6 +132,13 @@ struct FileTrayView: View {
                     .padding()
             }
             Spacer()
+        }
+        .onChange(of: animationState.droppedFile) { _, newValue in
+            if let file = newValue {
+                if let info = DroppedFileTracker.shared.extractFileInfo(from: file) {
+                    self.droppedFileInfo = info
+                }
+            }
         }
     }
     

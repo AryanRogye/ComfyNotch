@@ -244,9 +244,6 @@ struct ComfyNotchView: View {
                         debugLog("❌ Failed to receive file promise: \(error)")
                         return
                     }
-                    // This is where it gets tricky — you can’t use the promise directly.
-                    // Instead, macOS handles it for you via drag-and-drop if the view supports NSFilePromiseReceiverReading.
-                    // But from a pure `NSItemProvider`, you’d need to back out and rethink how you’re handling it.
                     debugLog("ℹ️ File promise received — but not handled in this version")
                 }
             }
@@ -265,24 +262,22 @@ struct ComfyNotchView: View {
                 return
             }
             
-            let finalURL: URL
-            if copyIfNeeded {
-                let dest = sessionDir.appendingPathComponent(url.lastPathComponent)
-                try? FileManager.default.copyItem(at: url, to: dest)
-                finalURL = dest
-            } else {
-                finalURL = url
-            }
+            let settings = SettingsModel.shared
+            let saveFolder = settings.fileTrayDefaultFolder
+            
+            try? FileManager.default.createDirectory(at: saveFolder, withIntermediateDirectories: true)
+            let destURL = saveFolder.appendingPathComponent(url.lastPathComponent)
+            let sourceURL = copyIfNeeded ? url : url // ← future-proof
+            try? FileManager.default.copyItem(at: sourceURL, to: destURL)
             
             DroppedFileTracker.shared.registerFile(size: size,
                                                    hash: hash,
-                                                   url: finalURL)
+                                                   url: destURL)
+            
             // 3. Tell SwiftUI
             await MainActor.run {
-                PanelAnimationState.shared.droppedFile = finalURL
+                PanelAnimationState.shared.droppedFile = destURL
             }
         }
     }
-    
-    
 }

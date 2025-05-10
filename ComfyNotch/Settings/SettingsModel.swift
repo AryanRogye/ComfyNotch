@@ -20,7 +20,12 @@ class SettingsModel: ObservableObject {
     @Published var clipboardManagerMaxHistory: Int = 10
     @Published var clipboardManagerPollingIntervalMS: Int = 1000
     
-    @Published var fileTrayDefaultFolder: URL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+    @Published var fileTrayDefaultFolder: URL = FileManager.default
+                                                    .urls(for: .documentDirectory, in: .userDomainMask)
+                                                    .first!
+                                                    .appendingPathComponent("ComfyNotch Files", isDirectory: true)
+    @Published var fileTrayPersistFiles : Bool = false
+    @Published var useCustomSaveFolder : Bool = false
     @Published var showDividerBetweenWidgets: Bool = false /// False cuz i like it without
 
     private var cancellables = Set<AnyCancellable>()
@@ -38,22 +43,26 @@ class SettingsModel: ObservableObject {
 
         defaults.set(isCameraFlipped, forKey: "isCameraFlipped")
         
-
         /// For some reason the api key was getting called to save even if it was empty
         /// So I had to add this check, prolly gonna have to check that reason out <- TODO
         if !aiApiKey.isEmpty {
             defaults.set(aiApiKey, forKey: "aiApiKey")
         }
         
+        /// ----------------------- FileTray Settings ------------------------------------
         /// Save the fileTrayFolder
-        if fileTrayDefaultFolder.path.isEmpty {
-            /// Set Default to the FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-            fileTrayDefaultFolder = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        }
+        /// Set Default for the file tray folder if nothing is found
+        fileTrayDefaultFolder = FileManager.default
+            .urls(for: .documentDirectory, in: .userDomainMask)
+            .first!
+            .appendingPathComponent("ComfyNotch Files", isDirectory: true)
         /// if we reach here, that means that the fileTray is populated no matter what so we can force it to get stored
         if !fileTrayDefaultFolder.path.isEmpty {
             defaults.set(fileTrayDefaultFolder.path(), forKey: "fileTrayDefaultFolder")
         }
+        defaults.set(fileTrayPersistFiles, forKey: "fileTrayPersistFiles")
+        
+        /// ----------------------- ClipBoard Settings -----------------------------------
         if clipboardManagerMaxHistory >= 0 {
             defaults.set(clipboardManagerMaxHistory, forKey: "clipboardManagerMaxHistory")
         }
@@ -84,12 +93,15 @@ class SettingsModel: ObservableObject {
             self.aiApiKey = apiKey
         }
         
-        /// Load in the fileTrayDefaultFolder
+        /// ----------------------- FileTray Settings ------------------------------------
         if let fileTrayDefaultFolder = defaults.string(forKey: "fileTrayDefaultFolder") {
             self.fileTrayDefaultFolder = URL(fileURLWithPath: fileTrayDefaultFolder)
         }
+        if let fileTrayPersistFiles = defaults.object(forKey: "fileTrayPersistFiles") as? Bool {
+            self.fileTrayPersistFiles = fileTrayPersistFiles
+        }
 
-        /// Load in the clipboardManagerMaxHistory
+        /// ----------------------- ClipBoard Settings -----------------------------------
         if let clipboardManagerMaxHistory = defaults.object(forKey: "clipboardManagerMaxHistory") as? Int {
             self.clipboardManagerMaxHistory = clipboardManagerMaxHistory
         }

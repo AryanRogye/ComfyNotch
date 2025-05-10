@@ -31,6 +31,8 @@ import Combine
 struct SettingsView: View {
     @ObservedObject var settings = SettingsModel.shared
     @State private var selectedTab: Tab = .general
+    
+    init() {}
 
     enum Tab: String, CaseIterable, Identifiable, Equatable {
         case general = "General"
@@ -82,4 +84,9 @@ struct SettingsView: View {
             SettingsModel.shared.refreshUI()
         }
     }
+}
+
+
+#Preview {
+    SettingsView()
 }
