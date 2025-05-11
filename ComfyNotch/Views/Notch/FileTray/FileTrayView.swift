@@ -38,44 +38,40 @@ struct FileTrayView: View {
                     if !showDeleteFileAlert {
                         let droppedFiles = self.getFilesFromStoredDirectory()
                         /// If No Files
-                        if droppedFiles.isEmpty {
+                        /// If Files Are There
+                        HStack {
+                            /// Add File Look
+                            addFilesTray()
                             
-                        } else {
-                            /// If Files Are There
-                            HStack {
-                                /// Add File Look
-                                addFilesTray()
-                                
-                                    .padding(.horizontal, 10)
-                                    .frame(width: 150, height: 150)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(animationState.isDroppingFiles ? Color.blue.opacity(0.8) : Color.gray, style: StrokeStyle(lineWidth: 1, dash: [5]))
-                                            .foregroundColor(.gray.opacity(0.5))
-                                            .animation(.easeInOut(duration: 0.3), value: animationState.isDroppingFiles)
-                                    )
-                                    .padding(.vertical, 5)
-                                    .padding(.leading, 10)
-                                
-                                Spacer()
-                                
-                                /// What Files Are There
-                                ScrollView {
-                                    LazyVGrid(columns: columns, spacing: 1) {
-                                        ForEach(droppedFiles, id: \.self) { fileURL in
-                                            showFile(for: fileURL)
-                                        }
-                                    }
-                                }
                                 .padding(.horizontal, 10)
+                                .frame(width: 150, height: 150)
                                 .background(
                                     RoundedRectangle(cornerRadius: 12)
-                                        .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
-                                        .foregroundColor(.white.opacity(0.5))
+                                        .stroke(animationState.isDroppingFiles ? Color.blue.opacity(0.8) : Color.gray, style: StrokeStyle(lineWidth: 1, dash: [5]))
+                                        .foregroundColor(.gray.opacity(0.5))
+                                        .animation(.easeInOut(duration: 0.3), value: animationState.isDroppingFiles)
                                 )
-                                .frame(maxWidth: .infinity)
-                                .padding(4)
+                                .padding(.vertical, 5)
+                                .padding(.leading, 10)
+                            
+                            Spacer()
+                            
+                            /// What Files Are There
+                            ScrollView {
+                                LazyVGrid(columns: columns, spacing: 1) {
+                                    ForEach(droppedFiles, id: \.self) { fileURL in
+                                        showFile(for: fileURL)
+                                    }
+                                }
                             }
+                            .padding(.horizontal, 10)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
+                                    .foregroundColor(.white.opacity(0.5))
+                            )
+                            .frame(maxWidth: .infinity)
+                            .padding(4)
                         }
                     }
                     /// If Delete is pressed
@@ -96,42 +92,42 @@ struct FileTrayView: View {
     @ViewBuilder
     func addFilesTray() -> some View {
         VStack {
-            if let dropped = animationState.droppedFile {
-                VStack {
-                    ScrollView {
-                        showFileThumbnail(fileURL: dropped)
-                        showFileName(fileURL: dropped)
-                        
-                        Text("Are file?")
-                        HStack {
-                            Button(action: {animationState.droppedFile = nil}) {
-                                Image(systemName: "x.circle")
-                                    .resizable()
-                                    .frame(width: 18, height: 18)
-                            }
-                            .buttonStyle(.plain)
-                            Button(action: {}) {
-                                Image(systemName: "checkmark")
-                                    .resizable()
-                                    .frame(width: 18, height: 18)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                        /// Description about the file
-                        Text(String("Type: \(droppedFileInfo.realType)"))
-                        Text("Dimensions: \(droppedFileInfo.dimensions ?? "No Size" )")
-                        Text("Size(KB): \(droppedFileInfo.sizeInKB)")
-                        Text("Created: \(droppedFileInfo.creationDate)")
-                    }
-                }
-            } else {
+//            if let dropped = animationState.droppedFile {
+//                VStack {
+//                    ScrollView {
+//                        showFileThumbnail(fileURL: dropped)
+//                        showFileName(fileURL: dropped)
+//                        
+//                        Text("Are file?")
+//                        HStack {
+//                            Button(action: {animationState.droppedFile = nil}) {
+//                                Image(systemName: "x.circle")
+//                                    .resizable()
+//                                    .frame(width: 18, height: 18)
+//                            }
+//                            .buttonStyle(.plain)
+//                            Button(action: {}) {
+//                                Image(systemName: "checkmark")
+//                                    .resizable()
+//                                    .frame(width: 18, height: 18)
+//                            }
+//                            .buttonStyle(.plain)
+//                        }
+//                        /// Description about the file
+//                        Text(String("Type: \(droppedFileInfo.realType)"))
+//                        Text("Dimensions: \(droppedFileInfo.dimensions ?? "No Size" )")
+//                        Text("Size(KB): \(droppedFileInfo.sizeInKB)")
+//                        Text("Created: \(droppedFileInfo.creationDate)")
+//                    }
+//                }
+//            } else {
                 Text("Add Files Here")
                     .font(.headline)
                     .foregroundColor(.gray)
                     .multilineTextAlignment(.center)
                     .padding()
-            }
-            Spacer()
+//            }
+//            Spacer()
         }
         .onChange(of: animationState.droppedFile) { _, newValue in
             if let file = newValue {
@@ -317,7 +313,31 @@ struct FileTrayView: View {
             .truncationMode(.tail)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
+    
+    private func addFilesToTray(url: URL) {
+        let fileManager = FileManager.default
+        let folderURL = settings.fileTrayDefaultFolder
 
+        // Make sure the folder exists
+        if !fileManager.fileExists(atPath: folderURL.path) {
+            do {
+                try fileManager.createDirectory(at: folderURL, withIntermediateDirectories: true)
+            } catch {
+                debugLog("❌ Failed to create folder: \(error.localizedDescription)")
+                return
+            }
+        }
+
+        // Generate a destination filename, preserve original name if you want
+        let destinationURL = folderURL.appendingPathComponent("Dropped-\(UUID().uuidString)-\(url.lastPathComponent)")
+
+        do {
+            try fileManager.copyItem(at: url, to: destinationURL)
+            debugLog("✅ File copied to tray: \(destinationURL.lastPathComponent)")
+        } catch {
+            debugLog("❌ Failed to copy file: \(error.localizedDescription)")
+        }
+    }
     private func getFilesFromStoredDirectory() -> [URL] {
         let fileManager = FileManager.default
         let folderURL = settings.fileTrayDefaultFolder
@@ -326,6 +346,15 @@ struct FileTrayView: View {
         /// This is the one that we added to that selected "Directory", if the user wants to remove
         /// or change the name then it wont show anymore and thats ok, thats up
         /// to them
+        if !fileManager.fileExists(atPath: folderURL.path) {
+            do {
+                try fileManager.createDirectory(at: folderURL, withIntermediateDirectories: true)
+                debugLog("✅ Created missing folder at: \(folderURL.path)")
+            } catch {
+                debugLog("❌ Failed to create folder: \(error.localizedDescription)")
+                return []
+            }
+        }
         
         /// settings.fileTrayDefaultFolder is the folder to watch for
         do {
