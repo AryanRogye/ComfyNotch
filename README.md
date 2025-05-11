@@ -11,7 +11,9 @@
 
 ## 🎥 Live Demo
 
-https://github.com/user-attachments/assets/6af570c7-4395-4b2f-9910-0e5d6cc38bb9
+https://github.com/user-attachments/assets/03f213db-cb36-4a2b-92c2-c580f07ed741
+
+
 
 _✨ Watch ComfyNotch bring your MacBook’s notch to life ✨_
 
