@@ -25,22 +25,14 @@ _✨ Watch ComfyNotch bring your MacBook’s notch to life ✨_
 > ⚠️ Not on the App Store (yet) — but super easy to run!
 
 1. Go to the [**Releases tab**](https://github.com/AryanRogye/ComfyNotch/releases)
-2. Download the latest `.dmg` file (e.g. `ComfyNotch-v0.1.0.dmg`)
-3. Double-click to open it — **if macOS blocks it**, do:
-   - Open **System Settings → Privacy & Security**
-   - Scroll to **"Open Anyway"** under Security
-   - Click it and you're good!
+2. Download the latest `.zip` file (e.g. `ComfyNotch-v0.1.0.zip`)
+3. Double-click to open it
 
 🧠 *Why?*  
-I have a Developer ID, but I’m skipping the whole notarization + App Store process for now (too much red tape 🫠).  
+I have a Developer ID, but I’m skipping the whole notarization + App Store process for now.  
 macOS will warn you it’s “unverified,” but it’s totally safe — just follow the steps above ....
 
-...or build it yourself from source (look for the script at the bottom 👇).
-
-⚙️ *Heads up:* The manual build steps below work… mostly 😅  
-But for the smoothest experience, just run [`scripts/build_app.sh`](scripts/build_app.sh) —  
-it’s what I personally use, and it stays up to date because writing Bash with variables > retyping everything 10 times 💀
-
+...or build it yourself from source.
 ---
 
 ## 📖 About
@@ -54,6 +46,9 @@ ComfyNotch brings life to your MacBook’s notch by providing a clean and intuit
 - ✅ **Widgets**: AI Integration, Music Player, Camera Widget, Notes, Time Display, and more!
 - 🤖 **AI Chat**: Seamlessly interact with powerful AI models like OpenAI's GPT-4 directly from your notch
 - 🎵 **Music Control**: Easily control your music playback with slick visual indicators.
+- 📋 **Clipboard Manager**: Keep track of your recent copies like a pro.
+- 🗂️ **File Tray**: Access your files directly from the notch.
+- 📅 **Apple Calendar Integration**: View your events and reminders directly from your notch
 - 📝 **Notes Widget**: Keep quick notes accessible from the notch.
 - ⏰ **Time Widget**: Always know the time with style.
 - 🔄 **Smooth Animations**: Every interaction feels satisfying.
@@ -79,18 +74,6 @@ Perfect for apps with chunky UIs like Xcode, Finder, or Final Cut.
    - Users on macOS 13 and below may experience crashes or missing functionalities.  
    - No plans for backward compatibility, but feel free to open an issue if needed.  
 
-2. ** Monitor Switching (Solved) **  
-   - Switching monitors causes the app to lose positioning, not returning to the laptop screen.  
-   - Resolving this is also a priority.  
-
-3. **Scroll Logic (for most MacOS)**
-
-## 👏🏽 Fixed Issues
-1. **Display Issues**  
-   - After closing and reopening the laptop, the app display may appear distorted or glitchy.  
-   - Fixing this is a priority once I know how to lol.
-
-
 ---
 
 ## ✅ **Planned Features & Improvements**
@@ -103,22 +86,15 @@ Perfect for apps with chunky UIs like Xcode, Finder, or Final Cut.
 - [x] **Multiple Notes System**: Implement a notes dashboard with multiple notes accessible through tabs.
 - [x] **Dynamic Animated Button Colors**: Match the animated buttons’ colors to the dominant color of the album art.
 - [x] **AI Chat Integration (More Coming Soon...)**: Allow users to interact with an AI chat feature by providing their own API keys.
-- [ ] **Clipboard Manager**: Implement a clipboard manager to keep track of copied items.
+- [x] **Clipboard Manager**: Implement a clipboard manager to keep track of copied items.
 - [ ] **Pomodoro Timer**: Add a Pomodoro timer to help users manage their time effectively.
 - [ ] **Notifications Popup**: Right now there is a hover on the notch that pops down i'm sure we can reuse that for notifications
 - [ ] **Better Shortcut Management**: Implement a better shortcut management system to allow users to customize their shortcuts easily.
-- [ ] **File Tray**: Add a file tray to allow users to access their files easily.
-
-### 🎨 **UI/UX Improvements**
-- [x] **Better Settings Menu**: Revamp the settings view for easier customization and better user experience.
-- [x] **Improved Notes Widget UI**: Add buttons to switch between multiple notes.
-- [x] **Improved Music Player UI**: Make the buttons more cleaner.
-- [x] **Convert to SwiftUI where I can**: Said everything I need to. 😂
-- [x] **Invisible Mode**: Hide the notch with a shortcut when hovered on the notch, so toolbar options on other apps can be visible
+- [x] **File Tray**: Add a file tray to allow users to access their files easily.
 
 ---
 
-## 📦 Installation
+## 📦 Build From Source
 
 ### 💻 **Clone and Build**
 ```bash
