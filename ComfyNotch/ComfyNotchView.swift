@@ -87,7 +87,7 @@ struct ComfyNotchView: View {
                 .padding(-100) // expands hit area
                 .onDrop(of: [UTType.fileURL.identifier, UTType.image.identifier], isTargeted: $isDroppingFiles) { providers in
                     handleDrop(providers: providers)
-                    }
+                }
             
             RoundedCornersShape(
                 topLeft: 0,

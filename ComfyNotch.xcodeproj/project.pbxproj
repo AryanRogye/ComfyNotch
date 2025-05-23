@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		9B2889A82DC68E4400E5DB18 /* SVGView in Frameworks */ = {isa = PBXBuildFile; productRef = 9B2889A72DC68E4400E5DB18 /* SVGView */; };
 		9B288A852DC722BF00E5DB18 /* ComfyCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = 9B288A842DC722BF00E5DB18 /* ComfyCalendar */; };
+		9BB17B552DE11B9800200C38 /* MediaKeyTap in Frameworks */ = {isa = PBXBuildFile; productRef = 9BB17B542DE11B9800200C38 /* MediaKeyTap */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -59,6 +60,7 @@
 			files = (
 				9B2889A82DC68E4400E5DB18 /* SVGView in Frameworks */,
 				9B288A852DC722BF00E5DB18 /* ComfyCalendar in Frameworks */,
+				9BB17B552DE11B9800200C38 /* MediaKeyTap in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +114,7 @@
 			packageProductDependencies = (
 				9B2889A72DC68E4400E5DB18 /* SVGView */,
 				9B288A842DC722BF00E5DB18 /* ComfyCalendar */,
+				9BB17B542DE11B9800200C38 /* MediaKeyTap */,
 			);
 			productName = ComfyNotch;
 			productReference = 9BC3A4622DB1D40000FFD323 /* ComfyNotch.app */;
@@ -144,6 +147,7 @@
 			packageReferences = (
 				9B2889A62DC68E4400E5DB18 /* XCRemoteSwiftPackageReference "SVGView" */,
 				9B288A832DC722BF00E5DB18 /* XCLocalSwiftPackageReference "../ComfyCalendar" */,
+				9BB17B532DE11B9800200C38 /* XCRemoteSwiftPackageReference "MediaKeyTap" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9BC3A4632DB1D40000FFD323 /* Products */;
@@ -304,7 +308,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = B9P888266K;
-				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ComfyNotch/Info.plist;
@@ -331,7 +335,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = B9P888266K;
-				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ComfyNotch/Info.plist;
@@ -387,6 +391,14 @@
 				minimumVersion = 1.0.6;
 			};
 		};
+		9BB17B532DE11B9800200C38 /* XCRemoteSwiftPackageReference "MediaKeyTap" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nhurden/MediaKeyTap";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.3.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -398,6 +410,11 @@
 		9B288A842DC722BF00E5DB18 /* ComfyCalendar */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ComfyCalendar;
+		};
+		9BB17B542DE11B9800200C38 /* MediaKeyTap */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9BB17B532DE11B9800200C38 /* XCRemoteSwiftPackageReference "MediaKeyTap" */;
+			productName = MediaKeyTap;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

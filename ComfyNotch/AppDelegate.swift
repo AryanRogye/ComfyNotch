@@ -55,6 +55,12 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 //        }
     }
     
+    public func applicationWillTerminate(_ notification: Notification) {
+        print("Application will terminate")
+        MediaKeyInterceptor.shared.stop()
+        VolumeManager.shared.stop()
+    }
+    
     private func launchComfyNotch() {
         UIManager.shared.setupFrame()
         
@@ -71,6 +77,11 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         ClipboardManager.shared.start()
         /// Start the hover handler, this also listens for music playing closing and opening slightly
         PanelAnimator.shared.startAnimationListeners()
+        
+        /// Start The Media Key Interceptor
+        MediaKeyInterceptor.shared.start()
+        /// Start Volume Manager
+        VolumeManager.shared.start()
         
         // Set up the ui by loading the widgets from settings onto it
         self.loadWidgetsFromSettings()
