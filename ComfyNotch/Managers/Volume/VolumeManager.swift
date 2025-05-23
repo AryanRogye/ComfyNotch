@@ -5,7 +5,6 @@
 //  Created by Aryan Rogye on 5/23/25.
 //
 
-import MediaKeyTap
 import AVFoundation
 import Cocoa
 

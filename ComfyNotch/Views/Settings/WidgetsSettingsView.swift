@@ -1,24 +1,34 @@
+//
+//  WidgetsSettingsView.swift
+//  ComfyNotch
+//
+//  Created by Aryan Rogye on 5/23/25.
+//
+
 import SwiftUI
 
-struct MainSettingsView: View {
-    @ObservedObject var settings: SettingsModel
+struct WidgetsSettingsView: View {
+    
     let widgetRegistry: WidgetRegistry = WidgetRegistry.shared
+    @ObservedObject var settings: SettingsModel
+    
     @State private var draggingItem: String?
     @State private var isDragging = false
-    @Environment(\.colorScheme) var colorScheme
-
-    private let maxWidgetCount = 3  // Limit to 3 widgets
 
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
                 headerView
-                availableWidgetsSection
-                cameraSettingsSection
-                dividerSettingsSection
+                
+                Divider()
+                    .padding(.vertical, 8)
+
                 arrangeWidgetsSection
-                Spacer()
-                exitButton
+                
+                Divider()
+                    .padding(.vertical, 8)
+                
+                availableWidgetsSection
             }
             .padding()
         }
@@ -26,7 +36,7 @@ struct MainSettingsView: View {
     
     private var headerView: some View {
         VStack(spacing: 8) {
-            Text("ComfyNotch Settings")
+            Text("Widgets Settings")
                 .font(.system(size: 28, weight: .bold))
                 .foregroundColor(.primary)
             Text("Customize your widgets and their arrangement")
@@ -35,6 +45,7 @@ struct MainSettingsView: View {
         }
         .padding(.top, 12)
     }
+    
     private var availableWidgetsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -43,71 +54,61 @@ struct MainSettingsView: View {
                 Spacer()
             }
             Divider()
-            ForEach(Array(widgetRegistry.widgets.keys.sorted()), id: \.self) { widgetName in
-                widgetToggleRow(for: widgetName)
+            
+            let columns = [
+                GridItem(.flexible()),
+                GridItem(.flexible()),
+                GridItem(.flexible())
+            ]
+            
+            LazyVGrid(columns: columns, spacing: 16) {
+                ForEach(Array(widgetRegistry.widgets.keys.sorted()), id: \.self) { widgetName in
+                    widgetToggleRow(for: widgetName)
+                }
             }
         }
         .padding()
         .background(Color.gray.opacity(0.1))
         .cornerRadius(16)
     }
-
+    
     private func widgetToggleRow(for widgetName: String) -> some View {
-        HStack {
-            Image(systemName: getIconName(for: widgetName))
-                .frame(width: 30, height: 30)
-                .foregroundColor(.blue)
-
-            Text(formatWidgetName(widgetName))
-                .foregroundColor(.primary)
-
-            Spacer()
-
-            Toggle("", isOn: Binding(
-                get: { settings.selectedWidgets.contains(widgetName) },
-                set: { isSelected in
-                    settings.updateSelectedWidgets(with: widgetName, isSelected: isSelected)
+        VStack {
+            HStack {
+                Image(systemName: getIconName(for: widgetName))
+                    .frame(width: 30, height: 30)
+                    .foregroundColor(.blue)
+                
+                Text(formatWidgetName(widgetName))
+                    .foregroundColor(.primary)
+            }
+            
+            Button(action: {
+                if settings.selectedWidgets.contains(widgetName) {
+                    settings.updateSelectedWidgets(with: widgetName, isSelected: false)
+                } else {
+                    settings.updateSelectedWidgets(with: widgetName, isSelected: true)
                 }
-            ))
-            .labelsHidden()
+            }) {
+                Text(settings.selectedWidgets.contains(widgetName) ? "Enabled" : "Disabled")
+                    .foregroundColor(.white)
+                    .padding(8)
+                    .background(settings.selectedWidgets.contains(widgetName) ? Color.green : Color.red)
+                    .cornerRadius(8)
+            }
+            .buttonStyle(.plain)
+
+//            Toggle("", isOn: Binding(
+//                get: { settings.selectedWidgets.contains(widgetName) },
+//                set: { isSelected in
+//                    settings.updateSelectedWidgets(with: widgetName, isSelected: isSelected)
+//                }
+//            ))
+//            .labelsHidden()
         }
         .padding(.vertical, 8)
     }
     
-    private var dividerSettingsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Divider Settings")
-                    .font(.headline)
-                Spacer()
-            }
-            
-            Divider()
-            
-            Toggle("Enable Divider", isOn: $settings.showDividerBetweenWidgets)
-                .onChange(of: settings.showDividerBetweenWidgets) {
-                    settings.saveSettings()
-                }
-                .padding(.vertical, 8)
-        }
-    }
-
-    private var cameraSettingsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Camera Settings")
-                    .font(.headline)
-                Spacer()
-            }
-
-            Divider()
-
-            Toggle("Flip Camera", isOn: $settings.isCameraFlipped)
-                .onChange(of: settings.isCameraFlipped) { settings.saveSettings() }
-                .padding(.vertical, 8)
-        }
-    }
-
     private var arrangeWidgetsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -161,16 +162,7 @@ struct MainSettingsView: View {
                 item: widgetName, settings: settings, draggingItem: $draggingItem, isDragging: $isDragging
             ))
     }
-    private var exitButton: some View {
-        Button(action: closeWindow) {
-            Text("Exit ComfyNotch")
-                .padding()
-                .background(Color.red)
-                .foregroundColor(.white)
-                .cornerRadius(10)
-        }
-    }
-
+    
     func formatWidgetName(_ name: String) -> String {
         var displayName = name
         if displayName.hasSuffix("Widget") {
@@ -185,11 +177,15 @@ struct MainSettingsView: View {
         }
         return formattedName
     }
-
+    
     func getIconName(for widgetName: String) -> String {
         switch widgetName {
         case "MusicPlayerWidget":
             return "music.note"
+        case "EventWidget":
+            return "calendar"
+        case "AIChatWidget":
+            return "message"
         case "TimeWidget":
             return "clock"
         case "NotesWidget":
@@ -199,9 +195,6 @@ struct MainSettingsView: View {
         default:
             return "square"
         }
-    }
-    func closeWindow() {
-        NSApp.terminate(nil)
     }
 }
 
@@ -231,6 +224,4 @@ struct DropViewDelegate: DropDelegate {
         return false
     }
 }
-#Preview {
-    MainSettingsView(settings: SettingsModel.shared)
-}
+

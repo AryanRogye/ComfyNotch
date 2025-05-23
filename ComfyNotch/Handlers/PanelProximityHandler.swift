@@ -1,4 +1,5 @@
 import AppKit
+import SwiftUI
 
 class PanelProximityHandler: NSObject {
 
@@ -88,10 +89,16 @@ class PanelProximityHandler: NSObject {
 
             if distance > distanceThreshold && !SettingsModel.shared.isSettingsWindowOpen {
                 UIManager.shared.panelState = .closed
-                UIManager.shared.applyOpeningLayout()
-                ScrollHandler.shared.closeFull()
-                PanelAnimationState.shared.isExpanded = false
-                PanelAnimationState.shared.bottomSectionHeight = 0
+                withAnimation(.easeInOut(duration: 0.1)) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        UIManager.shared.applyOpeningLayout()
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        ScrollHandler.shared.closeFull()
+                        PanelAnimationState.shared.isExpanded = false
+                        PanelAnimationState.shared.bottomSectionHeight = 0
+                    }
+                }
             }
         }
     }

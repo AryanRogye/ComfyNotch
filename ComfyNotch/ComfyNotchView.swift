@@ -172,14 +172,14 @@ struct ComfyNotchView: View {
             
             let threshhold : CGFloat = PanelAnimationState.shared.currentPanelState == .popInPresentation ? 120 : 50
             if translation > threshhold {
-                debugLog("Called Down With Threshold \(translation)")
+//                debugLog("Called Down With Threshold \(translation)")
                 PanelAnimationState.shared.currentPanelState = .home
                 UIManager.shared.applyOpeningLayout()
                 ScrollHandler.shared.openFull()
             }
         }
         .panGesture(direction: .up) { translation, phase in
-            debugLog("Called Up")
+//            debugLog("Called Up")
             guard UIManager.shared.panelState == .open else { return }
             
             if WidgetHoverState.shared.isHoveringOverEventWidget {
