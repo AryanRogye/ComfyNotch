@@ -15,8 +15,11 @@ final class BrightnessWatcher: ObservableObject {
     let panelState = PanelAnimationState.shared
 
     private var previousValue: Float = 0.0
-    private var timer: Timer?
     private var dispatchTimer: DispatchSourceTimer?
+    
+    // Optimized debouncing
+    private var lastTriggerTime: DispatchTime = .now()
+    private var pendingNotchOpen: DispatchWorkItem?
 
     private init() {}
     
@@ -26,19 +29,10 @@ final class BrightnessWatcher: ObservableObject {
         self.previousValue = self.currentBrightness
 
         dispatchTimer?.cancel()
-        let timer = DispatchSource.makeTimerSource(queue: DispatchQueue.global(qos: .utility))
-        timer.schedule(deadline: .now(), repeating: .milliseconds(300))
+        let timer = DispatchSource.makeTimerSource(queue: DispatchQueue.global(qos: .userInteractive)) // Higher priority
+        timer.schedule(deadline: .now(), repeating: .milliseconds(100)) // Faster polling for responsiveness
         timer.setEventHandler { [weak self] in
-            guard let self else { return }
-            let newVal = BrightnessManager.sharedInstance().currentBrightness
-            if abs(newVal - self.previousValue) > 0.01 {
-                DispatchQueue.main.async {
-                    self.previousValue = newVal
-                    self.currentBrightness = newVal
-                    print("💡 Brightness changed to: \(newVal)")
-                    self.triggerNotch()
-                }
-            }
+            self?.checkBrightnessChange()
         }
         dispatchTimer = timer
         timer.resume()
@@ -48,31 +42,71 @@ final class BrightnessWatcher: ObservableObject {
         BrightnessManager.sharedInstance().stop()
         dispatchTimer?.cancel()
         dispatchTimer = nil
+        pendingNotchOpen?.cancel()
+        pendingNotchOpen = nil
     }
     
-    private var debounceWorkItem: DispatchWorkItem?
-    
-    private func triggerNotch() {
-        print("Notch Triggered")
-
-        debounceWorkItem?.cancel()
-
-        // Show loading instantly
-        DispatchQueue.main.async {
-            self.panelState.isLoadingPopInPresenter = true
-        }
-
-        let workItem = DispatchWorkItem { [weak self] in
-            self?.openNotch()
-            self?.debounceWorkItem = nil
-        }
-        debounceWorkItem = workItem
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
+    private func checkBrightnessChange() {
+        let newVal = BrightnessManager.sharedInstance().currentBrightness
+        
+        // Only proceed if there's a meaningful change
+        guard abs(newVal - self.previousValue) > 0.01 else { return }
+        
+        self.previousValue = newVal
+        
+        // Update UI on main queue but don't block
+        DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            
-            workItem.perform()
-            panelState.isLoadingPopInPresenter = false
+            self.currentBrightness = newVal
+            print("💡 Brightness changed to: \(newVal)")
+            self.triggerNotchOptimized()
+        }
+    }
+    
+    // ZERO-LAG VERSION: No artificial delays
+    private func triggerNotchOptimized() {
+        print("Notch Triggered - Optimized")
+        
+        // Cancel any pending opens
+        pendingNotchOpen?.cancel()
+        
+        // Check if we should debounce (prevent rapid successive triggers)
+        let now = DispatchTime.now()
+        let timeSinceLastTrigger = now.uptimeNanoseconds - lastTriggerTime.uptimeNanoseconds
+        let minimumInterval: UInt64 = 150_000_000 // 150ms in nanoseconds
+        
+        if timeSinceLastTrigger < minimumInterval {
+            // Schedule for later, but much shorter delay
+            let workItem = DispatchWorkItem { [weak self] in
+                self?.executeNotchOpen()
+            }
+            pendingNotchOpen = workItem
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: workItem) // Only 50ms delay
+        } else {
+            // Execute immediately
+            executeNotchOpen()
+        }
+        
+        lastTriggerTime = now
+    }
+    
+    // INSTANT VERSION: No debouncing at all
+    private func triggerNotchInstant() {
+        print("Notch Triggered - Instant")
+        executeNotchOpen()
+    }
+    
+    // Separated execution logic
+    private func executeNotchOpen() {
+        // Set loading state if needed (optional)
+        panelState.isLoadingPopInPresenter = true
+        
+        // Open immediately
+        openNotch()
+        
+        // Clear loading state quickly
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+            self?.panelState.isLoadingPopInPresenter = false
         }
     }
 

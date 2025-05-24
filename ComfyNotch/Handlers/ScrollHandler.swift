@@ -18,6 +18,10 @@ class ScrollHandler {
     private var isPeeking = false
     
     private var cancellables = Set<AnyCancellable>()
+    
+    private lazy var screen = NSScreen.main!
+    private var cachedPeekFrame: NSRect?
+    private var cachedNormalFrame: NSRect?
 
     private init() {}
     // MARK: – Public API
@@ -106,56 +110,118 @@ class ScrollHandler {
         }
     }
 
+//    func peekOpen() {
+//        guard let panel = UIManager.shared.smallPanel,
+//            !isPeeking,
+//            !isSnapping else { return }
+//
+//        isPeeking = true
+//
+//        // Use cached frame or calculate once
+//        if cachedPeekFrame == nil {
+//            let peekHeight: CGFloat = minPanelHeight + 50
+//            let peekY = screen.frame.height - peekHeight - UIManager.shared.startPanelYOffset
+//            
+//            cachedPeekFrame = NSRect(
+//                x: panel.frame.origin.x,
+//                y: peekY,
+//                width: panel.frame.width,
+//                height: peekHeight
+//            )
+//        }
+//
+//        // Method 1: Core Animation with explicit layer animation (FASTEST)
+//        CATransaction.begin()
+//        CATransaction.setDisableActions(false)
+//        CATransaction.setAnimationDuration(0.15) // Shorter duration
+//        CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .easeOut))
+//        
+//        panel.setFrame(cachedPeekFrame!, display: false) // KEY: display: false
+//        
+//        CATransaction.commit()
+//    }
+//
+//    func peekClose() {
+//        guard let panel = UIManager.shared.smallPanel,
+//            isPeeking else { return }
+//
+//        isPeeking = false
+//
+//        // Use cached frame or calculate once
+//        if cachedNormalFrame == nil {
+//            let normalHeight = minPanelHeight
+//            let normalY = screen.frame.height - normalHeight - UIManager.shared.startPanelYOffset
+//            
+//            cachedNormalFrame = NSRect(
+//                x: panel.frame.origin.x,
+//                y: normalY,
+//                width: panel.frame.width,
+//                height: normalHeight
+//            )
+//        }
+//
+//        CATransaction.begin()
+//        CATransaction.setDisableActions(false)
+//        CATransaction.setAnimationDuration(0.12) // Even shorter
+//        CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .easeOut))
+//        
+//        panel.setFrame(cachedNormalFrame!, display: false) // KEY: display: false
+//        
+//        CATransaction.commit()
+//    }
+    
     func peekOpen() {
-        guard let panel = UIManager.shared.smallPanel, 
-            !isPeeking, 
+        guard let panel = UIManager.shared.smallPanel,
+            !isPeeking,
             !isSnapping else { return }
-
+        
         isPeeking = true
-
-        let screen = NSScreen.main!
+        
         let peekHeight: CGFloat = minPanelHeight + 50
         let peekY = screen.frame.height - peekHeight - UIManager.shared.startPanelYOffset
-
-        let peekFrame = NSRect(
+        
+        let targetFrame = NSRect(
             x: panel.frame.origin.x,
             y: peekY,
             width: panel.frame.width,
             height: peekHeight
         )
-
+        
+        // Use NSAnimationContext but with optimizations
         NSAnimationContext.runAnimationGroup { ctx in
-            ctx.duration = 0.25
-            ctx.timingFunction = CAMediaTimingFunction(name: .linear)
-//            ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.45, 0.0, 0.55, 1.0)
-            panel.animator().setFrame(peekFrame, display: true)
+            ctx.duration = 0.28 // Perfect balance
+            ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.4, 0.0, 0.2, 1.0) // Material Design easing
+            ctx.allowsImplicitAnimation = true
+            
+            // Don't set frame immediately - let the animation handle it
+            panel.animator().setFrame(targetFrame, display: false)
         }
     }
 
     func peekClose() {
-        guard let panel = UIManager.shared.smallPanel, 
+        guard let panel = UIManager.shared.smallPanel,
             isPeeking else { return }
-
+        
         isPeeking = false
-
-        let screen = NSScreen.main!
+        
         let normalHeight = minPanelHeight
         let normalY = screen.frame.height - normalHeight - UIManager.shared.startPanelYOffset
-
-        let normalFrame = NSRect(
+        
+        let targetFrame = NSRect(
             x: panel.frame.origin.x,
             y: normalY,
             width: panel.frame.width,
             height: normalHeight
         )
-
+        
         NSAnimationContext.runAnimationGroup { ctx in
-            ctx.duration = 0.2
-            ctx.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-            panel.animator().setFrame(normalFrame, display: true)
+            ctx.duration = 0.22 // Slightly faster close feels natural
+            ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.4, 0.0, 0.2, 1.0)
+            ctx.allowsImplicitAnimation = true
+            
+            panel.animator().setFrame(targetFrame, display: false)
         }
     }
-
 
     /// This animation makes sure that it just "expands"
     func openFull() {
