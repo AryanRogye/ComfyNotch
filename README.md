@@ -13,6 +13,10 @@
 
 https://github.com/user-attachments/assets/03f213db-cb36-4a2b-92c2-c580f07ed741
 
+_Volume/Brightness Controls_
+> ![image](https://github.com/user-attachments/assets/896964cd-4485-4f1b-981d-8937ea70223d)
+
+
 
 
 _✨ Watch ComfyNotch bring your MacBook’s notch to life ✨_
