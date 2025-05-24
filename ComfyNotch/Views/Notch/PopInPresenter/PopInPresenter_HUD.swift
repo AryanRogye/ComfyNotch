@@ -13,35 +13,37 @@ struct PopInPresenter_HUD: View {
     @StateObject private var volumeManager: VolumeManager = .shared
     @StateObject private var musicModel: MusicPlayerWidgetModel = .shared
     @StateObject var panelState: PanelAnimationState = .shared
+    @State private var didAppear = false
     
     @State private var dominantColor: Color = .blue
     
     // Pre-computed constants
     private let hudWidth: CGFloat = 200
-    private let spacing: CGFloat = 8
+    private let spacing: CGFloat = 2
     private let animationDuration: Double = 0.15 // Shorter for snappier feel
 
     var body: some View {
-        VStack(spacing: spacing) {
-            let currentVolume = CGFloat(volumeManager.currentVolume)
-            let currentBrightness = CGFloat(brightnessManager.currentBrightness)
-            
-            HUDBar(icon: "speaker.wave.2.fill", color: dominantColor, fill: currentVolume)
-            HUDBar(icon: "sun.max.fill", color: .yellow, fill: currentBrightness)
+        ZStack {
+            VStack(spacing: spacing) {
+                let currentVolume = CGFloat(volumeManager.currentVolume)
+                let currentBrightness = CGFloat(brightnessManager.currentBrightness)
+                
+                HUDBar(icon: "speaker.wave.2.fill", color: dominantColor, fill: currentVolume)
+                HUDBar(icon: "sun.max.fill", color: .yellow, fill: currentBrightness)
+            }
+            .frame(width: hudWidth, height: 30)
+            .drawingGroup()
+            .animation(.easeOut(duration: animationDuration), value: didAppear)
+            .onAppear {
+                dominantColor = Color(nsColor: musicModel.nowPlayingInfo.dominantColor)
+            }
+            .onChange(of: musicModel.nowPlayingInfo.dominantColor) { _, newColor in
+                dominantColor = Color(nsColor: newColor)
+            }
         }
-        .frame(width: hudWidth)
-        .drawingGroup() // Rasterize for performance
-        // SINGLE animation modifier instead of multiple
-        .animation(.easeOut(duration: animationDuration), value: currentValues)
-        .onChange(of: musicModel.nowPlayingInfo.dominantColor) { _, newColor in
-            dominantColor = Color(nsColor: newColor)
-        }
-        .onAppear {
-            dominantColor = Color(nsColor: musicModel.nowPlayingInfo.dominantColor)
-        }
+        .frame(height: 30)
     }
     
-    // Combine values for single animation trigger
     private var currentValues: String {
         "\(volumeManager.currentVolume)-\(brightnessManager.currentBrightness)"
     }

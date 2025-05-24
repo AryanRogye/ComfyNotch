@@ -35,40 +35,35 @@ struct PopInPresenter_NowPlaying: View {
     
     var body: some View {
         ZStack {
-            if panelState.isLoadingPopInPresenter {
-                NotchLoadingDot()
-                    .transition(.scale.combined(with: .opacity))
-            } else {
-                HStack {
-                    // Use a single GeometryReader to get container width
-                    GeometryReader { geo in
-                        let text = "\(musicModel.nowPlayingInfo.trackName) by \(musicModel.nowPlayingInfo.artistName)"
-                        
-                        Text(text)
-                            .font(.system(size: 18, weight: .medium, design: .rounded))
-                            .foregroundStyle(Color(nsColor: musicModel.nowPlayingInfo.dominantColor))
-                            .fixedSize(horizontal: true, vertical: false)
-                            .measureSize { size in
-                                // Only update width if it changed significantly
-                                if abs(textWidth - size.width) > 1 {
-                                    textWidth = size.width
-                                }
-                                if containerWidth == 0 {
-                                    containerWidth = geo.size.width
-                                }
+            HStack {
+                // Use a single GeometryReader to get container width
+                GeometryReader { geo in
+                    let text = "\(musicModel.nowPlayingInfo.trackName) by \(musicModel.nowPlayingInfo.artistName)"
+                    
+                    Text(text)
+                        .font(.system(size: 18, weight: .medium, design: .rounded))
+                        .foregroundStyle(Color(nsColor: musicModel.nowPlayingInfo.dominantColor))
+                        .fixedSize(horizontal: true, vertical: false)
+                        .measureSize { size in
+                            // Only update width if it changed significantly
+                            if abs(textWidth - size.width) > 1 {
+                                textWidth = size.width
                             }
-                            .offset(x: animate ? -textWidth - 50 : containerWidth)
-                            .onChange(of: textWidth) {
-                                handleTextWidthChange()
+                            if containerWidth == 0 {
+                                containerWidth = geo.size.width
                             }
-                    }
+                        }
+                        .offset(x: animate ? -textWidth - 50 : containerWidth)
+                        .onChange(of: textWidth) {
+                            handleTextWidthChange()
+                        }
                 }
-                .frame(height: 30)
-                .clipped()
-                .padding(.horizontal, 20)
-                .background(Color.black.opacity(0.8))
-                .cornerRadius(10)
             }
+            .frame(height: 30)
+            .clipped()
+            .padding(.horizontal, 20)
+            .background(Color.black.opacity(0.8))
+            .cornerRadius(10)
         }
     }
     
