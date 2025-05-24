@@ -35,10 +35,12 @@ final class MediaKeyInterceptor {
     }
 }
 
-final class VolumeManager {
+final class VolumeManager: ObservableObject {
     static let shared = VolumeManager()
     
     private var osdSuppressionTimer: Timer?
+    
+    @Published var currentVolume: Float = 0
     
     init() {}
     
@@ -48,7 +50,52 @@ final class VolumeManager {
         // Optionally: keep suspending every few seconds in case macOS respawns it
         osdSuppressionTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { _ in
             self.hideOSDUIHelper()
+            self.getCurrentSystemVolume()
         }
+    }
+    
+    public func getCurrentSystemVolume() {
+        var defaultOutputDeviceID = AudioDeviceID(0)
+        var propertyAddress = AudioObjectPropertyAddress(
+            mSelector: kAudioHardwarePropertyDefaultOutputDevice,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain
+        )
+        var dataSize = UInt32(MemoryLayout<AudioDeviceID>.size)
+        let status = AudioObjectGetPropertyData(
+            AudioObjectID(kAudioObjectSystemObject),
+            &propertyAddress,
+            0,
+            nil,
+            &dataSize,
+            &defaultOutputDeviceID
+        )
+        if status != noErr {
+            self.currentVolume = 0
+            return
+        }
+        
+        propertyAddress = AudioObjectPropertyAddress(
+            mSelector: kAudioDevicePropertyVolumeScalar,
+            mScope: kAudioDevicePropertyScopeOutput,
+            mElement: 0
+        )
+        var volume: Float32 = 0
+        dataSize = UInt32(MemoryLayout<Float32>.size)
+        let status2 = AudioObjectGetPropertyData(
+            defaultOutputDeviceID,
+            &propertyAddress,
+            0,
+            nil,
+            &dataSize,
+            &volume
+        )
+        if status2 != noErr {
+            self.currentVolume = 0
+            return
+        }
+        self.currentVolume = volume
+        print("Current Volume: \(self.currentVolume)")
     }
     
     public func stop() {
