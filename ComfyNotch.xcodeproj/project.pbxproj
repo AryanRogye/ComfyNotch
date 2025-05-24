@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		9B2889A82DC68E4400E5DB18 /* SVGView in Frameworks */ = {isa = PBXBuildFile; productRef = 9B2889A72DC68E4400E5DB18 /* SVGView */; };
 		9B288A852DC722BF00E5DB18 /* ComfyCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = 9B288A842DC722BF00E5DB18 /* ComfyCalendar */; };
+		9B2A90062DE25AB500046186 /* CoreDisplay.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B2A90052DE25AB500046186 /* CoreDisplay.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +26,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		9B1EA7C52DE259EC0074E24C /* Xcode.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = Xcode.app; path = ../../../../../Applications/Xcode.app; sourceTree = "<group>"; };
+		9B2A90052DE25AB500046186 /* CoreDisplay.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreDisplay.framework; path = ../../../../../System/Library/Frameworks/CoreDisplay.framework; sourceTree = "<group>"; };
 		9BC3A4622DB1D40000FFD323 /* ComfyNotch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ComfyNotch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -57,6 +60,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9B2A90062DE25AB500046186 /* CoreDisplay.framework in Frameworks */,
 				9B2889A82DC68E4400E5DB18 /* SVGView in Frameworks */,
 				9B288A852DC722BF00E5DB18 /* ComfyCalendar in Frameworks */,
 			);
@@ -85,6 +89,8 @@
 		9BC3A5352DB2E77000FFD323 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9B2A90052DE25AB500046186 /* CoreDisplay.framework */,
+				9B1EA7C52DE259EC0074E24C /* Xcode.app */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -129,6 +135,7 @@
 				TargetAttributes = {
 					9BC3A4612DB1D40000FFD323 = {
 						CreatedOnToolsVersion = 16.2;
+						LastSwiftMigration = 1620;
 					};
 				};
 			};
@@ -299,6 +306,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ComfyNotch/ComfyNotch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -306,6 +314,7 @@
 				DEVELOPMENT_TEAM = B9P888266K;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				FRAMEWORK_SEARCH_PATHS = /System/Library/Frameworks;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ComfyNotch/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -314,9 +323,12 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = "\"-undefined dynamic_lookup\"";
 				PRODUCT_BUNDLE_IDENTIFIER = app.aryanrogye.ComfyNotch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "ComfyNotch/Managers/Brightness/ComfyNotch-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -326,6 +338,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ComfyNotch/ComfyNotch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -333,6 +346,7 @@
 				DEVELOPMENT_TEAM = B9P888266K;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				FRAMEWORK_SEARCH_PATHS = /System/Library/Frameworks;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ComfyNotch/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -341,9 +355,11 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = "\"-undefined dynamic_lookup\"";
 				PRODUCT_BUNDLE_IDENTIFIER = app.aryanrogye.ComfyNotch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "ComfyNotch/Managers/Brightness/ComfyNotch-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;

@@ -30,9 +30,11 @@ struct GeneralSettingsView: View {
                 MediaKeyInterceptor.shared.start()
                 /// Start Volume Manager
                 VolumeManager.shared.start()
+                BrightnessWatcher.shared.start()
             } else {
                 MediaKeyInterceptor.shared.stop()
                 VolumeManager.shared.stop()
+                BrightnessWatcher.shared.stop()
             }
         }
     }

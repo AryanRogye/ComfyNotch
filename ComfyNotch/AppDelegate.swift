@@ -62,6 +62,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         print("Application will terminate")
         MediaKeyInterceptor.shared.stop()
         VolumeManager.shared.stop()
+        BrightnessWatcher.shared.stop()
     }
     
     public func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
@@ -90,6 +91,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             MediaKeyInterceptor.shared.start()
             /// Start Volume Manager
             VolumeManager.shared.start()
+            BrightnessWatcher.shared.start()
         }
         
         // Set up the ui by loading the widgets from settings onto it
