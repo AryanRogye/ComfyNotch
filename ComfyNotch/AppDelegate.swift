@@ -64,6 +64,10 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         VolumeManager.shared.stop()
     }
     
+    public func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        return false
+    }
+    
     private func launchComfyNotch() {
         UIManager.shared.setupFrame()
         

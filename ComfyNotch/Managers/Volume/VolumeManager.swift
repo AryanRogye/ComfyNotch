@@ -38,6 +38,8 @@ final class MediaKeyInterceptor {
         
         requestAccessibilityIfNeeded()
         guard AXIsProcessTrusted() else { return }
+        
+        print("MediaKeyInterceptor started")
 
         eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: .systemDefined) { event in
             guard event.subtype.rawValue == 8 else { return }
@@ -199,10 +201,8 @@ final class VolumeManager: ObservableObject {
             try kill.run()
             kill.waitUntilExit()
 
-            // Wait longer
             usleep(2_000_000) // 2 seconds
 
-            // Trigger through volume change (most reliable)
             let script = Process()
             script.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
             script.arguments = ["-e", "set volume output volume (output volume of (get volume settings))"]
@@ -241,6 +241,7 @@ final class VolumeManager: ObservableObject {
     private var debounceWorkItem: DispatchWorkItem?
 
     private func triggerNotch() {
+        print("Notch Triggered")
         refreshVolumeAsync()
 
         debounceWorkItem?.cancel()

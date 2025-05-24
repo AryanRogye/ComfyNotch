@@ -56,7 +56,6 @@ struct SettingsView: View {
             settings.isSettingsWindowOpen = true
         }
         .onDisappear {
-            /// TODO: MAKE BETTER HERE
             settings.isSettingsWindowOpen = false
             SettingsModel.shared.refreshUI()
         }
