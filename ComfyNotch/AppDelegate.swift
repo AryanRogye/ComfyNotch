@@ -37,9 +37,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         _ = SettingsModel.shared
         
         /// Wanna Request Access To Acessibility
-        if !MediaKeyInterceptor.shared.isAccessibilityEnabled() {
-            MediaKeyInterceptor.shared.requestAccessibility()
-        }
+        MediaKeyInterceptor.shared.requestAccessibilityIfNeeded()
 
         //        DispatchQueue.main.async {
         EventManager.shared.requestAcessToCalendar() { granted in

@@ -74,6 +74,24 @@ struct GeneralSettingsView: View {
                     Text("")
                 }
                 .toggleStyle(.switch)
+                
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Not seeing the HUD?")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                    
+                    Button(action: MediaKeyInterceptor.shared.requestAccessibility) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "lock.shield")
+                            Text("Request Accessibility Permissions")
+                                .underline()
+                        }
+                        .font(.footnote)
+                        .foregroundColor(.accentColor)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.top, 8)
             }
             Spacer()
             
@@ -92,7 +110,7 @@ struct GeneralSettingsView: View {
                 Text("Scroll Speed")
                     .font(.subheadline)
                     .foregroundColor(.primary)
-
+                
                 HStack(spacing: 10) {
                     Button(action: {
                         settings.nowPlayingScrollSpeed = max(1, settings.nowPlayingScrollSpeed - 1)
@@ -103,11 +121,11 @@ struct GeneralSettingsView: View {
                             .foregroundColor(.gray)
                     }
                     .buttonStyle(.borderless)
-
+                    
                     Text("\(settings.nowPlayingScrollSpeed)")
                         .font(.system(size: 16, weight: .medium, design: .rounded))
                         .frame(minWidth: 28, alignment: .center)
-
+                    
                     Button(action: {
                         settings.nowPlayingScrollSpeed += 1
                     }) {
@@ -118,6 +136,24 @@ struct GeneralSettingsView: View {
                     }
                     .buttonStyle(.borderless)
                 }
+                
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Adjust the scroll speed for the Now Playing widget.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                    
+                    Text("Default: 40")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                    
+                    Button("Reset to Default") {
+                        settings.nowPlayingScrollSpeed = 40
+                    }
+                    .font(.footnote)
+                    .foregroundColor(.blue)
+                    .buttonStyle(.plain)
+                    .padding(.top, 4)
+                }
             }
             Spacer()
             /// Other Side Video Demo
@@ -127,7 +163,6 @@ struct GeneralSettingsView: View {
                     .cornerRadius(10)
             }
         }
-
     }
 
     // MARK: - Camera Section
@@ -165,6 +200,7 @@ struct GeneralSettingsView: View {
                     settings.saveSettings()
                 }
                 .padding(.vertical, 8)
+                .toggleStyle(.switch)
         }
     }
 

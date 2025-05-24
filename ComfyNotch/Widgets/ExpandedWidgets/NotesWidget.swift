@@ -1,11 +1,12 @@
 import AppKit
 import SwiftUI
 
-enum WidgetViewState {
+enum WidgetViewState: Equatable {
     case viewList
     case addNewNote
     case editor(Note)
 }
+
 struct NotesWidget: View, Widget {
 
     var name: String = "NotesWidget"
@@ -63,7 +64,7 @@ struct NotesWidget: View, Widget {
                     .padding([.leading, .top], 8)
                     Spacer()
                 // Placeholder content so it forces height
-                Text("Editor for \(note.name)")
+                Text("\(note.name)")
                     .foregroundColor(.white)
                     .padding()
                 }
@@ -104,31 +105,45 @@ struct NotesWidget: View, Widget {
             }
             /// Default 3 notes
             ScrollView(.vertical, showsIndicators: true) {
-                ForEach(model.notes) { note in
-                    Button(action: {
-                        currentView = .editor(note)
-                    }) {
-                        HStack {
-                            Text(note.name)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 2)
-                                .foregroundColor(.white)
-                            Spacer()
-                                Button(action: { model.deleteNote(note) } ) {
-                                    Image(systemName: "trash")
-                                        .resizable()
-                                        .frame(width: 16, height: 16)
-                                }
-                                .buttonStyle(.plain)
-                        }
-                    }
-                    .background(Color.blue)
-                    .clipShape(RoundedRectangle(cornerRadius: 5))
-                    .padding(.vertical, 2)
-                    .padding(.horizontal, 10)
-                }
+                notesView()
             }
         }
+    }
+    
+    @ViewBuilder
+    func notesView() -> some View {
+        ForEach(model.notes) { note in
+            HStack(spacing: 8) {
+                Text(note.name)
+                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                Button(action: { model.deleteNote(note) }) {
+                    Image(systemName: "trash")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 13, height: 13)
+                        .foregroundColor(.red.opacity(0.8))
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.vertical, 6)
+            .padding(.horizontal, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(currentView == .editor(note) ? Color.accentColor.opacity(0.15) : Color.gray.opacity(0.09))
+            )
+            // makes full row tappable
+            .contentShape(Rectangle())
+            .onTapGesture {
+                currentView = .editor(note)
+            }
+        }
+
     }
 
     @ViewBuilder

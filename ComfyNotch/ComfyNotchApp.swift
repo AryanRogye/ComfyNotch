@@ -36,8 +36,9 @@ struct ComfyNotchApp: App {
     
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     var body: some Scene {
-        Settings {
+        Window("SettingsView", id: "SettingsView") {
             SettingsView()
         }
+        .defaultLaunchBehavior(.suppressed)
     }
 }

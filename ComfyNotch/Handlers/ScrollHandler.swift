@@ -107,11 +107,13 @@ class ScrollHandler {
     }
 
     func peekOpen() {
-        guard let panel = UIManager.shared.smallPanel, !isPeeking, !isSnapping else { return }
+        guard let panel = UIManager.shared.smallPanel, 
+            !isPeeking, 
+            !isSnapping else { return }
 
         isPeeking = true
+
         let screen = NSScreen.main!
-        
         let peekHeight: CGFloat = minPanelHeight + 50
         let peekY = screen.frame.height - peekHeight - UIManager.shared.startPanelYOffset
 
@@ -131,11 +133,12 @@ class ScrollHandler {
     }
 
     func peekClose() {
-        guard let panel = UIManager.shared.smallPanel, isPeeking else { return }
+        guard let panel = UIManager.shared.smallPanel, 
+            isPeeking else { return }
 
         isPeeking = false
-        let screen = NSScreen.main!
 
+        let screen = NSScreen.main!
         let normalHeight = minPanelHeight
         let normalY = screen.frame.height - normalHeight - UIManager.shared.startPanelYOffset
 

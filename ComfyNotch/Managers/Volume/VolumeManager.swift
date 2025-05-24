@@ -8,6 +8,7 @@
 import AVFoundation
 import SwiftUI
 import Cocoa
+import AppKit
 import ApplicationServices
 
 final class MediaKeyInterceptor {
@@ -24,13 +25,20 @@ final class MediaKeyInterceptor {
         let options: NSDictionary = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as String: true]
         AXIsProcessTrustedWithOptions(options)
     }
-
+    
+    func requestAccessibilityIfNeeded() {
+        if !AXIsProcessTrusted() && !UserDefaults.standard.bool(forKey: "didRequestAccessibility") {
+            let options: NSDictionary = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as String: true]
+            AXIsProcessTrustedWithOptions(options)
+            UserDefaults.standard.set(true, forKey: "didRequestAccessibility")
+        }
+    }
+    
     func start() {
         
-        if !isAccessibilityEnabled() {
-            requestAccessibility()
-        }
-        
+        requestAccessibilityIfNeeded()
+        guard AXIsProcessTrusted() else { return }
+
         eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: .systemDefined) { event in
             guard event.subtype.rawValue == 8 else { return }
 
@@ -76,16 +84,21 @@ final class VolumeManager: ObservableObject {
     private var osdSuppressionTimer: Timer?
     
     @Published var currentVolume: Float = 0
+    let panelState = PanelAnimationState.shared
     
     init() {}
     
     public func start() {
-        hideOSDUIHelper()
-        
-        // Optionally: keep suspending every few seconds in case macOS respawns it
-        osdSuppressionTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { _ in
+        DispatchQueue.global(qos: .utility).async {
             self.hideOSDUIHelper()
-//            self.getCurrentSystemVolume()
+
+            DispatchQueue.main.async {
+                self.osdSuppressionTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { _ in
+                    DispatchQueue.global(qos: .utility).async {
+                        self.hideOSDUIHelper()
+                    }
+                }
+            }
         }
     }
     
@@ -136,8 +149,13 @@ final class VolumeManager: ObservableObject {
     public func stop() {
         osdSuppressionTimer?.invalidate()
         osdSuppressionTimer = nil
-        showOSDUIHelper()
-        simulateVolumeKeyPress()
+        
+        DispatchQueue.global(qos: .utility).async {
+            self.showOSDUIHelper()
+        }
+        DispatchQueue.main.async {
+            self.simulateVolumeKeyPress()
+        }
     }
     
     func simulateVolumeKeyPress() {
@@ -214,19 +232,41 @@ final class VolumeManager: ObservableObject {
         }
     }
     
-    private func triggerNotch() {
-        getCurrentSystemVolume()
-        if UIManager.shared.panelState != .open {
-            /// Delay the animation by 0.25 seconds so it doesnt jitter
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                withAnimation(.easeOut(duration: 0.2)) {
-                    if UIManager.shared.panelState != .open {
-                        PanelAnimationState.shared.currentPopInPresentationState = .volume
-                        PanelAnimationState.shared.currentPanelState = .popInPresentation
-                    }
-                }
-            }
-            ScrollHandler.shared.peekOpen()
+    private func refreshVolumeAsync() {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            self?.getCurrentSystemVolume()
         }
+    }
+    
+    private var debounceWorkItem: DispatchWorkItem?
+
+    private func triggerNotch() {
+        refreshVolumeAsync()
+
+        debounceWorkItem?.cancel()
+
+        // Show loading instantly
+        DispatchQueue.main.async {
+            self.panelState.isLoadingPopInPresenter = true
+        }
+
+        let workItem = DispatchWorkItem { [weak self] in
+            self?.openNotch()
+            self?.debounceWorkItem = nil
+        }
+        debounceWorkItem = workItem
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
+            guard let self = self else { return }
+            
+            workItem.perform()
+            panelState.isLoadingPopInPresenter = false
+        }
+    }
+
+    private func openNotch() {
+        ScrollHandler.shared.peekOpen()
+        PanelAnimationState.shared.currentPopInPresentationState = .volume
+        PanelAnimationState.shared.currentPanelState = .popInPresentation
     }
 }

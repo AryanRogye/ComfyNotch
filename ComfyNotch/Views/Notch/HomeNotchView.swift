@@ -1,8 +1,10 @@
 import SwiftUI
 
 struct HomeNotchView: View {
+    
     @EnvironmentObject var bigWidgetStore: ExpandedWidgetsStore
-    @ObservedObject var animationState = PanelAnimationState.shared
+    @StateObject var animationState = PanelAnimationState.shared
+    @StateObject var settingsModel = SettingsModel.shared
 
     var body: some View {
         VStack {
@@ -29,7 +31,7 @@ struct HomeNotchView: View {
                                             .padding(.trailing, 2)
                                             .padding(.leading, 4)
                                         
-                                        if SettingsModel.shared.showDividerBetweenWidgets {
+                                        if settingsModel.showDividerBetweenWidgets {
                                             if index < bigWidgetStore.widgets.indices.last(where: { bigWidgetStore.widgets[$0].isVisible })! {
                                                 //                                        Rectangle()
                                                 //                                            .frame(width: 1)
