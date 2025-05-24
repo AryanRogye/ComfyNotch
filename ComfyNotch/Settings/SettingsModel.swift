@@ -29,6 +29,7 @@ class SettingsModel: ObservableObject {
     @Published var showDividerBetweenWidgets: Bool = false /// False cuz i like it without
     
     @Published var nowPlayingScrollSpeed: Int = 40
+    @Published var enableNotchHUD: Bool = true
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -71,7 +72,16 @@ class SettingsModel: ObservableObject {
         if clipboardManagerPollingIntervalMS >= 0 {
             defaults.set(clipboardManagerPollingIntervalMS, forKey: "clipboardManagerPollingIntervalMS")
         }
+        /// ----------------------- Divider Settings -------------------------------------
         defaults.set(showDividerBetweenWidgets, forKey: "showDividerBetweenWidgets")
+        
+        /// ----------------------- Notch Settings -------------------------------------
+        if nowPlayingScrollSpeed > 0 {
+            defaults.set(nowPlayingScrollSpeed, forKey: "nowPlayingScrollSpeed")
+        } else {
+            defaults.set(40, forKey: "nowPlayingScrollSpeed")
+        }
+        defaults.set(enableNotchHUD, forKey: "enableNotchHUD")
     }
     /// Loads the last saved settings from UserDefaults
     func loadSettings() {
@@ -113,6 +123,18 @@ class SettingsModel: ObservableObject {
         }
         if let showDividerBetweenWidgets = defaults.object(forKey: "showDividerBetweenWidgets") as? Bool {
             self.showDividerBetweenWidgets = showDividerBetweenWidgets
+        }
+        
+        /// ----------------------- Notch Scroll Settings -----------------------
+        if let nowPlayingScrollSpeed = defaults.object(forKey: "nowPlayingScrollSpeed") as? Int {
+            self.nowPlayingScrollSpeed = nowPlayingScrollSpeed
+        } else {
+            self.nowPlayingScrollSpeed = 40
+        }
+        if let enableNotchHUD = defaults.object(forKey: "enableNotchHUD") as? Bool {
+            self.enableNotchHUD = enableNotchHUD
+        } else {
+            self.enableNotchHUD = true
         }
     }
 

@@ -35,24 +35,29 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
      */
     public func applicationDidFinishLaunching(_ notification: Notification) {
         _ = SettingsModel.shared
+        
+        /// Wanna Request Access To Acessibility
+        if !MediaKeyInterceptor.shared.isAccessibilityEnabled() {
+            MediaKeyInterceptor.shared.requestAccessibility()
+        }
 
-//        DispatchQueue.main.async {
-            EventManager.shared.requestAcessToCalendar() { granted in
-                DispatchQueue.main.async {
-                    if !granted {
-                        // Temporarily show the app so macOS lets us ask for permissions
-                        NSApp.setActivationPolicy(.regular)
-                        NSApp.activate(ignoringOtherApps: true)
-                    } else {
-                        // Go back to your usual background style
-                        NSApp.setActivationPolicy(.prohibited)
-                        NSApp.activate(ignoringOtherApps: true)
-                        // Start the UI
-                        self.launchComfyNotch()
-                    }
+        //        DispatchQueue.main.async {
+        EventManager.shared.requestAcessToCalendar() { granted in
+            DispatchQueue.main.async {
+                if !granted {
+                    // Temporarily show the app so macOS lets us ask for permissions
+                    NSApp.setActivationPolicy(.regular)
+                    NSApp.activate(ignoringOtherApps: true)
+                } else {
+                    // Go back to your usual background style
+                    NSApp.setActivationPolicy(.prohibited)
+                    NSApp.activate(ignoringOtherApps: true)
+                    // Start the UI
+                    self.launchComfyNotch()
                 }
             }
-//        }
+        }
+        //        }
     }
     
     public func applicationWillTerminate(_ notification: Notification) {
@@ -78,10 +83,12 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         /// Start the hover handler, this also listens for music playing closing and opening slightly
         PanelAnimator.shared.startAnimationListeners()
         
-        /// Start The Media Key Interceptor
-        MediaKeyInterceptor.shared.start()
-        /// Start Volume Manager
-        VolumeManager.shared.start()
+        if SettingsModel.shared.enableNotchHUD {
+            /// Start The Media Key Interceptor
+            MediaKeyInterceptor.shared.start()
+            /// Start Volume Manager
+            VolumeManager.shared.start()
+        }
         
         // Set up the ui by loading the widgets from settings onto it
         self.loadWidgetsFromSettings()

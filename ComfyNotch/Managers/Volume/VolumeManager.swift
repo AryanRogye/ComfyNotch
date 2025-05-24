@@ -137,6 +137,24 @@ final class VolumeManager: ObservableObject {
         osdSuppressionTimer?.invalidate()
         osdSuppressionTimer = nil
         showOSDUIHelper()
+        simulateVolumeKeyPress()
+    }
+    
+    func simulateVolumeKeyPress() {
+        let keyCode = NX_KEYTYPE_SOUND_UP
+        let keyDownEvent = NSEvent.otherEvent(
+            with: .systemDefined,
+            location: .zero,
+            modifierFlags: NSEvent.ModifierFlags(rawValue: 0xa00),
+            timestamp: ProcessInfo.processInfo.systemUptime,
+            windowNumber: 0,
+            context: nil,
+            subtype: 8,
+            data1: (Int(keyCode) << 16) | (0xA << 8),
+            data2: -1
+        )
+        
+        keyDownEvent?.cgEvent?.post(tap: .cghidEventTap)
     }
     
     private func hideOSDUIHelper() {
@@ -156,22 +174,23 @@ final class VolumeManager: ObservableObject {
     
     private func showOSDUIHelper() {
         do {
+            // Kill without sudo (may not always work)
             let kill = Process()
             kill.executableURL = URL(fileURLWithPath: "/usr/bin/killall")
             kill.arguments = ["-9", "OSDUIHelper"]
             try kill.run()
             kill.waitUntilExit()
 
-            // short delay
-            usleep(500_000)
+            // Wait longer
+            usleep(2_000_000) // 2 seconds
 
-            // kickstart it
-            let kickstart = Process()
-            kickstart.executableURL = URL(fileURLWithPath: "/bin/launchctl")
-            kickstart.arguments = ["kickstart", "-k", "gui/\(getuid())/com.apple.OSDUIHelper"]
-            try kickstart.run()
-
-            print("✅ OSDUIHelper successfully restarted")
+            // Trigger through volume change (most reliable)
+            let script = Process()
+            script.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
+            script.arguments = ["-e", "set volume output volume (output volume of (get volume settings))"]
+            try script.run()
+            
+            print("✅ OSDUIHelper restart triggered")
         } catch {
             print("❌ Failed to restart OSDUIHelper: \(error)")
         }
@@ -180,7 +199,6 @@ final class VolumeManager: ObservableObject {
     func handleMediaKeyCode(_ keyCode: Int) {
         switch Int32(keyCode) {
             
-        
         case
         NX_KEYTYPE_SOUND_DOWN,              /// VOLUME DOWN
         NX_KEYTYPE_SOUND_UP,                /// VOLUME UP

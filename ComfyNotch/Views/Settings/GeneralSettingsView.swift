@@ -3,6 +3,8 @@ import SwiftUI
 struct GeneralSettingsView: View {
     @ObservedObject var settings: SettingsModel
     @Environment(\.colorScheme) var colorScheme
+    
+    @State private var selectedSaveHUD: Bool = false
 
     private let maxWidgetCount = 3  // Limit to 3 widgets
 
@@ -14,13 +16,28 @@ struct GeneralSettingsView: View {
                 cameraSettingsSection
                 dividerSettingsSection
                 Spacer()
+                saveSettingsButton
                 exitButton
             }
             .padding()
         }
+        .onAppear {
+            selectedSaveHUD = settings.enableNotchHUD
+        }
+        .onChange(of: settings.enableNotchHUD) { _, newValue in
+            if newValue {
+                /// Start The Media Key Interceptor
+                MediaKeyInterceptor.shared.start()
+                /// Start Volume Manager
+                VolumeManager.shared.start()
+            } else {
+                MediaKeyInterceptor.shared.stop()
+                VolumeManager.shared.stop()
+            }
+        }
     }
     
-    
+    // MARK: - HEADER
     private var headerView: some View {
         VStack(spacing: 8) {
             Text("ComfyNotch Settings")
@@ -30,6 +47,108 @@ struct GeneralSettingsView: View {
         .padding(.top, 12)
     }
     
+    // MARK: - Notch Section
+    private var notchSettingsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Notch Settings")
+                    .font(.headline)
+                Spacer()
+            }
+            Divider()
+            
+            hudSettings
+            Divider()
+            scrollSpeed
+        }
+    }
+    
+    private var hudSettings: some View {
+        HStack {
+            /// One Side Volume Controls
+            VStack(alignment: .leading, spacing: 8) {
+                Text("HUD Settings")
+                    .font(.subheadline)
+                    .foregroundColor(.primary)
+                Toggle(isOn: $selectedSaveHUD) {
+                    Text("")
+                }
+                .toggleStyle(.switch)
+            }
+            Spacer()
+            
+            if let videoURL = Bundle.main.url(forResource: "enableNotchHUD_demo", withExtension: "mp4", subdirectory: "Assets") {
+                LoopingVideoView(url: videoURL)
+                    .frame(width: 350 ,height: 120)
+                    .cornerRadius(10)
+            }
+        }
+    }
+    
+    private var scrollSpeed: some View {
+        HStack {
+            /// One Side Notch Controls
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Scroll Speed")
+                    .font(.subheadline)
+                    .foregroundColor(.primary)
+
+                HStack(spacing: 10) {
+                    Button(action: {
+                        settings.nowPlayingScrollSpeed = max(1, settings.nowPlayingScrollSpeed - 1)
+                    }) {
+                        Image(systemName: "minus.circle.fill")
+                            .resizable()
+                            .frame(width: 18, height: 18)
+                            .foregroundColor(.gray)
+                    }
+                    .buttonStyle(.borderless)
+
+                    Text("\(settings.nowPlayingScrollSpeed)")
+                        .font(.system(size: 16, weight: .medium, design: .rounded))
+                        .frame(minWidth: 28, alignment: .center)
+
+                    Button(action: {
+                        settings.nowPlayingScrollSpeed += 1
+                    }) {
+                        Image(systemName: "plus.circle.fill")
+                            .resizable()
+                            .frame(width: 18, height: 18)
+                            .foregroundColor(.gray)
+                    }
+                    .buttonStyle(.borderless)
+                }
+            }
+            Spacer()
+            /// Other Side Video Demo
+            if let videoURL = Bundle.main.url(forResource: "nowPlayingScrollSpeed_demo", withExtension: "mp4", subdirectory: "Assets") {
+                LoopingVideoView(url: videoURL)
+                    .frame(width: 350 ,height: 120)
+                    .cornerRadius(10)
+            }
+        }
+
+    }
+
+    // MARK: - Camera Section
+    private var cameraSettingsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Camera Settings")
+                    .font(.headline)
+                Spacer()
+            }
+
+            Divider()
+
+            Toggle("Flip Camera", isOn: $settings.isCameraFlipped)
+                .onChange(of: settings.isCameraFlipped) { settings.saveSettings() }
+                .padding(.vertical, 8)
+                .toggleStyle(.switch)
+        }
+    }
+    
+    // MARK: - Divider Section
     
     private var dividerSettingsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -48,69 +167,22 @@ struct GeneralSettingsView: View {
                 .padding(.vertical, 8)
         }
     }
-    
-    private var notchSettingsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Notch Settings")
-                    .font(.headline)
-                Spacer()
-            }
-            Divider()
-            HStack {
-                /// One Side Notch Controls
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Scroll Speed")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    
-                    HStack(spacing: 6) {
-                        Button(action: {
-                            settings.nowPlayingScrollSpeed = max(1, settings.nowPlayingScrollSpeed - 1)
-                        }) {
-                            Image(systemName: "minus.circle.fill")
-                                .foregroundColor(.gray)
-                        }
 
-                        Text("\(settings.nowPlayingScrollSpeed)")
-                            .font(.system(size: 14, weight: .medium, design: .rounded))
-                            .frame(minWidth: 24)
 
-                        Button(action: {
-                            settings.nowPlayingScrollSpeed += 1
-                        }) {
-                            Image(systemName: "plus.circle.fill")
-                                .foregroundColor(.gray)
-                        }
-                    }
-                }
-                Spacer()
-                /// Other Side Video Demo
-                if let videoURL = Bundle.main.url(forResource: "nowPlayingScrollSpeed_demo", withExtension: "mp4", subdirectory: "Assets") {
-                    LoopingVideoView(url: videoURL)
-                        .frame(width: 350 ,height: 120)
-                        .cornerRadius(10)
-                }
-            }
+    // MARK: - Buttons
+    private var saveSettingsButton: some View {
+        Button(action: {
+            settings.enableNotchHUD = selectedSaveHUD
+            settings.saveSettings()
+        } ) {
+            Text("Save Settings")
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
         }
+        .buttonStyle(.plain)
     }
-
-    private var cameraSettingsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Camera Settings")
-                    .font(.headline)
-                Spacer()
-            }
-
-            Divider()
-
-            Toggle("Flip Camera", isOn: $settings.isCameraFlipped)
-                .onChange(of: settings.isCameraFlipped) { settings.saveSettings() }
-                .padding(.vertical, 8)
-        }
-    }
-
     
     private var exitButton: some View {
         Button(action: closeWindow) {
@@ -120,42 +192,12 @@ struct GeneralSettingsView: View {
                 .foregroundColor(.white)
                 .cornerRadius(10)
         }
+        .buttonStyle(.plain)
     }
 
-    func formatWidgetName(_ name: String) -> String {
-        var displayName = name
-        if displayName.hasSuffix("Widget") {
-            displayName = String(displayName.dropLast(6))
-        }
-        var formattedName = ""
-        for char in displayName {
-            if char.isUppercase && !formattedName.isEmpty {
-                formattedName += " "
-            }
-            formattedName += String(char)
-        }
-        return formattedName
-    }
-
-    func getIconName(for widgetName: String) -> String {
-        switch widgetName {
-        case "MusicPlayerWidget":
-            return "music.note"
-        case "TimeWidget":
-            return "clock"
-        case "NotesWidget":
-            return "note.text"
-        case "CameraWidget":
-            return "camera"
-        default:
-            return "square"
-        }
-    }
+    // MARK: - Helper Functions
+    
     func closeWindow() {
         NSApp.terminate(nil)
     }
-}
-
-#Preview {
-    GeneralSettingsView(settings: SettingsModel.shared)
 }

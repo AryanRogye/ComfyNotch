@@ -15,22 +15,24 @@ struct LoopingVideoView: View {
     @State private var looper: AVPlayerLooper?
 
     var body: some View {
-        Group {
+        GeometryReader { geometry in
             if let player = player {
-                VideoPlayer(player: player)
-                    .disabled(true) // no interaction
+                MacVideoPlayerView(player: player)
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .clipped() // ensures it won't overflow
                     .onAppear {
                         player.play()
                     }
                     .onDisappear {
                         player.pause()
                     }
-                    .frame(height: 200)
-                    .cornerRadius(10)
             } else {
                 ProgressView()
+                    .frame(width: geometry.size.width, height: geometry.size.height)
             }
         }
+        .frame(width: 260, height: 125) // 🔐 this is the hard limit
+        .cornerRadius(10)
         .onAppear {
             setupPlayer()
         }
@@ -39,8 +41,24 @@ struct LoopingVideoView: View {
     private func setupPlayer() {
         let item = AVPlayerItem(url: url)
         let queuePlayer = AVQueuePlayer()
-        queuePlayer.volume = 0 // 🔇 mute
+        queuePlayer.volume = 0
         self.looper = AVPlayerLooper(player: queuePlayer, templateItem: item)
         self.player = queuePlayer
+    }
+}
+
+struct MacVideoPlayerView: NSViewRepresentable {
+    let player: AVPlayer
+
+    func makeNSView(context: Context) -> AVPlayerView {
+        let view = AVPlayerView()
+        view.controlsStyle = .none
+        view.player = player
+        view.videoGravity = .resize
+        return view
+    }
+
+    func updateNSView(_ nsView: AVPlayerView, context: Context) {
+        nsView.player = player
     }
 }
