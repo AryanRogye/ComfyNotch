@@ -6,14 +6,31 @@
 //
 
 import AVFoundation
+import SwiftUI
 import Cocoa
+import ApplicationServices
 
 final class MediaKeyInterceptor {
     static let shared = MediaKeyInterceptor()
     
     private var eventMonitor: Any?
+    private var fnKeyMonitor: Any?
+    
+    func isAccessibilityEnabled() -> Bool {
+        return AXIsProcessTrusted()
+    }
+    
+    func requestAccessibility() {
+        let options: NSDictionary = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as String: true]
+        AXIsProcessTrustedWithOptions(options)
+    }
 
     func start() {
+        
+        if !isAccessibilityEnabled() {
+            requestAccessibility()
+        }
+        
         eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: .systemDefined) { event in
             guard event.subtype.rawValue == 8 else { return }
 
@@ -24,6 +41,24 @@ final class MediaKeyInterceptor {
             guard keyState else { return }
 
             VolumeManager.shared.handleMediaKeyCode(keyCode)
+        }
+        
+        fnKeyMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { event in
+            if event.keyCode == 122, event.modifierFlags.contains(.function) {
+                // fn + F1
+                print("✅ fn + F1 pressed")
+//                BrightnessManager.shared.setBrightness(
+//                    max(0, BrightnessManager.shared.getBrightness()! - 0.1)
+//                )
+//                PanelAnimationState.shared.currentPopInPresentationState = .brightness
+            } else if event.keyCode == 120, event.modifierFlags.contains(.function) {
+                // fn + F2
+                print("✅ fn + F2 pressed")
+//                BrightnessManager.shared.setBrightness(
+//                    min(1, BrightnessManager.shared.getBrightness()! + 0.1)
+//                )
+//                PanelAnimationState.shared.currentPopInPresentationState = .brightness
+            }
         }
     }
 
@@ -50,7 +85,7 @@ final class VolumeManager: ObservableObject {
         // Optionally: keep suspending every few seconds in case macOS respawns it
         osdSuppressionTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { _ in
             self.hideOSDUIHelper()
-            self.getCurrentSystemVolume()
+//            self.getCurrentSystemVolume()
         }
     }
     
@@ -144,25 +179,36 @@ final class VolumeManager: ObservableObject {
     
     func handleMediaKeyCode(_ keyCode: Int) {
         switch Int32(keyCode) {
-        case NX_KEYTYPE_SOUND_DOWN:
-            print("🔉 Volume Down")
-        case NX_KEYTYPE_SOUND_UP:
-            print("🔊 Volume Up")
-        case NX_KEYTYPE_MUTE:
-            print("🔇 Mute")
             
-        case NX_KEYTYPE_BRIGHTNESS_DOWN:
-            print("🔅 Brightness Down")
-        case NX_KEYTYPE_BRIGHTNESS_UP:
-            print("🔆 Brightness Up")
-            
-        case NX_KEYTYPE_ILLUMINATION_DOWN:
-            print("💡 Keyboard Brightness Down")
-        case NX_KEYTYPE_ILLUMINATION_UP:
-            print("💡 Keyboard Brightness Up")
-            
+        
+        case
+        NX_KEYTYPE_SOUND_DOWN,              /// VOLUME DOWN
+        NX_KEYTYPE_SOUND_UP,                /// VOLUME UP
+        NX_KEYTYPE_MUTE,                    /// MUTE
+        NX_KEYTYPE_BRIGHTNESS_DOWN,         /// BRIGHTNESS DOWN
+        NX_KEYTYPE_BRIGHTNESS_UP,           /// BRIGHTNESS UP
+        NX_KEYTYPE_ILLUMINATION_DOWN,       /// KEYBOARD_BRIGHTNESS_DOWN
+        NX_KEYTYPE_ILLUMINATION_UP:         /// KEYBOARD BRIGHTNESS UP
+            /// Trigger Notch Notch For Info
+            triggerNotch()
         default:
             print("Unrecognized media key: \(keyCode)")
+        }
+    }
+    
+    private func triggerNotch() {
+        getCurrentSystemVolume()
+        if UIManager.shared.panelState != .open {
+            /// Delay the animation by 0.25 seconds so it doesnt jitter
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                withAnimation(.easeOut(duration: 0.2)) {
+                    if UIManager.shared.panelState != .open {
+                        PanelAnimationState.shared.currentPopInPresentationState = .volume
+                        PanelAnimationState.shared.currentPanelState = .popInPresentation
+                    }
+                }
+            }
+            ScrollHandler.shared.peekOpen()
         }
     }
 }

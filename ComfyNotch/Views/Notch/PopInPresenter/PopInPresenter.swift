@@ -10,18 +10,21 @@ import SwiftUI
 enum PopInPresenterType {
     case none
     case nowPlaying
+    case volume
     case notiification
 }
 
 struct PopInPresenter: View {
     
-    var type: PopInPresenterType = .nowPlaying
+    @StateObject private var panelState = PanelAnimationState.shared
     
     var body: some View {
         ZStack {
-            switch type {
+            switch panelState.currentPopInPresentationState {
             case .nowPlaying:
                 PopInPresenter_NowPlaying()
+            case .volume:
+                PopInPresenter_Volume()
             default:
                 EmptyView()
             }

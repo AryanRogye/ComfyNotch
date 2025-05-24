@@ -125,6 +125,7 @@ final class PanelAnimator {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
                     withAnimation(.easeOut(duration: 0.2)) {
                         if UIManager.shared.panelState != .open {
+                            PanelAnimationState.shared.currentPopInPresentationState = .nowPlaying
                             PanelAnimationState.shared.currentPanelState = .popInPresentation
                         }
                     }

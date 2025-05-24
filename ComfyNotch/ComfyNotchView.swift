@@ -37,6 +37,7 @@ class PanelAnimationState: ObservableObject {
     
 
     @Published var currentPanelState: NotchViewState = .home
+    @Published var currentPopInPresentationState: PopInPresenterType = .nowPlaying
     /// This is used for iffffff the notch was opened by dragging
     /// we wanna show a cool animation for it getting activated so the user
     /// doesnt think its blue all the time lol
