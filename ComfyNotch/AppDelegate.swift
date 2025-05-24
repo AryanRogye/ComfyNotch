@@ -63,6 +63,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         MediaKeyInterceptor.shared.stop()
         VolumeManager.shared.stop()
         BrightnessWatcher.shared.stop()
+        ClipboardManager.shared.stop()
     }
     
     public func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {

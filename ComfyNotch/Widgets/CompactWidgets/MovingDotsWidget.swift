@@ -26,6 +26,9 @@ struct AnimatedDot: View {
                     isAnimating = false
                 }
             }
+            .onDisappear {
+                isAnimating = false // clean shutdown
+            }
     }
 
     private func startAnimation() {

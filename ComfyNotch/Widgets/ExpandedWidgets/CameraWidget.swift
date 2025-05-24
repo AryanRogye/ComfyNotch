@@ -173,6 +173,15 @@ struct CameraPreviewView: NSViewRepresentable {
 
         return view
     }
+    
+    func dismantleNSView(_ nsView: NSView, coordinator: Coordinator) {
+        // Remove the preview layer
+        if let previewLayer = coordinator.previewLayer {
+            previewLayer.removeFromSuperlayer()
+            coordinator.previewLayer = nil
+        }
+    }
+    
     func updateNSView(_ nsView: NSView, context: Context) {
         guard let preview = context.coordinator.previewLayer else { return }
 

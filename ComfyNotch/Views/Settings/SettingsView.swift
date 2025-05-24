@@ -58,6 +58,9 @@ struct SettingsView: View {
         .onDisappear {
             settings.isSettingsWindowOpen = false
             SettingsModel.shared.refreshUI()
+            if let window = NSApp.windows.first(where: { $0.title == "SettingsView" }) {
+                window.close()
+            }
         }
     }
 }

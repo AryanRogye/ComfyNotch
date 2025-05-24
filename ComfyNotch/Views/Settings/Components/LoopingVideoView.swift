@@ -36,6 +36,13 @@ struct LoopingVideoView: View {
         .onAppear {
             setupPlayer()
         }
+        .onDisappear {
+            /// Prevent memory leaks
+            player?.pause()
+            player?.removeAllItems()
+            looper = nil
+            player = nil
+        }
     }
 
     private func setupPlayer() {
@@ -56,6 +63,10 @@ struct MacVideoPlayerView: NSViewRepresentable {
         view.player = player
         view.videoGravity = .resize
         return view
+    }
+    
+    func dismantleNSView(_ nsView: AVPlayerView, coordinator: ()) {
+        nsView.player = nil
     }
 
     func updateNSView(_ nsView: AVPlayerView, context: Context) {
