@@ -12,12 +12,13 @@
 
 @interface BrightnessManager : NSObject
 
+@property (nonatomic) float currentBrightness;
+
 + (instancetype)sharedInstance;
 
-@property (nonatomic, assign) float currentBrightness;
-
-- (void)setBrightness:(float)value;
 - (void)start;
+- (void)stop;
+- (void)setBrightness:(float)level;
 - (float)getCurrentBrightnessLevel;
 - (void)updateCurrentBrightness;
 

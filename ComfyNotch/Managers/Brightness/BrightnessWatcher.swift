@@ -16,6 +16,7 @@ final class BrightnessWatcher: ObservableObject {
 
     private var previousValue: Float = 0.0
     private var timer: Timer?
+    private var dispatchTimer: DispatchSourceTimer?
 
     private init() {}
     
@@ -24,16 +25,29 @@ final class BrightnessWatcher: ObservableObject {
         self.currentBrightness = BrightnessManager.sharedInstance().currentBrightness
         self.previousValue = self.currentBrightness
 
-        timer?.invalidate() // Just in case
-        timer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { _ in
+        dispatchTimer?.cancel()
+        let timer = DispatchSource.makeTimerSource(queue: DispatchQueue.global(qos: .utility))
+        timer.schedule(deadline: .now(), repeating: .milliseconds(300))
+        timer.setEventHandler { [weak self] in
+            guard let self else { return }
             let newVal = BrightnessManager.sharedInstance().currentBrightness
             if abs(newVal - self.previousValue) > 0.01 {
-                self.previousValue = newVal
-                self.currentBrightness = newVal
-                print("💡 Brightness changed to: \(newVal)")
-                self.triggerNotch()
+                DispatchQueue.main.async {
+                    self.previousValue = newVal
+                    self.currentBrightness = newVal
+                    print("💡 Brightness changed to: \(newVal)")
+                    self.triggerNotch()
+                }
             }
         }
+        dispatchTimer = timer
+        timer.resume()
+    }
+
+    func stop() {
+        BrightnessManager.sharedInstance().stop()
+        dispatchTimer?.cancel()
+        dispatchTimer = nil
     }
     
     private var debounceWorkItem: DispatchWorkItem?
@@ -64,14 +78,7 @@ final class BrightnessWatcher: ObservableObject {
 
     private func openNotch() {
         ScrollHandler.shared.peekOpen()
-        PanelAnimationState.shared.currentPopInPresentationState = .volume
+        PanelAnimationState.shared.currentPopInPresentationState = .hud
         PanelAnimationState.shared.currentPanelState = .popInPresentation
     }
-
-
-    func stop() {
-        timer?.invalidate()
-        timer = nil
-    }
-    
 }

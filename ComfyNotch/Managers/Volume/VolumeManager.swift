@@ -267,7 +267,7 @@ final class VolumeManager: ObservableObject {
 
     private func openNotch() {
         ScrollHandler.shared.peekOpen()
-        PanelAnimationState.shared.currentPopInPresentationState = .volume
+        PanelAnimationState.shared.currentPopInPresentationState = .hud
         PanelAnimationState.shared.currentPanelState = .popInPresentation
     }
 }

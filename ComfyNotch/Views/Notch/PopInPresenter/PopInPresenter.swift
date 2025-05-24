@@ -10,7 +10,7 @@ import SwiftUI
 enum PopInPresenterType {
     case none
     case nowPlaying
-    case volume
+    case hud
     case notiification
 }
 
@@ -23,8 +23,8 @@ struct PopInPresenter: View {
             switch panelState.currentPopInPresentationState {
             case .nowPlaying:
                 PopInPresenter_NowPlaying()
-            case .volume:
-                PopInPresenter_Volume()
+            case .hud:
+                PopInPresenter_HUD()
             default:
                 EmptyView()
             }
