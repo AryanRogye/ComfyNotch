@@ -27,6 +27,8 @@ class SettingsModel: ObservableObject {
     @Published var fileTrayPersistFiles : Bool = false
     @Published var useCustomSaveFolder : Bool = false
     @Published var showDividerBetweenWidgets: Bool = false /// False cuz i like it without
+    
+    @Published var nowPlayingScrollSpeed: Int = 40
 
     private var cancellables = Set<AnyCancellable>()
 

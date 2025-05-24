@@ -8,10 +8,16 @@
 import SwiftUI
 
 struct PopInPresenter_NowPlaying: View {
+    
+    @StateObject var settingsModel: SettingsModel = .shared
     @StateObject var musicModel: MusicPlayerWidgetModel = .shared
     @State private var textWidth: CGFloat = 0
     @State private var containerWidth: CGFloat = 0
     @State private var animate = false
+    
+    private var nowPlayingScrollSpeed: Int {
+        settingsModel.nowPlayingScrollSpeed
+    }
     
     var body: some View {
         ZStack {
@@ -34,12 +40,8 @@ struct PopInPresenter_NowPlaying: View {
                             }
                         }
                         .offset(x: animate ? -textWidth - 50 : containerWidth)
-                        .onChange(of: textWidth) { _ in
-                            if !animate && textWidth > 0 && containerWidth > 0 {
-                                withAnimation(.linear(duration: Double(textWidth) / 30).repeatForever(autoreverses: false)) {
-                                    animate = true
-                                }
-                            }
+                        .onChange(of: textWidth) {
+                            handleTextWidthChange()
                         }
                 }
             }
@@ -48,6 +50,14 @@ struct PopInPresenter_NowPlaying: View {
             .padding(.horizontal, 20)
             .background(Color.black.opacity(0.8))
             .cornerRadius(10)
+        }
+    }
+    
+    func handleTextWidthChange() {
+        if !animate && textWidth > 0 && containerWidth > 0 {
+            withAnimation(.linear(duration: Double(textWidth) / Double(nowPlayingScrollSpeed)).repeatForever(autoreverses: false)) {
+                animate = true
+            }
         }
     }
 }

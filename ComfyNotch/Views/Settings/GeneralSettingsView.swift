@@ -10,6 +10,7 @@ struct GeneralSettingsView: View {
         ScrollView {
             VStack(spacing: 24) {
                 headerView
+                notchSettingsSection
                 cameraSettingsSection
                 dividerSettingsSection
                 Spacer()
@@ -18,6 +19,7 @@ struct GeneralSettingsView: View {
             .padding()
         }
     }
+    
     
     private var headerView: some View {
         VStack(spacing: 8) {
@@ -44,6 +46,52 @@ struct GeneralSettingsView: View {
                     settings.saveSettings()
                 }
                 .padding(.vertical, 8)
+        }
+    }
+    
+    private var notchSettingsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Notch Settings")
+                    .font(.headline)
+                Spacer()
+            }
+            Divider()
+            HStack {
+                /// One Side Notch Controls
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Scroll Speed")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    HStack(spacing: 6) {
+                        Button(action: {
+                            settings.nowPlayingScrollSpeed = max(1, settings.nowPlayingScrollSpeed - 1)
+                        }) {
+                            Image(systemName: "minus.circle.fill")
+                                .foregroundColor(.gray)
+                        }
+
+                        Text("\(settings.nowPlayingScrollSpeed)")
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .frame(minWidth: 24)
+
+                        Button(action: {
+                            settings.nowPlayingScrollSpeed += 1
+                        }) {
+                            Image(systemName: "plus.circle.fill")
+                                .foregroundColor(.gray)
+                        }
+                    }
+                }
+                Spacer()
+                /// Other Side Video Demo
+                if let videoURL = Bundle.main.url(forResource: "nowPlayingScrollSpeed_demo", withExtension: "mp4", subdirectory: "Assets") {
+                    LoopingVideoView(url: videoURL)
+                        .frame(width: 350 ,height: 120)
+                        .cornerRadius(10)
+                }
+            }
         }
     }
 
