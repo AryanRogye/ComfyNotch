@@ -19,3 +19,5 @@ Package.resolved
 
 *.xcuserdatad
 *.moved-aside
+
+Scripts/create_dmg.sh

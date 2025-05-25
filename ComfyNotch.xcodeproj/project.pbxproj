@@ -10,6 +10,7 @@
 		9B2889A82DC68E4400E5DB18 /* SVGView in Frameworks */ = {isa = PBXBuildFile; productRef = 9B2889A72DC68E4400E5DB18 /* SVGView */; };
 		9B288A852DC722BF00E5DB18 /* ComfyCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = 9B288A842DC722BF00E5DB18 /* ComfyCalendar */; };
 		9B2A90062DE25AB500046186 /* CoreDisplay.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B2A90052DE25AB500046186 /* CoreDisplay.framework */; };
+		9B2A92242DE29D8100046186 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 9B2A92232DE29D8100046186 /* Sparkle */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -26,7 +27,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		9B1EA7C52DE259EC0074E24C /* Xcode.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = Xcode.app; path = ../../../../../Applications/Xcode.app; sourceTree = "<group>"; };
 		9B2A90052DE25AB500046186 /* CoreDisplay.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreDisplay.framework; path = ../../../../../System/Library/Frameworks/CoreDisplay.framework; sourceTree = "<group>"; };
 		9BC3A4622DB1D40000FFD323 /* ComfyNotch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ComfyNotch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -61,6 +61,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9B2A90062DE25AB500046186 /* CoreDisplay.framework in Frameworks */,
+				9B2A92242DE29D8100046186 /* Sparkle in Frameworks */,
 				9B2889A82DC68E4400E5DB18 /* SVGView in Frameworks */,
 				9B288A852DC722BF00E5DB18 /* ComfyCalendar in Frameworks */,
 			);
@@ -90,7 +91,6 @@
 			isa = PBXGroup;
 			children = (
 				9B2A90052DE25AB500046186 /* CoreDisplay.framework */,
-				9B1EA7C52DE259EC0074E24C /* Xcode.app */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -118,6 +118,7 @@
 			packageProductDependencies = (
 				9B2889A72DC68E4400E5DB18 /* SVGView */,
 				9B288A842DC722BF00E5DB18 /* ComfyCalendar */,
+				9B2A92232DE29D8100046186 /* Sparkle */,
 			);
 			productName = ComfyNotch;
 			productReference = 9BC3A4622DB1D40000FFD323 /* ComfyNotch.app */;
@@ -151,6 +152,7 @@
 			packageReferences = (
 				9B2889A62DC68E4400E5DB18 /* XCRemoteSwiftPackageReference "SVGView" */,
 				9B288A832DC722BF00E5DB18 /* XCLocalSwiftPackageReference "../ComfyCalendar" */,
+				9B2A92222DE29D8100046186 /* XCRemoteSwiftPackageReference "Sparkle" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9BC3A4632DB1D40000FFD323 /* Products */;
@@ -310,19 +312,26 @@
 				CODE_SIGN_ENTITLEMENTS = ComfyNotch/ComfyNotch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 0.9;
 				DEVELOPMENT_TEAM = B9P888266K;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				FRAMEWORK_SEARCH_PATHS = /System/Library/Frameworks;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ComfyNotch/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ComfyNotch;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "we use this to observe system notifications and media playback";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "we use this to help you connect to your bluetooth devices faster";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses the camera for widget-related features.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1.5;
 				OTHER_LDFLAGS = "\"-undefined dynamic_lookup\"";
 				PRODUCT_BUNDLE_IDENTIFIER = app.aryanrogye.ComfyNotch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -342,19 +351,26 @@
 				CODE_SIGN_ENTITLEMENTS = ComfyNotch/ComfyNotch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 0.9;
 				DEVELOPMENT_TEAM = B9P888266K;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				FRAMEWORK_SEARCH_PATHS = /System/Library/Frameworks;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ComfyNotch/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ComfyNotch;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "we use this to observe system notifications and media playback";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "we use this to help you connect to your bluetooth devices faster";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses the camera for widget-related features.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1.5;
 				OTHER_LDFLAGS = "\"-undefined dynamic_lookup\"";
 				PRODUCT_BUNDLE_IDENTIFIER = app.aryanrogye.ComfyNotch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -403,6 +419,14 @@
 				minimumVersion = 1.0.6;
 			};
 		};
+		9B2A92222DE29D8100046186 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.7.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -414,6 +438,11 @@
 		9B288A842DC722BF00E5DB18 /* ComfyCalendar */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ComfyCalendar;
+		};
+		9B2A92232DE29D8100046186 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9B2A92222DE29D8100046186 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

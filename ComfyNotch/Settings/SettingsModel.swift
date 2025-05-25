@@ -1,5 +1,7 @@
 import AppKit
 import Combine
+import Sparkle
+
 
 class SettingsModel: ObservableObject {
 
@@ -30,11 +32,26 @@ class SettingsModel: ObservableObject {
     
     @Published var nowPlayingScrollSpeed: Int = 40
     @Published var enableNotchHUD: Bool = true
+    
+    @Published var updaterController: SPUStandardUpdaterController
 
     private var cancellables = Set<AnyCancellable>()
 
     private init() {
+        self.updaterController = SPUStandardUpdaterController(
+            startingUpdater: true,
+            updaterDelegate: nil,
+            userDriverDelegate: nil
+        )
         loadSettings()
+    }
+    
+    func checkForUpdates() {
+        updaterController.updater.checkForUpdates()
+    }
+
+    func checkForUpdatesSilently() {
+        updaterController.updater.checkForUpdatesInBackground()
     }
 
     /// Saves the current settings to UserDefaults

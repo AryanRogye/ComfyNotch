@@ -13,6 +13,7 @@ struct SettingsView: View {
         case ai = "AI"
         case shortcuts = "Shortcuts"
         case filetray = "File Tray"
+        case updates = "Updates"
 
         var id: String { rawValue }
         var label: String { rawValue }
@@ -23,6 +24,7 @@ struct SettingsView: View {
             case .ai: return "brain.head.profile"
             case .shortcuts: return "keyboard"
             case .filetray: return "folder"
+            case .updates: return "arrow.clockwise"
             }
         }
 
@@ -34,6 +36,7 @@ struct SettingsView: View {
             case .ai: AISettingsView(settings: settings)
             case .shortcuts: ShortcutView(settings: settings)
             case .filetray: FileTraySettingsView(settings: settings)
+            case .updates: UpdatesSettingsView(settings: settings)
             }
         }
     }
@@ -44,13 +47,15 @@ struct SettingsView: View {
                 Label(tab.label, systemImage: tab.icon)
                     .tag(tab)
             }
-            .listStyle(.sidebar)
+            .listStyle(SidebarListStyle())
+//            .navigationSplitViewColumnWidth(160)
             .navigationTitle("Settings")
         } detail: {
             selectedTab.destination(settings: settings)
                 .frame(minWidth: 500, maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(minWidth: 700, minHeight: 500)
+        .transaction { $0.animation = nil }
+        .frame(minWidth: 650, minHeight: 500)
         .elevateToFloatingWindow()
         .onAppear {
             settings.isSettingsWindowOpen = true

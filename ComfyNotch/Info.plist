@@ -2,57 +2,19 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    
-    <key>LSApplicationCategoryType</key>
-    <string>public.app-category.utilities</string>
-
-    <key>CFBundleShortVersionString</key>
-    <string>0.1</string>
-    
-    <key>CFBundleName</key>
-    <string>$APP_NAME</string>
-
-    <key>CFBundleDisplayName</key>
-    <string>$APP_NAME</string>
-
-    <key>CFBundleIdentifier</key>
-    <string>com.aryanrogye.$APP_NAME</string>
-
-    <key>CFBundleVersion</key>
-    <string>1.0</string>
-
-    <key>CFBundleExecutable</key>
-    <string>$APP_NAME</string>
-
-    <key>CFBundlePackageType</key>
-    <string>APPL</string>
-
-    <key>NSPrincipalClass</key>
-    <string>NSApplication</string>
-
-     <key>CFBundleIconFile</key>
-    <string>ComfyNotchIcon</string> 
-
-    <key>NSAppleEventsUsageDescription</key>
-    <string>we use this to observe system notifications and media playback</string>
-
-    <key>NSCameraUsageDescription</key>
-    <string>This app uses the camera for widget-related features.</string>
-
-    <key>NSCameraUseContinuityCameraDeviceType</key>
-    <true/>
-    
-    <key>NSBluetoothAlwaysUsageDescription</key>
-    <string>we use this to help you connect to your bluetooth devices faster</string>
-    
-    <key>NSCalendarsFullAccessUsageDescription</key>
-    <string>we need access to your calendar for easier management</string>
-
-    <key>NSRemindersFullAccessUsageDescription</key>
-    <string>we need access to your reminders for easier management</string>
-
-    <key>LSUIElement</key>
-    <true/>
-    
+	<key>CFBundleIconFile</key>
+	<string>ComfyNotchIcon</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>we need access to your calendar for easier management</string>
+	<key>NSCameraUseContinuityCameraDeviceType</key>
+	<true/>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>we need access to your reminders for easier management</string>
+	<key>SUEnableInstallerLauncherService</key>
+	<true/>
+	<key>SUFeedURL</key>
+	<string>https://aryanrogye.github.io/ComfyNotch/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>taI+LYHIWwzdMURizdr5HG9kfibtBtqxnman2PKkZSU=</string>
 </dict>
 </plist>

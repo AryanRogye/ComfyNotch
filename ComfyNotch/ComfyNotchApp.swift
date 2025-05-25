@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AppKit
+import Sparkle
 import Cocoa
 
 func killOtherComfyNotches() {
@@ -30,6 +31,7 @@ func debugLog(_ message: @autoclosure () -> Any) {
 @main
 struct ComfyNotchApp: App {
     
+    
     init() {
         killOtherComfyNotches()
     }
@@ -39,6 +41,7 @@ struct ComfyNotchApp: App {
         Window("SettingsView", id: "SettingsView") {
             SettingsView()
         }
+        .windowResizability(.contentSize)
         .defaultLaunchBehavior(.suppressed)
     }
 }

@@ -36,6 +36,8 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     public func applicationDidFinishLaunching(_ notification: Notification) {
         _ = SettingsModel.shared
         
+//        SettingsModel.shared.checkForUpdates()
+        
         /// Wanna Request Access To Acessibility
         MediaKeyInterceptor.shared.requestAccessibilityIfNeeded()
 
