@@ -1,0 +1,14 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>ComfyNotch</title>
+        <item>
+            <title>0.1.5</title>
+            <pubDate>Sat, 24 May 2025 20:57:40 -0500</pubDate>
+            <sparkle:version>0.9</sparkle:version>
+            <sparkle:shortVersionString>0.1.5</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>15.2</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/AryanRogye/ComfyNotch/releases/download/0.1.5-beta.3.updates/ComfyNotch.dmg" length="6160942" type="application/octet-stream" sparkle:edSignature="DX1DJXDUdwQywDwytYLiz6QYjL83acLXmp2oCvluKRGvJEDE/ZNLy5BIyDLwmpIcZ+BrCEagIzLUTIlp7xxcCg=="/>
+        </item>
+    </channel>
+</rss>
