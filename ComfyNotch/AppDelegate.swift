@@ -16,7 +16,6 @@ import EventKit
  * - panelProximityHandler: Manages proximity-based interactions for the big panel
  */
 public class AppDelegate: NSObject, NSApplicationDelegate {
-    private var hoverHandler: HoverHandler?
     private var panelProximityHandler: PanelProximityHandler?
 
     /**
@@ -75,10 +74,6 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     private func launchComfyNotch() {
         UIManager.shared.setupFrame()
         
-        //            if let smallPanel = UIManager.shared.smallPanel {
-        //                // Tiny Haptic Feedback when hovering
-        //                self.hoverHandler = HoverHandler(panel: smallPanel)
-        //            }
         if let smallPanel = UIManager.shared.smallPanel {
             // Proximity Handler for the Big Panel
             self.panelProximityHandler = PanelProximityHandler(panel: smallPanel)

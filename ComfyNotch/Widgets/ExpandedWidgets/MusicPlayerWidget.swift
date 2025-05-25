@@ -20,6 +20,7 @@ struct MusicPlayerWidget: View, Widget {
     var imageHeight: CGFloat = 120
     
     @StateObject private var model = MusicPlayerWidgetModel.shared
+    @StateObject private var settings = SettingsModel.shared
     
     var body: some View {
         HStack(spacing: 10) {
@@ -192,8 +193,8 @@ struct MusicPlayerWidget: View, Widget {
                     .allowsHitTesting(false)
                     .padding(.top, 7.5)
             }
-            
-            Group {
+            if settings.showMusicProvider {
+                Group {
                     /// Music Provider
                     switch model.nowPlayingInfo.musicProvider {
                     case .apple_music:
@@ -218,6 +219,7 @@ struct MusicPlayerWidget: View, Widget {
                         }
                     case .none: EmptyView()
                     }
+                }
             }
         }
     }

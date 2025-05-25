@@ -9,8 +9,7 @@ struct SettingsView: View {
 
     enum Tab: String, CaseIterable, Identifiable, Equatable {
         case general = "General"
-        case widget = "Widget"
-        case ai = "AI"
+        case widget = "Widgets"
         case shortcuts = "Shortcuts"
         case filetray = "File Tray"
         case updates = "Updates"
@@ -21,7 +20,6 @@ struct SettingsView: View {
             switch self {
             case .general: return "gearshape"
             case .widget: return "rectangle.3.offgrid"
-            case .ai: return "brain.head.profile"
             case .shortcuts: return "keyboard"
             case .filetray: return "folder"
             case .updates: return "arrow.clockwise"
@@ -33,7 +31,6 @@ struct SettingsView: View {
             switch self {
             case .general: GeneralSettingsView(settings: settings)
             case .widget: WidgetsSettingsView(settings: settings)
-            case .ai: AISettingsView(settings: settings)
             case .shortcuts: ShortcutView(settings: settings)
             case .filetray: FileTraySettingsView(settings: settings)
             case .updates: UpdatesSettingsView(settings: settings)

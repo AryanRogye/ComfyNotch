@@ -17,7 +17,7 @@ struct WidgetsSettingsView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 24) {
+            VStack(spacing: 12) {
                 headerView
                 
                 Divider()
@@ -29,11 +29,84 @@ struct WidgetsSettingsView: View {
                     .padding(.vertical, 8)
                 
                 availableWidgetsSection
+                
+                Divider()
+                    .padding(.vertical, 8)
+                
+                aiSettings
+                
+                Divider()
+                    .padding(.vertical, 8)
+                
+                musicPlayerSettings
+                    .padding(.bottom, 32)
             }
             .padding()
         }
     }
     
+    private var musicPlayerSettings: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Music Player Widget Settings")
+                    .font(.headline)
+                Spacer()
+            }
+            
+            Divider()
+            
+            // TODO: Add music player settings here
+            Toggle(isOn: $settings.showMusicProvider) {
+                Text("Show Music Provider")
+            }
+            .toggleStyle(.switch)
+            .onChange(of: settings.showMusicProvider) {
+                settings.saveSettings()
+            }
+            
+        }
+    }
+    
+    private var aiSettings: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("AI Settings")
+                    .font(.headline)
+                Spacer()
+            }
+            
+            Divider()
+
+            TextField("AI API Key", text: $settings.aiApiKey)
+                .textFieldStyle(PlainTextFieldStyle()) // ✅ Removes system styling
+                .padding(8)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.gray.opacity(0.1))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.gray.opacity(0.1))
+                )
+                .padding()
+                .focusable(true)
+            
+            HStack {
+                Spacer()
+                Button( action: addFromClipboard ) {
+                    Text("Add From Clipboard")
+                }
+                .padding(.horizontal)
+            }
+        }
+    }
+    
+    func addFromClipboard() {
+        if let clipboardString = NSPasteboard.general.string(forType: .string) {
+            settings.aiApiKey = clipboardString
+        }
+    }
+
     private var headerView: some View {
         VStack(spacing: 8) {
             Text("Widgets Settings")
@@ -225,3 +298,6 @@ struct DropViewDelegate: DropDelegate {
     }
 }
 
+#Preview {
+    WidgetsSettingsView(settings: SettingsModel.shared)
+}

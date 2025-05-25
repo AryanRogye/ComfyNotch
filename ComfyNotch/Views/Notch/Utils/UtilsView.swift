@@ -40,7 +40,6 @@ struct UtilsView: View {
                         case .clipboard: Utils_ClipboardView(clipboardManager: clipboardManager)
                                             .frame(maxWidth:.infinity, maxHeight:.infinity, alignment:.top)
                         case .bluetooth: Utils_BluetoothView()
-                        default: EmptyView()
                     }
                 /// For now just the clipboard
                 }

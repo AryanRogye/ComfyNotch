@@ -29,8 +29,8 @@ final class MediaRemoteMusicController: NowPlayingProvider {
 
     func isAvailable() -> Bool {
         return false
-        guard let handle = handle else { return false }
-        return dlsym(handle, "MRMediaRemoteGetNowPlayingInfo") != nil
+//        guard let handle = handle else { return false }
+//        return dlsym(handle, "MRMediaRemoteGetNowPlayingInfo") != nil
     }
 
     func getNowPlayingInfo(completion: @escaping (Bool) -> Void) {

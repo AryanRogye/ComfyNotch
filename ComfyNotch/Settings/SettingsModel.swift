@@ -33,7 +33,10 @@ class SettingsModel: ObservableObject {
     @Published var nowPlayingScrollSpeed: Int = 40
     @Published var enableNotchHUD: Bool = true
     
+    @Published var showMusicProvider: Bool = true
+    
     @Published var updaterController: SPUStandardUpdaterController
+    
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -99,6 +102,9 @@ class SettingsModel: ObservableObject {
             defaults.set(40, forKey: "nowPlayingScrollSpeed")
         }
         defaults.set(enableNotchHUD, forKey: "enableNotchHUD")
+        
+        /// ----------------------- Music Player Settings -----------------------
+        defaults.set(showMusicProvider, forKey: "showMusicProvider")
     }
     /// Loads the last saved settings from UserDefaults
     func loadSettings() {
@@ -153,6 +159,7 @@ class SettingsModel: ObservableObject {
         } else {
             self.enableNotchHUD = true
         }
+        /// ----------------------- Music Player Settings -----------------------
     }
 
     /// Updates `selectedWidgets` and triggers a reload notification immediately

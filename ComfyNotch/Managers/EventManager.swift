@@ -72,7 +72,7 @@ class EventManager: ObservableObject {
             return
         }
 
-        let store = EKEventStore()
+        let _ = EKEventStore()
         EKEventStore().requestFullAccessToEvents { granted, error in
             if let error = error {
                 debugLog("Calendar permission error: \(error.localizedDescription)")

@@ -38,8 +38,6 @@ class UIManager {
     let compactWidgetStore = CompactWidgetsStore()
     let expandedWidgetStore = ExpandedWidgetsStore()
 
-    var hoverHandler: HoverHandler?
-
     var smallPanel: NSPanel!
 
     var panelState: PanelState = .closed
