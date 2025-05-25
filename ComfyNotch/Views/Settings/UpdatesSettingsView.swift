@@ -11,27 +11,41 @@ struct UpdatesSettingsView: View {
     @ObservedObject var settings: SettingsModel
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                if let icons = Bundle.main.infoDictionary?["CFBundleIconFile"] as? String {
-                    Image(nsImage: NSApp.applicationIconImage)
-                        .resizable()
-                        .frame(width: 64, height: 64)
-                        .cornerRadius(12)
-                }
-                Text("Version: \(Bundle.main.versionNumber)")
-                Text("Build Number: \(Bundle.main.buildNumber)")
+        Form {
+            VStack(spacing: 12) {
+                Image(nsImage: NSApp.applicationIconImage)
+                    .resizable()
+                    .frame(width: 64, height: 64)
+                    .cornerRadius(12)
+                    .frame(maxWidth: .infinity)
+
+                Text("Version \(Bundle.main.versionNumber)")
+                    .font(.body)
+                
+                Text("Build \(Bundle.main.buildNumber)")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
+                
+                Button("View Release Notes") {
+                    if let url = URL(string: "https://github.com/AryanRogye/ComfyNotch/releases/latest") {
+                        NSWorkspace.shared.open(url)
+                    }
+                }
+                .buttonStyle(.link)
+                .font(.footnote)
+                
+                Divider()
+                
+                Button("Check for Updates") {
+                    settings.checkForUpdates()
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.regular)
+                .keyboardShortcut("u", modifiers: [.command])
+                
+                Spacer()
             }
-            Button(action: {
-                settings.checkForUpdates()
-            }) {
-                Text("Check For Updates")
-                    .font(.headline)
-                    .padding()
-                    .cornerRadius(8)
-            }
+            .padding(.vertical, 8)
         }
     }
 }

@@ -331,7 +331,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.1.6;
+				MARKETING_VERSION = 0.1.7;
 				OTHER_LDFLAGS = "\"-undefined dynamic_lookup\"";
 				PRODUCT_BUNDLE_IDENTIFIER = app.aryanrogye.ComfyNotch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -370,7 +370,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.1.6;
+				MARKETING_VERSION = 0.1.7;
 				OTHER_LDFLAGS = "\"-undefined dynamic_lookup\"";
 				PRODUCT_BUNDLE_IDENTIFIER = app.aryanrogye.ComfyNotch;
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -9,32 +9,38 @@ struct GeneralSettingsView: View {
     private let maxWidgetCount = 3  // Limit to 3 widgets
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                headerView
-                notchSettingsSection
-                cameraSettingsSection
-                dividerSettingsSection
+        VStack {
+            HStack {
                 Spacer()
                 saveSettingsButton
-                exitButton
+                    .padding([.top, .horizontal])
             }
-            .padding()
-        }
-        .onAppear {
-            selectedSaveHUD = settings.enableNotchHUD
-        }
-        .onChange(of: settings.enableNotchHUD) { _, newValue in
-            if newValue {
-                /// Start The Media Key Interceptor
-                MediaKeyInterceptor.shared.start()
-                /// Start Volume Manager
-                VolumeManager.shared.start()
-                BrightnessWatcher.shared.start()
-            } else {
-                MediaKeyInterceptor.shared.stop()
-                VolumeManager.shared.stop()
-                BrightnessWatcher.shared.stop()
+            ScrollView {
+                VStack(spacing: 24) {
+                    headerView
+                    notchSettingsSection
+                    cameraSettingsSection
+                    dividerSettingsSection
+                    Spacer()
+                    exitButton
+                }
+                .padding()
+            }
+            .onAppear {
+                selectedSaveHUD = settings.enableNotchHUD
+            }
+            .onChange(of: settings.enableNotchHUD) { _, newValue in
+                if newValue {
+                    /// Start The Media Key Interceptor
+                    MediaKeyInterceptor.shared.start()
+                    /// Start Volume Manager
+                    VolumeManager.shared.start()
+                    BrightnessWatcher.shared.start()
+                } else {
+                    MediaKeyInterceptor.shared.stop()
+                    VolumeManager.shared.stop()
+                    BrightnessWatcher.shared.stop()
+                }
             }
         }
     }
@@ -209,28 +215,22 @@ struct GeneralSettingsView: View {
 
     // MARK: - Buttons
     private var saveSettingsButton: some View {
-        Button(action: {
+        Button("Save Settings") {
             settings.enableNotchHUD = selectedSaveHUD
             settings.saveSettings()
-        } ) {
-            Text("Save Settings")
-                .padding()
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(10)
         }
-        .buttonStyle(.plain)
+        .keyboardShortcut("s", modifiers: [.command])
+        .buttonStyle(.bordered)
+        .controlSize(.regular)
     }
     
     private var exitButton: some View {
-        Button(action: closeWindow) {
-            Text("Exit ComfyNotch")
-                .padding()
-                .background(Color.red)
-                .foregroundColor(.white)
-                .cornerRadius(10)
+        Button("Exit ComfyNotch", role: .destructive) {
+            closeWindow()
         }
-        .buttonStyle(.plain)
+        .keyboardShortcut("q", modifiers: [.command])
+        .buttonStyle(.bordered)
+        .controlSize(.regular)
     }
 
     // MARK: - Helper Functions
