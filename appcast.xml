@@ -8,7 +8,7 @@
             <sparkle:version>0.9</sparkle:version>
             <sparkle:shortVersionString>0.1.5</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>15.2</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/AryanRogye/ComfyNotch/releases/download/0.1.5-beta.3.updates/ComfyNotch.dmg" length="6160942" type="application/octet-stream" sparkle:edSignature="DX1DJXDUdwQywDwytYLiz6QYjL83acLXmp2oCvluKRGvJEDE/ZNLy5BIyDLwmpIcZ+BrCEagIzLUTIlp7xxcCg=="/>
+            <enclosure url="https://github.com/AryanRogye/ComfyNotch/releases/download/0.1.6/ComfyNotch.dmg" length="6160942" type="application/octet-stream" sparkle:edSignature="DX1DJXDUdwQywDwytYLiz6QYjL83acLXmp2oCvluKRGvJEDE/ZNLy5BIyDLwmpIcZ+BrCEagIzLUTIlp7xxcCg=="/>
         </item>
     </channel>
 </rss>
