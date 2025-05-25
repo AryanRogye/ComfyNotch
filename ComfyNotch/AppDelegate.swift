@@ -42,7 +42,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         MediaKeyInterceptor.shared.requestAccessibilityIfNeeded()
 
         //        DispatchQueue.main.async {
-        EventManager.shared.requestAcessToCalendar() { granted in
+        EventManager.shared.requestPermissionEventsIfNeededOnce { granted in
             DispatchQueue.main.async {
                 if !granted {
                     // Temporarily show the app so macOS lets us ask for permissions
@@ -52,9 +52,9 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
                     // Go back to your usual background style
                     NSApp.setActivationPolicy(.prohibited)
                     NSApp.activate(ignoringOtherApps: true)
-                    // Start the UI
-                    self.launchComfyNotch()
                 }
+                // Start the UI
+                self.launchComfyNotch()
             }
         }
         //        }

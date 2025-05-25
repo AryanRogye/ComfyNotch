@@ -17,6 +17,9 @@ class EventManager: ObservableObject {
     @Published var calendars: [EKCalendar] = []
     @Published var reminders: [EKReminder] = []
     
+    private let calendarAccessGrantedKey = "calendarAccessGranted"
+    private let calendarPermissionRequestedKey = "calendarPermissionAlreadyRequested"
+
     /// -- Mark: public API's
     public func fetchUserReminders() {
         self.requestAccessToReminders() { granted in
@@ -57,6 +60,27 @@ class EventManager: ObservableObject {
             } catch {
                 debugLog("There was an error removing the reminder")
             }
+        }
+    }
+    
+    func requestPermissionEventsIfNeededOnce(completion: @escaping (Bool) -> Void) {
+        let userDefaults = UserDefaults.standard
+
+        // 🔁 Only run if we've never asked before
+        if userDefaults.bool(forKey: calendarPermissionRequestedKey) {
+            completion(userDefaults.bool(forKey: calendarAccessGrantedKey))
+            return
+        }
+
+        let store = EKEventStore()
+        EKEventStore().requestFullAccessToEvents { granted, error in
+            if let error = error {
+                debugLog("Calendar permission error: \(error.localizedDescription)")
+            }
+
+            userDefaults.set(true, forKey: self.calendarPermissionRequestedKey) // mark as asked
+            userDefaults.set(granted, forKey: self.calendarAccessGrantedKey)
+            completion(granted)
         }
     }
     

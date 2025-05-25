@@ -15,6 +15,7 @@ struct GeneralSettingsView: View {
                 saveSettingsButton
                     .padding([.top, .horizontal])
             }
+            
             ScrollView {
                 VStack(spacing: 24) {
                     headerView
