@@ -21,4 +21,5 @@ Package.resolved
 *.moved-aside
 
 Scripts/create_dmg.sh
+Scripts/generate_appcast.sh
 ComfyNotchUpdates/
