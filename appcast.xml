@@ -3,12 +3,12 @@
     <channel>
         <title>ComfyNotch</title>
         <item>
-            <title>0.1.7</title>
-            <pubDate>Sat, 24 May 2025 23:11:32 -0500</pubDate>
-            <sparkle:version>1</sparkle:version>
-            <sparkle:shortVersionString>0.1.7</sparkle:shortVersionString>
+            <title>0.1.8</title>
+            <pubDate>Sun, 25 May 2025 01:10:33 -0500</pubDate>
+            <sparkle:version>2</sparkle:version>
+            <sparkle:shortVersionString>0.1.8</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>15.2</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/AryanRogye/ComfyNotch/releases/download/0.1.7/ComfyNotch-Installer.dmg" length="6162661" type="application/octet-stream" sparkle:edSignature="d+GO+TW51MdaPQ85do0T20alzWKL9v/E+6HZWEP5EqnYBgEqJLNA/hgPGq2AykuahedzGGk4WrvBVTLNRWP1CA=="/>
+            <enclosure url="https://github.com/AryanRogye/ComfyNotch/releases/download/0.1.8/ComfyNotch-Installer.dmg" length="6162197" type="application/octet-stream" sparkle:edSignature="9968wvMPdg3yGYWUvXL9vDNsiOcNkPKPRQwXxYpfNUuB9M0xNj7bp3rmnsPe0uW6c42es3b2/eTPtnlXE389Cw=="/>
         </item>
     </channel>
 </rss>
