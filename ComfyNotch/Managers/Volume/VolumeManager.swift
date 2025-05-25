@@ -104,6 +104,20 @@ final class VolumeManager: ObservableObject {
         }
     }
     
+    private func checkVolumeAppleScript() {
+        let script = "output volume of (get volume settings)"
+        var error: NSDictionary?
+        if let scriptObject = NSAppleScript(source: script) {
+            if let output = scriptObject.executeAndReturnError(&error).stringValue {
+                if let vol = Float(output) {
+                    self.currentVolume = vol / 100.0
+                }
+            }
+        } else {
+            self.currentVolume = 0
+        }
+    }
+    
     public func getCurrentSystemVolume() {
         var defaultOutputDeviceID = AudioDeviceID(0)
         var propertyAddress = AudioObjectPropertyAddress(
@@ -121,14 +135,14 @@ final class VolumeManager: ObservableObject {
             &defaultOutputDeviceID
         )
         if status != noErr {
-            self.currentVolume = 0
+            checkVolumeAppleScript()
             return
         }
         
         propertyAddress = AudioObjectPropertyAddress(
             mSelector: kAudioDevicePropertyVolumeScalar,
             mScope: kAudioDevicePropertyScopeOutput,
-            mElement: 0
+            mElement: kAudioObjectPropertyElementMain
         )
         var volume: Float32 = 0
         dataSize = UInt32(MemoryLayout<Float32>.size)
@@ -141,11 +155,10 @@ final class VolumeManager: ObservableObject {
             &volume
         )
         if status2 != noErr {
-            self.currentVolume = 0
+            checkVolumeAppleScript()
             return
         }
         self.currentVolume = volume
-        print("Current Volume: \(self.currentVolume)")
     }
     
     public func stop() {
