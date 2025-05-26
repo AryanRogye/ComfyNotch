@@ -7,6 +7,57 @@
 
 import SwiftUI
 
+class PopInPresenter_HUD_Coordinator: ObservableObject {
+    static let shared = PopInPresenter_HUD_Coordinator()
+    
+    @Published var isPresented: Bool = false
+    /// Current Class That's calling htis
+    var currentOwner: HUDOwner = .none
+    
+    enum HUDOwner {
+        case none
+        case brightness
+        case volume
+    }
+    
+    private var autoCloseTimer: Timer?
+    
+    func presentIfAllowed(for owner: HUDOwner, openBlock: () -> Void) {
+        /// AutoCloseTimer because this means that some other could have called this
+        /// and they would be still be viewing the content on the PopInPresenter_HUD view
+        cancelAutoCloseTimer()
+        if currentOwner == .none || currentOwner == owner {
+            isPresented = true
+            currentOwner = owner
+            openBlock()
+
+            autoCloseTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { [weak self] _ in
+                guard let self = self else { return }
+                if self.currentOwner == owner {
+                    self.closeHUD()
+                }
+            }
+        } else {
+            print("⚠️ Ignored presentation for \(owner), current owner: \(currentOwner)")
+        }
+    }
+    
+    func closeHUD(force: Bool = false) {
+        cancelAutoCloseTimer()
+        if force || currentOwner != .none {
+            isPresented = false
+            currentOwner = .none
+            PanelAnimationState.shared.currentPopInPresentationState = .none
+            ScrollHandler.shared.peekClose()
+        }
+    }
+
+    private func cancelAutoCloseTimer() {
+        autoCloseTimer?.invalidate()
+        autoCloseTimer = nil
+    }
+}
+
 struct PopInPresenter_HUD: View {
     
     @StateObject private var brightnessManager: BrightnessWatcher = .shared
@@ -22,19 +73,20 @@ struct PopInPresenter_HUD: View {
     private let animationDuration: Double = 0.08
 
     var body: some View {
-        VStack(spacing: spacing) {
+        HStack(spacing: spacing) {
             HUDBar(
                 icon: "speaker.wave.2.fill",
                 color: dominantColor,
                 fill: CGFloat(volumeManager.currentVolume)
             )
+            Spacer()
             HUDBar(
                 icon: "sun.max.fill",
                 color: .yellow,
                 fill: CGFloat(brightnessManager.currentBrightness)
             )
         }
-        .frame(width: hudWidth, height: 30)
+        .frame(width: hudWidth, height: 40)
         .onAppear {
             dominantColor = Color(nsColor: musicModel.nowPlayingInfo.dominantColor)
         }
@@ -52,8 +104,8 @@ struct HUDBar: View {
     let fill: CGFloat
     
     // Pre-computed constants
-    private let barWidth: CGFloat = 170
-    private let barHeight: CGFloat = 10
+    private let barWidth: CGFloat = 100
+    private let barHeight: CGFloat = 15
     private let iconWidth: CGFloat = 20
     private let backgroundOpacity: Double = 0.15
     private let cornerRadius: CGFloat = 5
@@ -78,7 +130,7 @@ struct HUDBar: View {
                         .animation(.easeOut(duration: 0.1), value: fill)
                 }
             }
-            .frame(height: barHeight)
+            .frame(width: barWidth ,height: barHeight)
         }
     }
 }

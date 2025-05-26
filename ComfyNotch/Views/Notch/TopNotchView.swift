@@ -13,7 +13,7 @@ struct TopNotchView: View {
 
     @State private var isHovering: Bool = false/// Hovering for Pause or Play
     private var paddingWidth: CGFloat = 20
-
+    
     var body: some View {
         HStack(spacing: 0) {
             // Left Widgets
@@ -29,6 +29,10 @@ struct TopNotchView: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
+            /// Gonna Try Adding Handler To This
+            .onHover { hover in
+                
+            }
             
             Spacer()
                 .frame(width: PanelAnimationState.shared.isExpanded ? 450 : getNotchWidth())

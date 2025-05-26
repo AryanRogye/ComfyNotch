@@ -35,7 +35,8 @@ struct PopInPresenter_NowPlaying: View {
     
     var body: some View {
         ZStack {
-            HStack {
+            VStack {
+                Divider()
                 // Use a single GeometryReader to get container width
                 GeometryReader { geo in
                     let text = "\(musicModel.nowPlayingInfo.trackName) by \(musicModel.nowPlayingInfo.artistName)"
@@ -59,7 +60,7 @@ struct PopInPresenter_NowPlaying: View {
                         }
                 }
             }
-            .frame(height: 30)
+            .frame(height: 40)
             .clipped()
             .padding(.horizontal, 20)
             .background(Color.black.opacity(0.8))

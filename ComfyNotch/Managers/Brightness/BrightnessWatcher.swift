@@ -13,6 +13,7 @@ final class BrightnessWatcher: ObservableObject {
 
     @Published var currentBrightness: Float = 0.0
     let panelState = PanelAnimationState.shared
+    let popInPresenterCoordinator = PopInPresenter_HUD_Coordinator.shared
 
     private var previousValue: Float = 0.0
     private var dispatchTimer: DispatchSourceTimer?
@@ -106,7 +107,11 @@ final class BrightnessWatcher: ObservableObject {
         
         // Clear loading state quickly
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
-            self?.panelState.isLoadingPopInPresenter = false
+            guard let self = self else { return }
+            
+            PopInPresenter_HUD_Coordinator.shared.presentIfAllowed(for: .brightness) {
+                self.panelState.isLoadingPopInPresenter = false
+            }
         }
     }
 

@@ -62,6 +62,9 @@ struct MacVideoPlayerView: NSViewRepresentable {
         view.controlsStyle = .none
         view.player = player
         view.videoGravity = .resize
+        view.setAccessibilityElement(false)
+        view.focusRingType = .none
+        
         return view
     }
     
@@ -73,3 +76,4 @@ struct MacVideoPlayerView: NSViewRepresentable {
         nsView.player = player
     }
 }
+

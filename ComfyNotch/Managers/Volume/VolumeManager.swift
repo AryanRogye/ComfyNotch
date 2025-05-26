@@ -86,7 +86,9 @@ final class VolumeManager: ObservableObject {
     private var osdSuppressionTimer: Timer?
     
     @Published var currentVolume: Float = 0
+    
     let panelState = PanelAnimationState.shared
+    let popInPresenterCoordinator = PopInPresenter_HUD_Coordinator.shared
     
     init() {}
     
@@ -273,8 +275,10 @@ final class VolumeManager: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
             guard let self = self else { return }
             
-            workItem.perform()
-            panelState.isLoadingPopInPresenter = false
+            PopInPresenter_HUD_Coordinator.shared.presentIfAllowed(for: .volume) {
+                workItem.perform()
+                self.panelState.isLoadingPopInPresenter = false
+            }
         }
     }
 
