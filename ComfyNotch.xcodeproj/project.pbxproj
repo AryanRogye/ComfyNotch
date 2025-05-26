@@ -312,7 +312,7 @@
 				CODE_SIGN_ENTITLEMENTS = ComfyNotch/ComfyNotch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = B9P888266K;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
@@ -331,7 +331,8 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.1.10;
+				MACOSX_DEPLOYMENT_TARGET = 14;
+				MARKETING_VERSION = 0.1.11;
 				OTHER_LDFLAGS = "\"-undefined dynamic_lookup\"";
 				PRODUCT_BUNDLE_IDENTIFIER = app.aryanrogye.ComfyNotch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -351,7 +352,7 @@
 				CODE_SIGN_ENTITLEMENTS = ComfyNotch/ComfyNotch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = B9P888266K;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
@@ -370,7 +371,8 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.1.10;
+				MACOSX_DEPLOYMENT_TARGET = 14;
+				MARKETING_VERSION = 0.1.11;
 				OTHER_LDFLAGS = "\"-undefined dynamic_lookup\"";
 				PRODUCT_BUNDLE_IDENTIFIER = app.aryanrogye.ComfyNotch;
 				PRODUCT_NAME = "$(TARGET_NAME)";

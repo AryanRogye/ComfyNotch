@@ -42,6 +42,5 @@ struct ComfyNotchApp: App {
             SettingsView()
         }
         .windowResizability(.contentSize)
-        .defaultLaunchBehavior(.suppressed)
     }
 }

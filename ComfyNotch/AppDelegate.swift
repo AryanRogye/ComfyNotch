@@ -35,6 +35,14 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     public func applicationDidFinishLaunching(_ notification: Notification) {
         _ = SettingsModel.shared
         
+        /// Close the SettingsPage On Launch
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            if let window = NSApp.windows.first(where: { $0.title == "SettingsView" }) {
+                window.performClose(nil)
+                window.close()
+            }
+        }
+        
 //        SettingsModel.shared.checkForUpdates()
         
         /// Wanna Request Access To Acessibility
