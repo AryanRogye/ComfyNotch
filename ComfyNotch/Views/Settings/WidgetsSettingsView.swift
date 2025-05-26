@@ -37,8 +37,39 @@ struct WidgetsSettingsView: View {
             Divider()
                 .padding(.vertical, 8)
             
+            cameraSettingsSection
+            
+            Divider()
+                .padding(.vertical, 8)
+            
             musicPlayerSettings
                 .padding(.bottom, 32)
+        }
+    }
+    
+    private var cameraSettingsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Camera Settings")
+                    .font(.headline)
+                Spacer()
+            }
+
+            Toggle("Flip Camera", isOn: $settings.isCameraFlipped)
+                .onChange(of: settings.isCameraFlipped) { settings.saveSettings() }
+                .padding(.vertical, 8)
+                .toggleStyle(.switch)
+            
+            Toggle("Enable Camera Overlay", isOn: $settings.enableCameraOverlay)
+                .onChange(of: settings.enableCameraOverlay) { settings.saveSettings() }
+                .padding(.vertical, 8)
+                .toggleStyle(.switch)
+            
+            ComfyLabeledStepper(
+                "Overlay Timer",
+                value: $settings.cameraOverlayTimer,
+                in: 5...120
+            )
         }
     }
     
@@ -49,8 +80,6 @@ struct WidgetsSettingsView: View {
                     .font(.headline)
                 Spacer()
             }
-            
-            Divider()
             
             // TODO: Add music player settings here
             Toggle(isOn: $settings.showMusicProvider) {
@@ -71,8 +100,6 @@ struct WidgetsSettingsView: View {
                     .font(.headline)
                 Spacer()
             }
-            
-            Divider()
 
             TextField("AI API Key", text: $settings.aiApiKey)
                 .textFieldStyle(PlainTextFieldStyle()) // ✅ Removes system styling
@@ -196,6 +223,7 @@ struct WidgetsSettingsView: View {
         .background(Color.gray.opacity(0.1))
         .cornerRadius(16)
     }
+    
     private func draggableWidgetRow(for widgetName: String) -> some View {
         HStack {
             Image(systemName: getIconName(for: widgetName))

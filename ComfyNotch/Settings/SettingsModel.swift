@@ -9,7 +9,6 @@ class SettingsModel: ObservableObject {
 
     @Published var selectedWidgets: [String] = []
     @Published var isSettingsWindowOpen: Bool = false
-    @Published var isCameraFlipped: Bool = false
     @Published var openStateYOffset = CGFloat(35)
     @Published var snapOpenThreshold: CGFloat = 0.9
     @Published var aiApiKey: String = ""
@@ -36,6 +35,15 @@ class SettingsModel: ObservableObject {
     
     @Published var showMusicProvider: Bool = true
     
+    /// ---------- Camera Settings ----------
+    @Published var isCameraFlipped: Bool = false
+    /// Suggest Users to enable this for better memory management
+    @Published var enableCameraOverlay: Bool = true
+    /// This is the amount of time before the camera
+    /// overlay hides itself, default will be 20 seconds
+    @Published var cameraOverlayTimer: Int = 20
+    
+
     @Published var updaterController: SPUStandardUpdaterController
     
 
@@ -67,8 +75,15 @@ class SettingsModel: ObservableObject {
         // Saving the last state for whatever widgets are selected
         defaults.set(selectedWidgets, forKey: "selectedWidgets")
 
+        /// ----------------------- Camera Settings -----------------------
         defaults.set(isCameraFlipped, forKey: "isCameraFlipped")
+        defaults.set(enableCameraOverlay, forKey: "enableCameraOverlay")
+        if cameraOverlayTimer < 5 {
+            cameraOverlayTimer = 5
+        }
+        defaults.set(cameraOverlayTimer, forKey: "cameraOverlayTimer")
         
+        /// ----------------------- API Key Settings -----------------------
         /// For some reason the api key was getting called to save even if it was empty
         /// So I had to add this check, prolly gonna have to check that reason out <- TODO
         if !aiApiKey.isEmpty {
@@ -124,11 +139,22 @@ class SettingsModel: ObservableObject {
             self.selectedWidgets = WidgetRegistry.shared.getDefaultWidgets()
         }
 
+        /// ----------------------- Camera Settings -----------------------
         // Loading the last state for camera flip
         if defaults.object(forKey: "isCameraFlipped") != nil {
             self.isCameraFlipped = defaults.bool(forKey: "isCameraFlipped")
         }
+        if defaults.object(forKey: "enableCameraOverlay") != nil {
+            self.enableCameraOverlay = defaults.bool(forKey: "enableCameraOverlay")
+        }
+        if let cameraOverlayTimer = defaults.object(forKey: "cameraOverlayTimer") as? Int {
+            self.cameraOverlayTimer = cameraOverlayTimer
+        } else {
+            // Set default if nothing is saved
+            self.cameraOverlayTimer = 20
+        }
 
+        /// ----------------------- API Key Settings -----------------------
         // Loading the last api_key the user entered
         if let apiKey = defaults.string(forKey: "aiApiKey") {
             self.aiApiKey = apiKey

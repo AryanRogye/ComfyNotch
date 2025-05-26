@@ -20,8 +20,6 @@ struct GeneralSettingsView: View {
                 
                 notchSettingsSection
                 
-                cameraSettingsSection
-                
                 dividerSettingsSection
                 
                 Spacer()
@@ -117,35 +115,12 @@ struct GeneralSettingsView: View {
         HStack {
             /// One Side Notch Controls
             VStack(alignment: .leading, spacing: 8) {
-                Text("Scroll Speed")
-                    .font(.subheadline)
-                    .foregroundColor(.primary)
-                
-                HStack(spacing: 10) {
-                    Button(action: {
-                        settings.nowPlayingScrollSpeed = max(1, settings.nowPlayingScrollSpeed - 1)
-                    }) {
-                        Image(systemName: "minus.circle.fill")
-                            .resizable()
-                            .frame(width: 18, height: 18)
-                            .foregroundColor(.gray)
-                    }
-                    .buttonStyle(.borderless)
-                    
-                    Text("\(settings.nowPlayingScrollSpeed)")
-                        .font(.system(size: 16, weight: .medium, design: .rounded))
-                        .frame(minWidth: 28, alignment: .center)
-                    
-                    Button(action: {
-                        settings.nowPlayingScrollSpeed += 1
-                    }) {
-                        Image(systemName: "plus.circle.fill")
-                            .resizable()
-                            .frame(width: 18, height: 18)
-                            .foregroundColor(.gray)
-                    }
-                    .buttonStyle(.borderless)
-                }
+                ComfyLabeledStepper(
+                    "Scroll Speed",
+                    value: $settings.nowPlayingScrollSpeed,
+                    in: 1...100
+                )
+                .padding(.vertical, 7)
                 
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Adjust the scroll speed for the Now Playing widget.")
@@ -172,24 +147,6 @@ struct GeneralSettingsView: View {
                     .frame(width: 350 ,height: 120)
                     .cornerRadius(10)
             }
-        }
-    }
-
-    // MARK: - Camera Section
-    private var cameraSettingsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Camera Settings")
-                    .font(.headline)
-                Spacer()
-            }
-
-            Divider()
-
-            Toggle("Flip Camera", isOn: $settings.isCameraFlipped)
-                .onChange(of: settings.isCameraFlipped) { settings.saveSettings() }
-                .padding(.vertical, 8)
-                .toggleStyle(.switch)
         }
     }
     

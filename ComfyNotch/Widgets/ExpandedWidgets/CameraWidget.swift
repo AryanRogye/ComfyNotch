@@ -61,10 +61,10 @@ class CameraWidgetModel: ObservableObject {
     static var shared = CameraWidgetModel()
     
     @Published var flipCamera: Bool
+    @Published var zoomScale: CGFloat = 1.0
+    
     let session = AVCaptureSession()
     private var cancellables = Set<AnyCancellable>()
-    
-    @Published var zoomScale: CGFloat = 1.0   // 1× … 3×
 
     func zoomIn(step: CGFloat = 0.25)  { adjust(by:  step) }
     func zoomOut(step: CGFloat = 0.25) { adjust(by: -step) }
@@ -193,6 +193,10 @@ struct CameraPreviewView: NSViewRepresentable {
 
         preview.setAffineTransform(CGAffineTransform(scaleX: combined,
                                                      y: combined))
+        
+//        try? device.lockForConfiguration()
+//        device.videoZoomFactor = zoom
+//        device.unlockForConfiguration()
 
         // Flip if needed
         CATransaction.begin()
