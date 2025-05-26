@@ -86,7 +86,7 @@ struct PopInPresenter_HUD: View {
                 fill: CGFloat(brightnessManager.currentBrightness)
             )
         }
-        .frame(width: hudWidth, height: 40)
+        .frame(width: hudWidth, height: 30)
         .onAppear {
             dominantColor = Color(nsColor: musicModel.nowPlayingInfo.dominantColor)
         }

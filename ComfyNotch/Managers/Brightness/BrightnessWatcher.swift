@@ -66,7 +66,6 @@ final class BrightnessWatcher: ObservableObject {
     
     // ZERO-LAG VERSION: No artificial delays
     private func triggerNotchOptimized() {
-        print("Notch Triggered - Optimized")
         
         // Cancel any pending opens
         pendingNotchOpen?.cancel()
@@ -93,7 +92,6 @@ final class BrightnessWatcher: ObservableObject {
     
     // INSTANT VERSION: No debouncing at all
     private func triggerNotchInstant() {
-        print("Notch Triggered - Instant")
         executeNotchOpen()
     }
     
