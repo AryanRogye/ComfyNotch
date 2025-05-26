@@ -15,17 +15,18 @@ struct GeneralSettingsView: View {
                 saveSettingsButton
                     .padding([.top, .horizontal])
             }
-            
-            ScrollView {
-                VStack(spacing: 24) {
-                    headerView
-                    notchSettingsSection
-                    cameraSettingsSection
-                    dividerSettingsSection
-                    Spacer()
-                    exitButton
-                }
-                .padding()
+            ComfyScrollView {
+                headerView
+                
+                notchSettingsSection
+                
+                cameraSettingsSection
+                
+                dividerSettingsSection
+                
+                Spacer()
+                
+                exitButton
             }
             .onAppear {
                 selectedSaveHUD = settings.enableNotchHUD

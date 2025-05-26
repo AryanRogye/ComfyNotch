@@ -13,20 +13,17 @@ struct FileTraySettingsView: View {
     @State var selectedFolder: URL?
 
     var body: some View {
-        ZStack {
-            VStack {
-                Text("File Tray Settings")
-                
-                persistFileTray()
-                Divider()
-                saveToFolder()
-                
-                Spacer()
-            }
-            .onAppear {
-                selectedFolder = settings.fileTrayDefaultFolder
-            }
-            .padding()
+        ComfyScrollView {
+            Text("File Tray Settings")
+            
+            persistFileTray()
+            Divider()
+            saveToFolder()
+            
+            Spacer()
+        }
+        .onAppear {
+            selectedFolder = settings.fileTrayDefaultFolder
         }
     }
     

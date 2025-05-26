@@ -16,32 +16,29 @@ struct WidgetsSettingsView: View {
     @State private var isDragging = false
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 12) {
-                headerView
-                
-                Divider()
-                    .padding(.vertical, 8)
-
-                arrangeWidgetsSection
-                
-                Divider()
-                    .padding(.vertical, 8)
-                
-                availableWidgetsSection
-                
-                Divider()
-                    .padding(.vertical, 8)
-                
-                aiSettings
-                
-                Divider()
-                    .padding(.vertical, 8)
-                
-                musicPlayerSettings
-                    .padding(.bottom, 32)
-            }
-            .padding()
+        ComfyScrollView {
+            headerView
+            
+            Divider()
+                .padding(.vertical, 8)
+            
+            arrangeWidgetsSection
+            
+            Divider()
+                .padding(.vertical, 8)
+            
+            availableWidgetsSection
+            
+            Divider()
+                .padding(.vertical, 8)
+            
+            aiSettings
+            
+            Divider()
+                .padding(.vertical, 8)
+            
+            musicPlayerSettings
+                .padding(.bottom, 32)
         }
     }
     
@@ -170,14 +167,6 @@ struct WidgetsSettingsView: View {
                     .cornerRadius(8)
             }
             .buttonStyle(.plain)
-
-//            Toggle("", isOn: Binding(
-//                get: { settings.selectedWidgets.contains(widgetName) },
-//                set: { isSelected in
-//                    settings.updateSelectedWidgets(with: widgetName, isSelected: isSelected)
-//                }
-//            ))
-//            .labelsHidden()
         }
         .padding(.vertical, 8)
     }
@@ -296,8 +285,4 @@ struct DropViewDelegate: DropDelegate {
         }
         return false
     }
-}
-
-#Preview {
-    WidgetsSettingsView(settings: SettingsModel.shared)
 }

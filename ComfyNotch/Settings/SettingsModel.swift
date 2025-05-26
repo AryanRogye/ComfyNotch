@@ -26,9 +26,10 @@ class SettingsModel: ObservableObject {
                                                     .urls(for: .documentDirectory, in: .userDomainMask)
                                                     .first!
                                                     .appendingPathComponent("ComfyNotch Files", isDirectory: true)
+    
     @Published var fileTrayPersistFiles : Bool = false
     @Published var useCustomSaveFolder : Bool = false
-    @Published var showDividerBetweenWidgets: Bool = false /// False cuz i like it without
+    @Published var showDividerBetweenWidgets: Bool = false
     
     @Published var nowPlayingScrollSpeed: Int = 40
     @Published var enableNotchHUD: Bool = true
@@ -56,6 +57,8 @@ class SettingsModel: ObservableObject {
     func checkForUpdatesSilently() {
         updaterController.updater.checkForUpdatesInBackground()
     }
+    
+    // MARK: - Save Settings
 
     /// Saves the current settings to UserDefaults
     func saveSettings() {
@@ -106,6 +109,9 @@ class SettingsModel: ObservableObject {
         /// ----------------------- Music Player Settings -----------------------
         defaults.set(showMusicProvider, forKey: "showMusicProvider")
     }
+    
+    // MARK: - Load Settings
+    
     /// Loads the last saved settings from UserDefaults
     func loadSettings() {
         let defaults = UserDefaults.standard
@@ -160,9 +166,19 @@ class SettingsModel: ObservableObject {
             self.enableNotchHUD = true
         }
         /// ----------------------- Music Player Settings -----------------------
+        if let showMusicProvider = defaults.object(forKey: "showMusicProvider") as? Bool {
+            self.showMusicProvider = showMusicProvider
+        } else {
+            self.showMusicProvider = true
+        }
     }
-
+    
+    // MARK: - Widget Update Logic
+    
     /// Updates `selectedWidgets` and triggers a reload notification immediately
+    /// This was a design choice to keep it in the settings page, this is becuase
+    /// the settings is what manages and loads in the widgets at runtime and while
+    /// the application is running
     func updateSelectedWidgets(with widgetName: String, isSelected: Bool) {
 
         debugLog("Updating selected widgets with: \(widgetName), isSelected: \(isSelected)")
@@ -201,6 +217,8 @@ class SettingsModel: ObservableObject {
             debugLog("Panel is not open, not refreshing UI")
         }
     }
+    
+    // MARK: - UI Update Logic
 
     func refreshUI() {
         if UIManager.shared.panelState == .open {
@@ -233,55 +251,4 @@ class SettingsModel: ObservableObject {
         // Finally, refresh the UI
         refreshUI()
     }
-}
-
-class WidgetRegistry {
-    static let shared = WidgetRegistry()
-
-    private init() {}
-
-    var widgets: [String: Widget] = [
-        "MusicPlayerWidget": MusicPlayerWidget(),
-        "TimeWidget": TimeWidget(),
-        "NotesWidget": NotesWidget(),
-        "CameraWidget": CameraWidget(),
-        "AIChatWidget": AIChatWidget(),
-        "EventWidget": EventWidget()
-    ]
-
-    func getWidget(named name: String) -> Widget? {
-        return widgets[name]
-    }
-
-    func getDefaultWidgets() -> [String] {
-        return ["MusicPlayerWidget", "TimeWidget", "NotesWidget"]
-    }
-}
-
-enum AIProvider: String, CaseIterable {
-    case openAI = "OpenAI"
-    case anthropic = "Anthropic"
-    case google = "Google"
-}
-
-enum OpenAIModel: String, CaseIterable {
-    case gpt3 = "gpt-3.5-turbo"
-    case gpt4 = "gpt-4"
-}
-
-enum AnthropicModel: String, CaseIterable {
-    case claudeV1 = "claude-v1"
-    case claudeV2 = "claude-v2"
-}
-
-enum GoogleModel: String, CaseIterable {
-    case palm = "PaLM"
-    case bard = "Bard"
-}
-
-class AIRegistery: ObservableObject {
-    @Published var selectedProvider: AIProvider = .openAI
-    @Published var selectedOpenAIModel: OpenAIModel = .gpt3
-    @Published var selectedAnthropicModel: AnthropicModel = .claudeV1
-    @Published var selectedGoogleModel: GoogleModel = .palm
 }
