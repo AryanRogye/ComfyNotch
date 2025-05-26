@@ -88,7 +88,7 @@ struct CameraWidget: View, Widget {
                     
                     if settings.enableCameraOverlay && settings.cameraOverlayTimer > 0 {
                         overlayTimer?.cancel()
-                        let workItem = DispatchWorkItem {
+                        let workItem = DispatchWorkItem { [weak overlayTimer] in
                             DispatchQueue.main.async {
                                 showOverlay = true
                                 sessionStarted = false
@@ -150,9 +150,25 @@ class CameraWidgetModel: ObservableObject {
                 }
             }
             .store(in: &cancellables)
-        // Set up session
-        session.sessionPreset = .high
+        
+        SettingsModel.shared.$cameraQualitySelection
+            .receive(on: RunLoop.main)
+            .sink { [weak self] newValue in
+                guard let self = self else { return }
+                /// Session Must Stop First
+                self.sessionQueue.async {
+                    if self.session.isRunning {
+                        self.session.stopRunning()
+                    }
+                    if self.session.canSetSessionPreset(newValue) {
+                        self.session.sessionPreset = newValue
+                    }
+                    self.session.startRunning()
+                }
+            }
+            .store(in: &cancellables)
     }
+    
     func updateFlipState() {
         let newFlipState = SettingsModel.shared.isCameraFlipped
         if flipCamera != newFlipState {
@@ -244,6 +260,7 @@ struct CameraPreviewView: NSViewRepresentable {
     func dismantleNSView(_ nsView: NSView, coordinator: Coordinator) {
         // Remove the preview layer
         if let previewLayer = coordinator.previewLayer {
+            previewLayer.session = nil
             previewLayer.removeFromSuperlayer()
             coordinator.previewLayer = nil
         }

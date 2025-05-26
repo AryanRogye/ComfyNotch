@@ -1,7 +1,7 @@
 import AppKit
 import Combine
 import Sparkle
-
+import AVKit
 
 class SettingsModel: ObservableObject {
 
@@ -42,6 +42,7 @@ class SettingsModel: ObservableObject {
     /// This is the amount of time before the camera
     /// overlay hides itself, default will be 20 seconds
     @Published var cameraOverlayTimer: Int = 20
+    @Published var cameraQualitySelection: AVCaptureSession.Preset = .high
     
 
     @Published var updaterController: SPUStandardUpdaterController

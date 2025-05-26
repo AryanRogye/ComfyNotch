@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AVKit
 
 struct WidgetsSettingsView: View {
     
@@ -66,6 +67,17 @@ struct WidgetsSettingsView: View {
                 .onChange(of: settings.isCameraFlipped) { settings.saveSettings() }
                 .padding(.vertical, 8)
                 .toggleStyle(.switch)
+            
+            /// Camera Quality
+            Picker("Camera Quality", selection: $settings.cameraQualitySelection) {
+                Text("4K (3840×2160)").tag(AVCaptureSession.Preset.hd4K3840x2160)
+                Text("Full HD (1920×1080)").tag(AVCaptureSession.Preset.hd1920x1080)
+                Text("HD (1280×720)").tag(AVCaptureSession.Preset.hd1280x720)
+                Text("High (Auto)").tag(AVCaptureSession.Preset.high)
+                Text("Medium (640×480)").tag(AVCaptureSession.Preset.medium)
+                Text("Low (352×288)").tag(AVCaptureSession.Preset.low)
+                Text("Photo (Still Only)").tag(AVCaptureSession.Preset.photo)
+            }
             
             Toggle("Enable Camera Overlay", isOn: $settings.enableCameraOverlay)
                 .onChange(of: settings.enableCameraOverlay) {
