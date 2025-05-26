@@ -6,22 +6,39 @@ import Combine
 struct CameraWidget: View, Widget {
     
     var name: String = "CameraWidget"
+    
     @StateObject private var model = CameraWidgetModel.shared
+    @StateObject private var settings = SettingsModel.shared
     
     @State var currentZoom: CGFloat = 1.0
+    @State private var showOverlay = true
     
     var body: some View {
         ZStack {
+            /// Camera Is ALWAYS Shown
             CameraPreviewView(session: model.session, flipCamera: model.flipCamera, zoom: model.zoomScale)
                 .frame(maxWidth: .infinity, minHeight: 120)
                 .cornerRadius(10)
                 .clipped()
                 .onAppear {
-                    model.startSession()
+                    if !settings.enableCameraOverlay {
+                        model.startSession()
+                    }
                 }
                 .onDisappear {
                     model.stopSession()
                 }
+                .onChange(of: settings.enableCameraOverlay) { _, newValue in
+                    if newValue {
+                        showOverlay = true
+                        model.stopSession()
+                    } else {
+                        showOverlay = false
+                        model.startSession()
+                    }
+                }
+            
+            /// Always Show Users Camera Settings
             HStack {
                 Spacer()
                 /// We Add A Zoom here
@@ -32,17 +49,43 @@ struct CameraWidget: View, Widget {
                             .frame(width: 15, height: 15)
                     }
                     .buttonStyle(.plain)
-
+                    
                     Button(action: { model.zoomOut() } ) {
                         Image(systemName: "minus")
                             .resizable()
                             .frame(width: 15, height: 5)
                     }
                     .buttonStyle(.plain)
-
+                    
                     Spacer()
                 }
                 .padding([.top, .trailing], 3)
+            }
+            
+            /// Overlay if enabled in settings
+            if settings.enableCameraOverlay, showOverlay {
+                ZStack {
+                    Color.black.opacity(0.6)
+                        .blur(radius: 6)
+                        .cornerRadius(10)
+                    
+                    VStack(spacing: 8) {
+                        Image(systemName: "camera.viewfinder")
+                            .font(.system(size: 30, weight: .light))
+                            .foregroundColor(.white)
+                        
+                        Text("Tap to dismiss overlay")
+                            .font(.headline)
+                            .foregroundColor(.white.opacity(0.9))
+                    }
+                }
+                .frame(maxWidth: .infinity, minHeight: 120)
+                .onTapGesture {
+                    model.startSession()
+                    showOverlay = false
+                }
+                .transition(.opacity)
+                .animation(.easeInOut(duration: 0.25), value: showOverlay)
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ReloadWidgets"))) { _ in
@@ -51,6 +94,7 @@ struct CameraWidget: View, Widget {
         }
         .frame(minWidth: 100)
     }
+    
     var swiftUIView: AnyView {
         AnyView(self)
     }
