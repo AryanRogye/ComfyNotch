@@ -16,34 +16,41 @@ struct WidgetsSettingsView: View {
     @State private var isDragging = false
 
     var body: some View {
-        ComfyScrollView {
-            headerView
-            
-            Divider()
-                .padding(.vertical, 8)
-            
-            arrangeWidgetsSection
-            
-            Divider()
-                .padding(.vertical, 8)
-            
-            availableWidgetsSection
-            
-            Divider()
-                .padding(.vertical, 8)
-            
-            aiSettings
-            
-            Divider()
-                .padding(.vertical, 8)
-            
-            cameraSettingsSection
-            
-            Divider()
-                .padding(.vertical, 8)
-            
-            musicPlayerSettings
-                .padding(.bottom, 32)
+        VStack {
+            HStack {
+                Spacer()
+                saveSettingsButton
+                    .padding([.top, .horizontal])
+            }
+            ComfyScrollView {
+                headerView
+                
+                Divider()
+                    .padding(.vertical, 8)
+                
+                arrangeWidgetsSection
+                
+                Divider()
+                    .padding(.vertical, 8)
+                
+                availableWidgetsSection
+                
+                Divider()
+                    .padding(.vertical, 8)
+                
+                aiSettings
+                
+                Divider()
+                    .padding(.vertical, 8)
+                
+                cameraSettingsSection
+                
+                Divider()
+                    .padding(.vertical, 8)
+                
+                musicPlayerSettings
+                    .padding(.bottom, 32)
+            }
         }
     }
     
@@ -65,11 +72,13 @@ struct WidgetsSettingsView: View {
                 .padding(.vertical, 8)
                 .toggleStyle(.switch)
             
-            ComfyLabeledStepper(
-                "Overlay Timer",
-                value: $settings.cameraOverlayTimer,
-                in: 5...120
-            )
+            if settings.enableCameraOverlay {
+                ComfyLabeledStepper(
+                    "Overlay Timer",
+                    value: $settings.cameraOverlayTimer,
+                    in: 5...120
+                )
+            }
         }
     }
     
@@ -251,6 +260,15 @@ struct WidgetsSettingsView: View {
         .onDrop(of: [.plainText], delegate: DropViewDelegate(
                 item: widgetName, settings: settings, draggingItem: $draggingItem, isDragging: $isDragging
             ))
+    }
+    
+    private var saveSettingsButton: some View {
+        Button("Save Settings") {
+            settings.saveSettings()
+        }
+        .keyboardShortcut("s", modifiers: [.command])
+        .buttonStyle(.bordered)
+        .controlSize(.regular)
     }
     
     func formatWidgetName(_ name: String) -> String {

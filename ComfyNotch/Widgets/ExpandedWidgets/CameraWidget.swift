@@ -12,6 +12,8 @@ struct CameraWidget: View, Widget {
     
     @State var currentZoom: CGFloat = 1.0
     @State private var showOverlay = true
+    @State var sessionStarted = false
+    @State private var overlayTimer: DispatchWorkItem?
     
     var body: some View {
         ZStack {
@@ -21,11 +23,27 @@ struct CameraWidget: View, Widget {
                 .cornerRadius(10)
                 .clipped()
                 .onAppear {
+                    overlayTimer?.cancel()
                     if !settings.enableCameraOverlay {
-                        model.startSession()
+                        /// No Need to start any timers if no
+                        /// overlay is enabled
+                        return
+                    }
+                    if settings.cameraOverlayTimer > 0 {
+                        let workItem = DispatchWorkItem {
+                            DispatchQueue.main.async {
+                                showOverlay = true
+                                sessionStarted = false
+                                model.stopSession()
+                            }
+                        }
+                        overlayTimer = workItem
+                        DispatchQueue.main.asyncAfter(deadline: .now() + Double(settings.cameraOverlayTimer),
+                                                      execute: workItem)
                     }
                 }
                 .onDisappear {
+                    overlayTimer?.cancel()
                     model.stopSession()
                 }
                 .onChange(of: settings.enableCameraOverlay) { _, newValue in
@@ -81,6 +99,8 @@ struct CameraWidget: View, Widget {
                 }
                 .frame(maxWidth: .infinity, minHeight: 120)
                 .onTapGesture {
+                    guard !sessionStarted else { return }
+                    sessionStarted = true
                     model.startSession()
                     showOverlay = false
                 }
@@ -109,6 +129,9 @@ class CameraWidgetModel: ObservableObject {
     
     let session = AVCaptureSession()
     private var cancellables = Set<AnyCancellable>()
+    
+    private let sessionQueue = DispatchQueue(label: "camera.session", qos: .userInitiated)
+    private var isSessionSetup = false
 
     func zoomIn(step: CGFloat = 0.25)  { adjust(by:  step) }
     func zoomOut(step: CGFloat = 0.25) { adjust(by: -step) }
@@ -150,22 +173,27 @@ class CameraWidgetModel: ObservableObject {
     }
 
     func startSession() {
-        // Run on background thread to avoid UI freezing
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self = self, !self.session.isRunning else { return }
-            if self.session.inputs.isEmpty {
+        sessionQueue.async { [weak self] in
+            guard let self = self else { return }
+            if !self.isSessionSetup {
                 self.setupCamera()
+                self.isSessionSetup = true
             }
-            self.session.startRunning()
+            if !self.session.isRunning {
+                self.session.startRunning()
+            }
         }
     }
+
     func stopSession() {
-        // Run on background thread to avoid UI freezing
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self = self, self.session.isRunning else { return }
-            self.session.stopRunning()
+        sessionQueue.async { [weak self] in
+            guard let self = self else { return }
+            if self.session.isRunning {
+                self.session.stopRunning()
+            }
         }
     }
+    
     private func setupCamera() {
         guard let device = AVCaptureDevice.default(for: .video) else {
             debugLog("Failed to access camera.")
@@ -228,28 +256,20 @@ struct CameraPreviewView: NSViewRepresentable {
     
     func updateNSView(_ nsView: NSView, context: Context) {
         guard let preview = context.coordinator.previewLayer else { return }
-
         preview.frame = nsView.bounds
 
-        // cancel any outer panel scale
         let parentScale = nsView.layer?.value(forKeyPath: "transform.scale.x") as? CGFloat ?? 1
-        let combined    = (1 / parentScale) * zoom        // <— INCLUDE zoom
-
-        preview.setAffineTransform(CGAffineTransform(scaleX: combined,
-                                                     y: combined))
+        let zoomScale = (1 / parentScale) * zoom
         
-//        try? device.lockForConfiguration()
-//        device.videoZoomFactor = zoom
-//        device.unlockForConfiguration()
-
-        // Flip if needed
+        // Combine zoom and flip transforms
+        var transform = CGAffineTransform(scaleX: zoomScale, y: zoomScale)
+        if flipCamera {
+            transform = transform.scaledBy(x: -1, y: 1)
+        }
+        
         CATransaction.begin()
         CATransaction.setAnimationDuration(0.2)
-        if flipCamera {
-            preview.setAffineTransform(
-                preview.affineTransform().scaledBy(x: -1, y: 1)
-            )
-        }
+        preview.setAffineTransform(transform)
         CATransaction.commit()
     }
 
