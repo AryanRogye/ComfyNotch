@@ -23,24 +23,6 @@ struct CameraWidget: View, Widget {
                 .cornerRadius(10)
                 .clipped()
                 .onAppear {
-                    overlayTimer?.cancel()
-                    if !settings.enableCameraOverlay {
-                        /// No Need to start any timers if no
-                        /// overlay is enabled
-                        return
-                    }
-                    if settings.cameraOverlayTimer > 0 {
-                        let workItem = DispatchWorkItem {
-                            DispatchQueue.main.async {
-                                showOverlay = true
-                                sessionStarted = false
-                                model.stopSession()
-                            }
-                        }
-                        overlayTimer = workItem
-                        DispatchQueue.main.asyncAfter(deadline: .now() + Double(settings.cameraOverlayTimer),
-                                                      execute: workItem)
-                    }
                 }
                 .onDisappear {
                     overlayTimer?.cancel()
@@ -103,6 +85,19 @@ struct CameraWidget: View, Widget {
                     sessionStarted = true
                     model.startSession()
                     showOverlay = false
+                    
+                    if settings.enableCameraOverlay && settings.cameraOverlayTimer > 0 {
+                        overlayTimer?.cancel()
+                        let workItem = DispatchWorkItem {
+                            DispatchQueue.main.async {
+                                showOverlay = true
+                                sessionStarted = false
+                                model.stopSession()
+                            }
+                        }
+                        overlayTimer = workItem
+                        DispatchQueue.main.asyncAfter(deadline: .now() + Double(settings.cameraOverlayTimer), execute: workItem)
+                    }
                 }
                 .transition(.opacity)
                 .animation(.easeInOut(duration: 0.25), value: showOverlay)

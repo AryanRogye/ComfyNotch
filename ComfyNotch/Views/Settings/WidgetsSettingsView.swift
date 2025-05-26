@@ -68,7 +68,11 @@ struct WidgetsSettingsView: View {
                 .toggleStyle(.switch)
             
             Toggle("Enable Camera Overlay", isOn: $settings.enableCameraOverlay)
-                .onChange(of: settings.enableCameraOverlay) { settings.saveSettings() }
+                .onChange(of: settings.enableCameraOverlay) {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        settings.saveSettings()
+                    }
+                }
                 .padding(.vertical, 8)
                 .toggleStyle(.switch)
             
@@ -78,6 +82,7 @@ struct WidgetsSettingsView: View {
                     value: $settings.cameraOverlayTimer,
                     in: 5...120
                 )
+                .transition(.opacity)
             }
         }
     }
