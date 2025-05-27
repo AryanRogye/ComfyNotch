@@ -65,9 +65,19 @@ struct GeneralSettingsView: View {
             }
             Divider()
             
+            messagesSettings
+            Divider()
             hudSettings
             Divider()
             scrollSpeed
+        }
+    }
+    
+    private var messagesSettings: some View {
+        HStack {
+            /// One Side Messages Controls
+            
+            /// Other Side Video Demo
         }
     }
     
