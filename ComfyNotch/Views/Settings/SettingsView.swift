@@ -64,7 +64,7 @@ struct SettingsView: View {
                 window.close()
             }
         }
-    }    
+    }
 }
 
 

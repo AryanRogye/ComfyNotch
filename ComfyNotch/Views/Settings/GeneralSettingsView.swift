@@ -76,8 +76,40 @@ struct GeneralSettingsView: View {
     private var messagesSettings: some View {
         HStack {
             /// One Side Messages Controls
+            VStack {
+                /// Toggle for Messages Notifications
+                Toggle(isOn: $settings.enableMessagesNotifications) {
+                    Label("Enable Messages Notifications", systemImage: "message.fill")
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+                }
+                .onChange(of: settings.enableMessagesNotifications) { _, newValue in
+                    if newValue {
+                        /// Logic When Turned On
+                    } else {
+                        /// Logic When Turned Off
+                    }
+                }
+                .toggleStyle(.switch)
+                .controlSize(.small)
+                /// Suggestion
+                Button(action: {
+                    /// Open Notifications Settings
+                    NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.notifications?Messages")!)
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "bell.slash.fill")
+                        Text("We recommend disabling notifications for the Messages app.")
+                    }
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
             
-            /// Other Side Video Demo
+            Spacer()
+            
+            /// TODO: Add Video demo here once the feature is made lol
         }
     }
     

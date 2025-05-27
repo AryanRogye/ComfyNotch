@@ -44,6 +44,13 @@ class SettingsModel: ObservableObject {
     @Published var cameraOverlayTimer: Int = 20
     @Published var cameraQualitySelection: AVCaptureSession.Preset = .high
     
+    /// ---------- Messages Settings ----------
+    /// This is required to be false on start cuz theres no way
+    /// to prompt or make the user silence "Messages" Notifications,
+    /// Maybe we can add a prompt later on to ask the user or just
+    /// force it down
+    @Published var enableMessagesNotifications: Bool = false
+    
 
     @Published var updaterController: SPUStandardUpdaterController
     
@@ -124,6 +131,8 @@ class SettingsModel: ObservableObject {
         
         /// ----------------------- Music Player Settings -----------------------
         defaults.set(showMusicProvider, forKey: "showMusicProvider")
+        /// ----------------------- Messages Settings -----------------------
+        defaults.set(enableMessagesNotifications, forKey: "enableMessagesNotifications")
     }
     
     // MARK: - Load Settings
@@ -197,6 +206,13 @@ class SettingsModel: ObservableObject {
             self.showMusicProvider = showMusicProvider
         } else {
             self.showMusicProvider = true
+        }
+        
+        /// ----------------------- Messages Settings -----------------------
+        if let enableMessagesNotifications = defaults.object(forKey: "enableMessagesNotifications") as? Bool {
+            self.enableMessagesNotifications = enableMessagesNotifications
+        } else {
+            self.enableMessagesNotifications = false
         }
     }
     

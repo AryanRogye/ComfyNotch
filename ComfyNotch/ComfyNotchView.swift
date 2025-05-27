@@ -6,6 +6,7 @@ import UniformTypeIdentifiers
 enum NotchViewState {
     case home
     case file_tray
+    case messages
     case utils
     case popInPresentation
 }
@@ -116,6 +117,7 @@ struct ComfyNotchView: View {
                 switch animationState.currentPanelState {
                 case .home:         HomeNotchView().environmentObject(bigWidgetStore)
                 case .file_tray:    FileTrayView()
+                case .messages:     MessagesView()
                 case .utils:        UtilsView()
                 case .popInPresentation: PopInPresenter()
                 }
