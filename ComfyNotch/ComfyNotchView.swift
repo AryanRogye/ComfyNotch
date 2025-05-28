@@ -190,7 +190,13 @@ struct ComfyNotchView: View {
                 debugLog("Ignoring scroll — hovering EventWidget")
                 return
             }
-            if animationState.currentPanelState == .file_tray || animationState.currentPanelState == .utils || animationState.currentPanelState == .popInPresentation { return }
+            
+            if (animationState.currentPanelState == .file_tray
+                || animationState.currentPanelState == .utils
+                || animationState.currentPanelState == .popInPresentation
+                || animationState.currentPanelState == .messages) {
+                return
+            }
             
             if translation > 50 {
                 UIManager.shared.applyOpeningLayout()

@@ -2,19 +2,32 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleIconFile</key>
-	<string>ComfyNotchIcon</string>
-	<key>NSCalendarsFullAccessUsageDescription</key>
-	<string>we need access to your calendar for easier management</string>
-	<key>NSCameraUseContinuityCameraDeviceType</key>
-	<true/>
-	<key>NSRemindersFullAccessUsageDescription</key>
-	<string>we need access to your reminders for easier management</string>
-	<key>SUEnableInstallerLauncherService</key>
-	<true/>
-	<key>SUFeedURL</key>
-	<string>https://aryanrogye.github.io/ComfyNotch/appcast.xml</string>
-	<key>SUPublicEDKey</key>
-	<string>taI+LYHIWwzdMURizdr5HG9kfibtBtqxnman2PKkZSU=</string>
+    <key>CFBundleIconFile</key>
+    <string>ComfyNotchIcon</string>
+    
+    <!-- Camera Usage Description -->
+    <key>NSCameraUseContinuityCameraDeviceType</key>
+    <true/>
+    
+    <!-- EventKit stuff -->
+    
+    <key>NSCalendarsFullAccessUsageDescription</key>
+    <string>we need access to your calendar for easier management</string>
+
+    <key>NSRemindersFullAccessUsageDescription</key>
+    <string>we need access to your reminders for easier management</string>
+    
+    <!-- Contacts Usage Description-->
+    <key>NSContactsUsageDescription</key>
+    <string>ComfyNotch needs access to your contacts to show names in Messages.</string>
+    
+    <key>SUEnableInstallerLauncherService</key>
+    <true/>
+    
+    <key>SUFeedURL</key>
+    <string>https://aryanrogye.github.io/ComfyNotch/appcast.xml</string>
+    
+    <key>SUPublicEDKey</key>
+    <string>taI+LYHIWwzdMURizdr5HG9kfibtBtqxnman2PKkZSU=</string>
 </dict>
 </plist>

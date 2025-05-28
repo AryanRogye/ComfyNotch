@@ -11,6 +11,7 @@
 		9B288A852DC722BF00E5DB18 /* ComfyCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = 9B288A842DC722BF00E5DB18 /* ComfyCalendar */; };
 		9B2A90062DE25AB500046186 /* CoreDisplay.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B2A90052DE25AB500046186 /* CoreDisplay.framework */; };
 		9B2A92242DE29D8100046186 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 9B2A92232DE29D8100046186 /* Sparkle */; };
+		9B707EEF2DE656F2000EA21E /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = 9B707EEE2DE656F2000EA21E /* SQLite */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -60,6 +61,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9B707EEF2DE656F2000EA21E /* SQLite in Frameworks */,
 				9B2A90062DE25AB500046186 /* CoreDisplay.framework in Frameworks */,
 				9B2A92242DE29D8100046186 /* Sparkle in Frameworks */,
 				9B2889A82DC68E4400E5DB18 /* SVGView in Frameworks */,
@@ -119,6 +121,7 @@
 				9B2889A72DC68E4400E5DB18 /* SVGView */,
 				9B288A842DC722BF00E5DB18 /* ComfyCalendar */,
 				9B2A92232DE29D8100046186 /* Sparkle */,
+				9B707EEE2DE656F2000EA21E /* SQLite */,
 			);
 			productName = ComfyNotch;
 			productReference = 9BC3A4622DB1D40000FFD323 /* ComfyNotch.app */;
@@ -153,6 +156,7 @@
 				9B2889A62DC68E4400E5DB18 /* XCRemoteSwiftPackageReference "SVGView" */,
 				9B288A832DC722BF00E5DB18 /* XCLocalSwiftPackageReference "../ComfyCalendar" */,
 				9B2A92222DE29D8100046186 /* XCRemoteSwiftPackageReference "Sparkle" */,
+				9B707EED2DE656F2000EA21E /* XCRemoteSwiftPackageReference "SQLite" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9BC3A4632DB1D40000FFD323 /* Products */;
@@ -429,6 +433,14 @@
 				minimumVersion = 2.7.0;
 			};
 		};
+		9B707EED2DE656F2000EA21E /* XCRemoteSwiftPackageReference "SQLite" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/stephencelis/SQLite.swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.15.3;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -445,6 +457,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9B2A92222DE29D8100046186 /* XCRemoteSwiftPackageReference "Sparkle" */;
 			productName = Sparkle;
+		};
+		9B707EEE2DE656F2000EA21E /* SQLite */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9B707EED2DE656F2000EA21E /* XCRemoteSwiftPackageReference "SQLite" */;
+			productName = SQLite;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

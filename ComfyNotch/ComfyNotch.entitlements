@@ -17,6 +17,9 @@
         <string>com.apple.MediaRemote</string>
     </array>
     
+    <key>com.apple.security.personal-information.addressbook</key>
+    <true/>
+    
     <!-- For Sparkle -->
     <key>com.apple.security.temporary-exception.mach-lookup.global-name</key>
     <array>

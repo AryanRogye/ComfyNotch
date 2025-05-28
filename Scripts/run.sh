@@ -2,11 +2,11 @@
 
 
 pkill ComfyNotch
-# ./Scripts/build_release.sh
-./Scripts/build.sh
+./Scripts/build_release.sh
+# ./Scripts/build.sh
 
-APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -type f -name ComfyNotch -path '*Debug*/ComfyNotch.app/Contents/MacOS/ComfyNotch' \
-# APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -type f -name ComfyNotch -path '*Release*/ComfyNotch.app/Contents/MacOS/ComfyNotch' \
+# APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -type f -name ComfyNotch -path '*Debug*/ComfyNotch.app/Contents/MacOS/ComfyNotch' \
+APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -type f -name ComfyNotch -path '*Release*/ComfyNotch.app/Contents/MacOS/ComfyNotch' \
     | sort -r \
     | head -n1)
 
