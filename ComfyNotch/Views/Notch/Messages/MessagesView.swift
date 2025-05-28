@@ -49,7 +49,17 @@ struct MessagesView: View {
         VStack(spacing: 0) {
             ComfyScrollView {
                 ForEach(messagesManager.allHandles.sorted(by: { $0.lastTalkedTo > $1.lastTalkedTo } ), id: \.self) { handle in
-                    Button(action: {}) {
+                    Button(action: {
+                        Task.detached {
+                            await MainActor.run {
+                                messagesManager.fetchMessagesWithUser(for: handle.ROWID)
+                            }
+                            /// Once Done Just Print for now
+                            await messagesManager.currentUserMessages.forEach({message in
+                                print("\(message.is_from_me) \(message.text)")
+                            })
+                        }
+                    }) {
                         HStack {
                             /// Image of Person
                             userImage(for: handle)

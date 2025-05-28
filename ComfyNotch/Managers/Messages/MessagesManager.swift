@@ -9,6 +9,24 @@ import SwiftUI
 import SQLite
 import Contacts
 
+// MARK: - Internal Functions
+extension MessagesManager {
+    internal func formatDate(_ date: Int64) -> Date {
+        /// Apple Holds Messages in nanoseconds since 2001
+        let refDate = Date(timeIntervalSinceReferenceDate: 0) // 2001-01-01
+        
+        // If it's greater than a huge number, assume it's in nanoseconds
+        let seconds: Double
+        if date > 1_000_000_000_000 {
+            seconds = Double(date) / 1_000_000_000
+        } else {
+            seconds = Double(date)
+        }
+        
+        return refDate.addingTimeInterval(seconds)
+    }
+}
+
 // MARK: - DB Internals
 extension MessagesManager {
     private var messagesDBPath: String {
@@ -31,7 +49,7 @@ extension MessagesManager {
         var is_from_me: Int
         var date: Date
         var is_read: Int
-        var handle_id: String
+        var handle_id: Int64
         var cache_has_attachments: Int
     }
     
@@ -39,6 +57,7 @@ extension MessagesManager {
     public struct Handle: Hashable {
         /// handle_id in Message points to this
         var ROWID: Int64
+        
         var id: String
         var service: String
         var lastTalkedTo: Date
@@ -58,11 +77,15 @@ final class MessagesManager: ObservableObject {
     static let shared = MessagesManager()
     
     @Published var allHandles: [Handle] = []
+    /// Holds the current messages with the user the user wants to talk to
+    /// this will get reset on back or anything else
+    @Published var currentUserMessages: [Message] = []
 
     @Published var hasFullDiskAccess: Bool = false
     @Published var hasContactAccess: Bool = false
     
     internal var isFetchingHandles = false
+    internal var isFetchingMessages = false
     
     func checkContactAccess() {
         DispatchQueue.main.async {

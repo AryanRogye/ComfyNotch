@@ -111,18 +111,7 @@ extension MessagesManager {
                     .limit(1)
             ) {
                 /// Apple Holds Messages in nanoseconds since 2001
-                let timestamp = row[date]
-                let refDate = Date(timeIntervalSinceReferenceDate: 0) // 2001-01-01
-                
-                // If it's greater than a huge number, assume it's in nanoseconds
-                let seconds: Double
-                if timestamp > 1_000_000_000_000 {
-                    seconds = Double(timestamp) / 1_000_000_000
-                } else {
-                    seconds = Double(timestamp)
-                }
-                
-                return refDate.addingTimeInterval(seconds)
+                return self.formatDate(row[date])
             }
         } catch {
             print("❌ Error fetching last message date for handle \(handleID): \(error)")
