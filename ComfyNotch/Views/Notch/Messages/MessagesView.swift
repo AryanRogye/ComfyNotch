@@ -48,6 +48,8 @@ struct MessagesView: View {
     private var userMessagesHomePage: some View {
         VStack(spacing: 0) {
             ComfyScrollView {
+                /// TODO: Add Favorites Section
+                /// TODO: At Top Add Search Bar
                 ForEach(messagesManager.allHandles.sorted(by: { $0.lastTalkedTo > $1.lastTalkedTo } ), id: \.self) { handle in
                     Button(action: {
                         Task.detached {

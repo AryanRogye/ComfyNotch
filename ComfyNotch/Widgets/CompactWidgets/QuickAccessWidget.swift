@@ -24,15 +24,18 @@ struct QuickAccessWidget: View, Widget {
         AnyView(self)
     }
     
-    @ObservedObject private var animationState: PanelAnimationState = .shared
+    @StateObject private var animationState: PanelAnimationState = .shared
+    @StateObject private var settings      : SettingsModel       = .shared
     
     var body: some View {
         HStack {
             homeButton
                 .padding(.leading, widgetSpacing)
             
-            messagesButton
-                .padding(.leading, widgetSpacing)
+            if settings.enableMessagesNotifications {
+                messagesButton
+                    .padding(.leading, widgetSpacing)
+            }
             
             utilsButton
                 .padding(.leading, widgetSpacing)

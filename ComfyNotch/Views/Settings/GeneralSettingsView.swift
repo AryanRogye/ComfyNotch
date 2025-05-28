@@ -84,10 +84,15 @@ struct GeneralSettingsView: View {
                         .foregroundColor(.primary)
                 }
                 .onChange(of: settings.enableMessagesNotifications) { _, newValue in
-                    if newValue {
-                        /// Logic When Turned On
-                    } else {
-                        /// Logic When Turned Off
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        if newValue {
+                            /// Logic When Turned On
+                            Task {
+                                await MessagesManager.shared.fetchAllHandles()
+                            }
+                        } else {
+                            /// Logic When Turned Off
+                        }
                     }
                 }
                 .toggleStyle(.switch)
@@ -105,6 +110,26 @@ struct GeneralSettingsView: View {
                     .foregroundColor(.secondary)
                 }
                 .buttonStyle(.plain)
+                
+                /// TODO: Show Limits on the amount of messages etc.
+                if settings.enableMessagesNotifications {
+                    Group {
+                        ComfyLabeledStepper(
+                            "Most Recent Message Limit",
+                            value: $settings.messagesHandleLimit,
+                            in: 10...100
+                        )
+                        
+                        ComfyLabeledStepper(
+                            "Control Message Limit",
+                            value: $settings.messagesMessageLimit,
+                            in: 10...100
+                        )
+                    }
+                    .padding()
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+                }
+                
             }
             
             Spacer()

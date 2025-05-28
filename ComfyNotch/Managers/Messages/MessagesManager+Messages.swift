@@ -10,6 +10,7 @@ import SQLite
 
 extension MessagesManager {
     public func fetchMessagesWithUser(for rowID: Int64) {
+        
         if isFetchingMessages { return }
         isFetchingMessages = true
         defer { isFetchingMessages = false }
@@ -36,7 +37,7 @@ extension MessagesManager {
                 messageTable
                     .filter(handle_id == rowID)
                     .order(date.desc)
-                    .limit(20)
+                    .limit(settingsManager.messagesMessageLimit)
             ) {
                 /// Create a Message Object
                 let message = Message(

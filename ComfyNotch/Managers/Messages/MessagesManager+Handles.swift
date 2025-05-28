@@ -32,7 +32,10 @@ extension MessagesManager {
         var results: [Handle] = []
         
         do {
-            for row in try db.prepare(handleTable) {
+            for row in try db.prepare(
+                handleTable
+                    .limit(settingsManager.messagesHandleLimit)
+            ) {
                 
                 let (contact, image) = await getContactName(for: row[id]) ?? (row[id], nil)
                 let nsImage = image

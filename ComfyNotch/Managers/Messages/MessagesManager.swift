@@ -76,6 +76,8 @@ final class MessagesManager: ObservableObject {
     /// we will setup a watcher to watch for the most latest messages
     static let shared = MessagesManager()
     
+    internal var settingsManager: SettingsModel = .shared
+    
     @Published var allHandles: [Handle] = []
     /// Holds the current messages with the user the user wants to talk to
     /// this will get reset on back or anything else

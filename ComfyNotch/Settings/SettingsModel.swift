@@ -50,6 +50,8 @@ class SettingsModel: ObservableObject {
     /// Maybe we can add a prompt later on to ask the user or just
     /// force it down
     @Published var enableMessagesNotifications: Bool = false
+    @Published var messagesHandleLimit: Int = 30
+    @Published var messagesMessageLimit: Int = 20
     
 
     @Published var updaterController: SPUStandardUpdaterController
@@ -131,8 +133,18 @@ class SettingsModel: ObservableObject {
         
         /// ----------------------- Music Player Settings -----------------------
         defaults.set(showMusicProvider, forKey: "showMusicProvider")
+        
         /// ----------------------- Messages Settings -----------------------
         defaults.set(enableMessagesNotifications, forKey: "enableMessagesNotifications")
+        if messagesHandleLimit < 10 {
+            messagesHandleLimit = 10
+        }
+        defaults.set(messagesHandleLimit, forKey: "messagesHandleLimit")
+        
+        if messagesMessageLimit < 10 {
+            messagesMessageLimit = 10
+        }
+        defaults.set(messagesMessageLimit, forKey: "messagesMessageLimit")
     }
     
     // MARK: - Load Settings
@@ -213,6 +225,18 @@ class SettingsModel: ObservableObject {
             self.enableMessagesNotifications = enableMessagesNotifications
         } else {
             self.enableMessagesNotifications = false
+        }
+        
+        if let messagesHandleLimit = defaults.object(forKey: "messagesHandleLimit") as? Int {
+            self.messagesHandleLimit = messagesHandleLimit
+        } else {
+            self.messagesHandleLimit = 30
+        }
+        
+        if let messagesMessageLimit = defaults.object(forKey: "messagesMessageLimit") as? Int {
+            self.messagesMessageLimit = messagesMessageLimit
+        } else {
+            self.messagesMessageLimit = 20
         }
     }
     
