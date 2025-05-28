@@ -48,17 +48,68 @@ struct MessagesView: View {
     private var userMessagesHomePage: some View {
         VStack(spacing: 0) {
             ComfyScrollView {
-                ForEach(userHandles.sorted(by: { $0.lastTalkedTo > $1.lastTalkedTo } ), id: \.self) { handle in
-                    HStack {
-                        Text(handle.id)
-                        Text(handle.display_name)
-                        Text(dateFormatter.string(from: handle.lastTalkedTo))
+                ForEach(messagesManager.allHandles.sorted(by: { $0.lastTalkedTo > $1.lastTalkedTo } ), id: \.self) { handle in
+                    Button(action: {}) {
+                        HStack {
+                            /// Image of Person
+                            userImage(for: handle)
+                            VStack {
+                                HStack {
+                                    /// Name of Person
+                                    nameOfPerson(for: handle)
+                                    
+                                    Spacer()
+                                    /// Date Last Talked To
+                                    dateLastTalkedTo(for: handle)
+                                }
+                                /// Last Message To User
+                                Text(handle.lastMessage)
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                            }
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color(NSColor.controlBackgroundColor))
+                        )
                     }
+                    .buttonStyle(.plain)
+                    .frame(maxWidth: .infinity)
                 }
             }
             .onAppear {
                 fetchHandles()
             }
+        }
+    }
+    
+    private func userImage(for handle: MessagesManager.Handle) -> some View {
+        VStack (alignment: .leading) {
+            Image(nsImage: handle.image)
+                .resizable()
+                .frame(width: 50, height: 50)
+                .clipShape(Circle())
+        }
+    }
+    
+    private func nameOfPerson(for handle: MessagesManager.Handle) -> some View {
+        VStack(alignment: .leading) {
+            Text(handle.display_name)
+                .font(.headline)
+                .lineLimit(1)
+                .foregroundColor(.primary)
+        }
+    }
+    
+    private func dateLastTalkedTo(for handle: MessagesManager.Handle) -> some View {
+        /// Date Last Talked To
+        VStack(alignment: .trailing) {
+            Text(formatDate(handle.lastTalkedTo))
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
     
@@ -104,7 +155,31 @@ struct MessagesView: View {
     
     private func fetchHandles() {
         Task {
-            self.userHandles = await messagesManager.fetchAllHandles()
+            await messagesManager.fetchAllHandles()
         }
+    }
+    
+    private func formatDate(_ date: Date) -> String {
+        /// Apple Messages Formats Dates where if it was sent in the last week, it shows up
+        /// with the day, or else it shows up with the date in the format mm/dd/yyyy <- yyyy is just last 2
+        let cal = Calendar.current
+        let now = Date()
+        
+        if cal.isDateInToday(date) {
+            let formatter = DateFormatter()
+            formatter.timeStyle = .short
+            return formatter.string(from: date)
+        }
+        
+        if let weekAgo = cal.date(byAdding: .day, value: -7, to: now),
+           date >= weekAgo {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "EEEE" // e.g., "Monday"
+            return formatter.string(from: date)
+        }
+        
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM/dd/yy"
+        return formatter.string(from: date)
     }
 }

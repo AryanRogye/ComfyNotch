@@ -43,6 +43,12 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
         
+        if SettingsModel.shared.enableMessagesNotifications {
+            Task {
+                await MessagesManager.shared.fetchAllHandles()
+            }
+        }
+        
 //        SettingsModel.shared.checkForUpdates()
         
         /// Wanna Request Access To Acessibility

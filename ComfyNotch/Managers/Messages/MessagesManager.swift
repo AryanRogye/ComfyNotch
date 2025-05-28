@@ -43,15 +43,22 @@ extension MessagesManager {
         var service: String
         var lastTalkedTo: Date
         var display_name: String
+        var image: NSImage
+        var lastMessage: String
     }
 }
 
+// MARK: - MessagesManager
+
+@MainActor
 final class MessagesManager: ObservableObject {
     /// Messages are stored in ~/Library/Messages/chat.db
     /// We Need to write SQL queries to fetch messages from this database
     /// we will setup a watcher to watch for the most latest messages
     static let shared = MessagesManager()
     
+    @Published var allHandles: [Handle] = []
+
     @Published var hasFullDiskAccess: Bool = false
     @Published var hasContactAccess: Bool = false
     
@@ -103,12 +110,15 @@ final class MessagesManager: ObservableObject {
     }
 }
 
-/// Fetching Logic For Users
+// MARK: - Fetching Handles
+
 extension MessagesManager {
-    public func fetchAllHandles() async -> [Handle] {
+    typealias ContactResult = (name: String, imageData: Data?)
+    
+    public func fetchAllHandles() async {
         guard let db = db else {
             print("🚫 DB not available")
-            return []
+            return
         }
         
         let handleTable = Table("handle")
@@ -122,24 +132,62 @@ extension MessagesManager {
         do {
             for row in try db.prepare(handleTable) {
                 
-                let contact = await getContactName(for: row[id]) ?? row[id]
-                print("Contact: \(contact), ID: \(row[id])")
-                let lastTalkedTo = getLastTalkedTo(for: row[rowID])
+                let (contact, image) = await getContactName(for: row[id]) ?? (row[id], nil)
+                let nsImage = image
+                    .flatMap(NSImage.init(data:))
+                    ?? NSImage(systemSymbolName: "person.crop.circle", accessibilityDescription: nil)
+                    ?? NSImage(size: NSSize(width: 40, height: 40))
                 
+                let lastTalkedTo = getLastTalkedTo(for: row[rowID])
+                let lastMessage = getLastMessageWithUser(for: row[rowID]) ?? ""
+
                 let h = Handle(
                     ROWID: row[rowID],
                     id: row[id],
                     service: row[service],
                     lastTalkedTo: lastTalkedTo,
-                    display_name: contact
+                    display_name: contact,
+                    image: nsImage,
+                    lastMessage: lastMessage
                 )
                 results.append(h)
             }
         } catch {
             print("Error Fetching All Handles: \(error)")
         }
+        self.allHandles = results
+    }
+    
+    func getLastMessageWithUser(for handleID: Int64) -> String? {
+        guard let db = db else {
+            print("🚫 DB not available")
+            return nil
+        }
         
-        return results
+        let messageTable = SQLite.Table("message")
+        let handle_id    = SQLite.Expression<Int64>("handle_id")
+        let text         = SQLite.Expression<String?>("text")
+        let date         = SQLite.Expression<Int64>("date")
+        
+        do {
+            if let row = try db.pluck(
+                messageTable
+                    .filter(handle_id == handleID)
+                    .order(date.desc)
+                    .limit(1)
+            ) {
+                let messageText = row[text]
+                guard let messageText = messageText, !messageText.isEmpty else {
+                    // If the text is nil or empty, return nil
+                    return nil
+                }
+                return messageText
+            }
+        } catch {
+            print("❌ Error fetching last message for handle \(handleID): \(error)")
+        }
+        
+        return nil
     }
     
     /// We need to query the message table to get the last talked to for the handle id
@@ -181,17 +229,16 @@ extension MessagesManager {
         return .distantPast
     }
     
-    func getContactName(for identifier: String) async -> String? {
-        print("🧪 Looking up contact for handle.id: \(identifier)")
-        
-        let keysToFetch: [CNKeyDescriptor] = [
-            CNContactGivenNameKey as CNKeyDescriptor,
-            CNContactFamilyNameKey as CNKeyDescriptor,
-            CNContactPhoneNumbersKey as CNKeyDescriptor,
-            CNContactEmailAddressesKey as CNKeyDescriptor
-        ]
-        
-        return await Task.detached(priority: .userInitiated) { () -> String? in
+    func getContactName(for identifier: String) async -> ContactResult? {
+        await Task(priority: .background) {
+            let keysToFetch: [CNKeyDescriptor] = [
+                CNContactGivenNameKey as CNKeyDescriptor,
+                CNContactFamilyNameKey as CNKeyDescriptor,
+                CNContactPhoneNumbersKey as CNKeyDescriptor,
+                CNContactEmailAddressesKey as CNKeyDescriptor,
+                CNContactImageDataKey as CNKeyDescriptor
+            ]
+            
             let store = CNContactStore()
             
             do {
@@ -201,10 +248,8 @@ extension MessagesManager {
                 )
                 
                 for contact in allContacts {
-                    for email in contact.emailAddresses {
-                        if email.value as String == identifier {
-                            return "\(contact.givenName) \(contact.familyName)".trimmingCharacters(in: .whitespaces)
-                        }
+                    if contact.emailAddresses.contains(where: { $0.value as String == identifier }) {
+                        return ("\(contact.givenName) \(contact.familyName)".trimmingCharacters(in: .whitespaces), contact.imageData)
                     }
                 }
                 
@@ -212,18 +257,16 @@ extension MessagesManager {
                     for number in contact.phoneNumbers {
                         let contactNum = number.value.stringValue.filter(\.isNumber)
                         let handleNum = identifier.filter(\.isNumber)
-                        
                         if contactNum.hasSuffix(handleNum) || handleNum.hasSuffix(contactNum) {
-                            return "\(contact.givenName) \(contact.familyName)".trimmingCharacters(in: .whitespaces)
+                            return ("\(contact.givenName) \(contact.familyName)".trimmingCharacters(in: .whitespaces), contact.imageData)
                         }
                     }
                 }
-                
-                return nil
             } catch {
                 print("❌ Contact fetch error: \(error)")
-                return nil
             }
+            
+            return nil
         }.value
     }
 }
