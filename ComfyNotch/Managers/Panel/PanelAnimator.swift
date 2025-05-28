@@ -20,6 +20,7 @@ final class PanelAnimator {
     private var panel: NSPanel {
         UIManager.shared.smallPanel
     }
+    
     private var lastWasPlaying: String? = nil
     var musicModel: MusicPlayerWidgetModel = .shared
 
@@ -116,8 +117,12 @@ final class PanelAnimator {
 
     func startHoverTimer() {
         hoverTimer?.invalidate()
-        hoverTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { [weak self] _ in
+        hoverTimer = nil
+        
+        let timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { [weak self] _ in
             guard let self = self else { return }
+            
+            defer { self.hoverTimer = nil }
 
             // Add a safety check: only animate if we're not already open
             if UIManager.shared.panelState != .open {
@@ -134,6 +139,8 @@ final class PanelAnimator {
             }
             self.hoverTimer = nil
         }
+        RunLoop.main.add(timer, forMode: .common)
+        hoverTimer = timer
     }
 
     
