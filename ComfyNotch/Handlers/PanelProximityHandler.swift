@@ -88,13 +88,19 @@ class PanelProximityHandler: NSObject {
             let distance = distanceFromPanel(to: mouseLocation, panelFrame: panelFrame)
 
             if distance > distanceThreshold && !SettingsModel.shared.isSettingsWindowOpen {
-                UIManager.shared.panelState = .closed
+                
                 withAnimation(.easeInOut(duration: 0.1)) {
+                    
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         UIManager.shared.applyOpeningLayout()
+                        ScrollHandler.shared.closeFull()
                     }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        ScrollHandler.shared.closeFull()
+                        /// IDK WHY THIS WILL MAKE TABS CHANGE
+                        UIManager.shared.panelState = .closed
+                    }
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         PanelAnimationState.shared.isExpanded = false
                         PanelAnimationState.shared.bottomSectionHeight = 0
                     }
