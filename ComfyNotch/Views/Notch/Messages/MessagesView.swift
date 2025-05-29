@@ -129,7 +129,11 @@ struct MessagesView: View {
                 if message.is_from_me != 0 {
                     HStack {
                         Spacer()
-                        Text(message.text)
+                        Text(
+                            message.text.isEmpty
+                            ? message.attachment.filename
+                            : message.text
+                        )
                             .padding()
                             .background(Color.blue.opacity(0.2))
                             .overlay(
@@ -140,7 +144,11 @@ struct MessagesView: View {
                 }
                 else {
                     HStack {
-                        Text(message.text)
+                        Text(
+                            message.text.isEmpty
+                            ? message.attachment.filename
+                            : message.text
+                        )
                             .padding()
                             .background(Color.gray.opacity(0.2))
                             .overlay(

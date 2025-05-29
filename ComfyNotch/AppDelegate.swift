@@ -32,6 +32,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
      *
      * - Parameter notification: Launch notification object
      */
+    
     public func applicationDidFinishLaunching(_ notification: Notification) {
         _ = SettingsModel.shared
         

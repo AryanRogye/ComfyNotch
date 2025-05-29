@@ -46,16 +46,28 @@ extension MessagesManager {
                 let rawText = row[text]
                 var finalText = rawText ?? ""
 
+                // Always try to decode attributedBody if we don't have meaningful text
                 if finalText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    if let data = row[attributedBody],
-                       let attrStr = try? NSKeyedUnarchiver.unarchivedObject(ofClass: NSAttributedString.self, from: data) {
-                        finalText = attrStr.string
+                    let attributedText = formatAttributedBody(row[attributedBody])
+                    if !attributedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        finalText = attributedText
                     }
-                }            /// Create a Message Object
-//                if let data = row[attributedBody], finalText.isEmpty {
-//                    print("!!!!!!!!!!FOUND Attributed Body!!!!!!!!!!")
-//                    print("🧬 Raw attributedBody:", data.map { String(format: "%02x", $0) }.joined())
-//                }
+                }
+
+                // Debug: Show what we actually got
+                if !finalText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    print("✅ Final text: '\(finalText)'")
+                } else if let data = row[attributedBody] {
+                    print("!!!!!!!!!!FOUND Attributed Body!!!!!!!!!!")
+                    print("🧬 Raw attributedBody:", data.map { String(format: "%02x", $0) }.joined())
+                    // Try to decode it manually to see what's wrong
+                    let debugText = formatAttributedBody(data)
+                    print("🔍 Debug decode result: '\(debugText)' (length: \(debugText.count))")
+                    print("🔍 Debug bytes: \(debugText.utf8.map { String($0) }.joined(separator: ","))")
+                }
+                
+                let attachment = getAttachment(for: row[ROWID]) ?? MessageAttachment()
+                
                 let message = Message(
                     ROWID: row[ROWID],
                     text: finalText,
@@ -63,7 +75,8 @@ extension MessagesManager {
                     date: formatDate(row[date]),
                     is_read: row[is_read],
                     handle_id: row[handle_id],
-                    cache_has_attachments: row[cache_has_attachments]
+                    cache_has_attachments: row[cache_has_attachments],
+                    attachment: attachment
                 )
                 messages.append(message)
             }
@@ -72,5 +85,44 @@ extension MessagesManager {
         } catch {
             print("Error Fetching Messages: \(error)")
         }
+    }
+    
+    private func getAttachment(for rowID: Int64) -> MessageAttachment? {
+        guard let db = db else {
+            print("🚫 DB not available")
+            return nil
+        }
+        
+        let joinTable       = SQLite.Table("message_attachment_join")
+        let message_id      = SQLite.Expression<Int64>("message_id")
+        let attachment_id   = SQLite.Expression<Int64>("attachment_id")
+        
+        let attachmentTable = SQLite.Table("attachment")
+        let ROWID           = SQLite.Expression<Int64>("ROWID")
+        let filename        = SQLite.Expression<String?>("filename")
+        let mime_type       = SQLite.Expression<String?>("mime_type")
+
+        do {
+            /// Loop Through the JoinRow And Match Wuth the attachRow
+            for joinRow in try db.prepare(
+                joinTable
+                    .filter(message_id == rowID)
+            ) {
+                if let attachRow = try db.pluck(
+                    attachmentTable
+                        .filter(ROWID == joinRow[attachment_id])
+                ) {
+                    return MessageAttachment(
+                        filename: attachRow[filename] ?? "Unknown",
+                        mimeType: attachRow[mime_type] ?? "application/octet-stream"
+                        /// TODO: Construct FilePath and FileData too Sleepy
+                    )
+                }
+            }
+        } catch {
+            
+        }
+        
+        return nil
     }
 }
