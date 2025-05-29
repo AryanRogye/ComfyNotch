@@ -276,7 +276,9 @@ final class VolumeManager: ObservableObject {
             guard let self = self else { return }
             
             PopInPresenter_HUD_Coordinator.shared.presentIfAllowed(for: .volume) {
-                workItem.perform()
+                withAnimation(.easeOut(duration: 0.2)) {
+                    workItem.perform()
+                }
                 self.panelState.isLoadingPopInPresenter = false
             }
         }

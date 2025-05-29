@@ -59,7 +59,6 @@ final class BrightnessWatcher: ObservableObject {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.currentBrightness = newVal
-            print("💡 Brightness changed to: \(newVal)")
             self.triggerNotchOptimized()
         }
     }

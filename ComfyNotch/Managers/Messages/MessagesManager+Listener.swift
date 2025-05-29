@@ -91,6 +91,7 @@ extension MessagesManager {
     
     private func closeNotch() {
         PanelAnimationState.shared.currentPopInPresentationState = .none
+        PanelAnimationState.shared.currentPanelState = .home
         ScrollHandler.shared.peekClose()
     }
     

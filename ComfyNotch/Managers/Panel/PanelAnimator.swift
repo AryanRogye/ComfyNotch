@@ -105,7 +105,7 @@ final class PanelAnimator {
                     isHovering = true
                     startHoverTimer()
                 }
-            } else {
+            } else if isHovering {
                 isHovering = false
                 hoverTimer?.invalidate()
                 hoverTimer = nil

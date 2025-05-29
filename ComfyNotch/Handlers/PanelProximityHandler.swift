@@ -84,7 +84,8 @@ class PanelProximityHandler: NSObject {
         )
 
         /// Don't open the panel with proximity, only allow closing
-        if UIManager.shared.panelState == .open && !paddedFrame.contains(mouseLocation) {
+        if (UIManager.shared.panelState == .open
+            && !paddedFrame.contains(mouseLocation)) {
             let distance = distanceFromPanel(to: mouseLocation, panelFrame: panelFrame)
 
             if distance > distanceThreshold && !SettingsModel.shared.isSettingsWindowOpen {
