@@ -89,19 +89,8 @@ extension MessagesManager {
                         finalText = attributedText
                     }
                 }
-
-                // Debug: Show what we actually got
-                if !finalText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    print("✅ Final text: '\(finalText)'")
-                } else if let data = row[attributedBody] {
-                    print("!!!!!!!!!!FOUND Attributed Body!!!!!!!!!!")
-                    print("🧬 Raw attributedBody:", data.map { String(format: "%02x", $0) }.joined())
-                    // Try to decode it manually to see what's wrong
-                    let debugText = formatAttributedBody(data)
-                    print("🔍 Debug decode result: '\(debugText)' (length: \(debugText.count))")
-                    print("🔍 Debug bytes: \(debugText.utf8.map { String($0) }.joined(separator: ","))")
-                }
                 
+                /// TODO: Construct the MessageAttachment
                 let attachment = getAttachment(for: row[ROWID]) ?? MessageAttachment()
                 
                 let message = Message(

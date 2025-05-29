@@ -74,6 +74,9 @@ extension MessagesManager {
         let text         = SQLite.Expression<String?>("text")
         let date         = SQLite.Expression<Int64>("date")
         
+        
+        let attributedBody = SQLite.Expression<Data?>("attributedBody")
+
         do {
             if let row = try db.pluck(
                 messageTable
@@ -81,12 +84,17 @@ extension MessagesManager {
                     .order(date.desc)
                     .limit(1)
             ) {
-                let messageText = row[text]
-                guard let messageText = messageText, !messageText.isEmpty else {
-                    // If the text is nil or empty, return nil
-                    return nil
+                let rawText = row[text]
+                var finalText = rawText ?? ""
+
+                if finalText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    let attributedText = formatAttributedBody(row[attributedBody])
+                    if !attributedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        finalText = attributedText
+                    }
                 }
-                return messageText
+
+                return finalText
             }
         } catch {
             print("❌ Error fetching last message for handle \(handleID): \(error)")
