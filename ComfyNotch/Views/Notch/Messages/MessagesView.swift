@@ -117,7 +117,25 @@ struct MessagesView: View {
             userClickedMessageTopRow
                 .padding(5)
             userCLickedMessageMessages
-
+            /// Bottom is the textfield to type
+            userClickedMessageBottomRow
+        }
+    }
+    
+    private var userClickedMessageBottomRow: some View {
+        HStack {
+            TextField("Type a message...", text: $messagesManager.messagesText)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding(.horizontal, 10)
+            Button(action: {
+                messagesManager.sendMessage(for: clickedUser)
+            }) {
+                Image(systemName: "paperplane.fill")
+                    .foregroundColor(.blue)
+                    .font(.system(size: 20))
+            }
+            .buttonStyle(.plain)
+            .disabled(messagesManager.messagesText.isEmpty)
         }
     }
     

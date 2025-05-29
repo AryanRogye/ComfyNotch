@@ -9,6 +9,42 @@ import Cocoa
 import SQLite
 
 extension MessagesManager {
+    
+    public func sendMessage(for handle: Handle?) {
+        guard !isMessaging else { return }
+        isMessaging = true
+        defer { isMessaging = false }
+        
+        /// Make Sure we have a handle
+        guard let handle = handle else { return }
+        /// Make Sure we have a valid messagesText
+        if messagesText.isEmpty { return }
+        let safeMessage = messagesText.replacingOccurrences(of: "\"", with: "\\\"")
+
+        let script = """
+        tell application "Messages"
+            set targetService to 1st service whose service type = iMessage
+            set targetBuddy to buddy "\(handle.id)" of targetService
+            send "\(safeMessage)" to targetBuddy
+        end tell
+        """
+
+        var error: NSDictionary?
+        if let appleScript = NSAppleScript(source: script) {
+            appleScript.executeAndReturnError(&error)
+            if let error = error {
+                print("❌ AppleScript error: \(error)")
+            } else {
+                print("✅ Message sent to \(handle.id)")
+            }
+        }
+        
+        /// Clear the messagesText
+        messagesText = ""
+        /// Fetch the latest messages for this user
+        fetchMessagesWithUser(for: handle.ROWID)
+    }
+    
     public func fetchMessagesWithUser(for rowID: Int64) {
         
         if isFetchingMessages { return }

@@ -40,9 +40,11 @@ final class MessagesManager: ObservableObject {
 
     @Published var hasFullDiskAccess: Bool = false
     @Published var hasContactAccess: Bool = false
+    @Published var messagesText: String = ""
     
-    internal var isFetchingHandles = false
+    internal var isFetchingHandles  = false
     internal var isFetchingMessages = false
+    internal var isMessaging        = false
     
     func checkContactAccess() {
         DispatchQueue.main.async {
