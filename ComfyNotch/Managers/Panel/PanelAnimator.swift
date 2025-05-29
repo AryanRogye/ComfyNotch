@@ -97,6 +97,7 @@ final class PanelAnimator {
         let mouseLocation = NSEvent.mouseLocation
         let panelFrame = panel.frame.insetBy(dx: -10, dy: -10)
             
+        if PanelAnimationState.shared.dontShowHoverMenu { return }
         
         if UIManager.shared.panelState != .open {
             if panelFrame.contains(mouseLocation) {

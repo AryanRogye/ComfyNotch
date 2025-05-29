@@ -66,6 +66,9 @@ extension MessagesManager {
     }
     
     private func executeNotchOpen() {
+        messageCloseWorkItem?.cancel()
+        messageCloseWorkItem = nil
+
         // Set loading state if needed (optional)
         panelState.isLoadingPopInPresenter = true
         
@@ -75,6 +78,7 @@ extension MessagesManager {
         // Clear loading state quickly
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
             guard let self = self else { return }
+            panelState.dontShowHoverMenu = true
             withAnimation(.easeOut(duration: 0.2)) {
                 PanelAnimationState.shared.currentPopInPresentationState = .messages
                 PanelAnimationState.shared.currentPanelState = .popInPresentation
@@ -82,14 +86,10 @@ extension MessagesManager {
             self.panelState.isLoadingPopInPresenter = false
         }
         
-        /// Start A Timer To Close the Messages
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
-            guard let self = self else { return }
-            self.closeNotch()
-        }
+        self.restartMessagesPanelTimer()
     }
     
-    private func closeNotch() {
+    internal func closeNotch() {
         PanelAnimationState.shared.currentPopInPresentationState = .none
         PanelAnimationState.shared.currentPanelState = .home
         ScrollHandler.shared.peekClose()

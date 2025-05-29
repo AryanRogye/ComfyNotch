@@ -36,6 +36,7 @@ class PanelAnimationState: ObservableObject {
     @Published var isDroppingFiles = false
     @Published var droppedFiles: [URL] = []
     
+    @Published var dontShowHoverMenu: Bool = false
 
     @Published var currentPanelState: NotchViewState = .home
     @Published var currentPopInPresentationState: PopInPresenterType = .nowPlaying

@@ -7,6 +7,25 @@
 
 // MARK: - Util Functions
 extension MessagesManager {
+    
+    public func restartMessagesPanelTimer() {
+        // Cancel any existing close timer
+        messageCloseWorkItem?.cancel()
+        messageCloseWorkItem = nil
+
+        // Create new close task
+        let closeItem = DispatchWorkItem { [weak self] in
+            guard let self = self else { return }
+            self.closeNotch()
+            self.panelState.dontShowHoverMenu = false
+            self.messageCloseWorkItem = nil
+        }
+
+        // Store it and schedule it
+        messageCloseWorkItem = closeItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: closeItem)
+    }
+    
     internal func formatDate(_ date: Int64) -> Date {
         /// Apple Holds Messages in nanoseconds since 2001
         let refDate = Date(timeIntervalSinceReferenceDate: 0) // 2001-01-01
