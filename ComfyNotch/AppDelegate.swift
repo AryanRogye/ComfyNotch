@@ -34,6 +34,11 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
      */
     
     public func applicationDidFinishLaunching(_ notification: Notification) {
+        let _ = {
+            NSKeyedUnarchiver.setClass(NSAttributedString.self, forClassName: "__NSCFAttributedString")
+            NSKeyedUnarchiver.setClass(NSAttributedString.self, forClassName: "NSConcreteAttributedString")
+            NSKeyedUnarchiver.setClass(NSAttributedString.self, forClassName: "NSFrozenAttributedString")
+        }()
         _ = SettingsModel.shared
         
         /// Close the SettingsPage On Launch
