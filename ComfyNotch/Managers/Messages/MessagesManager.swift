@@ -11,9 +11,11 @@ import Contacts
 
 // MARK: - DB Internals
 extension MessagesManager {
-    private var messagesDBPath: String {
-        FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("Library/Messages/chat.db").path
+    internal var messagesDBPath: String {
+        FileManager.default
+            .homeDirectoryForCurrentUser
+            .appendingPathComponent("Library/Messages/chat.db")
+            .path
     }
     
     internal var db: Connection? {
@@ -31,8 +33,9 @@ final class MessagesManager: ObservableObject {
     /// we will setup a watcher to watch for the most latest messages
     static let shared = MessagesManager()
     
-    internal var settingsManager: SettingsModel = .shared
-    
+    internal let settingsManager    : SettingsModel         = .shared
+    internal let panelState         : PanelAnimationState   = .shared
+
     @Published var allHandles: [Handle] = []
     /// Holds the current messages with the user the user wants to talk to
     /// this will get reset on back or anything else
@@ -46,6 +49,13 @@ final class MessagesManager: ObservableObject {
     internal var isFetchingMessages = false
     internal var isMessaging        = false
     
+    internal var timer: Timer?
+    internal var lastKnownModificationDate: Date?
+    internal var lastLocalSendTimestamp: Date?
+    
+    internal var lastTriggerTime: DispatchTime = .now()
+    internal var pendingNotchOpen: DispatchWorkItem?
+
     func checkContactAccess() {
         DispatchQueue.main.async {
             self.hasContactAccess = self.hasContactPermission()

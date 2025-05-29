@@ -63,6 +63,12 @@ extension MessagesManager {
         self.allHandles = results
     }
     
+    public func getLatestHandle() -> Handle? {
+        /// self.allHandles has the handles we need, we just wanna send the one with the most
+        /// recent date
+        return self.allHandles.max(by: { $0.lastTalkedTo < $1.lastTalkedTo }) ?? nil
+    }
+    
     func getLastMessageWithUser(for handleID: Int64) -> String? {
         guard let db = db else {
             print("🚫 DB not available")

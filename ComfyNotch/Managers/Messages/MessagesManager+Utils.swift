@@ -82,11 +82,12 @@ extension MessagesManager {
         
         // ---------- extract visible text ----------
         guard let attr = attributed else {
-            print("❌ Failed to decode attributed string. Last error: \(lastError?.localizedDescription ?? "unknown")")
             
             // Fallback: Try to extract text directly from the hex data
             if let fallbackText = extractTextFromHex(data) {
-                print("🔧 Extracted fallback text: '\(fallbackText)'")
+                /// WARNING: Dont remove this print, its kinda useful if messages are
+                /// not decoding right
+//                print("🔧 Extracted fallback text: '\(fallbackText)'")
                 return fallbackText
             }
             

@@ -10,6 +10,7 @@ import SwiftUI
 enum PopInPresenterType {
     case none
     case nowPlaying
+    case messages
     case hud
     case notiification
 }
@@ -25,6 +26,8 @@ struct PopInPresenter: View {
                 PopInPresenter_NowPlaying()
             case .hud:
                 PopInPresenter_HUD()
+            case .messages:
+                PopInPresenter_Messages()
             default:
                 EmptyView()
             }

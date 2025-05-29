@@ -89,9 +89,11 @@ struct GeneralSettingsView: View {
                             /// Logic When Turned On
                             Task {
                                 await MessagesManager.shared.fetchAllHandles()
+                                MessagesManager.shared.startPolling()
                             }
                         } else {
                             /// Logic When Turned Off
+                            MessagesManager.shared.stopPolling()
                         }
                     }
                 }

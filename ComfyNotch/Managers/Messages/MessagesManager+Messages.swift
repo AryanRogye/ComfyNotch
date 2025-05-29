@@ -20,6 +20,8 @@ extension MessagesManager {
         /// Make Sure we have a valid messagesText
         if messagesText.isEmpty { return }
         let safeMessage = messagesText.replacingOccurrences(of: "\"", with: "\\\"")
+        
+        self.lastLocalSendTimestamp = Date()
 
         let script = """
         tell application "Messages"

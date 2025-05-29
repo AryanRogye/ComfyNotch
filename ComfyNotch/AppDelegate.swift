@@ -52,6 +52,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         if SettingsModel.shared.enableMessagesNotifications {
             Task {
                 await MessagesManager.shared.fetchAllHandles()
+                MessagesManager.shared.startPolling()
             }
         }
         
