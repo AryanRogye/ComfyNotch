@@ -10,20 +10,23 @@ import SwiftUI
 struct PopInPresenter_Messages: View {
     @State private var latestHandle: MessagesManager.Handle?
     @State private var isLoading = true
-    
+
     var body: some View {
         VStack {
             if isLoading {
+                /// Loading View if the latest handle is being fetched
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle())
                     .padding(.top, 20)
             } else if let handle = latestHandle {
                 HStack {
+                    /// Show Image of the User
                     Image(nsImage: handle.image)
                         .resizable()
                         .frame(width: 25, height: 25)
                         .clipShape(Circle())
                     Spacer()
+                    /// Show the latest message from the user
                     Text(handle.lastMessage)
                 }
             } else {
@@ -31,20 +34,20 @@ struct PopInPresenter_Messages: View {
                     .foregroundColor(.secondary)
             }
         }
-        .frame(height: 30)
+        .frame(height: 40)
         .clipped()
         .padding(.horizontal, 20)
         .task {
             await loadLatestHandle()
         }
     }
-    
+
     private func loadLatestHandle() async {
         // Move the heavy work to a background thread
         let handle = await Task.detached {
             await MessagesManager.shared.getLatestHandle()
         }.value
-        
+
         await MainActor.run {
             self.latestHandle = handle
             self.isLoading = false

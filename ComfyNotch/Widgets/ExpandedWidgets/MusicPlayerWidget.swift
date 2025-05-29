@@ -14,7 +14,6 @@ struct MusicControlButton: ButtonStyle {
 }
 
 struct MusicPlayerWidget: View, Widget {
-    
     var name: String = "MusicPlayerWidget"
     var imageWidth: CGFloat = 120
     var imageHeight: CGFloat = 120
@@ -41,7 +40,7 @@ struct MusicPlayerWidget: View, Widget {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
-            debugLog("Bundle Path: \(Bundle.main.bundlePath)")
+//            debugLog("Bundle Path: \(Bundle.main.bundlePath)")
         }
     }
     

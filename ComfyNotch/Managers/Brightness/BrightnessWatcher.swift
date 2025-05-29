@@ -5,7 +5,7 @@
 //  Created by Aryan Rogye on 5/24/25.
 //
 
-import Foundation
+import SwiftUI
 import Combine
 
 final class BrightnessWatcher: ObservableObject {
@@ -102,11 +102,16 @@ final class BrightnessWatcher: ObservableObject {
         // Open immediately
         openNotch()
         
+        
         // Clear loading state quickly
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
             guard let self = self else { return }
             
             PopInPresenter_HUD_Coordinator.shared.presentIfAllowed(for: .brightness) {
+                withAnimation(.easeOut(duration: 0.2)) {
+                    PanelAnimationState.shared.currentPopInPresentationState = .hud
+                    PanelAnimationState.shared.currentPanelState = .popInPresentation
+                }
                 self.panelState.isLoadingPopInPresenter = false
             }
         }
@@ -114,7 +119,5 @@ final class BrightnessWatcher: ObservableObject {
 
     private func openNotch() {
         ScrollHandler.shared.peekOpen()
-        PanelAnimationState.shared.currentPopInPresentationState = .hud
-        PanelAnimationState.shared.currentPanelState = .popInPresentation
     }
 }
