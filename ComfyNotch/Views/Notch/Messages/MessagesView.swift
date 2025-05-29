@@ -116,46 +116,67 @@ struct MessagesView: View {
         VStack {
             userClickedMessageTopRow
                 .padding(5)
-            ComfyScrollView {
-                userCLickedMessageMessages
-            }
+            userCLickedMessageMessages
+
         }
     }
     
     private var userCLickedMessageMessages: some View {
-        VStack {
-            ForEach(messagesManager.currentUserMessages, id: \.self) { message in
-                /// If Message From Me Show Right And Blue
-                if message.is_from_me != 0 {
-                    HStack {
-                        Spacer()
-                        Text(
-                            message.text.isEmpty
-                            ? message.attachment.filename
-                            : message.text
-                        )
-                            .padding()
-                            .background(Color.blue.opacity(0.2))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.blue, lineWidth: 1)
-                            )
+        ScrollViewReader { scrollProxy in
+            ScrollView {
+                VStack {
+                    ForEach(messagesManager.currentUserMessages, id: \.self) { message in
+                        /// If Message From Me Show Right And Blue
+                        HStack {
+                            if message.is_from_me != 0 {
+                                Spacer()
+                                Text(
+                                    message.text.isEmpty
+                                    ? message.attachment.filename
+                                    : message.text
+                                )
+                                .padding()
+                                .background(Color.blue.opacity(0.2))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.blue, lineWidth: 1)
+                                )
+                            }
+                            else {
+                                Text(
+                                    message.text.isEmpty
+                                    ? message.attachment.filename
+                                    : message.text
+                                )
+                                .padding()
+                                .background(Color.gray.opacity(0.2))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.gray, lineWidth: 1)
+                                )
+                                Spacer()
+                            }
+                        } // HStack
+                        .id(message.id)
+                        .scaleEffect(y: -1)
+                    } /// ForEach
+                } /// VSTack
+                .padding()
+                .scaleEffect(y: -1)
+            }
+            .onAppear {
+                // Scroll to the first message (which appears at bottom due to flip)
+                DispatchQueue.main.async {
+                    if let firstMessage = messagesManager.currentUserMessages.first {
+                        scrollProxy.scrollTo(firstMessage.id, anchor: .bottom)
                     }
                 }
-                else {
-                    HStack {
-                        Text(
-                            message.text.isEmpty
-                            ? message.attachment.filename
-                            : message.text
-                        )
-                            .padding()
-                            .background(Color.gray.opacity(0.2))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.gray, lineWidth: 1)
-                            )
-                        Spacer()
+            }
+            .onChange(of: messagesManager.currentUserMessages.count) {
+                // Scroll when new messages are added
+                DispatchQueue.main.async {
+                    if let firstMessage = messagesManager.currentUserMessages.first {
+                        scrollProxy.scrollTo(firstMessage.id, anchor: .bottom)
                     }
                 }
             }
