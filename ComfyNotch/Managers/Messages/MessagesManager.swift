@@ -55,6 +55,8 @@ final class MessagesManager: ObservableObject {
     
     internal var lastTriggerTime: DispatchTime = .now()
     internal var pendingNotchOpen: DispatchWorkItem?
+    
+    internal var isPolling = false
 
     func checkContactAccess() {
         DispatchQueue.main.async {

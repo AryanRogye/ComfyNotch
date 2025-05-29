@@ -11,6 +11,9 @@ import SwiftUI
 extension MessagesManager {
     
     func startPolling() {
+        guard !isPolling else { return }
+        isPolling = true
+
         stopPolling()
         timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
             guard let self = self else { return }
@@ -21,6 +24,12 @@ extension MessagesManager {
         }
     }
     
+    func stopPolling() {
+        timer?.invalidate()
+        timer = nil
+        isPolling = false
+    }
+
     private func checkAndFetchIfChanged() async {
         let didChange = self.hasChatDBChanged()
         if didChange {
@@ -103,10 +112,5 @@ extension MessagesManager {
         
         defer { lastKnownModificationDate = modDate }
         return modDate != lastKnownModificationDate
-    }
-    
-    func stopPolling() {
-        timer?.invalidate()
-        timer = nil
     }
 }
