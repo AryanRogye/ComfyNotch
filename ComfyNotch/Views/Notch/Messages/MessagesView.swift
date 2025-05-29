@@ -12,7 +12,8 @@ struct MessagesView: View {
     @StateObject var animationState = PanelAnimationState.shared
     @StateObject var messagesManager = MessagesManager.shared
     
-    @State var userHandles: [MessagesManager.Handle] = []
+    @State var didPressUser: Bool = false
+    @State var clickedUser: MessagesManager.Handle?
     
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
@@ -46,56 +47,139 @@ struct MessagesView: View {
     }
     
     private var userMessagesHomePage: some View {
-        VStack(spacing: 0) {
-            ComfyScrollView {
-                /// TODO: Add Favorites Section
-                /// TODO: At Top Add Search Bar
-                ForEach(messagesManager.allHandles.sorted(by: { $0.lastTalkedTo > $1.lastTalkedTo } ), id: \.self) { handle in
-                    Button(action: {
-                        Task.detached {
-                            await MainActor.run {
-                                messagesManager.fetchMessagesWithUser(for: handle.ROWID)
-                            }
-                            /// Once Done Just Print for now
-                            await messagesManager.currentUserMessages.forEach({message in
-                                print("\(message.is_from_me) \(message.text)")
-                            })
-                        }
-                    }) {
-                        HStack {
-                            /// Image of Person
-                            userImage(for: handle)
-                            VStack {
-                                HStack {
-                                    /// Name of Person
-                                    nameOfPerson(for: handle)
-                                    
-                                    Spacer()
-                                    /// Date Last Talked To
-                                    dateLastTalkedTo(for: handle)
-                                }
-                                /// Last Message To User
-                                Text(handle.lastMessage)
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                                Spacer()
-                            }
-                        }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color(NSColor.controlBackgroundColor))
-                        )
-                    }
-                    .buttonStyle(.plain)
-                    .frame(maxWidth: .infinity)
-                }
-            }
-            .onAppear {
-                fetchHandles()
+        HStack(spacing: 0) {
+            userHandles
+            /// Actual Users Messages if user pressed on a handle
+            if didPressUser {
+                userClickedMessagePage
             }
         }
+    }
+    
+    private var userHandles: some View {
+        ComfyScrollView {
+            /// TODO: Add Favorites Section
+            /// TODO: At Top Add Search Bar
+            ForEach(messagesManager.allHandles.sorted(by: { $0.lastTalkedTo > $1.lastTalkedTo } ), id: \.self) { handle in
+                Button(action: {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        didPressUser = true
+                    }
+                    clickedUser = handle
+                    Task.detached {
+                        await MainActor.run {
+                            messagesManager.fetchMessagesWithUser(for: handle.ROWID)
+                        }
+                        /// Once Done Just Print for now
+                        await messagesManager.currentUserMessages.forEach({message in
+                            print("\(message.is_from_me) \(message.text)")
+                        })
+                    }
+                }) {
+                    HStack {
+                        /// Image of Person
+                        userImage(for: handle)
+                        VStack {
+                            HStack {
+                                /// Name of Person
+                                nameOfPerson(for: handle)
+                                
+                                Spacer()
+                                /// Date Last Talked To
+                                dateLastTalkedTo(for: handle)
+                            }
+                            /// Last Message To User
+                            Text(handle.lastMessage)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            Spacer()
+                        }
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color(NSColor.controlBackgroundColor))
+                    )
+                }
+                .buttonStyle(.plain)
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .onAppear {
+            fetchHandles()
+        }
+
+    }
+    
+    private var userClickedMessagePage: some View {
+        VStack {
+            userClickedMessageTopRow
+                .padding(5)
+            ComfyScrollView {
+                userCLickedMessageMessages
+            }
+        }
+    }
+    
+    private var userCLickedMessageMessages: some View {
+        VStack {
+            ForEach(messagesManager.currentUserMessages, id: \.self) { message in
+                /// If Message From Me Show Right And Blue
+                if message.is_from_me != 0 {
+                    HStack {
+                        Spacer()
+                        Text(message.text)
+                            .padding()
+                            .background(Color.blue.opacity(0.2))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.blue, lineWidth: 1)
+                            )
+                    }
+                }
+                else {
+                    HStack {
+                        Text(message.text)
+                            .padding()
+                            .background(Color.gray.opacity(0.2))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.gray, lineWidth: 1)
+                            )
+                        Spacer()
+                    }
+                }
+            }
+        }
+    }
+    
+    private var userClickedMessageTopRow: some View {
+        VStack {
+            HStack {
+                Text(clickedUser?.display_name ?? "Unkown Name")
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                Spacer()
+                closeButton
+            }
+            Divider()
+        }
+    }
+    
+    private var closeButton: some View {
+        Button(action: {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                self.didPressUser = false
+            }
+        }) {
+            Image(systemName: "xmark.circle.fill")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 20, height: 20)
+                .foregroundColor(.secondary)
+        }
+        .buttonStyle(.plain)
     }
     
     private func userImage(for handle: MessagesManager.Handle) -> some View {

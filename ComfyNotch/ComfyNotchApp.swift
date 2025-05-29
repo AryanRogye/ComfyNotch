@@ -33,7 +33,7 @@ struct ComfyNotchApp: App {
     
     
     init() {
-        killOtherComfyNotches()
+//        killOtherComfyNotches()
     }
     
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate

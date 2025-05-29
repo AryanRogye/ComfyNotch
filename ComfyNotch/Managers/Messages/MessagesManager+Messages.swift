@@ -20,6 +20,9 @@ extension MessagesManager {
             return
         }
         
+        /// Clear Current Messages Before Anything
+        self.clearCurrentUserMessages()
+        
         let messageTable = SQLite.Table("message")
         let ROWID = SQLite.Expression<Int64>("ROWID")
         let handle_id    = SQLite.Expression<Int64>("handle_id")
@@ -28,6 +31,7 @@ extension MessagesManager {
         let date         = SQLite.Expression<Int64>("date")
         let is_read      = SQLite.Expression<Int>("is_read")
         let cache_has_attachments = SQLite.Expression<Int>("cache_has_attachments")
+        let attributedBody = SQLite.Expression<Data?>("attributedBody")
         
         var messages : [Message] = []
         
@@ -39,10 +43,22 @@ extension MessagesManager {
                     .order(date.desc)
                     .limit(settingsManager.messagesMessageLimit)
             ) {
-                /// Create a Message Object
+                let rawText = row[text]
+                var finalText = rawText ?? ""
+
+                if finalText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    if let data = row[attributedBody],
+                       let attrStr = try? NSKeyedUnarchiver.unarchivedObject(ofClass: NSAttributedString.self, from: data) {
+                        finalText = attrStr.string
+                    }
+                }            /// Create a Message Object
+//                if let data = row[attributedBody], finalText.isEmpty {
+//                    print("!!!!!!!!!!FOUND Attributed Body!!!!!!!!!!")
+//                    print("🧬 Raw attributedBody:", data.map { String(format: "%02x", $0) }.joined())
+//                }
                 let message = Message(
                     ROWID: row[ROWID],
-                    text: row[text] ?? "",
+                    text: finalText,
                     is_from_me: row[is_from_me],
                     date: formatDate(row[date]),
                     is_read: row[is_read],

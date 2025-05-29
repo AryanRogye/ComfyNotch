@@ -25,6 +25,10 @@ extension MessagesManager {
         
         return refDate.addingTimeInterval(seconds)
     }
+    
+    internal func clearCurrentUserMessages() {
+        self.currentUserMessages = []
+    }
 }
 
 // MARK: - DB Internals
@@ -42,7 +46,7 @@ extension MessagesManager {
 // MARK: - Types
 extension MessagesManager {
     /// each row is a single message.
-    public struct Message: Identifiable, Equatable {
+    public struct Message: Identifiable, Equatable, Hashable {
         public var id: Int64 { ROWID }
         var ROWID: Int64
         var text: String
