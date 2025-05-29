@@ -38,7 +38,19 @@ struct PopInPresenter_Messages: View {
                     }
                     
                     if isHovering {
-                        Text("IS HOVERING")
+                        Button(action: {
+                            openNotchToMessage()
+                        }) {
+                            Label("Open Message", systemImage: "arrow.up.right")
+                                .font(.caption)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 4)
+                                .background(.ultraThinMaterial)
+                                .clipShape(Capsule())
+                        }
+                        .buttonStyle(.plain)
+                        .transition(.opacity.combined(with: .scale))
+                        .animation(.easeInOut(duration: 0.2), value: isHovering)
                     }
                 }
             } else {
@@ -54,7 +66,9 @@ struct PopInPresenter_Messages: View {
         }
         .onHover { hovering in
             if hovering {
-                isHovering = true
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    isHovering = true
+                }
                 hoverTimer?.invalidate()
                 hoverTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
                     Task { @MainActor in
@@ -69,6 +83,20 @@ struct PopInPresenter_Messages: View {
             }
         }
         
+    }
+    
+    private func openNotchToMessage() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+            UIManager.shared.applyOpeningLayout()
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            PanelAnimationState.shared.isExpanded = true
+            ScrollHandler.shared.openFull()
+            PanelAnimationState.shared.currentPanelState = .home
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            PanelAnimationState.shared.currentPanelState = .messages
+        }
     }
 
     private func loadLatestHandle() async {

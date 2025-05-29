@@ -153,7 +153,7 @@ struct MessagesView: View {
                                     ? message.attachment.filename
                                     : message.text
                                 )
-                                .padding()
+                                .padding(10)
                                 .background(Color.blue.opacity(0.2))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 10)
@@ -166,7 +166,7 @@ struct MessagesView: View {
                                     ? message.attachment.filename
                                     : message.text
                                 )
-                                .padding()
+                                .padding(10)
                                 .background(Color.gray.opacity(0.2))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 10)
@@ -202,7 +202,7 @@ struct MessagesView: View {
     }
     
     private var userClickedMessageTopRow: some View {
-        VStack {
+        VStack(spacing: 2) {
             HStack {
                 Text(clickedUser?.display_name ?? "Unkown Name")
                     .font(.headline)
@@ -210,6 +210,7 @@ struct MessagesView: View {
                 Spacer()
                 closeButton
             }
+            .padding(.horizontal, 8)
             Divider()
         }
     }
@@ -223,7 +224,7 @@ struct MessagesView: View {
             Image(systemName: "xmark.circle.fill")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 20, height: 20)
+                .frame(width: 15, height: 15)
                 .foregroundColor(.secondary)
         }
         .buttonStyle(.plain)
