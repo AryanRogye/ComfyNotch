@@ -262,31 +262,26 @@ final class VolumeManager: ObservableObject {
         debounceWorkItem?.cancel()
 
         // Show loading instantly
-        DispatchQueue.main.async {
-            self.panelState.isLoadingPopInPresenter = true
-        }
+        panelState.isLoadingPopInPresenter = true
 
-        let workItem = DispatchWorkItem { [weak self] in
-            self?.openNotch()
-            self?.debounceWorkItem = nil
-        }
-        debounceWorkItem = workItem
+        // Open notch immediately
+        openNotch()
 
+        // Present the HUD slightly later
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
             guard let self = self else { return }
-            
+
             PopInPresenter_HUD_Coordinator.shared.presentIfAllowed(for: .volume) {
                 withAnimation(.easeOut(duration: 0.2)) {
-                    workItem.perform()
+                    PanelAnimationState.shared.currentPopInPresentationState = .hud
+                    PanelAnimationState.shared.currentPanelState = .popInPresentation
                 }
                 self.panelState.isLoadingPopInPresenter = false
             }
         }
     }
-
+    
     private func openNotch() {
         ScrollHandler.shared.peekOpen()
-        PanelAnimationState.shared.currentPopInPresentationState = .hud
-        PanelAnimationState.shared.currentPanelState = .popInPresentation
     }
 }
