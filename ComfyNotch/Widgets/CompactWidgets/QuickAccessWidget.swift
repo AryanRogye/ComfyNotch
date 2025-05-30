@@ -18,7 +18,6 @@ struct QuickAccessWidget: View, Widget {
     /// 7 - Moves a bit
     /// 6 - Cant rlly see unless you are looking closely
     private var widgetSpacing : CGFloat = 5
-    private var distanceFromEdge : CGFloat = 7
     
     var swiftUIView: AnyView {
         AnyView(self)
@@ -43,7 +42,7 @@ struct QuickAccessWidget: View, Widget {
             fileTrayButton
                 .padding(.leading, widgetSpacing)
         }
-        .padding(.leading, distanceFromEdge)
+        .padding(.leading, settings.quickAccessWidgetDistanceFromLeft)
     }
     
     // MARK: - Home Button

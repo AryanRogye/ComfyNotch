@@ -51,6 +51,9 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         
         if SettingsModel.shared.enableMessagesNotifications {
             Task {
+                /// Check At start so no weird UI bug
+                MessagesManager.shared.checkFullDiskAccess()
+                MessagesManager.shared.checkContactAccess()
                 await MessagesManager.shared.fetchAllHandles()
                 MessagesManager.shared.startPolling()
             }

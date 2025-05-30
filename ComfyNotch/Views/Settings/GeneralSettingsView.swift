@@ -127,6 +127,17 @@ struct GeneralSettingsView: View {
                 }
                 .padding(.horizontal)
                 
+                /// Change The Distance From Left For Quick Acess Widgets
+                Group {
+                    ComfyLabeledStepper(
+                        "Distance From Left (Top Row)",
+                        value: $settings.quickAccessWidgetDistanceFromLeft,
+                        in: -50...50,
+                        step: 1
+                    )
+                }
+                .padding(.horizontal, 22)
+
                 if self.notchWidthChanged {
                     Text("Changes detected. Save and reopen the notch to apply.")
                         .font(.footnote)
@@ -193,6 +204,8 @@ struct GeneralSettingsView: View {
                         if newValue {
                             /// Logic When Turned On
                             Task {
+                                MessagesManager.shared.checkFullDiskAccess()
+                                MessagesManager.shared.checkContactAccess()
                                 await MessagesManager.shared.fetchAllHandles()
                                 MessagesManager.shared.startPolling()
                             }
