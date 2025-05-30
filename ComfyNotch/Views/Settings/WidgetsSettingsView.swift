@@ -92,7 +92,8 @@ struct WidgetsSettingsView: View {
                 ComfyLabeledStepper(
                     "Overlay Timer",
                     value: $settings.cameraOverlayTimer,
-                    in: 5...120
+                    in: 5...120,
+                    step: 1
                 )
                 .transition(.opacity)
             }

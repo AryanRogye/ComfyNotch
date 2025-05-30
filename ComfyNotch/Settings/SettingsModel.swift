@@ -26,13 +26,17 @@ class SettingsModel: ObservableObject {
                                                     .first!
                                                     .appendingPathComponent("ComfyNotch Files", isDirectory: true)
     
+    /// ----------- FileTray Settings ----------
     @Published var fileTrayPersistFiles : Bool = false
     @Published var useCustomSaveFolder : Bool = false
-    @Published var showDividerBetweenWidgets: Bool = false
     
+    /// ----------- Notch Settings -----------
+    @Published var showDividerBetweenWidgets: Bool = false
     @Published var nowPlayingScrollSpeed: Int = 40
     @Published var enableNotchHUD: Bool = true
+    @Published var notchMaxWidth: CGFloat = 710
     
+    /// ---------- Music Player Settings ----------
     @Published var showMusicProvider: Bool = true
     
     /// ---------- Camera Settings ----------
@@ -52,6 +56,8 @@ class SettingsModel: ObservableObject {
     @Published var enableMessagesNotifications: Bool = false
     @Published var messagesHandleLimit: Int = 30
     @Published var messagesMessageLimit: Int = 20
+    @Published var currentMessageAudioFile: String = ""
+    
     
 
     @Published var updaterController: SPUStandardUpdaterController
@@ -120,16 +126,24 @@ class SettingsModel: ObservableObject {
         if clipboardManagerPollingIntervalMS >= 0 {
             defaults.set(clipboardManagerPollingIntervalMS, forKey: "clipboardManagerPollingIntervalMS")
         }
-        /// ----------------------- Divider Settings -------------------------------------
+        /// ----------------------- Notch Settings -------------------------------------
         defaults.set(showDividerBetweenWidgets, forKey: "showDividerBetweenWidgets")
         
-        /// ----------------------- Notch Settings -------------------------------------
         if nowPlayingScrollSpeed > 0 {
             defaults.set(nowPlayingScrollSpeed, forKey: "nowPlayingScrollSpeed")
         } else {
             defaults.set(40, forKey: "nowPlayingScrollSpeed")
         }
         defaults.set(enableNotchHUD, forKey: "enableNotchHUD")
+        
+        /// Make sure that the maxWidth is always > 500 the rest is up to the user to break, maybe add a limit of like 1000
+        if notchMaxWidth < 700 {
+            notchMaxWidth = 700
+        }
+        if notchMaxWidth > 1000 {
+            notchMaxWidth = 1000
+        }
+        defaults.set(notchMaxWidth, forKey: "notchMaxWidth")
         
         /// ----------------------- Music Player Settings -----------------------
         defaults.set(showMusicProvider, forKey: "showMusicProvider")
@@ -213,6 +227,13 @@ class SettingsModel: ObservableObject {
         } else {
             self.enableNotchHUD = true
         }
+        
+        if let notchMaxWidth = defaults.object(forKey: "notchMaxWidth") as? CGFloat {
+            self.notchMaxWidth = notchMaxWidth
+        } else {
+            self.notchMaxWidth = 710
+        }
+        
         /// ----------------------- Music Player Settings -----------------------
         if let showMusicProvider = defaults.object(forKey: "showMusicProvider") as? Bool {
             self.showMusicProvider = showMusicProvider

@@ -5,6 +5,12 @@ struct GeneralSettingsView: View {
     @Environment(\.colorScheme) var colorScheme
     
     @State private var selectedSaveHUD: Bool = false
+    
+    @State private var notchWidthStep: CGFloat = 1.0
+    @State private var startNotchWidth: CGFloat? = nil
+    @State private var notchWidthChanged: Bool = false
+    @State private var lastNotchWidth: CGFloat = 0.0
+    @State private var resetPressed: Bool = false
 
     private let maxWidgetCount = 3  // Limit to 3 widgets
 
@@ -43,6 +49,11 @@ struct GeneralSettingsView: View {
                 }
             }
         }
+        .onAppear {
+            if startNotchWidth == nil {
+                startNotchWidth = settings.notchMaxWidth
+            }
+        }
     }
     
     // MARK: - HEADER
@@ -67,9 +78,103 @@ struct GeneralSettingsView: View {
             
             messagesSettings
             Divider()
+            notchSettings
+            Divider()
             hudSettings
             Divider()
             scrollSpeed
+        }
+    }
+    
+    private var notchSettings: some View {
+        HStack {
+            VStack {
+                Group {
+                    ComfyLabeledStepper(
+                        "Notch Width (Expanded)",
+                        value: $settings.notchMaxWidth,
+                        in: 700...1000,
+                        step: notchWidthStep
+                    )
+                    /// This is to show a tooltip or a description
+                    /// if the notch width is changed to something that the user
+                    /// did not start with
+                    .onChange(of: settings.notchMaxWidth) { _, newValue in
+                        if newValue != self.startNotchWidth {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                self.notchWidthChanged = true
+                            }
+                        } else {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                self.notchWidthChanged = false
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal, 22)
+                /// Control For Step
+                HStack {
+                    Text("Step Size: \(Int(notchWidthStep))")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    Slider(value: $notchWidthStep, in: 1...10, step: 1) {
+                        Text("Step Size")
+                    }
+                    .labelsHidden()
+                    .onChange(of: notchWidthStep) { _, newValue in
+                        settings.notchMaxWidth = max(500, min(1000, settings.notchMaxWidth))
+                    }
+                }
+                .padding(.horizontal)
+                
+                if self.notchWidthChanged {
+                    Text("Changes detected. Save and reopen the notch to apply.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                        .transition(.opacity)
+                }
+                
+                /// Reset Button, Add A Revert As Well If Reset Pressed
+                HStack(spacing: 8) {
+                    Button(action: {
+                        if resetPressed { return }
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            self.lastNotchWidth = settings.notchMaxWidth
+                            settings.notchMaxWidth = 710
+                            notchWidthStep = 1.0
+                        }
+                        resetPressed = true
+                    }) {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.system(size: 14, weight: .medium))
+                            .padding(6)
+                            .background(Color.blue.opacity(0.1))
+                            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                            .foregroundColor(.blue)
+                    }
+                    .buttonStyle(.plain)
+                    
+                    if resetPressed {
+                        Button(action: {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                settings.notchMaxWidth = lastNotchWidth
+                                resetPressed = false
+                                notchWidthStep = 1.0
+                            }
+                        }) {
+                            Text("Revert")
+                                .font(.system(size: 13, weight: .semibold))
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.blue.opacity(0.1))
+                                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                .foregroundColor(.blue)
+                        }
+                        .buttonStyle(.plain)
+                        .transition(.opacity.combined(with: .move(edge: .trailing)))
+                    }
+                }
+            }
         }
     }
     
@@ -119,16 +224,18 @@ struct GeneralSettingsView: View {
                         ComfyLabeledStepper(
                             "Most Recent Message Limit",
                             value: $settings.messagesHandleLimit,
-                            in: 10...100
+                            in: 10...100,
+                            step: 1
                         )
                         
                         ComfyLabeledStepper(
                             "Control Message Limit",
                             value: $settings.messagesMessageLimit,
-                            in: 10...100
+                            in: 10...100,
+                            step: 1
                         )
                     }
-                    .padding()
+                    .padding(.horizontal)
                     .transition(.opacity.combined(with: .move(edge: .top)))
                 }
                 
@@ -187,7 +294,8 @@ struct GeneralSettingsView: View {
                 ComfyLabeledStepper(
                     "Scroll Speed",
                     value: $settings.nowPlayingScrollSpeed,
-                    in: 1...100
+                    in: 1...100,
+                    step: 1
                 )
                 .padding(.vertical, 7)
                 

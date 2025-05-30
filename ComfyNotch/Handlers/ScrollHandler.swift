@@ -3,13 +3,18 @@ import Combine
 
 class ScrollHandler {
     static let shared = ScrollHandler()
+    
+    private let settings: SettingsModel = .shared
 
     // MARK: – Configuration
     var minPanelHeight: CGFloat = UIManager.shared.getNotchHeight()
     var maxPanelHeight: CGFloat = 150
     var minPanelWidth: CGFloat = 320
-    var maxPanelWidth: CGFloat = 700
-
+    
+    var maxPanelWidth: CGFloat {
+        settings.notchMaxWidth
+    }
+    
     private let maxPullDistance = 150
     /// Fine‑tune this multiplier to taste
     private let scrollSensitivity: CGFloat = 0.3

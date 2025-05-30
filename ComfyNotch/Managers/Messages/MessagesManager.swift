@@ -45,9 +45,16 @@ final class MessagesManager: ObservableObject {
     @Published var hasContactAccess: Bool = false
     @Published var messagesText: String = ""
     
+    /// Internal States for the Message Manager
+    ///     This is used to make sure that
+    ///     multiple operations are not being
+    ///     executed at the same time, them being
+    ///     triggered will be invalidated by
+    ///     these flags
     internal var isFetchingHandles  = false
     internal var isFetchingMessages = false
     internal var isMessaging        = false
+    internal var isPlayingAudio     = false
     
     internal var timer: Timer?
     internal var lastKnownModificationDate: Date?

@@ -10,7 +10,7 @@ import SwiftUI
 public struct Style {
     public init(
         height: Double = 34.0,
-        labelWidth: Double = 48.0,
+        labelWidth: Double = 80.0,
         buttonWidth: Double = 48.0,
         buttonPadding: Double = 12.0,
         activeButtonColor: Color = Color.primary,
@@ -30,7 +30,6 @@ public struct Style {
         self.valueColor = valueColor
     }
     
-    // TODO: Make these dynamic
     var height: Double
     var labelWidth: Double
     
@@ -46,25 +45,27 @@ public struct Style {
     var valueColor: Color
 }
 
-public struct ComfyLabeledStepper: View {
+public struct ComfyLabeledStepper<T: Comparable & Numeric>: View {
 
     public init(
         _ title: String,
-        value: Binding<Int>,
-        in range: ClosedRange<Int> = 0...Int.max,
+        value: Binding<T>,
+        in range: ClosedRange<T>,
+        step: T,
         style: Style = .init()
     ) {
         self.title = title
         self._value = value
         self.range = range
+        self.step = step
         self.style = style
     }
 
-    @Binding public var value: Int
+    @Binding public var value: T
 
     public var title: String = ""
-    public var range = 0...Int.max
-
+    public var range: ClosedRange<T>
+    public var step: T
     public var style = Style()
 
     @State private var timer: Timer?
@@ -77,7 +78,7 @@ public struct ComfyLabeledStepper: View {
                     .foregroundColor(style.titleColor)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-
+            
             Spacer()
             
             VStack(alignment: .trailing, spacing: 0) {
@@ -107,14 +108,16 @@ public struct ComfyLabeledStepper: View {
     private var displayValue: some View {
         Text("\(value)")
             .foregroundColor(style.valueColor)
+            .monospacedDigit()
             .frame(width: style.labelWidth, height: style.height)
     }
     
     private var minusButton: some View {
         /// Minus Button
         Button(action: {
-            if value > range.lowerBound {
-                value -= 1
+            let newValue = value - step
+            if newValue >= range.lowerBound {
+                value = newValue
             }
         }) {
             Image(systemName: "minus")
@@ -129,8 +132,9 @@ public struct ComfyLabeledStepper: View {
     private var addButton: some View {
         /// Plus Button
         Button(action: {
-            if value < range.upperBound {
-                value += 1
+            let newValue = value + step
+            if newValue <= range.upperBound {
+                value = newValue
             }
         }) {
             Image(systemName: "plus")

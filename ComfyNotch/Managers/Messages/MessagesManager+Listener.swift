@@ -39,6 +39,7 @@ extension MessagesManager {
             /// Open The Notch If it is not already open
             if UIManager.shared.panelState != .open {
                 await self.triggerNotch()
+                self.playAudio()
             }
             /// If Open, handle some other way
         }
