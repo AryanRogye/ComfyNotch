@@ -36,7 +36,7 @@
 		9BC3A4D32DB1DE2200FFD323 /* Exceptions for "ComfyNotch" folder in "ComfyNotch" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				Config/Info.plist,
 			);
 			target = 9BC3A4612DB1D40000FFD323 /* ComfyNotch */;
 		};
@@ -313,7 +313,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = ComfyNotch/ComfyNotch.entitlements;
+				CODE_SIGN_ENTITLEMENTS = ComfyNotch/Config/ComfyNotch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 9;
@@ -322,7 +322,7 @@
 				ENABLE_PREVIEWS = YES;
 				FRAMEWORK_SEARCH_PATHS = /System/Library/Frameworks;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ComfyNotch/Info.plist;
+				INFOPLIST_FILE = ComfyNotch/Config/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ComfyNotch;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
@@ -353,7 +353,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = ComfyNotch/ComfyNotch.entitlements;
+				CODE_SIGN_ENTITLEMENTS = ComfyNotch/Config/ComfyNotch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 9;
@@ -362,7 +362,7 @@
 				ENABLE_PREVIEWS = YES;
 				FRAMEWORK_SEARCH_PATHS = /System/Library/Frameworks;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ComfyNotch/Info.plist;
+				INFOPLIST_FILE = ComfyNotch/Config/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ComfyNotch;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;

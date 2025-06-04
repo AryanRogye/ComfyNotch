@@ -15,6 +15,10 @@ import SwiftUI
 final class AppleScriptMusicController: NowPlayingProvider {
     /// The shared NowPlayingInfo object to update UI and state.
     @ObservedObject var nowPlayingInfo: NowPlayingInfo
+    
+    /// Values To Ensure That ArtWork Images Dont Get Asked For (Apple Music pulls from
+    /// a temporary folder a image with the name cover.jpg, this could be very heavy)
+    private var didGetMusicArtwork: Bool = false
 
     /// Initializes the controller with a NowPlayingInfo object.
     /// - Parameter nowPlayingInfo: The shared info object to update.
@@ -170,6 +174,8 @@ final class AppleScriptMusicController: NowPlayingProvider {
         return false
     }
 
+    // MARK: - AppleScript Execution
+    ///
     /// Executes an AppleScript and returns the result as a string.
     /// - Parameter script: The AppleScript source code.
     /// - Returns: The result string, or `nil` if execution failed.
@@ -180,10 +186,14 @@ final class AppleScriptMusicController: NowPlayingProvider {
             if let error = error {
                 debugLog("AppleScript Error: \(error)")
             }
+            // debugLog("No Error in AppleScript Execution")
+            // debugLog("Script: \(script)\n\n\n")
+            // debugLog("Value: \(result.stringValue ?? "nil")")
             return result.stringValue
         }
         return nil
     }
+    
     /// Clears the now playing info, resetting all fields to default values.
     private func clearNowPlaying() {
         nowPlayingInfo.trackName = "No Song Playing"
@@ -215,6 +225,8 @@ final class AppleScriptMusicController: NowPlayingProvider {
         nowPlayingInfo.positionSeconds = positionSeconds
         nowPlayingInfo.durationSeconds = durationSeconds
     }
+    
+    // MARK: - Spotify
 
     /**
      * Fetches current playing information from Spotify.
@@ -268,6 +280,8 @@ final class AppleScriptMusicController: NowPlayingProvider {
         // Could not get anything
         completion(nil)
     }
+    
+    // MARK: - Apple Music
 
     /**
      * Fetches current playing information from Music app.
@@ -276,8 +290,7 @@ final class AppleScriptMusicController: NowPlayingProvider {
      */
     private func getMusicInfo() -> (String, String, String, NSImage?, Double, Double)? {
         let script = """
-        tell application \"Music\"
-            set isRunning to true
+        tell application "Music"
             try
                 set playerState to player state is playing
                 set currentTrackName to name of current track
@@ -287,41 +300,45 @@ final class AppleScriptMusicController: NowPlayingProvider {
                 set trackDuration to duration of current track
                 set shuffleState to shuffle enabled
                 set repeatState to false
+
                 try
                     set artData to data of artwork 1 of current track
+                    set tempPath to POSIX path of (path to temporary items folder) & "cover.jpg"
+                    set outFile to open for access POSIX file tempPath with write permission
+                    set eof of outFile to 0
+                    write artData to outFile
+                    close access outFile
                 on error
-                    set artData to ""
+                    set tempPath to ""
                 end try
-                return {playerState, currentTrackName, currentTrackArtist, currentTrackAlbum, trackPosition, trackDuration, shuffleState, repeatState, artData}
+
+                return (playerState & "||" & currentTrackName & "||" & currentTrackArtist & "||" & currentTrackAlbum & "||" & trackPosition & "||" & trackDuration & "||" & shuffleState & "||" & repeatState & "||" & tempPath) as string
             on error
-                return {false, "Not Playing", "Unknown", "Unknown", 0, 0, false, false, ""}
+                return "false||Not Playing||Unknown||Unknown||0||0||false||false||"
             end try
         end tell
         """
-
+        
+        /// The Image Will Never Work, A Working Version in my terminal was having it getting sent to a temporary folder
+        /// the name of the image will be saved as cover.jpg
+        
         if let output = runAppleScript(script) {
-            let cleaned = output
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-                .replacingOccurrences(of: "{", with: "")
-                .replacingOccurrences(of: "}", with: "")
-            
-            let components = cleaned.components(separatedBy: ", ")
+            let components = output.components(separatedBy: "||")
 
             if components.count >= 9 {
-                let trackName = components[1].trimmingCharacters(in: .punctuationCharacters)
-                let artistName = components[2].trimmingCharacters(in: .punctuationCharacters)
-                let albumName = components[3].trimmingCharacters(in: .punctuationCharacters)
+                let trackName = components[1]
+                let artistName = components[2]
+                let albumName = components[3]
                 let positionSeconds = Double(components[4]) ?? 0.0
                 let durationSeconds = Double(components[5]) ?? 0.0
-                let artDataRaw = components[8]
+                let artworkPath = components[8].trimmingCharacters(in: .whitespacesAndNewlines)
 
+//                var artworkImage: NSImage? = NSImage(systemSymbolName: "music.note", accessibilityDescription: "Music Placeholder")
                 var artworkImage: NSImage? = nil
-                if artDataRaw != "\"\"" {
-                    // Clean the base64 string
-                    let cleanedData = artDataRaw.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
-                    if let data = Data(base64Encoded: cleanedData) {
-                        artworkImage = NSImage(data: data)
-                    }
+                
+                /// We Have To Check if the artworkPath is empty
+                if !artworkPath.isEmpty, FileManager.default.fileExists(atPath: artworkPath) {
+                    artworkImage = NSImage(contentsOfFile: artworkPath)
                 }
 
                 return (trackName, artistName, albumName, artworkImage, positionSeconds, durationSeconds)
