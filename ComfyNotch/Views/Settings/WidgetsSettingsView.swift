@@ -318,6 +318,8 @@ struct WidgetsSettingsView: View {
             return "note.text"
         case "CameraWidget":
             return "camera"
+        case "EventRunnerWidget":
+            return "play.circle"
         default:
             return "square"
         }

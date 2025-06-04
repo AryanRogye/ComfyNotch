@@ -12,6 +12,7 @@ class WidgetRegistry {
 
     var widgets: [String: Widget] = [
         "MusicPlayerWidget": MusicPlayerWidget(),
+        "EventRunnerWidget": EventRunner(),
         "TimeWidget": TimeWidget(),
         "NotesWidget": NotesWidget(),
         "CameraWidget": CameraWidget(),
@@ -24,6 +25,6 @@ class WidgetRegistry {
     }
 
     func getDefaultWidgets() -> [String] {
-        return ["MusicPlayerWidget", "TimeWidget", "NotesWidget"]
+        return ["MusicPlayerWidget"]
     }
 }

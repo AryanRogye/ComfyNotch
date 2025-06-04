@@ -229,6 +229,8 @@ class ScrollHandler {
     }
 
     /// This animation makes sure that it just "expands"
+    /// TODO: Make a Deeplink for other apps to open this
+    /// notch
     func openFull() {
         guard let panel = UIManager.shared.smallPanel, !isSnapping else { return }
         isSnapping = true
