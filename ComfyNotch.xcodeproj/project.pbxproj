@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9B1319642DF10A5200657438 /* Assets in Resources */ = {isa = PBXBuildFile; fileRef = 9B13195E2DF10A5200657438 /* Assets */; };
+		9B1319652DF10A5200657438 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9B13195F2DF10A5200657438 /* Assets.xcassets */; };
+		9B1319BB2DF10A5200657438 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B13195D2DF10A5200657438 /* AppDelegate.swift */; };
+		9B1319BC2DF10A5200657438 /* ComfyNotchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B1319602DF10A5200657438 /* ComfyNotchApp.swift */; };
+		9B1319BD2DF10A5200657438 /* ComfyNotchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B1319612DF10A5200657438 /* ComfyNotchView.swift */; };
 		9B2889A82DC68E4400E5DB18 /* SVGView in Frameworks */ = {isa = PBXBuildFile; productRef = 9B2889A72DC68E4400E5DB18 /* SVGView */; };
 		9B288A852DC722BF00E5DB18 /* ComfyCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = 9B288A842DC722BF00E5DB18 /* ComfyCalendar */; };
 		9B2A90062DE25AB500046186 /* CoreDisplay.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B2A90052DE25AB500046186 /* CoreDisplay.framework */; };
@@ -28,30 +33,69 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		9B1316742DF10A2800657438 /* ComfyNotch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ComfyNotch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9B13195D2DF10A5200657438 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		9B13195E2DF10A5200657438 /* Assets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Assets; sourceTree = "<group>"; };
+		9B13195F2DF10A5200657438 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		9B1319602DF10A5200657438 /* ComfyNotchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComfyNotchApp.swift; sourceTree = "<group>"; };
+		9B1319612DF10A5200657438 /* ComfyNotchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComfyNotchView.swift; sourceTree = "<group>"; };
 		9B2A90052DE25AB500046186 /* CoreDisplay.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreDisplay.framework; path = ../../../../../System/Library/Frameworks/CoreDisplay.framework; sourceTree = "<group>"; };
-		9BC3A4622DB1D40000FFD323 /* ComfyNotch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ComfyNotch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		9BC3A4D32DB1DE2200FFD323 /* Exceptions for "ComfyNotch" folder in "ComfyNotch" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Config/Info.plist,
-			);
-			target = 9BC3A4612DB1D40000FFD323 /* ComfyNotch */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		9BC3A4642DB1D40000FFD323 /* ComfyNotch */ = {
+		9B1319CC2DF10A5600657438 /* Widgets */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				9BC3A4D32DB1DE2200FFD323 /* Exceptions for "ComfyNotch" folder in "ComfyNotch" target */,
-			);
-			explicitFolders = (
-				Assets,
-			);
-			path = ComfyNotch;
+			path = Widgets;
+			sourceTree = "<group>";
+		};
+		9B1319DB2DF10A5600657438 /* Shapes */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shapes;
+			sourceTree = "<group>";
+		};
+		9B131A022DF10A5600657438 /* Views */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Views;
+			sourceTree = "<group>";
+		};
+		9B131A212DF10A5600657438 /* Api */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Api;
+			sourceTree = "<group>";
+		};
+		9B131A452DF10A5600657438 /* Managers */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Managers;
+			sourceTree = "<group>";
+		};
+		9B131A612DF10A5600657438 /* Config */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Config;
+			sourceTree = "<group>";
+		};
+		9B131A632DF10A5600657438 /* Shaders */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shaders;
+			sourceTree = "<group>";
+		};
+		9B131A692DF10A5600657438 /* Handlers */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Handlers;
+			sourceTree = "<group>";
+		};
+		9B131A6F2DF10A5600657438 /* Utils */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		9B131A782DF10A5600657438 /* Extensions */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		9B131A832DF10A5600657438 /* Settings */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Settings;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -72,21 +116,36 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		9B1319622DF10A5200657438 /* ComfyNotch */ = {
+			isa = PBXGroup;
+			children = (
+				9B13195E2DF10A5200657438 /* Assets */,
+				9B131A212DF10A5600657438 /* Api */,
+				9B131A612DF10A5600657438 /* Config */,
+				9B131A782DF10A5600657438 /* Extensions */,
+				9B131A692DF10A5600657438 /* Handlers */,
+				9B131A452DF10A5600657438 /* Managers */,
+				9B131A832DF10A5600657438 /* Settings */,
+				9B131A632DF10A5600657438 /* Shaders */,
+				9B1319DB2DF10A5600657438 /* Shapes */,
+				9B131A6F2DF10A5600657438 /* Utils */,
+				9B131A022DF10A5600657438 /* Views */,
+				9B1319CC2DF10A5600657438 /* Widgets */,
+				9B13195D2DF10A5200657438 /* AppDelegate.swift */,
+				9B13195F2DF10A5200657438 /* Assets.xcassets */,
+				9B1319602DF10A5200657438 /* ComfyNotchApp.swift */,
+				9B1319612DF10A5200657438 /* ComfyNotchView.swift */,
+			);
+			path = ComfyNotch;
+			sourceTree = "<group>";
+		};
 		9BC3A4592DB1D40000FFD323 = {
 			isa = PBXGroup;
 			children = (
-				9BC3A4642DB1D40000FFD323 /* ComfyNotch */,
+				9B1319622DF10A5200657438 /* ComfyNotch */,
 				9BC3A5352DB2E77000FFD323 /* Frameworks */,
-				9BC3A4632DB1D40000FFD323 /* Products */,
+				9B1316742DF10A2800657438 /* ComfyNotch.app */,
 			);
-			sourceTree = "<group>";
-		};
-		9BC3A4632DB1D40000FFD323 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				9BC3A4622DB1D40000FFD323 /* ComfyNotch.app */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		9BC3A5352DB2E77000FFD323 /* Frameworks */ = {
@@ -114,7 +173,16 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				9BC3A4642DB1D40000FFD323 /* ComfyNotch */,
+				9B1319CC2DF10A5600657438 /* Widgets */,
+				9B1319DB2DF10A5600657438 /* Shapes */,
+				9B131A022DF10A5600657438 /* Views */,
+				9B131A212DF10A5600657438 /* Api */,
+				9B131A452DF10A5600657438 /* Managers */,
+				9B131A632DF10A5600657438 /* Shaders */,
+				9B131A692DF10A5600657438 /* Handlers */,
+				9B131A6F2DF10A5600657438 /* Utils */,
+				9B131A782DF10A5600657438 /* Extensions */,
+				9B131A832DF10A5600657438 /* Settings */,
 			);
 			name = ComfyNotch;
 			packageProductDependencies = (
@@ -124,7 +192,7 @@
 				9B707EEE2DE656F2000EA21E /* SQLite */,
 			);
 			productName = ComfyNotch;
-			productReference = 9BC3A4622DB1D40000FFD323 /* ComfyNotch.app */;
+			productReference = 9B1316742DF10A2800657438 /* ComfyNotch.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -159,7 +227,7 @@
 				9B707EED2DE656F2000EA21E /* XCRemoteSwiftPackageReference "SQLite" */,
 			);
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 9BC3A4632DB1D40000FFD323 /* Products */;
+			productRefGroup = 9BC3A4592DB1D40000FFD323;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -173,6 +241,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9B1319642DF10A5200657438 /* Assets in Resources */,
+				9B1319652DF10A5200657438 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -183,6 +253,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9B1319BB2DF10A5200657438 /* AppDelegate.swift in Sources */,
+				9B1319BC2DF10A5200657438 /* ComfyNotchApp.swift in Sources */,
+				9B1319BD2DF10A5200657438 /* ComfyNotchView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
