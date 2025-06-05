@@ -1,0 +1,31 @@
+{
+  "configurations" : [
+    {
+      "id" : "BC807291-D596-41F6-A6C3-9DC35C6B0D1A",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "distributor" : "com.apple.TestFlight",
+    "mallocStackLoggingOptions" : {
+      "loggingType" : "liveAllocations"
+    },
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "skippedTests" : [
+        "AudioManagerTests\/testNowPlayingInfo()"
+      ],
+      "target" : {
+        "containerPath" : "container:ComfyNotch.xcodeproj",
+        "identifier" : "9B131C232DF10C6200657438",
+        "name" : "ComfyNotchTests"
+      }
+    }
+  ],
+  "version" : 1
+}

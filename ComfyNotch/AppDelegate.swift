@@ -42,12 +42,15 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         _ = SettingsModel.shared
         
         /// Close the SettingsPage On Launch
+        /// WARNING: Should not run in Testing
+        #if !TESTING
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             if let window = NSApp.windows.first(where: { $0.title == "SettingsView" }) {
                 window.performClose(nil)
                 window.close()
             }
         }
+        #endif
         
         if SettingsModel.shared.enableMessagesNotifications {
             Task {

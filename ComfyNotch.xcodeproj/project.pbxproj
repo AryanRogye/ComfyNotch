@@ -19,6 +19,16 @@
 		9B707EEF2DE656F2000EA21E /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = 9B707EEE2DE656F2000EA21E /* SQLite */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		9B131C282DF10C6200657438 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9BC3A45A2DB1D40000FFD323 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9BC3A4612DB1D40000FFD323;
+			remoteInfo = ComfyNotch;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		9BC3A5372DB2E78400FFD323 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -33,13 +43,15 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		9B1316742DF10A2800657438 /* ComfyNotch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ComfyNotch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9B1316742DF10A2800657438 /* ComfyNotch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = ComfyNotch.app; path = /Users/aryanrogye/Code/Projects/ComfyNotch/build/Debug/ComfyNotch.app; sourceTree = "<absolute>"; };
 		9B13195D2DF10A5200657438 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9B13195E2DF10A5200657438 /* Assets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Assets; sourceTree = "<group>"; };
 		9B13195F2DF10A5200657438 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9B1319602DF10A5200657438 /* ComfyNotchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComfyNotchApp.swift; sourceTree = "<group>"; };
 		9B1319612DF10A5200657438 /* ComfyNotchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComfyNotchView.swift; sourceTree = "<group>"; };
+		9B131C242DF10C6200657438 /* ComfyNotchTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = ComfyNotchTests.xctest; path = /Users/aryanrogye/Code/Projects/ComfyNotch/build/Debug/ComfyNotch.app/Contents/PlugIns/ComfyNotchTests.xctest; sourceTree = "<absolute>"; };
 		9B2A90052DE25AB500046186 /* CoreDisplay.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreDisplay.framework; path = ../../../../../System/Library/Frameworks/CoreDisplay.framework; sourceTree = "<group>"; };
+		9B4E9D862DF11E5B002F58B1 /* TestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TestPlan.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -98,9 +110,21 @@
 			path = Settings;
 			sourceTree = "<group>";
 		};
+		9B131C252DF10C6200657438 /* ComfyNotchTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ComfyNotchTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		9B131C212DF10C6200657438 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9BC3A45F2DB1D40000FFD323 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -142,9 +166,10 @@
 		9BC3A4592DB1D40000FFD323 = {
 			isa = PBXGroup;
 			children = (
+				9B4E9D862DF11E5B002F58B1 /* TestPlan.xctestplan */,
 				9B1319622DF10A5200657438 /* ComfyNotch */,
+				9B131C252DF10C6200657438 /* ComfyNotchTests */,
 				9BC3A5352DB2E77000FFD323 /* Frameworks */,
-				9B1316742DF10A2800657438 /* ComfyNotch.app */,
 			);
 			sourceTree = "<group>";
 		};
@@ -159,6 +184,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		9B131C232DF10C6200657438 /* ComfyNotchTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9B131C2C2DF10C6200657438 /* Build configuration list for PBXNativeTarget "ComfyNotchTests" */;
+			buildPhases = (
+				9B131C202DF10C6200657438 /* Sources */,
+				9B131C212DF10C6200657438 /* Frameworks */,
+				9B131C222DF10C6200657438 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9B131C292DF10C6200657438 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				9B131C252DF10C6200657438 /* ComfyNotchTests */,
+			);
+			name = ComfyNotchTests;
+			packageProductDependencies = (
+			);
+			productName = ComfyNotchTests;
+			productReference = 9B131C242DF10C6200657438 /* ComfyNotchTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		9BC3A4612DB1D40000FFD323 /* ComfyNotch */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9BC3A4712DB1D40200FFD323 /* Build configuration list for PBXNativeTarget "ComfyNotch" */;
@@ -205,6 +253,10 @@
 				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
+					9B131C232DF10C6200657438 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 9BC3A4612DB1D40000FFD323;
+					};
 					9BC3A4612DB1D40000FFD323 = {
 						CreatedOnToolsVersion = 16.2;
 						LastSwiftMigration = 1620;
@@ -232,11 +284,19 @@
 			projectRoot = "";
 			targets = (
 				9BC3A4612DB1D40000FFD323 /* ComfyNotch */,
+				9B131C232DF10C6200657438 /* ComfyNotchTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		9B131C222DF10C6200657438 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9BC3A4602DB1D40000FFD323 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -249,6 +309,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		9B131C202DF10C6200657438 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9BC3A45E2DB1D40000FFD323 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -261,7 +328,49 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		9B131C292DF10C6200657438 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9BC3A4612DB1D40000FFD323 /* ComfyNotch */;
+			targetProxy = 9B131C282DF10C6200657438 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		9B131C2A2DF10C6200657438 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B9P888266K;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aryanrogye.frontend.ComfyNotchTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ComfyNotch.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ComfyNotch";
+			};
+			name = Debug;
+		};
+		9B131C2B2DF10C6200657438 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B9P888266K;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aryanrogye.frontend.ComfyNotchTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ComfyNotch.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ComfyNotch";
+			};
+			name = Release;
+		};
 		9BC3A46F2DB1D40200FFD323 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -462,6 +571,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		9B131C2C2DF10C6200657438 /* Build configuration list for PBXNativeTarget "ComfyNotchTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9B131C2A2DF10C6200657438 /* Debug */,
+				9B131C2B2DF10C6200657438 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		9BC3A45D2DB1D40000FFD323 /* Build configuration list for PBXProject "ComfyNotch" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
