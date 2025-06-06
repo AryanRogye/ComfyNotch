@@ -43,15 +43,16 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		9B1316742DF10A2800657438 /* ComfyNotch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = ComfyNotch.app; path = /Users/aryanrogye/Code/Projects/ComfyNotch/build/Debug/ComfyNotch.app; sourceTree = "<absolute>"; };
 		9B13195D2DF10A5200657438 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9B13195E2DF10A5200657438 /* Assets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Assets; sourceTree = "<group>"; };
 		9B13195F2DF10A5200657438 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9B1319602DF10A5200657438 /* ComfyNotchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComfyNotchApp.swift; sourceTree = "<group>"; };
 		9B1319612DF10A5200657438 /* ComfyNotchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComfyNotchView.swift; sourceTree = "<group>"; };
-		9B131C242DF10C6200657438 /* ComfyNotchTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = ComfyNotchTests.xctest; path = /Users/aryanrogye/Code/Projects/ComfyNotch/build/Debug/ComfyNotch.app/Contents/PlugIns/ComfyNotchTests.xctest; sourceTree = "<absolute>"; };
 		9B2A90052DE25AB500046186 /* CoreDisplay.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreDisplay.framework; path = ../../../../../System/Library/Frameworks/CoreDisplay.framework; sourceTree = "<group>"; };
 		9B4E9D862DF11E5B002F58B1 /* TestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TestPlan.xctestplan; sourceTree = "<group>"; };
+		9B4E9ED32DF2451C002F58B1 /* ComfyNotch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ComfyNotch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9B4E9ED42DF2451C002F58B1 /* ComfyNotchTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ComfyNotchTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9B4E9F992DF25314002F58B1 /* MediaRemote */ = {isa = PBXFileReference; lastKnownFileType = text; name = MediaRemote; path = ../../../../../System/Library/PrivateFrameworks/MediaRemote.framework/MediaRemote; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -170,12 +171,15 @@
 				9B1319622DF10A5200657438 /* ComfyNotch */,
 				9B131C252DF10C6200657438 /* ComfyNotchTests */,
 				9BC3A5352DB2E77000FFD323 /* Frameworks */,
+				9B4E9ED32DF2451C002F58B1 /* ComfyNotch.app */,
+				9B4E9ED42DF2451C002F58B1 /* ComfyNotchTests.xctest */,
 			);
 			sourceTree = "<group>";
 		};
 		9BC3A5352DB2E77000FFD323 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9B4E9F992DF25314002F58B1 /* MediaRemote */,
 				9B2A90052DE25AB500046186 /* CoreDisplay.framework */,
 			);
 			name = Frameworks;
@@ -204,7 +208,7 @@
 			packageProductDependencies = (
 			);
 			productName = ComfyNotchTests;
-			productReference = 9B131C242DF10C6200657438 /* ComfyNotchTests.xctest */;
+			productReference = 9B4E9ED42DF2451C002F58B1 /* ComfyNotchTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		9BC3A4612DB1D40000FFD323 /* ComfyNotch */ = {
@@ -240,7 +244,7 @@
 				9B707EEE2DE656F2000EA21E /* SQLite */,
 			);
 			productName = ComfyNotch;
-			productReference = 9B1316742DF10A2800657438 /* ComfyNotch.app */;
+			productReference = 9B4E9ED32DF2451C002F58B1 /* ComfyNotch.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -523,7 +527,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = app.aryanrogye.ComfyNotch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "ComfyNotch/Managers/Brightness/ComfyNotch-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "ComfyNotch/Managers/ComfyNotch-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
@@ -563,7 +567,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = app.aryanrogye.ComfyNotch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "ComfyNotch/Managers/Brightness/ComfyNotch-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "ComfyNotch/Managers/ComfyNotch-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;

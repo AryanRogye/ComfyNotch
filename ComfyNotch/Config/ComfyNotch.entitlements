@@ -1,33 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-    <key>com.apple.security.app-sandbox</key>
-    <false/>
-    <key>com.apple.security.automation.apple-events</key>
-    <true/>
-    <key>com.apple.security.device.camera</key>
-    <true/>
-    <key>com.apple.security.personal-information.calendars</key>
-    <true/>
-    <key>com.apple.security.personal-information.reminders</key>
-    <true/>
-    <key>com.apple.security.temporary-exception.shared-preference.read-write</key>
-    <array>
-        <string>com.apple.MediaRemote</string>
-    </array>
-    
-    <key>com.apple.security.personal-information.addressbook</key>
-    <true/>
-    
-    <!-- For Sparkle -->
-    <key>com.apple.security.temporary-exception.mach-lookup.global-name</key>
-    <array>
-        <string>com.apple.MediaRemote</string>
-        <string>$(PRODUCT_BUNDLE_IDENTIFIER)-spks</string>
-        <string>$(PRODUCT_BUNDLE_IDENTIFIER)-spki</string>
-    </array>
-    
-    
-</dict>
+    <dict>
+        
+        <key>com.apple.security.app-sandbox</key>
+        <false/>
+        
+        <!-- For Running Apple Scripts -->
+        <key>com.apple.security.automation.apple-events</key>
+        <true/>
+        
+        <!-- Camera -->
+        <key>com.apple.security.device.camera</key>
+        <true/>
+        
+        <!-- Event Kit -->
+        <key>com.apple.security.personal-information.calendars</key>
+        <true/>
+        
+        <key>com.apple.security.personal-information.reminders</key>
+        <true/>
+        
+        <!-- Contacts -->
+        <key>com.apple.security.personal-information.addressbook</key>
+        <true/>
+        
+        <!-- For MediaRemote Section -->
+        <key>com.apple.security.temporary-exception.shared-preference.read-write</key>
+        <array>
+            <string>com.apple.MediaRemote</string>
+            <string>com.apple.mediaremoted</string>
+            <string>com.apple.coremedia</string>
+        </array>
+        
+        <!-- Additional media access -->
+        <key>com.apple.security.temporary-exception.iokit-user-client-class</key>
+        <array>
+            <string>AppleHDAEngineInput</string>
+            <string>AppleHDAEngineOutput</string>
+        </array>
+        
+        <key>com.apple.security.temporary-exception.mach-lookup.global-name</key>
+        <array>
+            <string>com.apple.mediaserverd</string>
+            <string>com.apple.MediaRemote</string>
+            <string>com.apple.mediaremoted</string>
+            <string>com.apple.mediastream.mcs</string>
+            <string>com.apple.audio.SandboxHelper</string>
+            <string>com.apple.coremedia.endpoint.xpc</string>
+            
+            <!-- Sparkle -->
+            <string>com.aryanrogye.ComfyNotch-spks</string>
+            <string>com.aryanrogye.ComfyNotch-spki</string>
+        </array>
+        
+    </dict>
 </plist>

@@ -1,0 +1,31 @@
+
+// MediaRemoteControllerBridge.h
+
+#ifndef MediaRemoteControllerBridge_h
+#define MediaRemoteControllerBridge_h
+
+#import <Foundation/Foundation.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// Forward declare the Objective-C class
+typedef struct MediaRemoteController MediaRemoteController;
+
+MediaRemoteController* createMediaRemoteController(void);
+BOOL initializeMediaRemoteController(MediaRemoteController* controller);
+void getNowPlayingInfoController(MediaRemoteController* controller, void (^completion)(BOOL));
+void startMonitoringController(MediaRemoteController* controller);
+void stopMonitoringController(MediaRemoteController* controller);
+void sendPlayCommandController(MediaRemoteController* controller);
+void sendPauseCommandController(MediaRemoteController* controller);
+void sendTogglePlayPauseCommandController(MediaRemoteController* controller);
+void sendNextTrackCommandController(MediaRemoteController* controller);
+void sendPreviousTrackCommandController(MediaRemoteController* controller);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* MediaRemoteControllerBridge_h */

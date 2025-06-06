@@ -47,10 +47,48 @@ struct LoopingVideoView: View {
 
     private func setupPlayer() {
         let item = AVPlayerItem(url: url)
-        let queuePlayer = AVQueuePlayer()
-        queuePlayer.volume = 0
-        self.looper = AVPlayerLooper(player: queuePlayer, templateItem: item)
-        self.player = queuePlayer
+        
+        // Remove all audio tracks to make it truly silent
+        let composition = AVMutableComposition()
+        let videoAsset = AVURLAsset(url: url)
+        
+        Task {
+            do {
+                let videoTracks = try await videoAsset.loadTracks(withMediaType: .video)
+                if let videoTrack = videoTracks.first {
+                    let videoCompositionTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)
+                    let timeRange = CMTimeRange(start: .zero, duration: try await videoAsset.load(.duration))
+                    try videoCompositionTrack?.insertTimeRange(timeRange, of: videoTrack, at: .zero)
+                }
+                
+                // Create player item from composition (video only, no audio)
+                let playerItem = AVPlayerItem(asset: composition)
+                
+                await MainActor.run {
+                    let queuePlayer = AVQueuePlayer()
+                    queuePlayer.volume = 0
+                    queuePlayer.isMuted = true
+                    
+                    // Prevent remote control and now playing info
+                    queuePlayer.allowsExternalPlayback = false
+                    
+                    self.looper = AVPlayerLooper(player: queuePlayer, templateItem: playerItem)
+                    self.player = queuePlayer
+                }
+            } catch {
+                print("Failed to create silent video composition: \(error)")
+                // Fallback to original method
+                await MainActor.run {
+                    let queuePlayer = AVQueuePlayer()
+                    queuePlayer.volume = 0
+                    queuePlayer.isMuted = true
+                    queuePlayer.allowsExternalPlayback = false
+                    
+                    self.looper = AVPlayerLooper(player: queuePlayer, templateItem: item)
+                    self.player = queuePlayer
+                }
+            }
+        }
     }
 }
 
@@ -64,6 +102,9 @@ struct MacVideoPlayerView: NSViewRepresentable {
         view.videoGravity = .resize
         view.setAccessibilityElement(false)
         view.focusRingType = .none
+        
+        view.allowsPictureInPicturePlayback = false
+        view.updatesNowPlayingInfoCenter = false
         
         return view
     }

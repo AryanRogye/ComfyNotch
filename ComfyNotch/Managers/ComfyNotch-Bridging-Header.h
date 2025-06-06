@@ -3,3 +3,4 @@
 //
 
 #include "BrightnessManager.h"
+#include "MediaRemoteController.h"

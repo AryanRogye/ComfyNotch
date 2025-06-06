@@ -10,86 +10,52 @@ import SwiftUI
 
 final class MediaRemoteMusicController: NowPlayingProvider {
     @ObservedObject var nowPlayingInfo: NowPlayingInfo
-    private let mediaRemotePath = "/System/Library/PrivateFrameworks/MediaRemote.framework/MediaRemote"
-    private let handle: UnsafeMutableRawPointer?
+    private var controller: MediaRemoteControllerRef?
     
     init(nowPlayingInfo: NowPlayingInfo) {
         self.nowPlayingInfo = nowPlayingInfo
-        self.handle = dlopen(mediaRemotePath, RTLD_NOW | RTLD_NOLOAD)
-        if handle == nil {
-            debugLog("❌ Failed to open MediaRemote via dlopen.")
-        }
-    }
-    
-    deinit {
-        if let handle = handle {
-            dlclose(handle)
+        self.controller = createMediaRemoteController()
+        
+        if let controller = controller, initializeMediaRemoteController(controller) {
+            debugLog("✅ MediaRemote initialized.")
+        } else {
+            debugLog("❌ Failed to initialize MediaRemoteController.")
         }
     }
     
     func isAvailable() -> Bool {
-        //        return false
-        guard let handle = handle else { return false }
-        print("Can access MediaRemote: \(handle)")
-        return dlsym(handle, "MRMediaRemoteGetNowPlayingInfo") != nil
+        return controller != nil
     }
     
     func getNowPlayingInfo(completion: @escaping (Bool) -> Void) {
-        guard let handle = handle,
-              let ptr = dlsym(handle, "MRMediaRemoteGetNowPlayingInfo")
-        else {
-            debugLog("❌ MRMediaRemoteGetNowPlayingInfo not found.")
-            return completion(false)
+        guard let controller = controller else {
+            completion(false)
+            return
         }
         
-        typealias MRFunc = @convention(c) (DispatchQueue, @escaping ([String: Any]?) -> Void) -> Void
-        let MR = unsafeBitCast(ptr, to: MRFunc.self)
-        
-        MR(DispatchQueue.main) { info in
-            guard let info = info,
-                  let title = info["kMRMediaRemoteNowPlayingInfoTitle"] as? String
-            else {
-                return completion(false)
+        getNowPlayingInfoController(controller) { success in
+            if success {
+                // Optionally fetch from sharedController if it has nowPlayingInfo stored
+                completion(true)
+            } else {
+                completion(false)
             }
-            
-            self.nowPlayingInfo.trackName = title
-            self.nowPlayingInfo.artistName = info["kMRMediaRemoteNowPlayingInfoArtist"] as? String ?? "Unknown"
-            self.nowPlayingInfo.albumName  = info["kMRMediaRemoteNowPlayingInfoAlbum"]  as? String ?? "Unknown"
-            // You can add artwork/color, isPlaying, etc. here
-            
-            completion(true)
         }
     }
     
-    // MARK: - Actions
-    
     func playPreviousTrack() {
-        sendCommand(commandType: 0) // Previous
+        if let c = controller { sendPreviousTrackCommandController(c) }
     }
     
     func playNextTrack() {
-        sendCommand(commandType: 1) // Next
+        if let c = controller { sendNextTrackCommandController(c) }
     }
     
     func togglePlayPause() {
-        sendCommand(commandType: 2) // Toggle
+        if let c = controller { sendTogglePlayPauseCommandController(c) }
     }
     
     func playAtTime(to time: Double) {
         // Not implemented
-    }
-    
-    private func sendCommand(commandType: Int) {
-        guard let handle = handle,
-              let ptr = dlsym(handle, "MRMediaRemoteSendCommand")
-        else {
-            debugLog("❌ MRMediaRemoteSendCommand not found.")
-            return
-        }
-        
-        typealias SendCommandFunc = @convention(c) (Int, Any?, Int) -> Void
-        let sendCommand = unsafeBitCast(ptr, to: SendCommandFunc.self)
-        
-        sendCommand(commandType, nil, 0)
     }
 }
