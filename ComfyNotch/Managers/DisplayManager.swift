@@ -13,16 +13,25 @@ import Cocoa
 final class DisplayManager: NSObject, ObservableObject {
     static let shared = DisplayManager()
     
-    @Published var screens : [NSScreen] = []
+    @Published var screenSnapshots: [CGDirectDisplayID: NSImage?] = [:]
+    @Published var selectedScreen: NSScreen!
+    public var notchedScreen: NSScreen? {
+        return NSScreen.screens.first(where: { $0.safeAreaInsets.top > 0 } )
+    }
     
     private var timer: Timer?
     private var thread: Thread?
-
+    
+    override init() {
+        super.init()
+        selectedScreen = notchedScreen ?? NSScreen.main
+    }
+    
     public func start() {
         guard timer == nil else { return }
         
         /// Assign once at the start
-        self.screens = NSScreen.screens
+        updateScreenInformation()
         
         self.thread = Thread {
             let runLoop = RunLoop.current
@@ -41,7 +50,6 @@ final class DisplayManager: NSObject, ObservableObject {
                 }
             }
         }
-        
         thread?.start()
     }
     
@@ -52,8 +60,37 @@ final class DisplayManager: NSObject, ObservableObject {
         thread = nil
     }
     
+    func snapshot(for id: CGDirectDisplayID) -> NSImage? {
+        return screenSnapshots[id] ?? nil
+    }
+    
+    /// Function will generate a snapshot of the current screen
+    /// used to show in the UI
+    private func generateSnapShot(for screen: NSScreen) -> NSImage? {
+        if let displayID = screen.displayID, let image = CGDisplayCreateImage(displayID) {
+            return NSImage(cgImage: image, size: screen.frame.size)
+        }
+        
+        return nil
+    }
+    
+    
     private func updateScreenInformation() {
-        self.screens = NSScreen.screens
-        print("Screen Count: \(screens.count)")
+        for screen in NSScreen.screens {
+            guard let id = screen.displayID else { continue }
+            /// Dont generate a snapshot if it already exists
+            if screenSnapshots[id] == nil {
+                DispatchQueue.main.async {
+                    self.screenSnapshots[id] = self.generateSnapShot(for: screen)
+                }
+            } else {
+                /// If the snapshot already exists, we can update it if needed
+                if let displayID = screen.displayID, let image = CGDisplayCreateImage(displayID) {
+                    DispatchQueue.main.async {
+                        self.screenSnapshots[id] = NSImage(cgImage: image, size: screen.frame.size)
+                    }
+                }
+            }
+        }
     }
 }

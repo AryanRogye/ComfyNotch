@@ -41,13 +41,13 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         }()
         _ = SettingsModel.shared
         
-        /// Close the SettingsPage On Launch
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            if let window = NSApp.windows.first(where: { $0.title == "SettingsView" }) {
-                window.performClose(nil)
-                window.close()
-            }
-        }
+//        /// Close the SettingsPage On Launch
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+//            if let window = NSApp.windows.first(where: { $0.title == "SettingsView" }) {
+//                window.performClose(nil)
+//                window.close()
+//            }
+//        }
         
         if SettingsModel.shared.enableMessagesNotifications {
             Task {

@@ -1,7 +1,10 @@
 import SwiftUI
 
 struct GeneralSettingsView: View {
+    
     @ObservedObject var settings: SettingsModel
+    @StateObject    var displayManager: DisplayManager = .shared
+    
     @Environment(\.colorScheme) var colorScheme
     
     @State private var selectedSaveHUD: Bool = false
@@ -71,7 +74,30 @@ struct GeneralSettingsView: View {
     // MARK: - Display Settings
     private var displaySettingsSection: some View {
         ComfySection(title: "Display Settings") {
-            Text("Temp")
+            let columns = [
+                /// 3 displays Max
+                GridItem(.flexible(minimum: 100, maximum: 200)),
+                GridItem(.flexible(minimum: 100, maximum: 200)),
+            ]
+            HStack {
+                Spacer()
+                LazyVGrid(columns: columns, spacing: 16) {
+                    ForEach(Array(displayManager.screenSnapshots.keys), id: \.self) { key in
+                        if let image = displayManager.snapshot(for: key) {
+                            VStack {
+                                Text("ID: \(key)")
+                                Image(nsImage: image)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 100, height: 100)
+                                    .cornerRadius(8)
+                                    .padding(4)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
     
