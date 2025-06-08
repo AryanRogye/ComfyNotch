@@ -111,12 +111,19 @@ struct GeneralSettingsView: View {
                             .background(displayManager.selectedScreen ==  screen ? Color.primary.opacity(0.3) : Color.primary.opacity(0.05))
                             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                             .contentShape(RoundedRectangle(cornerRadius: 12))
-                            //                            .onTapGesture {
-                            //                                // handle tap here
-                            //                            }
                         }
                     }
                 }
+            }
+            
+            HStack(alignment: .center) {
+                Text("Note that ComfyNotch will open the best on a window with a Notch")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .padding(.top, 8)
+                Text("A newly Selected Display will need a relaunch to apply settings properly")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
             }
         }
     }
@@ -124,15 +131,15 @@ struct GeneralSettingsView: View {
     // MARK: - Notch Section
     private var notchSettingsSection: some View {
         ComfySection(title: "Notch Settings") {
-            ComfySection(title: "Messages", isSub: true) {
-                messagesSettings
+            ComfySection(title: "Dimensions", isSub: true) {
+                notchSettings
             }
             ComfySection(title: "Notch Controls", isSub: true) {
                 scrollSpeed
                 hudSettings
             }
-            ComfySection(title: "Dimensions", isSub: true) {
-                notchSettings
+            ComfySection(title: "Messages", isSub: true) {
+                messagesSettings
             }
         }
     }
