@@ -68,7 +68,7 @@ class UIManager {
      * Initializes default widgets and sets up panel properties.
      */
     func setupSmallPanel() {
-        guard let screen = NSScreen.main else { return }
+        guard let screen = DisplayManager.shared.selectedScreen else { return }
         let screenFrame = screen.frame
         let notchHeight = getNotchHeight()
 
@@ -197,7 +197,7 @@ class UIManager {
     }
 
     func getNotchHeight() -> CGFloat {
-        if let screen = NSScreen.main {
+        if let screen = DisplayManager.shared.selectedScreen {
             let safeAreaInsets = screen.safeAreaInsets
             return safeAreaInsets.top
         }

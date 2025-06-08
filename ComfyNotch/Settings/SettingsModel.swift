@@ -4,27 +4,27 @@ import Sparkle
 import AVKit
 
 class SettingsModel: ObservableObject {
-
+    
     static let shared = SettingsModel()
-
+    
     @Published var selectedWidgets: [String] = []
     @Published var isSettingsWindowOpen: Bool = false
     @Published var openStateYOffset = CGFloat(35)
     @Published var snapOpenThreshold: CGFloat = 0.9
     @Published var aiApiKey: String = ""
-
+    
     @Published var selectedProvider: AIProvider = .openAI
     @Published var selectedOpenAIModel: OpenAIModel = .gpt3
     @Published var selectedAnthropicModel: AnthropicModel = .claudeV1
     @Published var selectedGoogleModel: GoogleModel = .palm
-
+    
     @Published var clipboardManagerMaxHistory: Int = 10
     @Published var clipboardManagerPollingIntervalMS: Int = 1000
     
     @Published var fileTrayDefaultFolder: URL = FileManager.default
-                                                    .urls(for: .documentDirectory, in: .userDomainMask)
-                                                    .first!
-                                                    .appendingPathComponent("ComfyNotch Files", isDirectory: true)
+        .urls(for: .documentDirectory, in: .userDomainMask)
+        .first!
+        .appendingPathComponent("ComfyNotch Files", isDirectory: true)
     
     /// ----------- FileTray Settings ----------
     @Published var fileTrayPersistFiles : Bool = false
@@ -59,13 +59,15 @@ class SettingsModel: ObservableObject {
     @Published var messagesMessageLimit: Int = 20
     @Published var currentMessageAudioFile: String = ""
     
+    /// ---------- Display Settings ----------
+    @Published var selectedScreen: NSScreen! = NSScreen.main!
     
-
+    
     @Published var updaterController: SPUStandardUpdaterController
     
-
+    
     private var cancellables = Set<AnyCancellable>()
-
+    
     private init() {
         self.updaterController = SPUStandardUpdaterController(
             startingUpdater: true,
@@ -78,20 +80,20 @@ class SettingsModel: ObservableObject {
     func checkForUpdates() {
         updaterController.updater.checkForUpdates()
     }
-
+    
     func checkForUpdatesSilently() {
         updaterController.updater.checkForUpdatesInBackground()
     }
     
     // MARK: - Save Settings
-
+    
     /// Saves the current settings to UserDefaults
     func saveSettings() {
         let defaults = UserDefaults.standard
-
+        
         // Saving the last state for whatever widgets are selected
         defaults.set(selectedWidgets, forKey: "selectedWidgets")
-
+        
         /// ----------------------- Camera Settings -----------------------
         defaults.set(isCameraFlipped, forKey: "isCameraFlipped")
         defaults.set(enableCameraOverlay, forKey: "enableCameraOverlay")
@@ -147,9 +149,9 @@ class SettingsModel: ObservableObject {
         defaults.set(notchMaxWidth, forKey: "notchMaxWidth")
         
         /// Make sure quickAccessWidgetDistanceFromLeft min is 7
-//        if quickAccessWidgetDistanceFromLeft < 7 {
-//            quickAccessWidgetDistanceFromLeft = 7
-//        }
+        //        if quickAccessWidgetDistanceFromLeft < 7 {
+        //            quickAccessWidgetDistanceFromLeft = 7
+        //        }
         defaults.set(quickAccessWidgetDistanceFromLeft, forKey: "quickAccessWidgetDistanceFromLeft")
         
         /// ----------------------- Music Player Settings -----------------------
@@ -166,6 +168,12 @@ class SettingsModel: ObservableObject {
             messagesMessageLimit = 10
         }
         defaults.set(messagesMessageLimit, forKey: "messagesMessageLimit")
+        
+        /// ----------------------- Display Settings -----------------------
+        if let screen = selectedScreen {
+            /// We Will Set the screen id
+            defaults.set(screen.displayID, forKey: "selectedScreenID")
+        }
     }
     
     // MARK: - Load Settings
@@ -173,7 +181,7 @@ class SettingsModel: ObservableObject {
     /// Loads the last saved settings from UserDefaults
     func loadSettings() {
         let defaults = UserDefaults.standard
-
+        
         // Loading the last state for the settings window
         if let loadedWidgets = defaults.object(forKey: "selectedWidgets") as? [String] {
             self.selectedWidgets = loadedWidgets
@@ -181,7 +189,7 @@ class SettingsModel: ObservableObject {
             // Set default if nothing is saved
             self.selectedWidgets = WidgetRegistry.shared.getDefaultWidgets()
         }
-
+        
         /// ----------------------- Camera Settings -----------------------
         // Loading the last state for camera flip
         if defaults.object(forKey: "isCameraFlipped") != nil {
@@ -196,7 +204,7 @@ class SettingsModel: ObservableObject {
             // Set default if nothing is saved
             self.cameraOverlayTimer = 20
         }
-
+        
         /// ----------------------- API Key Settings -----------------------
         // Loading the last api_key the user entered
         if let apiKey = defaults.string(forKey: "aiApiKey") {
@@ -210,7 +218,7 @@ class SettingsModel: ObservableObject {
         if let fileTrayPersistFiles = defaults.object(forKey: "fileTrayPersistFiles") as? Bool {
             self.fileTrayPersistFiles = fileTrayPersistFiles
         }
-
+        
         /// ----------------------- ClipBoard Settings -----------------------------------
         if let clipboardManagerMaxHistory = defaults.object(forKey: "clipboardManagerMaxHistory") as? Int {
             self.clipboardManagerMaxHistory = clipboardManagerMaxHistory
@@ -272,6 +280,23 @@ class SettingsModel: ObservableObject {
         } else {
             self.messagesMessageLimit = 20
         }
+        
+        /// ----------------------- Display Settings -----------------------
+        if let screen = defaults.object(forKey: "selectedScreenID") as? CGDirectDisplayID {
+            self.selectedScreen = NSScreen.screens.first(where: { $0.displayID == screen }) ?? NSScreen.main
+        } else {
+            self.selectedScreen = NSScreen.main
+        }
+    }
+    
+    public func saveSettingsForDisplay(for screen: NSScreen) {
+        self.selectedScreen = screen
+        let defaults = UserDefaults.standard
+        
+        // Save the display ID of the selected screen
+        if let displayID = screen.displayID {
+            defaults.set(displayID, forKey: "selectedScreenID")
+        }
     }
     
     // MARK: - Widget Update Logic
@@ -281,11 +306,11 @@ class SettingsModel: ObservableObject {
     /// the settings is what manages and loads in the widgets at runtime and while
     /// the application is running
     func updateSelectedWidgets(with widgetName: String, isSelected: Bool) {
-
+        
         debugLog("Updating selected widgets with: \(widgetName), isSelected: \(isSelected)")
-
+        
         // Starting With Remove Logic so we can clear out any old widgets
-
+        
         if !isSelected {
             if selectedWidgets.contains(widgetName) {
                 selectedWidgets.removeAll { $0 == widgetName }
@@ -296,7 +321,7 @@ class SettingsModel: ObservableObject {
                 exit(0)
             }
         }
-
+        
         // Add Logic
         if isSelected {
             if !selectedWidgets.contains(widgetName) {
@@ -307,10 +332,10 @@ class SettingsModel: ObservableObject {
                 }
             }
         }
-
+        
         saveSettings()
         debugLog("NEW Saved Settings: \(selectedWidgets)")
-
+        
         // Refresh the UI only if the panel is open
         if UIManager.shared.panelState == .open {
             refreshUI()
@@ -320,26 +345,26 @@ class SettingsModel: ObservableObject {
     }
     
     // MARK: - UI Update Logic
-
+    
     func refreshUI() {
         if UIManager.shared.panelState == .open {
             AudioManager.shared.startMediaTimer()
             UIManager.shared.smallPanel.contentView?.needsLayout = true
             UIManager.shared.smallPanel.contentView?.layoutSubtreeIfNeeded()
-
+            
             DispatchQueue.main.async {
                 UIManager.shared.smallPanel.contentView?.needsDisplay = true
                 UIManager.shared.applyExpandedWidgetLayout()
             }
         }
     }
-
+    
     func removeAndAddBackCurrentWidgets() {
         debugLog("🔄 Rebuilding widgets in the panel based on the updated order.")
-
+        
         // Clear all currently displayed widgets
         UIManager.shared.expandedWidgetStore.clearWidgets()
-
+        
         // Iterate over the updated selectedWidgets list
         for widgetName in selectedWidgets {
             if let widget = WidgetRegistry.shared.getWidget(named: widgetName) {
@@ -348,7 +373,7 @@ class SettingsModel: ObservableObject {
                 debugLog("⚠️ Widget \(widgetName) not found in WidgetRegistry.")
             }
         }
-
+        
         // Finally, refresh the UI
         refreshUI()
     }

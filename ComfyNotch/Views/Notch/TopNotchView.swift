@@ -120,7 +120,7 @@ struct TopNotchView: View {
     }
 
     private func getNotchWidth() -> CGFloat {
-        guard let screen = NSScreen.main else { return 180 } // Default to 180 if it fails
+        guard let screen = DisplayManager.shared.selectedScreen else { return 180 } // Default to 180 if it fails
 
         let screenWidth = screen.frame.width
 

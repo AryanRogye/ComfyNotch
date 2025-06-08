@@ -1,7 +1,10 @@
 import SwiftUI
 
 struct GeneralSettingsView: View {
+    
     @ObservedObject var settings: SettingsModel
+    @StateObject    var displayManager: DisplayManager = .shared
+    
     @Environment(\.colorScheme) var colorScheme
     
     @State private var selectedSaveHUD: Bool = false
@@ -71,22 +74,72 @@ struct GeneralSettingsView: View {
     // MARK: - Display Settings
     private var displaySettingsSection: some View {
         ComfySection(title: "Display Settings") {
-            Text("Temp")
+            let columns = [
+                /// 2 displays Max
+                GridItem(.flexible(minimum: 100, maximum: 200)),
+                GridItem(.flexible(minimum: 100, maximum: 200)),
+            ]
+            HStack {
+                Spacer()
+                LazyVGrid(columns: columns, spacing: 16) {
+                    ForEach(Array(displayManager.screenSnapshots.keys), id: \.self) { key in
+                        if let image = displayManager.snapshot(for: key) {
+                            let screen = NSScreen.screens.first(where: { $0.displayID == key })
+                            VStack {
+                                Text(displayManager.displayName(for: key))
+                                    .font(.headline)
+                                    .foregroundColor(.secondary)
+                                    .padding(.bottom, 4)
+                                Image(nsImage: image)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 140, height: 140)
+                                    .cornerRadius(8)
+                                    .padding(4)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                                Button(action: {
+                                    displayManager.selectedScreen = screen
+                                    displayManager.saveSettings()
+                                }) {
+                                    Text("Select")
+                                        .font(.system(size: 13, weight: .semibold))
+                                        .foregroundColor(.primary)
+                                }
+                            }
+                            .padding(6)
+                            .padding(.horizontal, 8)
+                            .background(displayManager.selectedScreen ==  screen ? Color.primary.opacity(0.3) : Color.primary.opacity(0.05))
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .contentShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                    }
+                }
+            }
+            
+            HStack(alignment: .center) {
+                Text("Note that ComfyNotch will open the best on a window with a Notch")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .padding(.top, 8)
+                Text("A newly selected Display will need a relaunch to apply settings properly")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+            }
         }
     }
     
     // MARK: - Notch Section
     private var notchSettingsSection: some View {
         ComfySection(title: "Notch Settings") {
-            ComfySection(title: "Messages", isSub: true) {
-                messagesSettings
+            ComfySection(title: "Dimensions", isSub: true) {
+                notchSettings
             }
             ComfySection(title: "Notch Controls", isSub: true) {
                 scrollSpeed
                 hudSettings
             }
-            ComfySection(title: "Dimensions", isSub: true) {
-                notchSettings
+            ComfySection(title: "Messages", isSub: true) {
+                messagesSettings
             }
         }
     }
