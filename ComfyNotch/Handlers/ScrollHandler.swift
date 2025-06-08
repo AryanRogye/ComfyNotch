@@ -251,12 +251,12 @@ class ScrollHandler {
     
     /// This animation makes sure that it just "expands"
     func openFull() {
+        guard let screen = DisplayManager.shared.selectedScreen else { return }
         guard let panel = UIManager.shared.smallPanel, !isSnapping else { return }
         /// Call A Peek Close First
         isSnapping = true
         
         let current = panel.frame
-        let screen  = DisplayManager.shared.selectedScreen!
         
         // 1) true final
         let trueH     = minPanelHeight + CGFloat(maxPullDistance)

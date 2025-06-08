@@ -204,7 +204,7 @@ struct MessagesView: View {
     private var userClickedMessageTopRow: some View {
         VStack(spacing: 2) {
             HStack {
-                Text(clickedUser?.display_name ?? "Unkown Name")
+                Text(clickedUser?.display_name ?? "Unknown Name")
                     .font(.headline)
                     .foregroundColor(.primary)
                 Spacer()

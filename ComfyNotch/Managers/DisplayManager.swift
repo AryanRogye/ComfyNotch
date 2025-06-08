@@ -75,7 +75,7 @@ final class DisplayManager: NSObject, ObservableObject {
         if let screen = NSScreen.screens.first(where: { $0.displayID == displayID }) {
             return screen.localizedName
         }
-        return "Unkown Name"
+        return "Unknown Name"
     }
     
     /// Function will generate a snapshot of the current screen
