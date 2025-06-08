@@ -84,6 +84,7 @@ struct GeneralSettingsView: View {
                 LazyVGrid(columns: columns, spacing: 16) {
                     ForEach(Array(displayManager.screenSnapshots.keys), id: \.self) { key in
                         if let image = displayManager.snapshot(for: key) {
+                            let screen = NSScreen.screens.first(where: { $0.displayID == key })
                             VStack {
                                 Text(displayManager.displayName(for: key))
                                     .font(.headline)
@@ -96,15 +97,23 @@ struct GeneralSettingsView: View {
                                     .cornerRadius(8)
                                     .padding(4)
                                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                                Button(action: {
+                                    displayManager.selectedScreen = screen
+                                    displayManager.saveSettings()
+                                }) {
+                                    Text("Select")
+                                        .font(.system(size: 13, weight: .semibold))
+                                        .foregroundColor(.primary)
+                                }
                             }
                             .padding(6)
                             .padding(.horizontal, 8)
-                            .background(Color.primary.opacity(0.05))
+                            .background(displayManager.selectedScreen ==  screen ? Color.primary.opacity(0.3) : Color.primary.opacity(0.05))
                             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                             .contentShape(RoundedRectangle(cornerRadius: 12))
-//                            .onTapGesture {
-//                                // handle tap here
-//                            }
+                            //                            .onTapGesture {
+                            //                                // handle tap here
+                            //                            }
                         }
                     }
                 }

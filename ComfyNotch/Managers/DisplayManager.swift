@@ -24,9 +24,7 @@ final class DisplayManager: NSObject, ObservableObject {
     
     override init() {
         super.init()
-        
-        /// TODO: Replace with loading in from the settings if nothing was found in the settings
-        selectedScreen = notchedScreen ?? NSScreen.main
+        selectedScreen = SettingsModel.shared.selectedScreen
     }
     
     public func start() {
@@ -60,6 +58,11 @@ final class DisplayManager: NSObject, ObservableObject {
         timer?.invalidate()
         timer = nil
         thread = nil
+    }
+    
+    func saveSettings() {
+        print("Saving Settings")
+        SettingsModel.shared.saveSettingsForDisplay(for: selectedScreen)
     }
     
     /// Function to get the image of the id super fast
