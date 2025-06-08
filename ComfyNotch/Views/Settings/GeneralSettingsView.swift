@@ -75,7 +75,7 @@ struct GeneralSettingsView: View {
     private var displaySettingsSection: some View {
         ComfySection(title: "Display Settings") {
             let columns = [
-                /// 3 displays Max
+                /// 2 displays Max
                 GridItem(.flexible(minimum: 100, maximum: 200)),
                 GridItem(.flexible(minimum: 100, maximum: 200)),
             ]
@@ -121,7 +121,7 @@ struct GeneralSettingsView: View {
                     .font(.footnote)
                     .foregroundColor(.secondary)
                     .padding(.top, 8)
-                Text("A newly Selected Display will need a relaunch to apply settings properly")
+                Text("A newly selected Display will need a relaunch to apply settings properly")
                     .font(.footnote)
                     .foregroundColor(.secondary)
             }

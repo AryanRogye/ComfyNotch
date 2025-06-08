@@ -297,7 +297,6 @@ class SettingsModel: ObservableObject {
         if let displayID = screen.displayID {
             defaults.set(displayID, forKey: "selectedScreenID")
         }
-        defaults.synchronize()
     }
     
     // MARK: - Widget Update Logic
