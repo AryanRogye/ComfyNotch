@@ -1,0 +1,16 @@
+package-lock.json
+README.md
+package.json
+app.json
+node_modules/
+dist/
+.expo/
+.git/
+.idea/
+.vscode/
+.DS_Store/
+Contents.json
+*.md
+*.svg
+*.json
+*.xml

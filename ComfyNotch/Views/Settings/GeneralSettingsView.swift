@@ -116,7 +116,7 @@ struct GeneralSettingsView: View {
                 }
             }
             
-            HStack(alignment: .center) {
+            VStack(alignment: .center) {
                 Text("Note that ComfyNotch will open the best on a window with a Notch")
                     .font(.footnote)
                     .foregroundColor(.secondary)
@@ -125,6 +125,7 @@ struct GeneralSettingsView: View {
                     .font(.footnote)
                     .foregroundColor(.secondary)
             }
+            .frame(maxWidth: .infinity, alignment: .center)
         }
     }
     
