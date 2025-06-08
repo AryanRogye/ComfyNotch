@@ -11,9 +11,9 @@ struct GeneralSettingsView: View {
     @State private var notchWidthChanged: Bool = false
     @State private var lastNotchWidth: CGFloat = 0.0
     @State private var resetPressed: Bool = false
-
+    
     private let maxWidgetCount = 3  // Limit to 3 widgets
-
+    
     var body: some View {
         VStack {
             HStack {
@@ -23,6 +23,8 @@ struct GeneralSettingsView: View {
             }
             ComfyScrollView {
                 headerView
+                
+                displaySettingsSection
                 
                 notchSettingsSection
                 
@@ -66,23 +68,26 @@ struct GeneralSettingsView: View {
         .padding(.top, 12)
     }
     
+    // MARK: - Display Settings
+    private var displaySettingsSection: some View {
+        ComfySection(title: "Display Settings") {
+            Text("Temp")
+        }
+    }
+    
     // MARK: - Notch Section
     private var notchSettingsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Notch Settings")
-                    .font(.headline)
-                Spacer()
+        ComfySection(title: "Notch Settings") {
+            ComfySection(title: "Messages", isSub: true) {
+                messagesSettings
             }
-            Divider()
-            
-            messagesSettings
-            Divider()
-            notchSettings
-            Divider()
-            hudSettings
-            Divider()
-            scrollSpeed
+            ComfySection(title: "Notch Controls", isSub: true) {
+                scrollSpeed
+                hudSettings
+            }
+            ComfySection(title: "Dimensions", isSub: true) {
+                notchSettings
+            }
         }
     }
     
@@ -137,7 +142,7 @@ struct GeneralSettingsView: View {
                     )
                 }
                 .padding(.horizontal, 22)
-
+                
                 if self.notchWidthChanged {
                     Text("Changes detected. Save and reopen the notch to apply.")
                         .font(.footnote)
@@ -343,15 +348,7 @@ struct GeneralSettingsView: View {
     // MARK: - Divider Section
     
     private var dividerSettingsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Divider Settings")
-                    .font(.headline)
-                Spacer()
-            }
-            
-            Divider()
-            
+        ComfySection(title: "Divider Settings") {
             Toggle("Enable Divider", isOn: $settings.showDividerBetweenWidgets)
                 .onChange(of: settings.showDividerBetweenWidgets) {
                     settings.saveSettings()
@@ -360,8 +357,8 @@ struct GeneralSettingsView: View {
                 .toggleStyle(.switch)
         }
     }
-
-
+    
+    
     // MARK: - Buttons
     private var saveSettingsButton: some View {
         Button("Save Settings") {
@@ -381,7 +378,7 @@ struct GeneralSettingsView: View {
         .buttonStyle(.bordered)
         .controlSize(.regular)
     }
-
+    
     // MARK: - Helper Functions
     
     func closeWindow() {

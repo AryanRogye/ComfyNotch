@@ -50,6 +50,7 @@ struct SettingsView: View {
         } detail: {
             selectedTab.destination(settings: settings)
                 .frame(minWidth: 500, maxWidth: .infinity, maxHeight: .infinity)
+                .background(.regularMaterial)
         }
         .transaction { $0.animation = nil }
         .frame(minWidth: 650, minHeight: 500)
@@ -65,9 +66,4 @@ struct SettingsView: View {
             }
         }
     }
-}
-
-
-#Preview {
-    SettingsView()
 }

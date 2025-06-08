@@ -42,7 +42,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         _ = SettingsModel.shared
         
         /// Close the SettingsPage On Launch
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
             if let window = NSApp.windows.first(where: { $0.title == "SettingsView" }) {
                 window.performClose(nil)
                 window.close()
@@ -59,12 +59,9 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
         
-//        SettingsModel.shared.checkForUpdates()
-        
         /// Wanna Request Access To Acessibility
         MediaKeyInterceptor.shared.requestAccessibilityIfNeeded()
 
-        //        DispatchQueue.main.async {
         EventManager.shared.requestPermissionEventsIfNeededOnce { granted in
             DispatchQueue.main.async {
                 if !granted {
@@ -80,7 +77,6 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
                 self.launchComfyNotch()
             }
         }
-        //        }
     }
     
     public func applicationWillTerminate(_ notification: Notification) {
@@ -89,6 +85,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         VolumeManager.shared.stop()
         BrightnessWatcher.shared.stop()
         ClipboardManager.shared.stop()
+        DisplayManager.shared.stop()
     }
     
     public func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
@@ -96,6 +93,9 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     private func launchComfyNotch() {
+        /// Start A Display Manager, this will be used by the ui manager
+        DisplayManager.shared.start()
+        
         UIManager.shared.setupFrame()
         
         if let smallPanel = UIManager.shared.smallPanel {
