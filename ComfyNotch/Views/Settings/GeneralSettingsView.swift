@@ -85,15 +85,26 @@ struct GeneralSettingsView: View {
                     ForEach(Array(displayManager.screenSnapshots.keys), id: \.self) { key in
                         if let image = displayManager.snapshot(for: key) {
                             VStack {
-                                Text("ID: \(key)")
+                                Text(displayManager.displayName(for: key))
+                                    .font(.headline)
+                                    .foregroundColor(.secondary)
+                                    .padding(.bottom, 4)
                                 Image(nsImage: image)
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
-                                    .frame(width: 100, height: 100)
+                                    .frame(width: 140, height: 140)
                                     .cornerRadius(8)
                                     .padding(4)
                                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                             }
+                            .padding(6)
+                            .padding(.horizontal, 8)
+                            .background(Color.primary.opacity(0.05))
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .contentShape(RoundedRectangle(cornerRadius: 12))
+//                            .onTapGesture {
+//                                // handle tap here
+//                            }
                         }
                     }
                 }

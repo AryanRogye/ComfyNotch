@@ -24,6 +24,8 @@ final class DisplayManager: NSObject, ObservableObject {
     
     override init() {
         super.init()
+        
+        /// TODO: Replace with loading in from the settings if nothing was found in the settings
         selectedScreen = notchedScreen ?? NSScreen.main
     }
     
@@ -60,8 +62,17 @@ final class DisplayManager: NSObject, ObservableObject {
         thread = nil
     }
     
+    /// Function to get the image of the id super fast
     func snapshot(for id: CGDirectDisplayID) -> NSImage? {
         return screenSnapshots[id] ?? nil
+    }
+    
+    /// Function to get the name of the screen
+    func displayName(for displayID: CGDirectDisplayID) -> String {
+        if let screen = NSScreen.screens.first(where: { $0.displayID == displayID }) {
+            return screen.localizedName
+        }
+        return "Unkown Name"
     }
     
     /// Function will generate a snapshot of the current screen
@@ -73,7 +84,6 @@ final class DisplayManager: NSObject, ObservableObject {
         
         return nil
     }
-    
     
     private func updateScreenInformation() {
         for screen in NSScreen.screens {
