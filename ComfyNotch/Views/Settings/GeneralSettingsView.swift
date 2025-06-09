@@ -31,8 +31,6 @@ struct GeneralSettingsView: View {
                 
                 notchSettingsSection
                 
-                dividerSettingsSection
-                
                 Spacer()
                 
                 exitButton
@@ -71,7 +69,7 @@ struct GeneralSettingsView: View {
         .padding(.top, 12)
     }
     
-    // MARK: - Display Settings
+    // MARK: - Display Section
     private var displaySettingsSection: some View {
         ComfySection(title: "Display Settings") {
             let columns = [
@@ -135,6 +133,9 @@ struct GeneralSettingsView: View {
             ComfySection(title: "Dimensions", isSub: true) {
                 notchSettings
             }
+            ComfySection(title: "Animations", isSub: true) {
+                animationSettings
+            }
             ComfySection(title: "Notch Controls", isSub: true) {
                 scrollSpeed
                 hudSettings
@@ -142,6 +143,34 @@ struct GeneralSettingsView: View {
             ComfySection(title: "Messages", isSub: true) {
                 messagesSettings
             }
+            ComfySection(title: "Divider Settings") {
+                Toggle("Enable Divider", isOn: $settings.showDividerBetweenWidgets)
+                    .onChange(of: settings.showDividerBetweenWidgets) {
+                        settings.saveSettings()
+                    }
+                    .padding(.vertical, 8)
+                    .toggleStyle(.switch)
+            }
+        }
+    }
+    
+    private var animationSettings: some View {
+        VStack {
+            Picker("", selection: $settings.openingAnimation) {
+                Text("Spring Animation").tag("spring")
+                Text("iOS Animation").tag("iOS")
+            }
+            .labelsHidden()
+            .pickerStyle(.segmented)
+            .background(Color.clear)
+            .onChange(of: settings.openingAnimation) {
+                /// Save the settings when the animation changes
+                settings.saveSettings()
+            }
+            
+            //            LoopingVideoView(url: Bundle.main.url(forResource: "notchAnimation_demo", withExtension: "mp4", subdirectory: "Assets")!)
+            //                .frame(width: 350, height: 120)
+            //                .cornerRadius(10)
         }
     }
     
@@ -398,20 +427,6 @@ struct GeneralSettingsView: View {
             }
         }
     }
-    
-    // MARK: - Divider Section
-    
-    private var dividerSettingsSection: some View {
-        ComfySection(title: "Divider Settings") {
-            Toggle("Enable Divider", isOn: $settings.showDividerBetweenWidgets)
-                .onChange(of: settings.showDividerBetweenWidgets) {
-                    settings.saveSettings()
-                }
-                .padding(.vertical, 8)
-                .toggleStyle(.switch)
-        }
-    }
-    
     
     // MARK: - Buttons
     private var saveSettingsButton: some View {

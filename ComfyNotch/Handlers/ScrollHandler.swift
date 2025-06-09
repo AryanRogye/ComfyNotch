@@ -185,7 +185,7 @@ class ScrollHandler {
         let currentTopY = panel.frame.maxY
         let peekHeight: CGFloat = minPanelHeight + 50
         let peekY = currentTopY - peekHeight
-
+        
         let targetFrame = NSRect(
             x: panel.frame.origin.x,
             y: peekY,
@@ -272,33 +272,53 @@ class ScrollHandler {
         let overH     = trueH + overshootAmount
         let overY     = screen.frame.height - overH
         let overFrame = NSRect(x: x, y: overY, width: finalW, height: overH)
-        
-//         3) super‑springy curves
-//        let diveDur: TimeInterval = 0.25
-//        let recoDur: TimeInterval = 0.2
-//        let diveFn   = CAMediaTimingFunction(controlPoints: 0.2, 1.2, 0.4, 1.0)
-//        let recoFn   = CAMediaTimingFunction(controlPoints: 0.6, 1.8, 0.4, 1.0)
-        
-        /// Legacy Varient
-//        NSAnimationContext.runAnimationGroup({ ctx in
-//            ctx.duration       = diveDur
-//            ctx.timingFunction = diveFn
-//            panel.animator().setFrame(overFrame, display: true)
-//        }) {
-//            // STEP B: recoil into place
-//            NSAnimationContext.runAnimationGroup({ ctx in
-//                ctx.duration       = recoDur
-//                ctx.timingFunction = recoFn
-//                panel.animator().setFrame(trueFrame, display: true)
-//            }) {
-//                panel.setFrame(trueFrame, display: true)
-//                self.isSnapping = false
-//                self.updateState(for: trueH)
-//                UIManager.shared.panelState = .open
-//            }
-//        }
-        
         /// Super Clean Varient
+        if settings.openingAnimation == "spring" {
+            springAnimation(overFrame: overFrame, panel: panel, trueFrame: trueFrame, trueH: trueH)
+        } else if settings.openingAnimation == "iOS" {
+            iOSAnimation(overFrame: overFrame, panel: panel, trueFrame: trueFrame, trueH: trueH)
+        }
+        
+    } /// Mark - End Of Open Full (Debugging Needed)
+    
+    private func springAnimation(
+        overFrame: NSRect,
+        panel: NSPanel,
+        trueFrame: NSRect,
+        trueH: CGFloat
+    ) {
+        //   3) super‑springy curves
+        let diveDur: TimeInterval = 0.25
+        let recoDur: TimeInterval = 0.2
+        let diveFn   = CAMediaTimingFunction(controlPoints: 0.2, 1.2, 0.4, 1.0)
+        let recoFn   = CAMediaTimingFunction(controlPoints: 0.6, 1.8, 0.4, 1.0)
+        
+        // Legacy Varient
+        NSAnimationContext.runAnimationGroup({ ctx in
+            ctx.duration       = diveDur
+            ctx.timingFunction = diveFn
+            panel.animator().setFrame(overFrame, display: true)
+        }) {
+            // STEP B: recoil into place
+            NSAnimationContext.runAnimationGroup({ ctx in
+                ctx.duration       = recoDur
+                ctx.timingFunction = recoFn
+                panel.animator().setFrame(trueFrame, display: true)
+            }) {
+                panel.setFrame(trueFrame, display: true)
+                self.isSnapping = false
+                self.updateState(for: trueH)
+                UIManager.shared.panelState = .open
+            }
+        }
+    }
+    
+    private func iOSAnimation(
+        overFrame: NSRect,
+        panel: NSPanel,
+        trueFrame: NSRect,
+        trueH: CGFloat
+    ) {
         let totalDuration: TimeInterval = 0.5
         let diveFn = CAMediaTimingFunction(controlPoints: 0.2, 0.0, 0.0, 1.0)  // iOS ease-in-out
         
@@ -318,8 +338,7 @@ class ScrollHandler {
                 UIManager.shared.panelState = .open
             }
         }
-        
-    } /// Mark - End Of Open Full (Debugging Needed)
+    }
     
     func closeFull() {
         guard let panel = UIManager.shared.smallPanel, !isSnapping else { return }

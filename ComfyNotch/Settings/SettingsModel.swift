@@ -61,6 +61,8 @@ class SettingsModel: ObservableObject {
     
     /// ---------- Display Settings ----------
     @Published var selectedScreen: NSScreen! = NSScreen.main!
+    /// ---------- Animation Settings ----------
+    @Published var openingAnimation: String = "iOS"
     
     
     @Published var updaterController: SPUStandardUpdaterController
@@ -174,6 +176,8 @@ class SettingsModel: ObservableObject {
             /// We Will Set the screen id
             defaults.set(screen.displayID, forKey: "selectedScreenID")
         }
+        /// ----------------------- Animation Settings -----------------------
+        defaults.set(openingAnimation, forKey: "openingAnimation")
     }
     
     // MARK: - Load Settings
@@ -286,6 +290,12 @@ class SettingsModel: ObservableObject {
             self.selectedScreen = NSScreen.screens.first(where: { $0.displayID == screen }) ?? NSScreen.main
         } else {
             self.selectedScreen = NSScreen.main
+        }
+        
+        if let openingAnimation = defaults.string(forKey: "openingAnimation") {
+            self.openingAnimation = openingAnimation
+        } else {
+            self.openingAnimation = "iOS" // Default animation
         }
     }
     
