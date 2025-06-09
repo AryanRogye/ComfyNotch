@@ -101,7 +101,7 @@ final class DisplayManager: NSObject, ObservableObject {
                 }
             } else {
                 /// If the snapshot already exists, we can update it if needed
-                if let displayID = screen.displayID, let image = CGDisplayCreateImage(displayID) {
+                if let image = CGDisplayCreateImage(id) {
                     DispatchQueue.global(qos: .userInitiated).async {
                         let image = NSImage(cgImage: image, size: screen.frame.size)
                         DispatchQueue.main.async {
