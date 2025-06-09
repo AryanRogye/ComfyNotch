@@ -65,17 +65,17 @@ class SettingsModel: ObservableObject {
     @Published var openingAnimation: String = "iOS"
     
     
-    @Published var updaterController: SPUStandardUpdaterController
-    
-    
-    private var cancellables = Set<AnyCancellable>()
-    
-    private init() {
-        self.updaterController = SPUStandardUpdaterController(
+    lazy var updaterController: SPUStandardUpdaterController = {
+        return SPUStandardUpdaterController(
             startingUpdater: true,
             updaterDelegate: nil,
             userDriverDelegate: nil
         )
+    }()
+    
+    private var cancellables = Set<AnyCancellable>()
+    
+    private init() {
         loadSettings()
     }
     

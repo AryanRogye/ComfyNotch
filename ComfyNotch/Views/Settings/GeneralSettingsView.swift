@@ -156,19 +156,15 @@ struct GeneralSettingsView: View {
     
     private var animationSettings: some View {
         VStack {
-            ZStack {
-                Color(NSColor.windowBackgroundColor)
-                Picker("", selection: $settings.openingAnimation) {
-                    Text("Spring Animation").tag("spring")
-                    Text("iOS Animation").tag("iOS")
-                }
-                .labelsHidden()
-                .pickerStyle(.segmented)
-                .tint(.accentColor)
-                .onChange(of: settings.openingAnimation) {
-                    /// Save the settings when the animation changes
-                    settings.saveSettings()
-                }
+            Picker("", selection: $settings.openingAnimation) {
+                Text("Spring Animation").tag("spring")
+                Text("iOS Animation").tag("iOS")
+            }
+            .labelsHidden()
+            .pickerStyle(.menu)
+            .tint(.accentColor)
+            .onChange(of: settings.openingAnimation) {
+                settings.saveSettings()
             }
             
             //            LoopingVideoView(url: Bundle.main.url(forResource: "notchAnimation_demo", withExtension: "mp4", subdirectory: "Assets")!)

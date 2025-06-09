@@ -175,7 +175,7 @@ class ScrollHandler {
     //    }
     
     func peekOpen() {
-        guard let screen = DisplayManager.shared.selectedScreen else { return }
+        guard let _ = DisplayManager.shared.selectedScreen else { return }
         guard let panel = UIManager.shared.smallPanel,
               !isPeeking,
               !isSnapping else { return }
@@ -337,6 +337,26 @@ class ScrollHandler {
                 self.updateState(for: trueH)
                 UIManager.shared.panelState = .open
             }
+        }
+    }
+    
+    func re_align_notch() {
+        guard let panel = UIManager.shared.smallPanel else { return }
+        guard UIManager.shared.panelState == .closed else { return }
+        
+        let screen = DisplayManager.shared.selectedScreen!
+        let startYOffset = UIManager.shared.startPanelYOffset
+        
+        let finalWidth = minPanelWidth
+        let finalHeight = minPanelHeight
+        let centerX = (screen.frame.width - finalWidth) / 2
+        let y = screen.frame.height - finalHeight - startYOffset
+        let desiredFrame = NSRect(x: centerX, y: y, width: finalWidth, height: finalHeight)
+        
+        // Optional: Tolerance for micro pixel diff
+        if !panel.frame.equalTo(desiredFrame) {
+            panel.setFrame(desiredFrame, display: true)
+            print("✅ realigned panel to closed frame")
         }
     }
     

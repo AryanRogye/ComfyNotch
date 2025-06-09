@@ -39,7 +39,6 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             NSKeyedUnarchiver.setClass(NSAttributedString.self, forClassName: "NSConcreteAttributedString")
             NSKeyedUnarchiver.setClass(NSAttributedString.self, forClassName: "NSFrozenAttributedString")
         }()
-        _ = SettingsModel.shared
         
         /// Close the SettingsPage On Launch
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
@@ -121,11 +120,13 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Any Screen errors that may happen, is handled in here
         DisplayHandler.shared.start()
-        // Start listening for shortcuts
-        ShortcutHandler.shared.startListening()
         
-        UIManager.shared.applyCompactWidgetLayout()
-        ScrollHandler.shared.closeFull()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            ScrollHandler.shared.re_align_notch()
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            UIManager.shared.applyCompactWidgetLayout()
+        }
     }
 
 

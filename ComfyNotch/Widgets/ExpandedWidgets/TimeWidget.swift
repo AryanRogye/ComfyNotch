@@ -40,12 +40,15 @@ class TimeWidgetModel: ObservableObject {
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             self?.currentTime = TimeWidgetModel.getCurrentTime()
         }
-
     }
-
-    static func getCurrentTime() -> String {
+    
+    static let timeFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "h:mm:ss a"
-        return formatter.string(from: Date())
+        return formatter
+    }()
+
+    static func getCurrentTime() -> String {
+        return timeFormatter.string(from: Date())
     }
 }

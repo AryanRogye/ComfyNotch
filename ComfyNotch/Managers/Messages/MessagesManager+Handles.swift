@@ -37,15 +37,31 @@ extension MessagesManager {
                     .limit(settingsManager.messagesHandleLimit)
             ) {
                 
-                let (contact, image) = await getContactName(for: row[id]) ?? (row[id], nil)
-                let nsImage = image
-                    .flatMap(NSImage.init(data:))
-                    ?? NSImage(systemSymbolName: "person.crop.circle", accessibilityDescription: nil)
-                    ?? NSImage(size: NSSize(width: 40, height: 40))
+                let (contact, imageData) = await getContactName(for: row[id]) ?? (row[id], nil as Data?)
+                
+                // Process image data
+                let processedImageData = imageData
+                
+                // Create NSImage on main actor (where it's safe to do UI work)
+                let nsImage: NSImage = {
+                    if let data = processedImageData, let contactImage = NSImage(data: data) {
+                        return contactImage
+                    }
+                    
+                    return NSImage(systemSymbolName: "person.crop.circle", accessibilityDescription: nil)
+                    ?? {
+                        let fallbackImage = NSImage(size: NSSize(width: 40, height: 40))
+                        fallbackImage.lockFocus()
+                        NSColor.systemGray.setFill()
+                        NSRect(origin: .zero, size: NSSize(width: 40, height: 40)).fill()
+                        fallbackImage.unlockFocus()
+                        return fallbackImage
+                    }()
+                }()
                 
                 let lastTalkedTo = getLastTalkedTo(for: row[rowID])
                 let lastMessage = getLastMessageWithUser(for: row[rowID]) ?? ""
-
+                
                 let h = Handle(
                     ROWID: row[rowID],
                     id: row[id],
@@ -82,7 +98,7 @@ extension MessagesManager {
         
         
         let attributedBody = SQLite.Expression<Data?>("attributedBody")
-
+        
         do {
             if let row = try db.pluck(
                 messageTable
@@ -92,14 +108,14 @@ extension MessagesManager {
             ) {
                 let rawText = row[text]
                 var finalText = rawText ?? ""
-
+                
                 if finalText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     let attributedText = formatAttributedBody(row[attributedBody])
                     if !attributedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                         finalText = attributedText
                     }
                 }
-
+                
                 return finalText
             }
         } catch {
@@ -111,70 +127,136 @@ extension MessagesManager {
     
     /// We need to query the message table to get the last talked to for the handle id
     func getLastTalkedTo(for handleID: Int64) -> Date {
-        guard let db = db else {
-            print("🚫 DB not available")
-            return .distantPast
+        var dbHandle: OpaquePointer?
+        let dbPath = db?.description ?? ""
+        
+        var date: Date = Date.distantPast
+        
+        /// I had C function that does this now, because swift CPU was
+        /// getting high
+        if sqlite3_open(dbPath, &dbHandle) == SQLITE_OK {
+            let timestamp = get_last_talked_to(dbHandle, handleID)
+            date = formatDate(timestamp)
+            sqlite3_close(dbHandle)
         }
-        
-        let messageTable    = SQLite.Table("message")
-        let handle_id       = SQLite.Expression<Int64>("handle_id")
-        let date            = SQLite.Expression<Int64>("date")
-        
-        do {
-            if let row = try db.pluck(
-                messageTable
-                    .filter(handle_id == handleID)
-                    .order(date.desc)
-                    .limit(1)
-            ) {
-                /// Apple Holds Messages in nanoseconds since 2001
-                return self.formatDate(row[date])
-            }
-        } catch {
-            print("❌ Error fetching last message date for handle \(handleID): \(error)")
-        }
-        
-        return .distantPast
+        return date
     }
     
-    func getContactName(for identifier: String) async -> ContactResult? {
-        await Task(priority: .background) {
-            let keysToFetch: [CNKeyDescriptor] = [
-                CNContactGivenNameKey as CNKeyDescriptor,
-                CNContactFamilyNameKey as CNKeyDescriptor,
-                CNContactPhoneNumbersKey as CNKeyDescriptor,
-                CNContactEmailAddressesKey as CNKeyDescriptor,
-                CNContactImageDataKey as CNKeyDescriptor
-            ]
-            
-            let store = CNContactStore()
-            
-            do {
-                let allContacts = try store.unifiedContacts(
-                    matching: CNContact.predicateForContactsInContainer(withIdentifier: store.defaultContainerIdentifier()),
-                    keysToFetch: keysToFetch
-                )
-                
-                for contact in allContacts {
-                    if contact.emailAddresses.contains(where: { $0.value as String == identifier }) {
-                        return ("\(contact.givenName) \(contact.familyName)".trimmingCharacters(in: .whitespaces), contact.imageData)
-                    }
+    // MARK: - Contact Caching Properties
+    private nonisolated(unsafe) static var contactCache: [String: ContactResult] = [:]
+    private nonisolated(unsafe) static var phoneToContactMap: [String: String] = [:]
+    private nonisolated(unsafe) static var emailToContactMap: [String: String] = [:]
+    private nonisolated(unsafe) static var isContactCacheLoaded = false
+    private static let contactCacheQueue = DispatchQueue(label: "contact.cache", qos: .utility)
+    
+    
+    private func loadContactCacheIfNeeded() async {
+        guard !Self.isContactCacheLoaded else { return }
+        
+        await withCheckedContinuation { continuation in
+            Self.contactCacheQueue.async {
+                guard !Self.isContactCacheLoaded else {
+                    continuation.resume()
+                    return
                 }
                 
-                for contact in allContacts {
-                    for number in contact.phoneNumbers {
-                        let contactNum = number.value.stringValue.filter(\.isNumber)
-                        let handleNum = identifier.filter(\.isNumber)
-                        if contactNum.hasSuffix(handleNum) || handleNum.hasSuffix(contactNum) {
-                            return ("\(contact.givenName) \(contact.familyName)".trimmingCharacters(in: .whitespaces), contact.imageData)
+                let keysToFetch: [CNKeyDescriptor] = [
+                    CNContactGivenNameKey as CNKeyDescriptor,
+                    CNContactFamilyNameKey as CNKeyDescriptor,
+                    CNContactPhoneNumbersKey as CNKeyDescriptor,
+                    CNContactEmailAddressesKey as CNKeyDescriptor,
+                    CNContactImageDataKey as CNKeyDescriptor
+                ]
+                
+                let store = CNContactStore()
+                
+                do {
+                    let allContacts = try store.unifiedContacts(
+                        matching: CNContact.predicateForContactsInContainer(withIdentifier: store.defaultContainerIdentifier()),
+                        keysToFetch: keysToFetch
+                    )
+                    
+                    for contact in allContacts {
+                        let fullName = "\(contact.givenName) \(contact.familyName)".trimmingCharacters(in: .whitespaces)
+                        let contactData: ContactResult = (name: fullName, imageData: contact.imageData)
+                        
+                        // Cache by contact identifier
+                        Self.contactCache[contact.identifier] = contactData
+                        
+                        // Build email mapping
+                        for email in contact.emailAddresses {
+                            let emailStr = email.value as String
+                            Self.emailToContactMap[emailStr] = contact.identifier
+                        }
+                        
+                        // Build phone mapping with multiple variations
+                        for phoneNumber in contact.phoneNumbers {
+                            let cleanNumber = phoneNumber.value.stringValue.filter(\.isNumber)
+                            Self.phoneToContactMap[cleanNumber] = contact.identifier
+                            
+                            // Map last 10 digits for US numbers
+                            if cleanNumber.count >= 10 {
+                                let last10 = String(cleanNumber.suffix(10))
+                                Self.phoneToContactMap[last10] = contact.identifier
+                            }
+                            
+                            // Map last 7 digits for local matching
+                            if cleanNumber.count >= 7 {
+                                let last7 = String(cleanNumber.suffix(7))
+                                Self.phoneToContactMap[last7] = contact.identifier
+                            }
+                        }
+                    }
+                    
+                    Self.isContactCacheLoaded = true
+                    print("✅ Loaded \(allContacts.count) contacts into cache")
+                    
+                } catch {
+                    print("❌ Contact cache load error: \(error)")
+                }
+                
+                continuation.resume()
+            }
+        }
+    }
+    
+    // MARK: - Your existing function, now optimized
+    func getContactName(for identifier: String) async -> ContactResult? {
+        // Load cache on first use
+        await loadContactCacheIfNeeded()
+        
+        // Fast cache lookup
+        return await withCheckedContinuation { continuation in
+            Self.contactCacheQueue.async {
+                // Direct email lookup
+                if let contactId = Self.emailToContactMap[identifier],
+                   let cached = Self.contactCache[contactId] {
+                    continuation.resume(returning: cached)
+                    return
+                }
+                
+                // Phone number lookup
+                let cleanIdentifier = identifier.filter(\.isNumber)
+                
+                // Try exact match
+                if let contactId = Self.phoneToContactMap[cleanIdentifier],
+                   let cached = Self.contactCache[contactId] {
+                    continuation.resume(returning: cached)
+                    return
+                }
+                
+                // Try suffix matching (still fast with hash map)
+                for (cachedNumber, contactId) in Self.phoneToContactMap {
+                    if cachedNumber.hasSuffix(cleanIdentifier) || cleanIdentifier.hasSuffix(cachedNumber) {
+                        if let cached = Self.contactCache[contactId] {
+                            continuation.resume(returning: cached)
+                            return
                         }
                     }
                 }
-            } catch {
-                print("❌ Contact fetch error: \(error)")
+                
+                continuation.resume(returning: nil)
             }
-            
-            return nil
-        }.value
+        }
     }
 }

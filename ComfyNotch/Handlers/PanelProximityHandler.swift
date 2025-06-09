@@ -36,14 +36,14 @@ class PanelProximityHandler: NSObject {
     
     private func startListeningForPanelProximityWhenOpen() {
         localMonitor = NSEvent.addLocalMonitorForEvents(matching: .mouseMoved) { [weak self] event in
-            guard let self = self, let panel = self.panel else { return event }
+            guard let self = self, let _ = self.panel else { return event }
             self.handleMouseMoved(event)
             return event
         }
         
         // Global monitor for events outside our application
         globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: .mouseMoved) { [weak self] event in
-            guard let self = self, let panel = self.panel else { return }
+            guard let self = self, let _ = self.panel else { return }
             self.handleMouseMoved(event)
         }
         

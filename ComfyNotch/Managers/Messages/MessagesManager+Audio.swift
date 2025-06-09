@@ -14,11 +14,11 @@ extension MessagesManager {
     ///     Settings model, I have to resarch where the audio
     ///     files are stored, and trigger that for the messages
     internal func playAudio() {
-        /// Make Sure we are not playing audio already
-        if self.isPlayingAudio { return }
-        self.isPlayingAudio = true
-        defer { self.isPlayingAudio = false }
-        
-        /// TODO: Impliment
+//        /// Make Sure we are not playing audio already
+//        if self.isPlayingAudio { return }
+//        self.isPlayingAudio = true
+//        defer { self.isPlayingAudio = false }
+//        
+//        /// TODO: Impliment
     }
 }

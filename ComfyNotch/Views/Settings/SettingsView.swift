@@ -52,6 +52,7 @@ struct SettingsView: View {
                 .frame(minWidth: 500, maxWidth: .infinity, maxHeight: .infinity)
                 .background(.regularMaterial)
         }
+        .id(selectedTab)
         .transaction { $0.animation = nil }
         .frame(minWidth: 650, minHeight: 500)
         .elevateToFloatingWindow()
@@ -60,10 +61,7 @@ struct SettingsView: View {
         }
         .onDisappear {
             settings.isSettingsWindowOpen = false
-            SettingsModel.shared.refreshUI()
-            if let window = NSApp.windows.first(where: { $0.title == "SettingsView" }) {
-                window.close()
-            }
+            settings.refreshUI()
         }
     }
 }
