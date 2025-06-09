@@ -354,43 +354,42 @@ final class AppleScriptMusicController: NowPlayingProvider {
      * - Returns: The dominant NSColor, or nil if extraction fails.
      */
     private func getDominantColor(from image: NSImage) -> NSColor? {
-        guard let tiffData = image.tiffRepresentation,
-            let ciImage = CIImage(data: tiffData) else { return nil }
-
-        let filter = CIFilter(name: "CIAreaAverage", parameters: [
-            kCIInputImageKey: ciImage,
-            kCIInputExtentKey: CIVector(x: 0, y: 0, z: ciImage.extent.width, w: ciImage.extent.height)
-        ])
-
-        guard let outputImage = filter?.outputImage else { return nil }
-
-        var bitmap = [UInt8](repeating: 0, count: 4)
-        let context = CIContext()
-        context.render(
-            outputImage,
-            toBitmap: &bitmap,
-            rowBytes: 4,
-            bounds: CGRect(x: 0, y: 0, width: 1, height: 1),
-            format: .RGBA8, colorSpace: nil
-        )
-
-        var red = CGFloat(bitmap[0]) / 255.0
-        var green = CGFloat(bitmap[1]) / 255.0
-        var blue = CGFloat(bitmap[2]) / 255.0
-        let alpha = CGFloat(bitmap[3]) / 255.0
-
-        // Calculate brightness as the average of RGB values
+        guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return nil }
+        
+        let width = cgImage.width
+        let height = cgImage.height
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        
+        // Sample from center or use full image data
+        var pixelData = [UInt8](repeating: 0, count: 4)
+        
+        guard let context = CGContext(
+            data: &pixelData,
+            width: 1,
+            height: 1,
+            bitsPerComponent: 8,
+            bytesPerRow: 4,
+            space: colorSpace,
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ) else { return nil }
+        
+        // Scale the entire image down to 1x1 to get average color
+        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: 1, height: 1))
+        
+        var red = CGFloat(pixelData[0]) / 255.0
+        var green = CGFloat(pixelData[1]) / 255.0
+        var blue = CGFloat(pixelData[2]) / 255.0
+        let alpha = CGFloat(pixelData[3]) / 255.0
+        
+        // Your brightness adjustment logic
         let brightness = (red + green + blue) / 3.0 * 255.0
-
         if brightness < 128 {
-            // Scale the brightness to reach 128
             let scale = 128.0 / brightness
-
             red = min(red * CGFloat(scale), 1.0)
             green = min(green * CGFloat(scale), 1.0)
             blue = min(blue * CGFloat(scale), 1.0)
         }
-
+        
         return NSColor(red: red, green: green, blue: blue, alpha: alpha)
     }
 }
