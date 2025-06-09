@@ -54,7 +54,9 @@ class AudioManager: ObservableObject {
                 }
             }
         } else {
-            appleScriptMusicController.getNowPlayingInfo { _ in }
+            DispatchQueue.global(qos: .utility).async {
+                self.appleScriptMusicController.getNowPlayingInfo { _ in }
+            }
         }
     }
 

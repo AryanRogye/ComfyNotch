@@ -165,8 +165,8 @@ class UIManager {
         }
     }
     public func applyExpandedWidgetLayout() {
-        withAnimation(Anim.spring) {
             DispatchQueue.main.async {
+                withAnimation(Anim.spring) {
                 /// When the notch is expanded we want the top row to show the settings widget on the right
                 /// But we wanna first hide any of the shown stuff
                 self.compactWidgetStore.hideWidget(named: "MovingDotsWidget")
@@ -186,10 +186,10 @@ class UIManager {
     }
     
     public func applyCompactWidgetLayout() {
-        withAnimation(Anim.spring) {
             /// When the notch is closed we wanna show the compact album on the left, and dots on the right and hide
             /// The Settings Widget
             DispatchQueue.main.async {
+                withAnimation(Anim.spring) {
                 self.compactWidgetStore.hideWidget(named: "QuickAccessWidget")
                 self.compactWidgetStore.hideWidget(named: "Settings")
                 self.compactWidgetStore.showWidget(named: "AlbumWidget")

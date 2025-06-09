@@ -18,7 +18,7 @@ final class AppleScriptMusicController: NowPlayingProvider {
     
     /// Values To Ensure That ArtWork Images Dont Get Asked For (Apple Music pulls from
     /// a temporary folder a image with the name cover.jpg, this could be very heavy)
-    private var didGetMusicArtwork: Bool = false
+    private var lastArtworkIdentifier: String?
 
     /// Initializes the controller with a NowPlayingInfo object.
     /// - Parameter nowPlayingInfo: The shared info object to update.
@@ -216,9 +216,17 @@ final class AppleScriptMusicController: NowPlayingProvider {
         nowPlayingInfo.artistName = artistName
         nowPlayingInfo.albumName = albumName
         nowPlayingInfo.artworkImage = artworkImage
-        if let artworkImage = artworkImage {
-            nowPlayingInfo.dominantColor = self.getDominantColor(from: artworkImage) ?? .white
+        
+        let identifier = trackName + albumName
+        if lastArtworkIdentifier != identifier {
+            if let artworkImage = artworkImage {
+                nowPlayingInfo.dominantColor = self.getDominantColor(from: artworkImage) ?? .white
+            } else {
+                nowPlayingInfo.dominantColor = .white
+            }
+            lastArtworkIdentifier = identifier
         }
+        
         nowPlayingInfo.isPlaying = true
 
         // Update the current time and duration
