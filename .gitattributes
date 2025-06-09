@@ -1,5 +1,3 @@
-Managers/Messages/*.c linguist-language=C
-Managers/Messages/*.h linguist-language=C
-Managers/Brightness/*.m linguist-language=Objective-C
-Managers/Brightness/*.h linguist-language=Objective-C
-Shaders/*.metal linguist-language=Metal
+*.c linguist-language=C
+*.m linguist-language=Objective-C
+*.metal linguist-language=Metal
