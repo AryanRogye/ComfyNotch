@@ -22,7 +22,7 @@ extension MessagesManager {
         let safeMessage = messagesText.replacingOccurrences(of: "\"", with: "\\\"")
         
         self.lastLocalSendTimestamp = Date()
-
+        
         let script = """
         tell application "Messages"
             set targetService to 1st service whose service type = iMessage
@@ -30,7 +30,7 @@ extension MessagesManager {
             send "\(safeMessage)" to targetBuddy
         end tell
         """
-
+        
         var error: NSDictionary?
         if let appleScript = NSAppleScript(source: script) {
             appleScript.executeAndReturnError(&error)
@@ -43,12 +43,15 @@ extension MessagesManager {
         
         /// Clear the messagesText
         messagesText = ""
-        /// Fetch the latest messages for this user
-        fetchMessagesWithUser(for: handle.ROWID)
+        /// Fetch right away
+        self.fetchMessagesWithUser(for: handle.ROWID)
+        /// Fetch the latest messages for this user after 1.5 second to avoid any issues
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            self.fetchMessagesWithUser(for: handle.ROWID)
+        }
     }
     
     public func fetchMessagesWithUser(for rowID: Int64) {
-        
         if isFetchingMessages { return }
         isFetchingMessages = true
         defer { isFetchingMessages = false }
@@ -83,7 +86,7 @@ extension MessagesManager {
             ) {
                 let rawText = row[text]
                 var finalText = rawText ?? ""
-
+                
                 // Always try to decode attributedBody if we don't have meaningful text
                 if finalText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     let attributedText = formatAttributedBody(row[attributedBody])
@@ -128,7 +131,7 @@ extension MessagesManager {
         let ROWID           = SQLite.Expression<Int64>("ROWID")
         let filename        = SQLite.Expression<String?>("filename")
         let mime_type       = SQLite.Expression<String?>("mime_type")
-
+        
         do {
             /// Loop Through the JoinRow And Match Wuth the attachRow
             for joinRow in try db.prepare(
@@ -147,7 +150,7 @@ extension MessagesManager {
                 }
             }
         } catch {
-            
+            print("Couldnt Get The Attachment")
         }
         
         return nil

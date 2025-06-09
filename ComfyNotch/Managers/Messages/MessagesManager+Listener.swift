@@ -33,7 +33,6 @@ extension MessagesManager {
     private func checkAndFetchIfChanged() async {
         let didChange = self.hasChatDBChanged()
         if didChange {
-            print("DID CHANGE")
             await self.fetchAllHandles()
             
             /// Open The Notch If it is not already open

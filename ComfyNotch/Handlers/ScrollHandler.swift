@@ -356,7 +356,6 @@ class ScrollHandler {
         // Optional: Tolerance for micro pixel diff
         if !panel.frame.equalTo(desiredFrame) {
             panel.setFrame(desiredFrame, display: true)
-            print("✅ realigned panel to closed frame")
         }
     }
     

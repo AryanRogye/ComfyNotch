@@ -70,10 +70,6 @@ struct MessagesView: View {
                         await MainActor.run {
                             messagesManager.fetchMessagesWithUser(for: handle.ROWID)
                         }
-                        /// Once Done Just Print for now
-                        await messagesManager.currentUserMessages.forEach({message in
-                            print("\(message.is_from_me) \(message.text)")
-                        })
                     }
                 }) {
                     HStack {
@@ -127,6 +123,7 @@ struct MessagesView: View {
             TextField("Type a message...", text: $messagesManager.messagesText)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal, 10)
+            
             Button(action: {
                 messagesManager.sendMessage(for: clickedUser)
             }) {

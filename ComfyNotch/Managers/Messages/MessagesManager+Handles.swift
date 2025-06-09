@@ -199,7 +199,7 @@ extension MessagesManager {
                     }
                     
                     Self.isContactCacheLoaded = true
-                    print("✅ Loaded \(allContacts.count) contacts into cache")
+                    debugLog("✅ Loaded \(allContacts.count) contacts into cache")
                     
                 } catch {
                     print("❌ Contact cache load error: \(error)")
