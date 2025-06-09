@@ -39,10 +39,8 @@ extension MessagesManager {
                 
                 let (contact, imageData) = await getContactName(for: row[id]) ?? (row[id], nil as Data?)
                 
-                // Process image data in background, create NSImage on main thread
-                let processedImageData = await Task(priority: .utility) {
-                    return imageData // Just return the data, don't create NSImage yet
-                }.value
+                // Process image data
+                let processedImageData = imageData
                 
                 // Create NSImage on main actor (where it's safe to do UI work)
                 let nsImage: NSImage = {
@@ -132,7 +130,7 @@ extension MessagesManager {
         var dbHandle: OpaquePointer?
         let dbPath = db?.description ?? ""
         
-        var date: Date = Date()
+        var date: Date = Date.distantPast
         
         /// I had C function that does this now, because swift CPU was
         /// getting high
