@@ -30,10 +30,7 @@ func debugLog(_ message: @autoclosure () -> Any) {
 
 @main
 struct ComfyNotchApp: App {
-    
-    
     init() {
-//        killOtherComfyNotches()
     }
     
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate

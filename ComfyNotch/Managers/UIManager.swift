@@ -37,16 +37,16 @@ class UIManager {
     static let shared = UIManager()
     let compactWidgetStore = CompactWidgetsStore()
     let expandedWidgetStore = ExpandedWidgetsStore()
-
+    
     var smallPanel: NSPanel!
-
+    
     var panelState: PanelState = .closed
-
+    
     var startPanelHeight: CGFloat = 0
     var startPanelWidth: CGFloat = 300
-
+    
     var startPanelYOffset: CGFloat = 0
-
+    
     /**
      * Initializes the UI manager and sets up initial dimensions.
      * Configures panel height based on notch size and initializes audio components.
@@ -55,14 +55,14 @@ class UIManager {
         startPanelHeight = getNotchHeight()
         AudioManager.shared.getNowPlayingInfo()
     }
-
+    
     /**
      * Sets up both small and big panels with their initial configurations.
      */
     func setupFrame() {
         setupSmallPanel()
     }
-
+    
     /**
      * Configures the small panel that sits in the notch area.
      * Initializes default widgets and sets up panel properties.
@@ -71,14 +71,14 @@ class UIManager {
         guard let screen = DisplayManager.shared.selectedScreen else { return }
         let screenFrame = screen.frame
         let notchHeight = getNotchHeight()
-
+        
         let panelRect = NSRect(
             x: (screenFrame.width - startPanelWidth) / 2,
             y: screenFrame.height - notchHeight - startPanelYOffset,
             width: startPanelWidth,
             height: notchHeight
         )
-
+        
         smallPanel = FocusablePanel(
             contentRect: panelRect,
             styleMask: [.borderless, .nonactivatingPanel, .fullSizeContentView],
@@ -86,7 +86,7 @@ class UIManager {
             defer: false
         )
         smallPanel.registerForDraggedTypes([.fileURL])
-
+        
         smallPanel.title = "ComfyNotch"
         
         let overlayRaw = CGWindowLevelForKey(.overlayWindow)  // sits under screenSaver
@@ -97,82 +97,115 @@ class UIManager {
         smallPanel.backgroundColor = .clear
         smallPanel.isOpaque = false
         smallPanel.hasShadow = false
-
-        // Create and add widgets to the store
-
-        let albumWidget = CompactAlbumWidget()
-        let movingDotsWidget = MovingDotsView()
-        let settingsWidget = SettingsButtonWidget()
-        let fileTrayWidget = QuickAccessWidget()
-
-        // Add Widgets to the WidgetStore
-        compactWidgetStore.addWidget(albumWidget)
-        compactWidgetStore.addWidget(movingDotsWidget)
-        compactWidgetStore.addWidget(settingsWidget)
-        compactWidgetStore.addWidget(fileTrayWidget)
         
         let contentView = ComfyNotchView()
             .environmentObject(compactWidgetStore)
             .environmentObject(expandedWidgetStore)
-
+        
         let hostingView = NSHostingView(rootView: contentView)
-        hostingView.frame = panelRect  // ensure it's full size
+        hostingView.frame = panelRect
         smallPanel.contentView = hostingView
         smallPanel.makeKeyAndOrderFront(nil)
+        
+        self.loadWidgets()
+    }
+    
+    private func loadWidgets() {
+        /// Strategy for widget loading, to avoid cpu spikes and UI Lag
+        let widgets: [(String, () -> Widget, Bool)] = [
+            ("Settings", { SettingsButtonWidget() }, false),      // Lightweight first
+            ("MovingDots", { MovingDotsView() }, false),         // Visual feedback
+            ("FileTray", { QuickAccessWidget() }, true),         // Medium weight
+            ("Album", { CompactAlbumWidget() }, true)            // Heaviest last
+        ]
+        
+        var index = 0;
+        
+        func loadNextWidget() {
+            guard index < widgets.count else { return }
+            let (name, widgetCreator, isHeavy) = widgets[index]
+            index += 1
+            
+            let qos: DispatchQoS.QoSClass = isHeavy ? .background : .utility
+            let delay: TimeInterval = isHeavy ? 0.3 : 0.1
+            
+            DispatchQueue.global(qos: qos).async {
+                let widget = widgetCreator()
+                
+                DispatchQueue.main.async {
+                    self.compactWidgetStore.addWidget(widget)
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                        loadNextWidget()
+                    }
+                }
+            }
+        }
+        
+        // Start loading after UI is settled
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            loadNextWidget()
+        }
     }
     
     public func applyOpeningLayout() {
-        /// Opening Layout is just hiding every possible widget
-        compactWidgetStore.hideWidget(named: "QuickAccessWidget")
-        compactWidgetStore.hideWidget(named: "AlbumWidget")
-        compactWidgetStore.hideWidget(named: "MovingDotsWidget")
-        compactWidgetStore.hideWidget(named: "Settings")
-        
-        expandedWidgetStore.hideWidget(named: "MusicPlayerWidget")
-        expandedWidgetStore.hideWidget(named: "TimeWidget")
-        expandedWidgetStore.hideWidget(named: "NotesWidget")
-        expandedWidgetStore.hideWidget(named: "CameraWidget")
-        expandedWidgetStore.hideWidget(named: "AIChatWidget")
-        expandedWidgetStore.hideWidget(named: "EventWidget")
+        DispatchQueue.main.async {
+            /// Opening Layout is just hiding every possible widget
+            self.compactWidgetStore.hideWidget(named: "QuickAccessWidget")
+            self.compactWidgetStore.hideWidget(named: "AlbumWidget")
+            self.compactWidgetStore.hideWidget(named: "MovingDotsWidget")
+            self.compactWidgetStore.hideWidget(named: "Settings")
+            
+            self.expandedWidgetStore.hideWidget(named: "MusicPlayerWidget")
+            self.expandedWidgetStore.hideWidget(named: "TimeWidget")
+            self.expandedWidgetStore.hideWidget(named: "NotesWidget")
+            self.expandedWidgetStore.hideWidget(named: "CameraWidget")
+            self.expandedWidgetStore.hideWidget(named: "AIChatWidget")
+            self.expandedWidgetStore.hideWidget(named: "EventWidget")
+        }
     }
     public func applyExpandedWidgetLayout() {
         withAnimation(Anim.spring) {
-
-            /// When the notch is expanded we want the top row to show the settings widget on the right
-            /// But we wanna first hide any of the shown stuff
-            compactWidgetStore.hideWidget(named: "MovingDotsWidget")
-            compactWidgetStore.hideWidget(named: "AlbumWidget")
-            compactWidgetStore.showWidget(named: "Settings")
-            compactWidgetStore.showWidget(named: "QuickAccessWidget")
-            
-            /// Then we wanna show every possible widget cuz if its not added it wont actually show
-            expandedWidgetStore.showWidget(named: "MusicPlayerWidget")
-            expandedWidgetStore.showWidget(named: "TimeWidget")
-            expandedWidgetStore.showWidget(named: "NotesWidget")
-            expandedWidgetStore.showWidget(named: "CameraWidget")
-            expandedWidgetStore.showWidget(named: "AIChatWidget")
-            expandedWidgetStore.showWidget(named: "EventWidget")
+            DispatchQueue.main.async {
+                /// When the notch is expanded we want the top row to show the settings widget on the right
+                /// But we wanna first hide any of the shown stuff
+                self.compactWidgetStore.hideWidget(named: "MovingDotsWidget")
+                self.compactWidgetStore.hideWidget(named: "AlbumWidget")
+                self.compactWidgetStore.showWidget(named: "Settings")
+                self.compactWidgetStore.showWidget(named: "QuickAccessWidget")
+                
+                // Then we wanna show every possible widget cuz if its not added it wont actually show
+                self.expandedWidgetStore.showWidget(named: "MusicPlayerWidget")
+                self.expandedWidgetStore.showWidget(named: "TimeWidget")
+                self.expandedWidgetStore.showWidget(named: "NotesWidget")
+                self.expandedWidgetStore.showWidget(named: "CameraWidget")
+                self.expandedWidgetStore.showWidget(named: "AIChatWidget")
+                self.expandedWidgetStore.showWidget(named: "EventWidget")
+            }
         }
     }
+    
     public func applyCompactWidgetLayout() {
         withAnimation(Anim.spring) {
             /// When the notch is closed we wanna show the compact album on the left, and dots on the right and hide
             /// The Settings Widget
-            compactWidgetStore.hideWidget(named: "QuickAccessWidget")
-            compactWidgetStore.hideWidget(named: "Settings")
-            compactWidgetStore.showWidget(named: "AlbumWidget")
-            compactWidgetStore.showWidget(named: "MovingDotsWidget")
-            
-            /// Then we hide every possible widget
-            expandedWidgetStore.hideWidget(named: "MusicPlayerWidget")
-            expandedWidgetStore.hideWidget(named: "TimeWidget")
-            expandedWidgetStore.hideWidget(named: "NotesWidget")
-            expandedWidgetStore.hideWidget(named: "CameraWidget")
-            expandedWidgetStore.hideWidget(named: "AIChatWidget")
-            expandedWidgetStore.hideWidget(named: "EventWidget")
+            DispatchQueue.main.async {
+                self.compactWidgetStore.hideWidget(named: "QuickAccessWidget")
+                self.compactWidgetStore.hideWidget(named: "Settings")
+                self.compactWidgetStore.showWidget(named: "AlbumWidget")
+                self.compactWidgetStore.showWidget(named: "MovingDotsWidget")
+                
+                /// Then we hide every possible widget
+                self.expandedWidgetStore.hideWidget(named: "MusicPlayerWidget")
+                self.expandedWidgetStore.hideWidget(named: "TimeWidget")
+                self.expandedWidgetStore.hideWidget(named: "NotesWidget")
+                self.expandedWidgetStore.hideWidget(named: "CameraWidget")
+                self.expandedWidgetStore.hideWidget(named: "AIChatWidget")
+                self.expandedWidgetStore.hideWidget(named: "EventWidget")
+            }
         }
     }
-
+    
     /// --Mark : Utility Methods
     private func displayCurrentBigPanelWidgets(with title: String = "Current Big Panel Widgets") {
         debugLog("=====================================================")
@@ -183,17 +216,17 @@ class UIManager {
         }
         debugLog("=====================================================")
     }
-
+    
     /**
      * Utility methods for widget management and panel dimensions.
      */
     func addWidgetToBigPanel(_ widget: Widget) {
         expandedWidgetStore.addWidget(widget)
     }
-
+    
     func addWidgetsToSmallPanel(_ widget: Widget) {
     }
-
+    
     func getNotchHeight() -> CGFloat {
         if let screen = DisplayManager.shared.selectedScreen {
             let safeAreaInsets = screen.safeAreaInsets

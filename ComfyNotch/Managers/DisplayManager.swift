@@ -93,14 +93,20 @@ final class DisplayManager: NSObject, ObservableObject {
             guard let id = screen.displayID else { continue }
             /// Dont generate a snapshot if it already exists
             if screenSnapshots[id] == nil {
-                DispatchQueue.main.async {
-                    self.screenSnapshots[id] = self.generateSnapShot(for: screen)
+                DispatchQueue.global(qos: .userInitiated).async {
+                    let snapshot = self.generateSnapShot(for: screen)
+                    DispatchQueue.main.async {
+                        self.screenSnapshots[id] = snapshot
+                    }
                 }
             } else {
                 /// If the snapshot already exists, we can update it if needed
                 if let displayID = screen.displayID, let image = CGDisplayCreateImage(displayID) {
-                    DispatchQueue.main.async {
-                        self.screenSnapshots[id] = NSImage(cgImage: image, size: screen.frame.size)
+                    DispatchQueue.global(qos: .userInitiated).async {
+                        let image = NSImage(cgImage: image, size: screen.frame.size)
+                        DispatchQueue.main.async {
+                            self.screenSnapshots[id] = image
+                        }
                     }
                 }
             }
