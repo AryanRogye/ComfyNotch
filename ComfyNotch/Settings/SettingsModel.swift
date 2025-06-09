@@ -76,9 +76,7 @@ class SettingsModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     
     private init() {
-        print("Initializing SettingsModel")
         loadSettings()
-        print("Done initializing SettingsModel")
     }
     
     func checkForUpdates() {
