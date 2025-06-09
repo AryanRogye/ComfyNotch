@@ -87,48 +87,38 @@ extension MessagesManager {
     
     func getLastMessageWithUser(for handleID: Int64) -> String? {
         guard let db = db else {
-            print("🚫 DB not available")
-            return nil
+            print("❌ DB not available")
+            return ""
         }
         
-        let messageTable = SQLite.Table("message")
-        let handle_id    = SQLite.Expression<Int64>("handle_id")
-        let text         = SQLite.Expression<String?>("text")
-        let date         = SQLite.Expression<Int64>("date")
+        guard let rawCString = get_last_message_text(db.handle, handleID) else {
+            return ""
+        }
         
+        let raw = String(cString: rawCString)
         
-        let attributedBody = SQLite.Expression<Data?>("attributedBody")
-        
-        do {
-            if let row = try db.pluck(
-                messageTable
-                    .filter(handle_id == handleID)
-                    .order(date.desc)
-                    .limit(1)
-            ) {
-                let rawText = row[text]
-                var finalText = rawText ?? ""
-                
-                if finalText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    let attributedText = formatAttributedBody(row[attributedBody])
-                    if !attributedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        finalText = attributedText
-                    }
-                }
-                
-                return finalText
+        if raw.hasPrefix("__BASE64__:") {
+            let base64 = String(raw.dropFirst("__BASE64__:".count))
+            if let data = Data(base64Encoded: base64) {
+                return formatAttributedBody(data)
+            } else {
+                print("❌ Failed to decode base64 fallback")
+                return ""
             }
-        } catch {
-            print("❌ Error fetching last message for handle \(handleID): \(error)")
+        } else {
+            return raw
         }
-        
-        return nil
     }
     
     /// We need to query the message table to get the last talked to for the handle id
     func getLastTalkedTo(for handleID: Int64) -> Date {
+        guard let db = db else {
+            print("❌ DB not available")
+            return .distantPast
+        }
+        
         var dbHandle: OpaquePointer?
-        let dbPath = db?.description ?? ""
+        let dbPath = db.description
         
         var date: Date = Date.distantPast
         

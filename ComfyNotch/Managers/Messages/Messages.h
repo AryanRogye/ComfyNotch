@@ -12,5 +12,6 @@
 #include <stdint.h>
 
 int64_t get_last_talked_to(sqlite3 *db, int64_t handle_id);
+const char *get_last_message_text(sqlite3 *db, long long handle_id);
 
 #endif /* LastTalkedTo_h */
