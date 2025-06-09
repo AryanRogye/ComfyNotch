@@ -122,20 +122,18 @@ class UIManager {
     }
     
     public func applyOpeningLayout() {
-        // withAnimation(Anim.spring) {
-            /// Opening Layout is just hiding every possible widget
-            compactWidgetStore.hideWidget(named: "QuickAccessWidget")
-            compactWidgetStore.hideWidget(named: "AlbumWidget")
-            compactWidgetStore.hideWidget(named: "MovingDotsWidget")
-            compactWidgetStore.hideWidget(named: "Settings")
-            
-            expandedWidgetStore.hideWidget(named: "MusicPlayerWidget")
-            expandedWidgetStore.hideWidget(named: "TimeWidget")
-            expandedWidgetStore.hideWidget(named: "NotesWidget")
-            expandedWidgetStore.hideWidget(named: "CameraWidget")
-            expandedWidgetStore.hideWidget(named: "AIChatWidget")
-            expandedWidgetStore.hideWidget(named: "EventWidget")
-        // }
+        /// Opening Layout is just hiding every possible widget
+        compactWidgetStore.hideWidget(named: "QuickAccessWidget")
+        compactWidgetStore.hideWidget(named: "AlbumWidget")
+        compactWidgetStore.hideWidget(named: "MovingDotsWidget")
+        compactWidgetStore.hideWidget(named: "Settings")
+        
+        expandedWidgetStore.hideWidget(named: "MusicPlayerWidget")
+        expandedWidgetStore.hideWidget(named: "TimeWidget")
+        expandedWidgetStore.hideWidget(named: "NotesWidget")
+        expandedWidgetStore.hideWidget(named: "CameraWidget")
+        expandedWidgetStore.hideWidget(named: "AIChatWidget")
+        expandedWidgetStore.hideWidget(named: "EventWidget")
     }
     public func applyExpandedWidgetLayout() {
         withAnimation(Anim.spring) {

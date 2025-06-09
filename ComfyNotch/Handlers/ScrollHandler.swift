@@ -182,9 +182,10 @@ class ScrollHandler {
         
         isPeeking = true
         
+        let currentTopY = panel.frame.maxY
         let peekHeight: CGFloat = minPanelHeight + 50
-        let peekY = screen.frame.height - peekHeight - UIManager.shared.startPanelYOffset
-        
+        let peekY = currentTopY - peekHeight
+
         let targetFrame = NSRect(
             x: panel.frame.origin.x,
             y: peekY,
@@ -272,22 +273,43 @@ class ScrollHandler {
         let overY     = screen.frame.height - overH
         let overFrame = NSRect(x: x, y: overY, width: finalW, height: overH)
         
-        // 3) super‑springy curves
-        let diveDur: TimeInterval = 0.25
-        let recoDur: TimeInterval = 0.2
-        let diveFn   = CAMediaTimingFunction(controlPoints: 0.2, 1.2, 0.4, 1.0)
-        let recoFn   = CAMediaTimingFunction(controlPoints: 0.6, 1.8, 0.4, 1.0)
+//         3) super‑springy curves
+//        let diveDur: TimeInterval = 0.25
+//        let recoDur: TimeInterval = 0.2
+//        let diveFn   = CAMediaTimingFunction(controlPoints: 0.2, 1.2, 0.4, 1.0)
+//        let recoFn   = CAMediaTimingFunction(controlPoints: 0.6, 1.8, 0.4, 1.0)
         
-        // STEP A: stretch past
+        /// Legacy Varient
+//        NSAnimationContext.runAnimationGroup({ ctx in
+//            ctx.duration       = diveDur
+//            ctx.timingFunction = diveFn
+//            panel.animator().setFrame(overFrame, display: true)
+//        }) {
+//            // STEP B: recoil into place
+//            NSAnimationContext.runAnimationGroup({ ctx in
+//                ctx.duration       = recoDur
+//                ctx.timingFunction = recoFn
+//                panel.animator().setFrame(trueFrame, display: true)
+//            }) {
+//                panel.setFrame(trueFrame, display: true)
+//                self.isSnapping = false
+//                self.updateState(for: trueH)
+//                UIManager.shared.panelState = .open
+//            }
+//        }
+        
+        /// Super Clean Varient
+        let totalDuration: TimeInterval = 0.5
+        let diveFn = CAMediaTimingFunction(controlPoints: 0.2, 0.0, 0.0, 1.0)  // iOS ease-in-out
+        
         NSAnimationContext.runAnimationGroup({ ctx in
-            ctx.duration       = diveDur
+            ctx.duration = totalDuration * 0.6  // 60% for overshoot
             ctx.timingFunction = diveFn
             panel.animator().setFrame(overFrame, display: true)
         }) {
-            // STEP B: recoil into place
             NSAnimationContext.runAnimationGroup({ ctx in
-                ctx.duration       = recoDur
-                ctx.timingFunction = recoFn
+                ctx.duration = totalDuration * 0.4  // 40% for settle
+                ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.25, 0.1, 0.25, 1.0)
                 panel.animator().setFrame(trueFrame, display: true)
             }) {
                 panel.setFrame(trueFrame, display: true)
@@ -296,8 +318,8 @@ class ScrollHandler {
                 UIManager.shared.panelState = .open
             }
         }
+        
     } /// Mark - End Of Open Full (Debugging Needed)
-    
     
     func closeFull() {
         guard let panel = UIManager.shared.smallPanel, !isSnapping else { return }
@@ -307,55 +329,47 @@ class ScrollHandler {
         let screen       = DisplayManager.shared.selectedScreen!
         let startYOffset = UIManager.shared.startPanelYOffset
         
-        // 1) fixed center‑of‑screen X
-        let finalWidth = minPanelWidth
-        let centerX    = (screen.frame.width - finalWidth) / 2
+        let finalWidth   = minPanelWidth
+        let finalHeight  = minPanelHeight
+        let centerX      = panel.frame.midX  // ⬅️ preserve current center
+        let centerY      = screen.frame.height - finalHeight / 2 - startYOffset
         
-        // 2) true final closed frame
-        let finalHeight   = minPanelHeight
-        let trueFinalY    = screen.frame.height - finalHeight - startYOffset
-        let trueFinalFrame = NSRect(
-            x: centerX,
-            y: trueFinalY,
+        let finalFrame = NSRect(
+            x: centerX - finalWidth / 2,
+            y: centerY - finalHeight / 2,
             width: finalWidth,
             height: finalHeight
         )
         
-        // 3) undershoot ‑ go a bit *below* the min height
+        // Optional: Undershoot logic
         let undershoot: CGFloat = 0
         let underHeight = finalHeight - undershoot
-        let underY      = screen.frame.height - underHeight - startYOffset
-        let undershootFrame = NSRect(
-            x: centerX,
-            y: underY,
+        let underFrame = NSRect(
+            x: centerX - finalWidth / 2,
+            y: centerY - underHeight / 2,
             width: finalWidth,
             height: underHeight
         )
         
-        // 4) collapse your SwiftUI bottom section first
-        PanelAnimationState.shared.isExpanded         = false
+        PanelAnimationState.shared.isExpanded = false
         PanelAnimationState.shared.bottomSectionHeight = 0
         
-        // 5) timing & curves
-        let diveDuration   : TimeInterval = 0.2
-        let recoilDuration : TimeInterval = 0.15
-        let diveCurve      = CAMediaTimingFunction(controlPoints: 0.65, 1.0, 0.5, 1.0)
-        let recoilCurve    = CAMediaTimingFunction(controlPoints: 0.75, 1.0, 0.8, 1.0)
+        let diveDuration: TimeInterval   = 0.2
+        let recoilDuration: TimeInterval = 0.15
+        let diveCurve = CAMediaTimingFunction(controlPoints: 0.65, 1.0, 0.5, 1.0)
+        let recoilCurve = CAMediaTimingFunction(controlPoints: 0.75, 1.0, 0.8, 1.0)
         
-        // STEP A: animate *down* into undershoot
         NSAnimationContext.runAnimationGroup({ ctx in
-            ctx.duration       = diveDuration
+            ctx.duration = diveDuration
             ctx.timingFunction = diveCurve
-            panel.animator().setFrame(undershootFrame, display: true)
+            panel.animator().setFrame(underFrame, display: true)
         }, completionHandler: {
-            // STEP B: animate *up* into true final
             NSAnimationContext.runAnimationGroup({ ctx in
-                ctx.duration       = recoilDuration
+                ctx.duration = recoilDuration
                 ctx.timingFunction = recoilCurve
-                panel.animator().setFrame(trueFinalFrame, display: true)
+                panel.animator().setFrame(finalFrame, display: true)
             }, completionHandler: {
-                // cleanup & state
-                panel.setFrame(trueFinalFrame, display: true)
+                panel.setFrame(finalFrame, display: true)
                 self.isSnapping = false
                 self.updateState(for: finalHeight)
                 UIManager.shared.panelState = .closed

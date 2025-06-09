@@ -28,7 +28,7 @@ struct Anim {
 class PanelAnimationState: ObservableObject {
     
     static let shared = PanelAnimationState()
-
+    
     @Published var isExpanded: Bool = false
     @Published var bottomSectionHeight: CGFloat = 0
     @Published var currentPanelWidth: CGFloat = UIManager.shared.startPanelWidth
@@ -37,7 +37,7 @@ class PanelAnimationState: ObservableObject {
     @Published var droppedFiles: [URL] = []
     
     @Published var dontShowHoverMenu: Bool = false
-
+    
     @Published var currentPanelState: NotchViewState = .home
     @Published var currentPopInPresentationState: PopInPresenterType = .nowPlaying
     @Published var isLoadingPopInPresenter = false
@@ -47,7 +47,7 @@ class PanelAnimationState: ObservableObject {
     @Published var fileTriggeredTray: Bool = false
     
     @Published var droppedFile: URL?
-
+    
     private var cancellables = Set<AnyCancellable>()
 }
 
@@ -101,11 +101,11 @@ struct ComfyNotchView: View {
             )
             .fill(Color.black, style: FillStyle(eoFill: true))
             .contentShape(Rectangle())
-//            .offset(y: dragProgress * 12)
-//            .scaleEffect(1 + dragProgress * 0.03)
-//            .onDrop(of: [UTType.fileURL.identifier, UTType.image.identifier], isTargeted: $isDroppingFiles) { providers in
-//                handleDrop(providers: providers)
-//            }
+            //            .offset(y: dragProgress * 12)
+            //            .scaleEffect(1 + dragProgress * 0.03)
+            //            .onDrop(of: [UTType.fileURL.identifier, UTType.image.identifier], isTargeted: $isDroppingFiles) { providers in
+            //                handleDrop(providers: providers)
+            //            }
             
             
             
@@ -156,7 +156,7 @@ struct ComfyNotchView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     UIManager.shared.applyOpeningLayout()
                 }
-
+                
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                     animationState.isExpanded = true
                     ScrollHandler.shared.openFull()
@@ -177,14 +177,14 @@ struct ComfyNotchView: View {
             
             let threshhold : CGFloat = PanelAnimationState.shared.currentPanelState == .popInPresentation ? 120 : 50
             if translation > threshhold {
-//                debugLog("Called Down With Threshold \(translation)")
+                //                debugLog("Called Down With Threshold \(translation)")
                 PanelAnimationState.shared.currentPanelState = .home
                 UIManager.shared.applyOpeningLayout()
                 ScrollHandler.shared.openFull()
             }
         }
         .panGesture(direction: .up) { translation, phase in
-//            debugLog("Called Up")
+            //            debugLog("Called Up")
             guard UIManager.shared.panelState == .open else { return }
             
             if WidgetHoverState.shared.isHoveringOverEventWidget {
@@ -201,7 +201,15 @@ struct ComfyNotchView: View {
             
             if translation > 50 {
                 UIManager.shared.applyOpeningLayout()
-                ScrollHandler.shared.closeFull()
+                /// This will make sure that the applyOpeningLayout will
+                /// actually do something because the CATransaction
+                /// Force commits of pending layout changes
+                DispatchQueue.main.async {
+                    CATransaction.flush()
+                    DispatchQueue.main.async {
+                        ScrollHandler.shared.closeFull()
+                    }
+                }
             }
         }
     }
@@ -227,7 +235,7 @@ struct ComfyNotchView: View {
                     
                 }
                 
-            // ---------- Images / screenshots ----------
+                // ---------- Images / screenshots ----------
             } else if provider.canLoadObject(ofClass: NSImage.self) {
                 _ = provider.loadObject(ofClass: NSImage.self) { object, _ in
                     guard let img = object as? NSImage,
