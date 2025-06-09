@@ -1,0 +1,16 @@
+//
+//  lastTalkedTo.h
+//  ComfyNotch
+//
+//  Created by Aryan Rogye on 6/9/25.
+//
+
+#ifndef LastTalkedTo_h
+#define LastTalkedTo_h
+
+#include <sqlite3.h>
+#include <stdint.h>
+
+int64_t get_last_talked_to(sqlite3 *db, int64_t handle_id);
+
+#endif /* LastTalkedTo_h */

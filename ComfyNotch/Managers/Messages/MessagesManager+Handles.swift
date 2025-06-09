@@ -60,10 +60,10 @@ extension MessagesManager {
                         return fallbackImage
                     }()
                 }()
-
+                
                 let lastTalkedTo = getLastTalkedTo(for: row[rowID])
                 let lastMessage = getLastMessageWithUser(for: row[rowID]) ?? ""
-
+                
                 let h = Handle(
                     ROWID: row[rowID],
                     id: row[id],
@@ -100,7 +100,7 @@ extension MessagesManager {
         
         
         let attributedBody = SQLite.Expression<Data?>("attributedBody")
-
+        
         do {
             if let row = try db.pluck(
                 messageTable
@@ -110,14 +110,14 @@ extension MessagesManager {
             ) {
                 let rawText = row[text]
                 var finalText = rawText ?? ""
-
+                
                 if finalText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     let attributedText = formatAttributedBody(row[attributedBody])
                     if !attributedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                         finalText = attributedText
                     }
                 }
-
+                
                 return finalText
             }
         } catch {
@@ -129,30 +129,19 @@ extension MessagesManager {
     
     /// We need to query the message table to get the last talked to for the handle id
     func getLastTalkedTo(for handleID: Int64) -> Date {
-        guard let db = db else {
-            print("🚫 DB not available")
-            return .distantPast
+        var dbHandle: OpaquePointer?
+        let dbPath = db?.description ?? ""
+        
+        var date: Date = Date()
+        
+        /// I had C function that does this now, because swift CPU was
+        /// getting high
+        if sqlite3_open(dbPath, &dbHandle) == SQLITE_OK {
+            let timestamp = get_last_talked_to(dbHandle, handleID)
+            date = formatDate(timestamp)
+            sqlite3_close(dbHandle)
         }
-        
-        let messageTable    = SQLite.Table("message")
-        let handle_id       = SQLite.Expression<Int64>("handle_id")
-        let date            = SQLite.Expression<Int64>("date")
-        
-        do {
-            if let row = try db.pluck(
-                messageTable
-                    .filter(handle_id == handleID)
-                    .order(date.desc)
-                    .limit(1)
-            ) {
-                /// Apple Holds Messages in nanoseconds since 2001
-                return self.formatDate(row[date])
-            }
-        } catch {
-            print("❌ Error fetching last message date for handle \(handleID): \(error)")
-        }
-        
-        return .distantPast
+        return date
     }
     
     // MARK: - Contact Caching Properties
@@ -161,7 +150,7 @@ extension MessagesManager {
     private nonisolated(unsafe) static var emailToContactMap: [String: String] = [:]
     private nonisolated(unsafe) static var isContactCacheLoaded = false
     private static let contactCacheQueue = DispatchQueue(label: "contact.cache", qos: .utility)
-
+    
     
     private func loadContactCacheIfNeeded() async {
         guard !Self.isContactCacheLoaded else { return }
