@@ -39,7 +39,6 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             NSKeyedUnarchiver.setClass(NSAttributedString.self, forClassName: "NSConcreteAttributedString")
             NSKeyedUnarchiver.setClass(NSAttributedString.self, forClassName: "NSFrozenAttributedString")
         }()
-        _ = SettingsModel.shared
         
         /// Close the SettingsPage On Launch
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {

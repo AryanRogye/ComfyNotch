@@ -1,9 +1,22 @@
 import SwiftUI
 import Combine
 
+final class WindowObserver: NSObject, NSWindowDelegate {
+    let onClose: () -> Void
+    
+    init(onClose: @escaping () -> Void) {
+        self.onClose = onClose
+    }
+    
+    func windowWillClose(_ notification: Notification) {
+        onClose()
+    }
+}
+
 struct SettingsView: View {
     @StateObject var settings = SettingsModel.shared
     @State private var selectedTab: Tab = .general
+    @State private var observer: WindowObserver?
     
     init() {}
 
@@ -52,17 +65,20 @@ struct SettingsView: View {
                 .frame(minWidth: 500, maxWidth: .infinity, maxHeight: .infinity)
                 .background(.regularMaterial)
         }
+        .id(selectedTab)
         .transaction { $0.animation = nil }
         .frame(minWidth: 650, minHeight: 500)
         .elevateToFloatingWindow()
         .onAppear {
             settings.isSettingsWindowOpen = true
-        }
-        .onDisappear {
-            settings.isSettingsWindowOpen = false
-            SettingsModel.shared.refreshUI()
+            
             if let window = NSApp.windows.first(where: { $0.title == "SettingsView" }) {
-                window.close()
+                let observer = WindowObserver {
+                    settings.isSettingsWindowOpen = false
+                    settings.refreshUI()
+                }
+                window.delegate = observer
+                self.observer = observer
             }
         }
     }

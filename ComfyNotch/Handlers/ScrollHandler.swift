@@ -175,7 +175,7 @@ class ScrollHandler {
     //    }
     
     func peekOpen() {
-        guard let screen = DisplayManager.shared.selectedScreen else { return }
+        guard let _ = DisplayManager.shared.selectedScreen else { return }
         guard let panel = UIManager.shared.smallPanel,
               !isPeeking,
               !isSnapping else { return }

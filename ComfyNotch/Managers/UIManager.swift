@@ -123,7 +123,7 @@ class UIManager {
         
         func loadNextWidget() {
             guard index < widgets.count else { return }
-            let (name, widgetCreator, isHeavy) = widgets[index]
+            let (_, widgetCreator, isHeavy) = widgets[index]
             index += 1
             
             let qos: DispatchQoS.QoSClass = isHeavy ? .background : .utility
