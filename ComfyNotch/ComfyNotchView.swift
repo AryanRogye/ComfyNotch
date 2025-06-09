@@ -180,7 +180,12 @@ struct ComfyNotchView: View {
                 //                debugLog("Called Down With Threshold \(translation)")
                 PanelAnimationState.shared.currentPanelState = .home
                 UIManager.shared.applyOpeningLayout()
-                ScrollHandler.shared.openFull()
+                DispatchQueue.main.async {
+                    CATransaction.flush()
+                    DispatchQueue.main.async {
+                        ScrollHandler.shared.openFull()
+                    }
+                }
             }
         }
         .panGesture(direction: .up) { translation, phase in
