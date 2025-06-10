@@ -53,7 +53,7 @@ class UIManager {
      */
     private init() {
         startPanelHeight = getNotchHeight()
-        AudioManager.shared.getNowPlayingInfo()
+        AudioManager.shared.getNowPlayingInfo() { _ in }
     }
     
     /**
