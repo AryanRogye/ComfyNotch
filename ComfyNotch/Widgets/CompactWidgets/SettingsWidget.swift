@@ -13,6 +13,7 @@ struct SettingsButtonWidget: View, Widget {
 
     var body: some View {
         Button(action: {
+            NSApp.activate(ignoringOtherApps: true)
             openWindow(id: "SettingsView")
         }) {
             Image(systemName: "gear")
