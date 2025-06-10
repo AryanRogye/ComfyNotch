@@ -19,6 +19,16 @@ final class AppleScriptMusicController: NowPlayingProvider {
     /// Values To Ensure That ArtWork Images Dont Get Asked For (Apple Music pulls from
     /// a temporary folder a image with the name cover.jpg, this could be very heavy)
     private var lastArtworkIdentifier: String?
+    
+    // MARK: - Optimization Properties
+    private var lastUpdateTime: Date = Date()
+    private var updateInterval: TimeInterval = 2.0
+    private var lastTrackInfo: String = ""
+    private var isUpdating = false
+    // Cache for app running status
+    private var spotifyRunningCache: (isRunning: Bool, timestamp: Date)?
+    private var appleMusicRunningCache: (isRunning: Bool, timestamp: Date)?
+    private let appStatusCacheInterval: TimeInterval = 5.0 // Cache app status for 5 seconds
 
     /// Initializes the controller with a NowPlayingInfo object.
     /// - Parameter nowPlayingInfo: The shared info object to update.
@@ -32,129 +42,189 @@ final class AppleScriptMusicController: NowPlayingProvider {
         true
     }
     
+
     /// Fetches the current now playing information from Spotify or Apple Music.
     ///
     /// The method checks which app is playing, fetches info accordingly, and updates the NowPlayingInfo.
     /// If neither app is playing, it clears the now playing info.
     /// - Parameter completion: Closure called with `true` when done (always true for compatibility).
     func getNowPlayingInfo(completion: @escaping (Bool)->Void) {
-        if !isSpotifyPlaying() && !isAppleMusicPlaying() {
-            /// If neither Spotify nor Apple Music is playing, clear the now playing info.
-            clearNowPlaying()
-            self.nowPlayingInfo.musicProvider = .none
-        } else if isSpotifyPlaying() {
+        guard !isUpdating else {
+            completion(true)
+            return
+        }
+        
+        let now = Date()
+        if now.timeIntervalSince(lastUpdateTime) < updateInterval {
+            completion(true)
+            return
+        }
+        
+        isUpdating = true
+        lastUpdateTime = now
+
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            self?.performUpdate { success in
+                DispatchQueue.main.async {
+                    self?.isUpdating = false
+                    completion(success)
+                }
+            }
+        }
+    }
+    
+    private func performUpdate(completion: @escaping (Bool) -> Void) {
+        let spotifyPlaying = isSpotifyPlaying()
+        let appleMusicPlaying = isAppleMusicPlaying()
+        
+        /// If Spotify and Apple Music isnt playing
+        if !spotifyPlaying && !appleMusicPlaying {
+            DispatchQueue.main.async {
+                self.clearNowPlaying()
+                self.nowPlayingInfo.musicProvider = .none
+            }
+            completion(true)
+            return
+        }
+
+        /// If Spotify Playing
+        if spotifyPlaying {
             /// If Spotify is playing, get the info from Spotify.
             getSpotifyInfo { info in
-                if let info = info {
-                    self.updateNowPlaying(with: info)
-                    self.nowPlayingInfo.musicProvider = .spotify
-                } else if self.isAppleMusicPlaying(), let musicInfo = self.getMusicInfo() {
-                    /// If Spotify info is nil, try Apple Music.
-                    self.updateNowPlaying(with: musicInfo)
+                /// Optimized Version In Here
+                DispatchQueue.main.async {
+                    if let info = info {
+                        self.updateNowPlaying(with: info, isPlaying: true)
+                        self.nowPlayingInfo.musicProvider = .spotify
+                    } else {
+                        self.clearNowPlaying()
+                        self.nowPlayingInfo.musicProvider = .none
+                    }
+                }
+                completion(true)
+            }
+        }
+        else if appleMusicPlaying {
+            if let info = getMusicInfo() {
+                DispatchQueue.main.async {
+                    self.updateNowPlaying(with: info, isPlaying: true)
                     self.nowPlayingInfo.musicProvider = .apple_music
-                } else {
-                    /// If both are nil, clear the now playing info.
+                }
+            } else {
+                DispatchQueue.main.async {
                     self.clearNowPlaying()
                     self.nowPlayingInfo.musicProvider = .none
                 }
             }
-        } else {
-            if let info = self.getMusicInfo() {
-                self.updateNowPlaying(with: info)
-                self.nowPlayingInfo.musicProvider = .apple_music
-            } else {
-                self.clearNowPlaying()
-                self.nowPlayingInfo.musicProvider = .none
-            }
+            completion(true)
         }
         /// Function will always return true, the Bool is mostly for other protocols that it may fail for.
         completion(true)
     }
-    
+
     // MARK: - Playback Actions
     /// Skips to the previous track in the current player.
     func playPreviousTrack() -> Void {
-        if isSpotifyPlaying() {
-            _ = runAppleScript("""
-                tell application \"Spotify\"
-                    previous track
-                end tell
-            """)
-        } else if isAppleMusicPlaying() {
-            _ = runAppleScript("""
-                tell application \"Music\"
-                    previous track
-                end tell
-            """)
-        } else {
-            /// Do Nothing
+        DispatchQueue.global(qos: .userInitiated).async {
+            if self.isSpotifyPlaying() {
+                _ = self.runAppleScript("""
+                    tell application \"Spotify\"
+                        previous track
+                    end tell
+                """)
+            } else if self.isAppleMusicPlaying() {
+                _ = self.runAppleScript("""
+                    tell application \"Music\"
+                        previous track
+                    end tell
+                """)
+            }
         }
     }
     /// Skips to the next track in the current player.
     func playNextTrack() -> Void {
-        if isSpotifyPlaying() {
-            _ = runAppleScript("""
-                tell application \"Spotify\"
-                    next track
-                end tell
-            """)
-        } else if isAppleMusicPlaying() {
-            _ = runAppleScript("""
-                tell application \"Music\"
-                    next track
-                end tell
-            """)
-        } else {
-            /// Do Nothing
+        DispatchQueue.global(qos: .userInitiated).async {
+            if self.isSpotifyPlaying() {
+                _ = self.runAppleScript("""
+                    tell application \"Spotify\"
+                        next track
+                    end tell
+                """)
+            } else if self.isAppleMusicPlaying() {
+                _ = self.runAppleScript("""
+                    tell application \"Music\"
+                        next track
+                    end tell
+                """)
+            }
         }
     }
     /// Toggles play/pause in the current player.
     func togglePlayPause() -> Void {
-        if isSpotifyPlaying() {
-            _ = runAppleScript("""
-                tell application \"Spotify\"
-                    playpause
-                end tell
-            """)
-        } else if isAppleMusicPlaying() {
-            _ = runAppleScript("""
-                tell application \"Music\"
-                    playpause
-                end tell
-            """)
-        } else {
-            /// Do Nothing
+        DispatchQueue.global(qos: .userInitiated).async {
+            if self.isSpotifyPlaying() {
+                _ = self.runAppleScript("""
+                    tell application \"Spotify\"
+                        playpause
+                    end tell
+                """)
+            } else if self.isAppleMusicPlaying() {
+                _ = self.runAppleScript("""
+                    tell application \"Music\"
+                        playpause
+                    end tell
+                """)
+            }
+            /// Reset Cache
+            self.spotifyRunningCache = nil
+            self.appleMusicRunningCache = nil
+            self.lastTrackInfo = ""
+            self.lastArtworkIdentifier = nil
+            self.lastUpdateTime = .distantPast
         }
     }
     /// Seeks playback to a specific time in the current track.
     /// - Parameter time: The time (in seconds) to seek to.
     func playAtTime(to time: Double) -> Void {
-        if isSpotifyPlaying() {
-            _ = runAppleScript("""
-                tell application \"Spotify\"
-                    set player position to \(time)
-                end tell
-            """)
-        } else if isAppleMusicPlaying() {
-            _ = runAppleScript("""
-                tell application \"Music\"
-                    set player position to \(time)
-                end tell
-            """)
-        } else {
-            // Do Nothing
+        DispatchQueue.global(qos: .userInitiated).async {
+            if self.isSpotifyPlaying() {
+                _ = self.runAppleScript("""
+                    tell application \"Spotify\"
+                        set player position to \(time)
+                    end tell
+                """)
+            } else if self.isAppleMusicPlaying() {
+                _ = self.runAppleScript("""
+                    tell application \"Music\"
+                        set player position to \(time)
+                    end tell
+                """)
+            }
         }
     }
 
-    /// Checks if Spotify is currently running.
-    /// - Returns: `true` if Spotify is running, otherwise `false`.
+    // MARK: - Optimized App Status Checking
     func isSpotifyPlaying() -> Bool {
-        return isAppRunning("Spotify")
+        return isAppRunningCached("Spotify", cache: &spotifyRunningCache)
     }
-    /// Checks if Apple Music is currently running.
-    /// - Returns: `true` if Music is running, otherwise `false`.
+    
     func isAppleMusicPlaying() -> Bool {
-        return isAppRunning("Music")
+        return isAppRunningCached("Music", cache: &appleMusicRunningCache)
+    }
+    
+    private func isAppRunningCached(_ appName: String, cache: inout (isRunning: Bool, timestamp: Date)?) -> Bool {
+        let now = Date()
+        
+        // Check if we have a valid cache entry
+        if let cacheEntry = cache,
+           now.timeIntervalSince(cacheEntry.timestamp) < appStatusCacheInterval {
+            return cacheEntry.isRunning
+        }
+        
+        // Cache miss - check actual status
+        let isRunning = isAppRunning(appName)
+        cache = (isRunning: isRunning, timestamp: now)
+        return isRunning
     }
     
     // MARK: - Internal Functions
@@ -209,29 +279,50 @@ final class AppleScriptMusicController: NowPlayingProvider {
      * Also extracts and updates the dominant color from artwork.
      * - Parameter info: Tuple containing track name, artist, album, artwork, position, and duration.
      */
-    private func updateNowPlaying(with info: (String, String, String, NSImage?, Double, Double)) {
+    private func updateNowPlaying(
+        with info: (String, String, String, NSImage?, Double, Double),
+        isPlaying: Bool
+    ) {
         let (trackName, artistName, albumName, artworkImage, positionSeconds, durationSeconds) = info
+        let currentTrackIdentifier = "\(trackName)|\(artistName)|\(albumName)|\(isPlaying)"
+
+        if lastTrackInfo == currentTrackIdentifier {
+            // Only update time-sensitive info
+            nowPlayingInfo.positionSeconds = positionSeconds
+            nowPlayingInfo.durationSeconds = durationSeconds
+            return
+        }
+        
+        lastTrackInfo = currentTrackIdentifier
 
         nowPlayingInfo.trackName = trackName
         nowPlayingInfo.artistName = artistName
         nowPlayingInfo.albumName = albumName
         nowPlayingInfo.artworkImage = artworkImage
         
-        let identifier = trackName + albumName
-        if lastArtworkIdentifier != identifier {
-            if let artworkImage = artworkImage {
-                nowPlayingInfo.dominantColor = self.getDominantColor(from: artworkImage) ?? .white
-            } else {
-                nowPlayingInfo.dominantColor = .white
+        // Only update dominant color if artwork changed
+        if let artworkImage = artworkImage, let imageHash = hashImage(artworkImage) {
+            let currentArtworkIdentifier = "\(trackName)|\(albumName)|\(imageHash)"
+            
+            if lastArtworkIdentifier != currentArtworkIdentifier {
+                
+                // Process dominant color on background queue
+                DispatchQueue.global(qos: .utility).async {
+                    let dominantColor = self.getDominantColor(from: artworkImage) ?? .white
+                    DispatchQueue.main.async {
+                        self.nowPlayingInfo.dominantColor = dominantColor
+                    }
+                }
+                lastArtworkIdentifier = currentArtworkIdentifier
             }
-            lastArtworkIdentifier = identifier
+        } else {
+            nowPlayingInfo.dominantColor = .white
         }
         
-        nowPlayingInfo.isPlaying = true
-
         // Update the current time and duration
         nowPlayingInfo.positionSeconds = positionSeconds
         nowPlayingInfo.durationSeconds = durationSeconds
+        nowPlayingInfo.isPlaying = true
     }
     
     // MARK: - Spotify
@@ -251,13 +342,15 @@ final class AppleScriptMusicController: NowPlayingProvider {
                 set artworkURL to artwork url of current track
                 set currentTime to player position
                 set trackDuration to (duration of current track) / 1000
-                return trackName & \" - \" & artistName & \" - \" & albumName & \" - \" & artworkURL & \" - \" & currentTime & \" - \" & trackDuration
+                return trackName & \"||\" & artistName & \"||\" & albumName & \"||\" & artworkURL & \"||\" & currentTime & \"||\" & trackDuration
+            else
+                return \"not_playing\"
             end if
         end tell
         """
 
-        if let output = runAppleScript(script) {
-            let components = output.components(separatedBy: " - ")
+        if let output = runAppleScript(script), output != "not_playing" {
+            let components = output.components(separatedBy: "||")
             if components.count == 6 {
                 let trackName = components[0]
                 let artistName = components[1]
@@ -265,27 +358,25 @@ final class AppleScriptMusicController: NowPlayingProvider {
                 let artworkURLString = components[3]
                 let positionSeconds = Double(components[4]) ?? 0.0
                 let durationSeconds = Double(components[5]) ?? 0.0
-
-                if let artworkURL = URL(string: artworkURLString) {
-                    // Fetch artwork asynchronously
+                
+                // Only fetch artwork if track changed
+                let trackIdentifier = trackName + albumName
+                if lastArtworkIdentifier != trackIdentifier, let artworkURL = URL(string: artworkURLString) {
                     URLSession.shared.dataTask(with: artworkURL) { data, response, error in
                         var artworkImage: NSImage? = nil
                         if let data = data {
                             artworkImage = NSImage(data: data)
                         }
-                        // Call completion handler back on MAIN thread
-                        DispatchQueue.main.async {
-                            completion((trackName, artistName, albumName, artworkImage, positionSeconds, durationSeconds))
-                        }
+                        completion((trackName, artistName, albumName, artworkImage, positionSeconds, durationSeconds))
                     }.resume()
                     return
+                } else {
+                    // Use existing artwork or nil
+                    completion((trackName, artistName, albumName, nil, positionSeconds, durationSeconds))
+                    return
                 }
-                // No artwork case
-                completion((trackName, artistName, albumName, nil, positionSeconds, durationSeconds))
-                return
             }
         }
-        // Could not get anything
         completion(nil)
     }
     
@@ -362,13 +453,19 @@ final class AppleScriptMusicController: NowPlayingProvider {
      * - Returns: The dominant NSColor, or nil if extraction fails.
      */
     private func getDominantColor(from image: NSImage) -> NSColor? {
-        guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return nil }
+        // Resize image to very small size for faster processing
+        let targetSize = NSSize(width: 1, height: 1)
+        let smallImage = NSImage(size: targetSize)
         
-        let width = cgImage.width
-        let height = cgImage.height
+        smallImage.lockFocus()
+        image.draw(in: NSRect(origin: .zero, size: targetSize))
+        smallImage.unlockFocus()
+        
+        guard let cgImage = smallImage.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
+            return nil
+        }
+        
         let colorSpace = CGColorSpaceCreateDeviceRGB()
-        
-        // Sample from center or use full image data
         var pixelData = [UInt8](repeating: 0, count: 4)
         
         guard let context = CGContext(
@@ -381,7 +478,6 @@ final class AppleScriptMusicController: NowPlayingProvider {
             bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
         ) else { return nil }
         
-        // Scale the entire image down to 1x1 to get average color
         context.draw(cgImage, in: CGRect(x: 0, y: 0, width: 1, height: 1))
         
         var red = CGFloat(pixelData[0]) / 255.0
@@ -389,7 +485,7 @@ final class AppleScriptMusicController: NowPlayingProvider {
         var blue = CGFloat(pixelData[2]) / 255.0
         let alpha = CGFloat(pixelData[3]) / 255.0
         
-        // Your brightness adjustment logic
+        // Brightness adjustment
         let brightness = (red + green + blue) / 3.0 * 255.0
         if brightness < 128 {
             let scale = 128.0 / brightness
@@ -399,6 +495,11 @@ final class AppleScriptMusicController: NowPlayingProvider {
         }
         
         return NSColor(red: red, green: green, blue: blue, alpha: alpha)
+    }
+    
+    func hashImage(_ image: NSImage) -> Int? {
+        guard let tiffData = image.tiffRepresentation else { return nil }
+        return tiffData.hashValue
     }
 }
 // End of AppleScriptMusicController.swift

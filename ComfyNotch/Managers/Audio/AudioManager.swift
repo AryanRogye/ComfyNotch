@@ -32,7 +32,7 @@ class AudioManager: ObservableObject {
     private var timer: Timer?
     /// Optional callback invoked when nowPlayingInfo is updated
     var onNowPlayingInfoUpdated: (() -> Void)?
-
+    
     /**
      * Initializes the AudioManager and starts periodic media info updates.
      * Use the shared instance; direct initialization is private.
@@ -45,7 +45,7 @@ class AudioManager: ObservableObject {
      * Fetches and updates the current playing media information.
      * Tries MediaRemote (Spotify/Apple Music) first, falls back to AppleScript if needed.
      */
-    func getNowPlayingInfo() {
+    func getNowPlayingInfo(completion: @escaping (Bool) -> Void) {
         // Attempt to use MediaRemote; fallback to AppleScript if unavailable or fails
         if mediaRemoteMusicController.isAvailable() {
             mediaRemoteMusicController.getNowPlayingInfo { success in
@@ -67,7 +67,7 @@ class AudioManager: ObservableObject {
     func startMediaTimer() {
         timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            self?.getNowPlayingInfo()
+            self?.getNowPlayingInfo { _ in }
         }
         RunLoop.main.add(timer!, forMode: .common)
     }
