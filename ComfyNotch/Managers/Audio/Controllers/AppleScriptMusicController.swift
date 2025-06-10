@@ -77,21 +77,19 @@ final class AppleScriptMusicController: NowPlayingProvider {
         let spotifyPlaying = isSpotifyPlaying()
         let appleMusicPlaying = isAppleMusicPlaying()
         
-        /// If Spotify and Apple Music isnt playing
+        // Shortcut if nothing is playing
         if !spotifyPlaying && !appleMusicPlaying {
             DispatchQueue.main.async {
                 self.clearNowPlaying()
                 self.nowPlayingInfo.musicProvider = .none
+                completion(true)
             }
-            completion(true)
             return
         }
-
-        /// If Spotify Playing
+        
+        // If Spotify is playing
         if spotifyPlaying {
-            /// If Spotify is playing, get the info from Spotify.
             getSpotifyInfo { info in
-                /// Optimized Version In Here
                 DispatchQueue.main.async {
                     if let info = info {
                         self.updateNowPlaying(with: info, isPlaying: true)
@@ -100,25 +98,28 @@ final class AppleScriptMusicController: NowPlayingProvider {
                         self.clearNowPlaying()
                         self.nowPlayingInfo.musicProvider = .none
                     }
+                    completion(true)
                 }
-                completion(true)
             }
+            return
         }
-        else if appleMusicPlaying {
-            if let info = getMusicInfo() {
-                DispatchQueue.main.async {
+        
+        // If Apple Music is playing
+        if appleMusicPlaying {
+            DispatchQueue.main.async {
+                if let info = self.getMusicInfo() {
                     self.updateNowPlaying(with: info, isPlaying: true)
                     self.nowPlayingInfo.musicProvider = .apple_music
-                }
-            } else {
-                DispatchQueue.main.async {
+                } else {
                     self.clearNowPlaying()
                     self.nowPlayingInfo.musicProvider = .none
                 }
+                completion(true)
             }
-            completion(true)
+            return
         }
-        /// Function will always return true, the Bool is mostly for other protocols that it may fail for.
+        
+        // fallback: shouldn't reach here, but just in case
         completion(true)
     }
 
