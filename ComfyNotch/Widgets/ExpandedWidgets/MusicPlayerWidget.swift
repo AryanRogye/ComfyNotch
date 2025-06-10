@@ -160,15 +160,15 @@ struct MusicPlayerWidget: View, Widget {
     func renderSongInformation() -> some View {
         Text(model.nowPlayingInfo.trackName)
             .font(.system(size: 13, weight: .medium))
-            .foregroundColor(.white)
+            .foregroundColor(.white.opacity(0.9))
             .lineLimit(1)
         Text(model.nowPlayingInfo.artistName)
             .font(.system(size: 11, weight: .regular))
-            .foregroundColor(.white)
+            .foregroundColor(.white.opacity(0.7))
             .lineLimit(1)
         Text(model.nowPlayingInfo.albumName)
             .font(.system(size: 11, weight: .light))
-            .foregroundColor(.white)
+            .foregroundColor(.white.opacity(0.5))
             .lineLimit(1)
     }
 

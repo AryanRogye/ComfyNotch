@@ -18,7 +18,7 @@ class SettingsModel: ObservableObject {
     @Published var selectedAnthropicModel: AnthropicModel = .claudeV1
     @Published var selectedGoogleModel: GoogleModel = .palm
     
-    @Published var clipboardManagerMaxHistory: Int = 10
+    @Published var clipboardManagerMaxHistory: Int = 30
     @Published var clipboardManagerPollingIntervalMS: Int = 1000
     
     @Published var fileTrayDefaultFolder: URL = FileManager.default

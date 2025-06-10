@@ -11,30 +11,49 @@ struct UtilsView: View {
     @StateObject var animationState: PanelAnimationState = .shared
     @StateObject var clipboardManager = ClipboardManager.shared
     @State private var selectedTab: UtilsTab = .clipboard
+    
+    @State private var expanded: Bool = true
 
     var body: some View {
         VStack(spacing: 0) {
             if animationState.isExpanded {
                 HStack {
-                    ForEach(UtilsTab.allCases, id: \.self) { tab in
-                        Button(action: {
-                            selectedTab = tab
-                        }) {
-                            Text(tab.rawValue)
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(selectedTab == tab ? .blue : .white)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 6)
-                                .background(selectedTab == tab ? Color.gray.opacity(0.2) : Color.clear)
-                                .cornerRadius(8)
+                    if expanded {
+                        ForEach(UtilsTab.allCases, id: \.self) { tab in
+                            Button(action: {
+                                selectedTab = tab
+                            }) {
+                                Text(tab.rawValue)
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundColor(selectedTab == tab ? .blue : .white)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 6)
+                                    .background(selectedTab == tab ? Color.gray.opacity(0.2) : Color.clear)
+                                    .cornerRadius(8)
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
                     }
                     Spacer()
                 }
                 .padding(.horizontal, 10)
-                .padding(.top, 1)
-                Divider()
+                
+                /// Divider
+                ZStack(alignment: .center) {
+                    Divider()
+                    Text(expanded ? "Close" : "Open")
+                        .font(.footnote)
+                        .padding(.horizontal, 6)
+                        .background(Color.black)
+                        .foregroundColor(.gray)
+                        .shadow(color: .black.opacity(0.4), radius: 1, y: 1)
+                }
+                .onTapGesture {
+                    withAnimation(.interpolatingSpring(duration: 0.3)) {
+                        expanded.toggle()
+                    }
+                }
+                
                 VStack {
                     switch selectedTab {
                         case .clipboard: Utils_ClipboardView(clipboardManager: clipboardManager)
@@ -51,5 +70,17 @@ struct UtilsView: View {
             .easeInOut(duration: animationState.isExpanded ? 0.3 : 0.1),
             value: animationState.isExpanded
         )
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                withAnimation(.interpolatingSpring(duration: 0.3)) {
+                    expanded = false
+                }
+            }
+        }
+        .onDisappear {
+            expanded = true
+        }
+        .keyboardShortcut("1", modifiers: [.command]) // Clipboard
+        .keyboardShortcut("2", modifiers: [.command]) // Bluetooth
     }
 }
