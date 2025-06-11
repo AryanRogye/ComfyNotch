@@ -23,6 +23,7 @@ vertex VertexOut vertexPassthrough(
     return out;
 }
 
+
 fragment float4 blobFragment(VertexOut in [[stage_in]],
                              constant float &time [[buffer(0)]]) {
     float2 uv = in.uv * 2.0 - 1.0;
