@@ -49,7 +49,7 @@ struct GaussianBlurShader: NSViewRepresentable {
             )
             encoder.setFragmentBytes(&tint, length: MemoryLayout<SIMD3<Float>>.size, index: 1)
             
-            encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
+            encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
             encoder.endEncoding()
             
             commandBuffer.present(drawable)
@@ -64,17 +64,20 @@ struct GaussianBlurShader: NSViewRepresentable {
             
             let pipelineDescriptor = MTLRenderPipelineDescriptor()
             pipelineDescriptor.vertexFunction = library.makeFunction(name: "vertexPassthrough")
-            pipelineDescriptor.fragmentFunction = library.makeFunction(name: "blurFragment")
+            pipelineDescriptor.fragmentFunction = library.makeFunction(name: "ambientGradient")
             pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
             
             pipelineState = try! device.makeRenderPipelineState(descriptor: pipelineDescriptor)
             commandQueue = device.makeCommandQueue()
             
             let quadVertices: [Float] = [
-                -1, -1,  0, 1,      // bottom-left     → position: (-1, -1), UV: (0, 1)
-                 1, -1,  1, 1,      // bottom-right    → position: ( 1, -1), UV: (1, 1)
-                 -1,  1,  0, 0,     // top-left        → position: (-1,  1), UV: (0, 0)
-                 1,  1,  1, 0       // top-right       → position: ( 1,  1), UV: (1, 0)
+                -1, -1, 0, 1,  // Bottom Left
+                 1, -1, 1, 1,  // Bottom Right
+                 -1,  1, 0, 0,  // Top Left
+                 
+                 -1,  1, 0, 0,  // Top Left
+                 1, -1, 1, 1,  // Bottom Right
+                 1,  1, 1, 0   // Top Right
             ]
             
             vertexBuffer = device.makeBuffer(bytes: quadVertices, length: MemoryLayout<Float>.size * quadVertices.count, options: [])
@@ -141,7 +144,7 @@ struct MetalBlobView: NSViewRepresentable {
             var time = Float(CACurrentMediaTime() - startTime)
             encoder.setFragmentBytes(&time, length: MemoryLayout<Float>.size, index: 0)
             
-            encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
+            encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
             encoder.endEncoding()
             
             commandBuffer.present(drawable)
