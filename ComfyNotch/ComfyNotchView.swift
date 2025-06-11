@@ -129,7 +129,7 @@ struct ComfyNotchView: View {
             }
             .frame(maxWidth: .infinity, alignment: .top)
             .background(
-                MetalBlobView()
+                GaussianBlurShader()
                     .ignoresSafeArea()
             )
             /// To make sure the notch doesnt go over the bottom of the screen
