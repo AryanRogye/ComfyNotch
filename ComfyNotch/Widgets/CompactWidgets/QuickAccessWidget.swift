@@ -23,8 +23,8 @@ struct QuickAccessWidget: View, Widget {
         AnyView(self)
     }
     
-    @StateObject private var animationState: PanelAnimationState = .shared
-    @StateObject private var settings      : SettingsModel       = .shared
+    @ObservedObject private var animationState: PanelAnimationState = .shared
+    @ObservedObject private var settings      : SettingsModel       = .shared
     
     var body: some View {
         HStack {

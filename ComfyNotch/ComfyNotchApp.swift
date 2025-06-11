@@ -39,5 +39,10 @@ struct ComfyNotchApp: App {
             SettingsView()
         }
         .windowResizability(.contentSize)
+        .defaultPosition(.center)
     }
+}
+
+#Preview {
+    SettingsView()
 }

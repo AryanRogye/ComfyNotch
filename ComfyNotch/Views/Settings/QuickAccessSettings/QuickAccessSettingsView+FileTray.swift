@@ -1,29 +1,32 @@
 //
-//  FileTraySettingsView.swift
+//  QuickAccessSettingsView+FileTray.swift
 //  ComfyNotch
 //
-//  Created by Aryan Rogye on 4/24/25.
+//  Created by Aryan Rogye on 6/10/25.
 //
 
 import SwiftUI
-import AppKit
 
-struct FileTraySettingsView: View {
-    @ObservedObject var settings: SettingsModel
+struct QuickAccessSettingsView_FileTray: View {
+    @ObservedObject var settings: SettingsModel = .shared
     @State var selectedFolder: URL?
 
     var body: some View {
-        ComfyScrollView {
-            Text("File Tray Settings")
+        VStack {
+            titleView
             
             persistFileTray()
             Divider()
             saveToFolder()
-            
-            Spacer()
         }
-        .onAppear {
-            selectedFolder = settings.fileTrayDefaultFolder
+    }
+    
+    // MARK: - Title
+    private var titleView: some View {
+        HStack {
+            Text("FileTray Settings")
+                .font(.largeTitle)
+            Spacer()
         }
     }
     
@@ -54,7 +57,10 @@ struct FileTraySettingsView: View {
         HStack {
             Text("Persist Files")
             Spacer()
-            MacSwitch(isOn: $settings.fileTrayPersistFiles)
+            Toggle(isOn: $settings.fileTrayPersistFiles) {
+                Text("")
+            }
+            .toggleStyle(.switch)
         }
     }
     
@@ -64,7 +70,7 @@ struct FileTraySettingsView: View {
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
         panel.prompt = "Choose Folder"
-
+        
         if panel.runModal() == .OK {
             if let url = panel.url {
                 selectedFolder = url
@@ -72,38 +78,6 @@ struct FileTraySettingsView: View {
                 /// Save Settings After, Think I'll add a check to see if its the same or not
                 settings.saveSettings()
             }
-        }
-    }
-}
-
-
-struct MacSwitch: NSViewRepresentable {
-    @Binding var isOn: Bool
-
-    func makeNSView(context: Context) -> NSSwitch {
-        let toggle = NSSwitch()
-        toggle.target = context.coordinator
-        toggle.action = #selector(Coordinator.changed(_:))
-        return toggle
-    }
-
-    func updateNSView(_ nsView: NSSwitch, context: Context) {
-        nsView.state = isOn ? .on : .off
-    }
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(isOn: $isOn)
-    }
-
-    class Coordinator: NSObject {
-        var isOn: Binding<Bool>
-
-        init(isOn: Binding<Bool>) {
-            self.isOn = isOn
-        }
-
-        @objc func changed(_ sender: NSSwitch) {
-            isOn.wrappedValue = (sender.state == .on)
         }
     }
 }

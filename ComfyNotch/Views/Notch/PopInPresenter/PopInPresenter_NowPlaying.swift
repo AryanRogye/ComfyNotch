@@ -22,9 +22,10 @@ struct NotchLoadingDot: View {
 
 struct PopInPresenter_NowPlaying: View {
     
-    @StateObject var settingsModel: SettingsModel = .shared
-    @StateObject var musicModel: MusicPlayerWidgetModel = .shared
-    @StateObject var panelState: PanelAnimationState = .shared
+    @ObservedObject var settingsModel: SettingsModel = .shared
+    @ObservedObject var musicModel: MusicPlayerWidgetModel = .shared
+    @ObservedObject var panelState: PanelAnimationState = .shared
+    
     @State private var textWidth: CGFloat = 0
     @State private var containerWidth: CGFloat = 0
     @State private var animate = false

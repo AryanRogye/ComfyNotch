@@ -15,7 +15,7 @@ struct PopInPresenter_Messages: View {
     @State private var isHovering: Bool = false
     @State private var hoverTimer: Timer?
 
-    @StateObject private var messagesManager: MessagesManager = .shared
+    @ObservedObject private var messagesManager: MessagesManager = .shared
     
     var body: some View {
         VStack {

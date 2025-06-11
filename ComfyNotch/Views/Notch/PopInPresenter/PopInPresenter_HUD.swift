@@ -60,10 +60,10 @@ class PopInPresenter_HUD_Coordinator: ObservableObject {
 
 struct PopInPresenter_HUD: View {
     
-    @StateObject private var brightnessManager: BrightnessWatcher = .shared
-    @StateObject private var volumeManager: VolumeManager = .shared
-    @StateObject private var musicModel: MusicPlayerWidgetModel = .shared
-    @StateObject var panelState: PanelAnimationState = .shared
+    @ObservedObject private var brightnessManager: BrightnessWatcher = .shared
+    @ObservedObject private var volumeManager: VolumeManager = .shared
+    @ObservedObject private var musicModel: MusicPlayerWidgetModel = .shared
+    @ObservedObject var panelState: PanelAnimationState = .shared
     
     @State private var dominantColor: Color = .blue
     

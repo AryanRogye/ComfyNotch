@@ -16,7 +16,7 @@ final class WidgetHoverState: ObservableObject {
 
 struct EventWidget: View, Widget {
     var name: String = "EventWidget"
-    @StateObject private var model : EventManager = .shared
+    @ObservedObject private var model : EventManager = .shared
     @ObservedObject private var hoverState = WidgetHoverState.shared
     
     let pickerValues = ["Daily", "Weekly", "Monthly"]

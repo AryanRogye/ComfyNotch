@@ -18,8 +18,8 @@ struct MusicPlayerWidget: View, Widget {
     var imageWidth: CGFloat = 120
     var imageHeight: CGFloat = 120
     
-    @StateObject private var model = MusicPlayerWidgetModel.shared
-    @StateObject private var settings = SettingsModel.shared
+    @ObservedObject private var model = MusicPlayerWidgetModel.shared
+    @ObservedObject private var settings = SettingsModel.shared
     
     var body: some View {
         HStack(spacing: 10) {
