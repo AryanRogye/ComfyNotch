@@ -1,3 +1,6 @@
 *.c linguist-language=C
 *.m linguist-language=Objective-C
 *.metal linguist-language=Metal
+
+*.c linguist-detectable=true
+*.h linguist-detectable=true
