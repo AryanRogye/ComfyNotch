@@ -7,8 +7,8 @@ struct CameraWidget: View, Widget {
     
     var name: String = "CameraWidget"
     
-    @StateObject private var model = CameraWidgetModel.shared
-    @StateObject private var settings = SettingsModel.shared
+    @ObservedObject private var model = CameraWidgetModel.shared
+    @ObservedObject private var settings = SettingsModel.shared
     
     @State var currentZoom: CGFloat = 1.0
     @State private var showOverlay = true

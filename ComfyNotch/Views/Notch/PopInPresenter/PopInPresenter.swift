@@ -17,7 +17,7 @@ enum PopInPresenterType {
 
 struct PopInPresenter: View {
     
-    @StateObject private var panelState = PanelAnimationState.shared
+    @ObservedObject private var panelState = PanelAnimationState.shared
     
     var body: some View {
         ZStack {

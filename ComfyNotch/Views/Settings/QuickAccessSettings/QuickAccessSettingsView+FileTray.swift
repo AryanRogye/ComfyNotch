@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct QuickAccessSettingsView_FileTray: View {
-    @StateObject var settings: SettingsModel = .shared
+    @ObservedObject var settings: SettingsModel = .shared
     @State var selectedFolder: URL?
 
     var body: some View {

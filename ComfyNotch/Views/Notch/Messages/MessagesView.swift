@@ -9,8 +9,8 @@ import SwiftUI
 
 struct MessagesView: View {
     
-    @StateObject var animationState = PanelAnimationState.shared
-    @StateObject var messagesManager = MessagesManager.shared
+    @ObservedObject var animationState = PanelAnimationState.shared
+    @ObservedObject var messagesManager = MessagesManager.shared
     
     @State var didPressUser: Bool = false
     @State var clickedUser: MessagesManager.Handle?

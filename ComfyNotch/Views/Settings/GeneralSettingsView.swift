@@ -3,7 +3,7 @@ import SwiftUI
 struct GeneralSettingsView: View {
     
     @ObservedObject var settings: SettingsModel
-    @StateObject    var displayManager: DisplayManager = .shared
+    @ObservedObject    var displayManager: DisplayManager = .shared
     
     @Environment(\.colorScheme) var colorScheme
     

@@ -11,7 +11,7 @@ import AVKit
 struct WidgetCardStyle: ViewModifier {
     
     let widgetName: String
-    @StateObject var settings: SettingsModel = .shared
+    @ObservedObject var settings: SettingsModel = .shared
     
     var enabled : Bool {
         settings.selectedWidgets.contains(widgetName)
@@ -65,7 +65,7 @@ struct DropViewDelegate: DropDelegate {
 
 struct QuickAccessSettingsView_Home: View {
     
-    @StateObject var settings: SettingsModel = .shared
+    @ObservedObject var settings: SettingsModel = .shared
 
     let widgetPreviews: [(widgetName: String,title: String, view: AnyView)] = [
         ("NotesWidget","Notes Widget", AnyView(NotesWidget())),

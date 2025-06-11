@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct QuickAccessSettingsView_Messages: View {
-    @StateObject var settings: SettingsModel = .shared
+    @ObservedObject var settings: SettingsModel = .shared
     
     var body: some View {
         VStack {

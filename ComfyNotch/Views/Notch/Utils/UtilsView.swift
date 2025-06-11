@@ -8,8 +8,8 @@ enum UtilsTab: String, CaseIterable {
 }
 
 struct UtilsView: View {
-    @StateObject var animationState: PanelAnimationState = .shared
-    @StateObject var clipboardManager = ClipboardManager.shared
+    @ObservedObject var animationState: PanelAnimationState = .shared
+    @ObservedObject var clipboardManager = ClipboardManager.shared
     @State private var selectedTab: UtilsTab = .clipboard
     
     @State private var expanded: Bool = true

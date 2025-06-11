@@ -11,7 +11,7 @@ struct AIChatWidget: View, Widget {
 
     var name: String = "AIChatWidget"
 
-    @StateObject var settings: SettingsModel = SettingsModel.shared
+    @ObservedObject var settings: SettingsModel = SettingsModel.shared
 
     @State private var inputText: String = ""
     @State private var outputText: String = "Response will appear here."

@@ -3,8 +3,8 @@ import SwiftUI
 struct HomeNotchView: View {
     
     @EnvironmentObject var bigWidgetStore: ExpandedWidgetsStore
-    @StateObject var animationState = PanelAnimationState.shared
-    @StateObject var settingsModel = SettingsModel.shared
+    @ObservedObject var animationState = PanelAnimationState.shared
+    @ObservedObject var settingsModel = SettingsModel.shared
 
     var body: some View {
         VStack {

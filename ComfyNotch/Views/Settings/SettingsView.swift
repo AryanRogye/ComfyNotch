@@ -2,7 +2,7 @@ import SwiftUI
 import Combine
 
 struct SettingsView: View {
-    @StateObject var settings = SettingsModel.shared
+    @ObservedObject var settings = SettingsModel.shared
     @State private var selectedTab: Tab = .quickAccess
     
     @State private var columnVisibility = NavigationSplitViewVisibility.detailOnly
