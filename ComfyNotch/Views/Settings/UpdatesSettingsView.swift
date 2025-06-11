@@ -9,7 +9,7 @@ import SwiftUI
 
 struct UpdatesSettingsView: View {
     @ObservedObject var settings: SettingsModel
-
+    
     var body: some View {
         ComfyScrollView {
             appImage
@@ -28,6 +28,7 @@ struct UpdatesSettingsView: View {
         }
     }
     
+    // MARK: - App Icon
     private var appImage: some View {
         Image(nsImage: NSApp.applicationIconImage)
             .resizable()
@@ -36,17 +37,20 @@ struct UpdatesSettingsView: View {
             .frame(maxWidth: .infinity)
     }
     
+    // MARK: - App Version Number
     private var appVersion: some View {
         Text("Version \(Bundle.main.versionNumber)")
             .font(.body)
     }
     
+    // MARK: - App Build Number
     private var appBuild: some View {
         Text("Build \(Bundle.main.buildNumber)")
             .font(.subheadline)
             .foregroundColor(.secondary)
     }
     
+    // MARK: - Release Notes
     private var releaseNotes: some View {
         Button("View Release Notes") {
             if let url = URL(string: "https://github.com/AryanRogye/ComfyNotch/releases/latest") {
@@ -57,6 +61,7 @@ struct UpdatesSettingsView: View {
         .font(.footnote)
     }
     
+    // MARK: - Check for Updates
     private var checkForUpdates: some View {
         Button("Check for Updates") {
             settings.checkForUpdates()
@@ -65,9 +70,4 @@ struct UpdatesSettingsView: View {
         .controlSize(.regular)
         .keyboardShortcut("u", modifiers: [.command])
     }
-}
-
-
-#Preview {
-    UpdatesSettingsView(settings: SettingsModel.shared)
 }
