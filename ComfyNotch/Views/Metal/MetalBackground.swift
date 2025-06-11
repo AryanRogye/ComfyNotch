@@ -3,8 +3,53 @@ import AppKit
 import Combine
 import MetalKit
 
-struct GaussianBlurShader: NSViewRepresentable {
+final class MetalAnimationState: ObservableObject {
+    static let shared = MetalAnimationState()
+    
+    @Published var blurProgress: Float = 0.0
+    
+    private var animationTimer: DispatchSourceTimer?
+    private var animationStartTime: CFTimeInterval = 0
+    private var animationStartValue: Float = 0
+    private var animationTargetValue: Float = 0
+    private var animationDuration: TimeInterval = 0
+    
+    /// This is used when opening the panel to animate the blur effect
+    func animateBlurProgress(to targetValue: Float, duration: TimeInterval = 2.0) {
+        animationTimer?.cancel()
+        
+        animationStartTime = CACurrentMediaTime()
+        animationStartValue = blurProgress
+        animationTargetValue = targetValue
+        animationDuration = duration
+        
+        animationTimer = DispatchSource.makeTimerSource(queue: .main)
+        animationTimer?.schedule(deadline: .now(), repeating: 1.0/120.0)
+        
+        animationTimer?.setEventHandler { [weak self] in
+            self?.updateAnimation()
+        }
+        
+        animationTimer?.resume()
+    }
+    
+    private func updateAnimation() {
+        let elapsed = CACurrentMediaTime() - animationStartTime
+        let progress = min(elapsed / animationDuration, 1.0)
+        
+        let easedProgress = progress * progress * (3.0 - 2.0 * progress)
+        blurProgress = animationStartValue + (animationTargetValue - animationStartValue) * Float(easedProgress)
+        
+        if progress >= 1.0 {
+            animationTimer?.cancel()
+            animationTimer = nil
+        }
+    }
+}
+
+struct MetalBackground: NSViewRepresentable {
     func makeCoordinator() -> RendererCoordinator { RendererCoordinator() }
+    
     func updateNSView(_ nsView: MTKView, context: Context) {}
     
     func makeNSView(context: Context) -> MTKView {
@@ -19,13 +64,26 @@ struct GaussianBlurShader: NSViewRepresentable {
     }
     
     class RendererCoordinator: NSObject, MTKViewDelegate {
-        
         private var startTime = CACurrentMediaTime()
         private var pipelineState: MTLRenderPipelineState!
         private var commandQueue: MTLCommandQueue!
         private var vertexBuffer: MTLBuffer!
         
-        func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
+        private var blurProgress: Float = 0.0
+        private var cancellables = Set<AnyCancellable>()
+        
+        
+        override init() {
+            super.init()
+            setupMetal()
+            
+            // Observe changes to blurProgress
+            MetalAnimationState.shared.$blurProgress
+                .sink { [weak self] newValue in
+                    self?.blurProgress = newValue
+                }
+                .store(in: &cancellables)
+        }
         
         func draw(in view: MTKView) {
             guard let drawable = view.currentDrawable,
@@ -48,6 +106,7 @@ struct GaussianBlurShader: NSViewRepresentable {
                 Float(dominantColor.blueComponent)
             )
             encoder.setFragmentBytes(&tint, length: MemoryLayout<SIMD3<Float>>.size, index: 1)
+            encoder.setFragmentBytes(&blurProgress, length: MemoryLayout<Float>.size, index: 2)
             
             encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
             encoder.endEncoding()
@@ -56,9 +115,7 @@ struct GaussianBlurShader: NSViewRepresentable {
             commandBuffer.commit()
         }
         
-        override init() {
-            super.init()
-            
+        private func setupMetal() {
             let device = MTLCreateSystemDefaultDevice()!
             let library = device.makeDefaultLibrary()!
             
@@ -82,73 +139,7 @@ struct GaussianBlurShader: NSViewRepresentable {
             
             vertexBuffer = device.makeBuffer(bytes: quadVertices, length: MemoryLayout<Float>.size * quadVertices.count, options: [])
         }
-    }
-}
-
-struct MetalBlobView: NSViewRepresentable {
-    func makeCoordinator() -> RendererCoordinator { RendererCoordinator() }
-    
-    func makeNSView(context: Context) -> MTKView {
-        let mtkView = MTKView()
-        mtkView.device = MTLCreateSystemDefaultDevice()
-        mtkView.delegate = context.coordinator
-        mtkView.framebufferOnly = false
-        mtkView.isPaused = false
-        mtkView.enableSetNeedsDisplay = false
-        mtkView.preferredFramesPerSecond = 120
-        return mtkView
-    }
-    
-    func updateNSView(_ nsView: MTKView, context: Context) {}
-    
-    class RendererCoordinator: NSObject, MTKViewDelegate {
-        private var startTime = CACurrentMediaTime()
-        private var pipelineState: MTLRenderPipelineState!
-        private var commandQueue: MTLCommandQueue!
-        private var vertexBuffer: MTLBuffer!
-        
-        override init() {
-            super.init()
-            let device = MTLCreateSystemDefaultDevice()!
-            let library = device.makeDefaultLibrary()!
-            
-            let pipelineDescriptor = MTLRenderPipelineDescriptor()
-            pipelineDescriptor.vertexFunction = library.makeFunction(name: "vertexPassthrough")
-            pipelineDescriptor.fragmentFunction = library.makeFunction(name: "blobFragment")
-            pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
-            
-            pipelineState = try! device.makeRenderPipelineState(descriptor: pipelineDescriptor)
-            commandQueue = device.makeCommandQueue()
-            
-            let quadVertices: [Float] = [
-                -1, -1,  0, 1,      // bottom-left     → position: (-1, -1), UV: (0, 1)
-                 1, -1,  1, 1,      // bottom-right    → position: ( 1, -1), UV: (1, 1)
-                 -1,  1,  0, 0,     // top-left        → position: (-1,  1), UV: (0, 0)
-                 1,  1,  1, 0       // top-right       → position: ( 1,  1), UV: (1, 0)
-            ]
-            
-            vertexBuffer = device.makeBuffer(bytes: quadVertices, length: MemoryLayout<Float>.size * quadVertices.count, options: [])
-        }
         
         func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
-        
-        func draw(in view: MTKView) {
-            guard let drawable = view.currentDrawable,
-                  let renderPassDescriptor = view.currentRenderPassDescriptor else { return }
-            
-            let commandBuffer = commandQueue.makeCommandBuffer()!
-            let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
-            encoder.setRenderPipelineState(pipelineState)
-            encoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
-            
-            var time = Float(CACurrentMediaTime() - startTime)
-            encoder.setFragmentBytes(&time, length: MemoryLayout<Float>.size, index: 0)
-            
-            encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
-            encoder.endEncoding()
-            
-            commandBuffer.present(drawable)
-            commandBuffer.commit()
-        }
     }
 }

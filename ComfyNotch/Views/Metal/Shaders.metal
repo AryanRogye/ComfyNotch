@@ -26,15 +26,11 @@ vertex VertexOut vertexPassthrough(
     return out;
 }
 
-fragment float4 blurFragment(VertexOut in [[stage_in]],
-                             constant float &time [[buffer(0)]],
-                             constant float3 &tint [[buffer(1)]]) {
-    return float4(tint, 1.0);
-}
-
+// MARK: - Ambient Gradent Shader
 fragment float4 ambientGradient(VertexOut in [[stage_in]],
                                 constant float &time [[buffer(0)]],
-                                constant float3 &tint [[buffer(1)]]) {
+                                constant float3 &tint [[buffer(1)]],
+                                constant float &blurProgress [[buffer(2)]]) {
     float2 uv = in.uv;
     
     float angle = time * 0.5;
@@ -43,7 +39,13 @@ fragment float4 ambientGradient(VertexOut in [[stage_in]],
     float fade = dot(uv - 0.5, dir) * 1.5;
     float brightness = smoothstep(0.0, 1.0, 0.5 + 0.5 * fade);
     
-    return float4(tint * brightness * 0.25, 1.0);
+    float3 finalColor = tint * brightness * 0.25;
+    
+    float easedProgress = pow(blurProgress, 8.0);
+    // Lerp between black and the final color based on blurProgress
+    float3 color = mix(float3(0.0), finalColor, easedProgress);
+    
+    return float4(color, 1.0);
 }
 
 // MARK: - Spotlight Shader
@@ -68,4 +70,11 @@ fragment float4 spotlight(VertexOut in [[stage_in]],
     float3 color = mix(base, blend, glow);
     
     return float4(color, 1.0);
+}
+
+// MARK: - Unused Shader
+fragment float4 blurFragment(VertexOut in [[stage_in]],
+                             constant float &time [[buffer(0)]],
+                             constant float3 &tint [[buffer(1)]]) {
+    return float4(tint, 1.0);
 }
