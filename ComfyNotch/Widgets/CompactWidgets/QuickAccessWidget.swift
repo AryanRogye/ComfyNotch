@@ -35,9 +35,10 @@ struct QuickAccessWidget: View, Widget {
                 messagesButton
                     .padding(.leading, widgetSpacing)
             }
-            
-            utilsButton
-                .padding(.leading, widgetSpacing)
+            if settings.enableUtilsOption {
+                utilsButton
+                    .padding(.leading, widgetSpacing)
+            }
             
             fileTrayButton
                 .padding(.leading, widgetSpacing)

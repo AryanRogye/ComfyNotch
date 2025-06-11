@@ -64,6 +64,15 @@ class SettingsModel: ObservableObject {
     /// ---------- Animation Settings ----------
     @Published var openingAnimation: String = "iOS"
     
+    /// ---------- Utils Settings ----------
+    /// Set to true at the start, will change if the user wants tp
+    /// The thing is that if the user turns this off we have to verify that the
+    /// clipboard and the bluetooth listeners are off, or else just dont
+    /// let the userr turn it off
+    @Published var enableUtilsOption: Bool = true
+    @Published var enableClipboardListener: Bool = true
+    @Published var enableBluetoothListener: Bool = true
+    
     
     lazy var updaterController: SPUStandardUpdaterController = {
         return SPUStandardUpdaterController(
@@ -178,6 +187,11 @@ class SettingsModel: ObservableObject {
         }
         /// ----------------------- Animation Settings -----------------------
         defaults.set(openingAnimation, forKey: "openingAnimation")
+        
+        /// ------------ Utils Settings -----------------------
+        defaults.set(enableUtilsOption, forKey: "enableUtilsOption")
+        defaults.set(enableClipboardListener, forKey: "enableClipboardListener")
+        defaults.set(enableBluetoothListener, forKey: "enableBluetoothListener")
     }
     
     // MARK: - Load Settings
@@ -296,6 +310,25 @@ class SettingsModel: ObservableObject {
             self.openingAnimation = openingAnimation
         } else {
             self.openingAnimation = "iOS" // Default animation
+        }
+        
+        /// ----------------------- Utils Settings -----------------------
+        if let enableUtilsOption = defaults.object(forKey: "enableUtilsOption") as? Bool {
+            self.enableUtilsOption = enableUtilsOption
+        } else {
+            self.enableUtilsOption = true
+        }
+        
+        if let enableClipboardListener = defaults.object(forKey: "enableClipboardListener") as? Bool {
+            self.enableClipboardListener = enableClipboardListener
+        } else {
+            self.enableClipboardListener = true
+        }
+        
+        if let enableBluetoothListener = defaults.object(forKey: "enableBluetoothListener") as? Bool {
+            self.enableBluetoothListener = enableBluetoothListener
+        } else {
+            self.enableBluetoothListener = true
         }
     }
     

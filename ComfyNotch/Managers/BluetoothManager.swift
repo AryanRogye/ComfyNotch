@@ -19,7 +19,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         CBUUID(string: "180D"), // Heart Rate
         CBUUID(string: "1812")  // HID Service
     ]
-
+    
     private override init() {
         super.init()
         manager = CBCentralManager(delegate: self, queue: nil)
@@ -47,10 +47,21 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
             debugLog("➕ Discovered: \(peripheral.name ?? peripheral.identifier.uuidString)")
         }
     }
-
+    
     public func start() {
         if manager == nil {
             manager = CBCentralManager(delegate: self, queue: nil)
+        }
+    }
+    
+    public func stop() {
+        if let manager = manager {
+            manager.stopScan()
+            userBluetoothConnections.removeAll()
+            connectionStates.removeAll()
+            debugLog("🛑 Stopped Bluetooth Manager")
+        } else {
+            debugLog("⚠️ Bluetooth Manager is not initialized!")
         }
     }
     
@@ -73,7 +84,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
             CBConnectPeripheralOptionNotifyOnDisconnectionKey: true
         ])
     }
-
+    
     // 4) Disconnect method
     func disconnect(_ peripheral: CBPeripheral) {
         debugLog("⏳ Attempting to disconnect from \(peripheral.name ?? peripheral.identifier.uuidString)...")
@@ -103,10 +114,10 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     private func addPeripheral(_ peripheral: CBPeripheral) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-
+            
             // Use name if available, fallback to UUID
             let name = peripheral.name ?? peripheral.identifier.uuidString
-
+            
             // Deduplicate by name
             if !self.userBluetoothConnections.contains(where: { $0.name == peripheral.name }) {
                 peripheral.delegate = self
@@ -115,8 +126,8 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
             }
         }
     }
-
-
+    
+    
     public func stopScanning() {
         manager?.stopScan()
     }
