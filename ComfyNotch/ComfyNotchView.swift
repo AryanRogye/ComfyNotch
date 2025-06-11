@@ -46,6 +46,8 @@ class PanelAnimationState: ObservableObject {
     /// doesnt think its blue all the time lol
     @Published var fileTriggeredTray: Bool = false
     
+    @Published var utilsSelectedTab : UtilsTab = .clipboard
+    
     @Published var droppedFile: URL?
     
     private var cancellables = Set<AnyCancellable>()

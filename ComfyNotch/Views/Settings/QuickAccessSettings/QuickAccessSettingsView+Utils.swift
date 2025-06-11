@@ -8,9 +8,19 @@
 import SwiftUI
 
 struct QuickAccessSettingsView_Utils: View {
+    
+    @ObservedObject private var settings: SettingsModel = .shared
+    @State private var isHoveringOverUtils: Bool = false
+    
     var body: some View {
         VStack {
             titleView
+            
+            ComfySection(title: "Options") {
+                enableUtilsOption
+                enableClipboardListener
+                enableBluetoothListener
+            }
         }
     }
     
@@ -22,5 +32,98 @@ struct QuickAccessSettingsView_Utils: View {
             Spacer()
         }
     }
-
+    
+    private var enableUtilsOption: some View {
+        HStack {
+            Text("Enable Utils")
+            Spacer()
+            
+            Toggle(isOn: $settings.enableUtilsOption) {}
+                .toggleStyle(.switch)
+                .disabled(settings.enableClipboardListener || settings.enableBluetoothListener)
+        }
+        .shadow(color: isHoveringOverUtils ? .red : .black, radius: isHoveringOverUtils ? 3 : 0)
+        .overlay(
+            Group {
+                if isHoveringOverUtils {
+                    Text("Turn off Clipboard & Bluetooth first.")
+                        .font(.caption)
+                        .padding(6)
+                        .background(Color.black.opacity(0.8))
+                        .foregroundColor(.white)
+                        .cornerRadius(6)
+                        .transition(.opacity)
+                        .offset(y: 24)
+                }
+            }
+        )
+        .onHover { hover in
+            if settings.enableClipboardListener || settings.enableBluetoothListener {
+                isHoveringOverUtils = hover
+            } else {
+                isHoveringOverUtils = false
+            }
+        }
+    }
+    
+    private var enableClipboardListener: some View {
+        HStack {
+            Text("Enable Clipboard Listener")
+            
+            Spacer()
+            
+            Toggle(isOn: $settings.enableClipboardListener) {}
+                .toggleStyle(.switch)
+                .onChange(of: settings.enableClipboardListener) {
+                    settings.saveSettings()
+                    
+                    if settings.enableClipboardListener {
+                        settings.enableUtilsOption = true
+                        ClipboardManager.shared.start()
+                    } else {
+                        ClipboardManager.shared.stop()
+                        if PanelAnimationState.shared.utilsSelectedTab == .clipboard {
+                            if settings.enableBluetoothListener {
+                                PanelAnimationState.shared.utilsSelectedTab = .bluetooth
+                            }
+                        }
+                    }
+                    
+                    if !settings.enableClipboardListener && !settings.enableBluetoothListener {
+                        settings.enableUtilsOption = false
+                    }
+                }
+        }
+    }
+    
+    private var enableBluetoothListener: some View {
+        HStack {
+            Text("Enable Bluetooth Listener")
+            
+            Spacer()
+            
+            Toggle(isOn: $settings.enableBluetoothListener) {}
+                .toggleStyle(.switch)
+                .onChange(of: settings.enableBluetoothListener) {
+                    settings.saveSettings()
+                    
+                    if settings.enableBluetoothListener {
+                        settings.enableUtilsOption = true
+                    }
+                    /// Just turn it off if it is off
+                    if !settings.enableBluetoothListener {
+                        BluetoothManager.shared.stop()
+                        if PanelAnimationState.shared.utilsSelectedTab == .bluetooth {
+                            if settings.enableClipboardListener {
+                                PanelAnimationState.shared.utilsSelectedTab = .clipboard
+                            }
+                        }
+                    }
+                    
+                    if !settings.enableClipboardListener && !settings.enableBluetoothListener {
+                        settings.enableUtilsOption = false
+                    }
+                }
+        }
+    }
 }

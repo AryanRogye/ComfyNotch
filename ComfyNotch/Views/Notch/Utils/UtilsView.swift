@@ -8,9 +8,9 @@ enum UtilsTab: String, CaseIterable {
 }
 
 struct UtilsView: View {
+    @ObservedObject var settings: SettingsModel = .shared
     @ObservedObject var animationState: PanelAnimationState = .shared
     @ObservedObject var clipboardManager = ClipboardManager.shared
-    @State private var selectedTab: UtilsTab = .clipboard
     
     @State private var expanded: Bool = true
 
@@ -20,18 +20,21 @@ struct UtilsView: View {
                 HStack {
                     if expanded {
                         ForEach(UtilsTab.allCases, id: \.self) { tab in
-                            Button(action: {
-                                selectedTab = tab
-                            }) {
-                                Text(tab.rawValue)
-                                    .font(.system(size: 12, weight: .semibold))
-                                    .foregroundColor(selectedTab == tab ? .blue : .white)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 6)
-                                    .background(selectedTab == tab ? Color.gray.opacity(0.2) : Color.clear)
-                                    .cornerRadius(8)
+                            if (settings.enableClipboardListener || tab != .clipboard) &&
+                            (settings.enableBluetoothListener || tab != .bluetooth) {
+                                Button(action: {
+                                    animationState.utilsSelectedTab = tab
+                                }) {
+                                    Text(tab.rawValue)
+                                        .font(.system(size: 12, weight: .semibold))
+                                        .foregroundColor(animationState.utilsSelectedTab == tab ? .blue : .white)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 6)
+                                        .background(animationState.utilsSelectedTab == tab ? Color.gray.opacity(0.2) : Color.clear)
+                                        .cornerRadius(8)
+                                }
+                                .buttonStyle(.plain)
                             }
-                            .buttonStyle(.plain)
                         }
                     }
                     Spacer()
@@ -55,7 +58,7 @@ struct UtilsView: View {
                 }
                 
                 VStack {
-                    switch selectedTab {
+                    switch animationState.utilsSelectedTab {
                         case .clipboard: Utils_ClipboardView(clipboardManager: clipboardManager)
                                             .frame(maxWidth:.infinity, maxHeight:.infinity, alignment:.top)
                         case .bluetooth: Utils_BluetoothView()

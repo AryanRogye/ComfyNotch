@@ -96,7 +96,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     private func launchComfyNotch() {
         /// Start A Display Manager, this will be used by the ui manager
         DisplayManager.shared.start()
-        
+        /// Start the panels
         UIManager.shared.setupFrame()
         
         if let smallPanel = UIManager.shared.smallPanel {
@@ -105,7 +105,10 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         /// Begin The Clipboard Manger
-        ClipboardManager.shared.start()
+        if SettingsModel.shared.enableClipboardListener {
+            ClipboardManager.shared.start()
+        }
+        
         /// Start the hover handler, this also listens for music playing closing and opening slightly
         PanelAnimator.shared.startAnimationListeners()
         
