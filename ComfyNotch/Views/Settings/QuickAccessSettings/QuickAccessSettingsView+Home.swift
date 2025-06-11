@@ -274,7 +274,7 @@ struct QuickAccessSettingsView_Home: View {
             content()
         }
         .padding()
-        .background(Color.black.opacity(0.1)) // or .regularMaterial if you're using blur
+        .background(Color.black.opacity(0.1))
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
@@ -295,6 +295,9 @@ struct QuickAccessSettingsView_Home: View {
                 Text("Low (352×288)").tag(AVCaptureSession.Preset.low)
                 Text("Photo (Still Only)").tag(AVCaptureSession.Preset.photo)
             }
+            .onChange(of: settings.cameraQualitySelection) {
+                settings.saveSettings()
+            }
             
             Toggle("Enable Camera Overlay", isOn: $settings.enableCameraOverlay)
                 .onChange(of: settings.enableCameraOverlay) {
@@ -313,6 +316,9 @@ struct QuickAccessSettingsView_Home: View {
                     step: 1
                 )
                 .transition(.opacity)
+                .onChange(of: settings.cameraOverlayTimer) {
+                    settings.saveSettings()
+                }
             }
         }
     }
@@ -345,6 +351,9 @@ struct QuickAccessSettingsView_Home: View {
                 )
                 .padding()
                 .focusable(true)
+                .onChange(of: settings.aiApiKey) {
+                    settings.saveSettings()
+                }
             
             HStack {
                 Spacer()
