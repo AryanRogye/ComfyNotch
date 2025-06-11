@@ -12,9 +12,9 @@ struct SettingsView: View {
     enum Tab: String, CaseIterable, Identifiable, Equatable {
         case quickAccess = "Quick Access"
         case general = "General"
-        case widget = "Widgets"
+//        case widget = "Widgets"
         //        case shortcuts = "Shortcuts"
-        case filetray = "File Tray"
+//        case filetray = "File Tray"
         case updates = "Updates"
         
         var id: String { rawValue }
@@ -23,9 +23,9 @@ struct SettingsView: View {
             switch self {
             case .quickAccess: return "square.and.arrow.up"
             case .general: return "gearshape"
-            case .widget: return "rectangle.3.offgrid"
+//            case .widget: return "rectangle.3.offgrid"
                 //            case .shortcuts: return "keyboard"
-            case .filetray: return "folder"
+//            case .filetray: return "folder"
             case .updates: return "arrow.clockwise"
             }
         }
@@ -35,9 +35,9 @@ struct SettingsView: View {
             switch self {
             case .quickAccess: QuickAccessSettingsView(settings: settings)
             case .general: GeneralSettingsView(settings: settings)
-            case .widget: WidgetsSettingsView(settings: settings)
+//            case .widget: WidgetsSettingsView(settings: settings)
                 //            case .shortcuts: ShortcutView(settings: settings)
-            case .filetray: FileTraySettingsView(settings: settings)
+//            case .filetray: FileTraySettingsView(settings: settings)
             case .updates: UpdatesSettingsView(settings: settings)
             }
         }

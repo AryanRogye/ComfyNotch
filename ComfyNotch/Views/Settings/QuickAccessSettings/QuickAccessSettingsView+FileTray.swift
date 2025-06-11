@@ -13,13 +13,20 @@ struct QuickAccessSettingsView_FileTray: View {
 
     var body: some View {
         VStack {
-            Text("FileTray Settings")
-                .font(.largeTitle)
+            titleView
             
             persistFileTray()
             Divider()
             saveToFolder()
-            
+        }
+    }
+    
+    // MARK: - Title
+    private var titleView: some View {
+        HStack {
+            Text("FileTray Settings")
+                .font(.largeTitle)
+            Spacer()
         }
     }
     

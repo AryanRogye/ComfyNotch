@@ -27,7 +27,7 @@ struct GeneralSettingsView: View {
             ComfyScrollView {
                 headerView
                 
-                displaySettingsSection
+                // displaySettingsSection
                 
                 notchSettingsSection
                 
@@ -72,12 +72,18 @@ struct GeneralSettingsView: View {
     // MARK: - Display Section
     private var displaySettingsSection: some View {
         ComfySection(title: "Display Settings") {
-            let columns = [
-                /// 2 displays Max
-                GridItem(.flexible(minimum: 100, maximum: 200)),
-                GridItem(.flexible(minimum: 100, maximum: 200)),
-            ]
+            displaySection
+        }
+    }
+    
+    private var displaySection: some View {
+        VStack {
             HStack {
+                let columns = [
+                    /// 2 displays Max
+                    GridItem(.flexible(minimum: 100, maximum: 200)),
+                    GridItem(.flexible(minimum: 100, maximum: 200)),
+                ]
                 Spacer()
                 LazyVGrid(columns: columns, spacing: 16) {
                     ForEach(Array(displayManager.screenSnapshots.keys), id: \.self) { key in
@@ -113,7 +119,6 @@ struct GeneralSettingsView: View {
                     }
                 }
             }
-            
             VStack(alignment: .center) {
                 Text("Note that ComfyNotch will open the best on a window with a Notch")
                     .font(.footnote)
@@ -129,9 +134,13 @@ struct GeneralSettingsView: View {
     
     // MARK: - Notch Section
     private var notchSettingsSection: some View {
-        ComfySection(title: "Notch Settings") {
+//        ComfySection(title: "Notch Settings") {
+        VStack {
             ComfySection(title: "Dimensions", isSub: true) {
                 notchSettings
+            }
+            ComfySection(title: "Display", isSub: true) {
+                displaySection
             }
             ComfySection(title: "Animations", isSub: true) {
                 animationSettings
@@ -139,9 +148,6 @@ struct GeneralSettingsView: View {
             ComfySection(title: "Notch Controls", isSub: true) {
                 scrollSpeed
                 hudSettings
-            }
-            ComfySection(title: "Messages", isSub: true) {
-                messagesSettings
             }
             ComfySection(title: "Divider Settings") {
                 Toggle("Enable Divider", isOn: $settings.showDividerBetweenWidgets)
@@ -273,77 +279,6 @@ struct GeneralSettingsView: View {
                     }
                 }
             }
-        }
-    }
-    
-    private var messagesSettings: some View {
-        HStack {
-            /// One Side Messages Controls
-            VStack {
-                /// Toggle for Messages Notifications
-                Toggle(isOn: $settings.enableMessagesNotifications) {
-                    Label("Enable Messages Notifications", systemImage: "message.fill")
-                        .font(.subheadline)
-                        .foregroundColor(.primary)
-                }
-                .onChange(of: settings.enableMessagesNotifications) { _, newValue in
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        if newValue {
-                            /// Logic When Turned On
-                            Task {
-                                MessagesManager.shared.checkFullDiskAccess()
-                                MessagesManager.shared.checkContactAccess()
-                                await MessagesManager.shared.fetchAllHandles()
-                                MessagesManager.shared.startPolling()
-                            }
-                        } else {
-                            /// Logic When Turned Off
-                            MessagesManager.shared.stopPolling()
-                        }
-                    }
-                }
-                .toggleStyle(.switch)
-                .controlSize(.small)
-                /// Suggestion
-                Button(action: {
-                    /// Open Notifications Settings
-                    NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.notifications?Messages")!)
-                }) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "bell.slash.fill")
-                        Text("We recommend disabling notifications for the Messages app.")
-                    }
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-                }
-                .buttonStyle(.plain)
-                
-                /// TODO: Show Limits on the amount of messages etc.
-                if settings.enableMessagesNotifications {
-                    Group {
-                        ComfyLabeledStepper(
-                            "Most Recent Message Limit",
-                            value: $settings.messagesHandleLimit,
-                            in: 10...100,
-                            step: 1
-                        )
-                        
-                        ComfyLabeledStepper(
-                            "Control Message Limit",
-                            value: $settings.messagesMessageLimit,
-                            in: 10...100,
-                            step: 1
-                        )
-                    }
-                    .padding(.horizontal)
-                    .transition(.opacity.combined(with: .move(edge: .top)))
-                }
-                
-            }
-            
-            Spacer()
-            
-            /// TODO: Add Video demo here once the feature is made lol
         }
     }
     

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AVKit
 
 struct WidgetCardStyle: ViewModifier {
     
@@ -80,78 +81,143 @@ struct QuickAccessSettingsView_Home: View {
 
     var body: some View {
         VStack {
-            Text("Home Settings")
-                .font(.largeTitle)
-            
-            // Arrange Widgets
-            VStack(spacing: 16) {
-                HStack {
-                    Text("Arrange Widgets")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                    Spacer()
-                    if !settings.selectedWidgets.isEmpty {
-                        Text("\(settings.selectedWidgets.count) selected")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                }
-                
-                if settings.selectedWidgets.isEmpty {
-                    Text("No Widgets Selected")
-                } else {
-                    HStack(spacing: 1) {
-                        ForEach(settings.selectedWidgets, id: \.self) { widget in
-                            draggableWidgetRow(for: widget)
-                                .frame(maxWidth: .infinity)
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                }
-            }
-         
+            titleView
             /// Divider
             Rectangle()
                 .fill(Color.gray.opacity(0.3))
                 .frame(height: 1)
-                .padding(.vertical, 8)
+                .padding(.bottom, 8)
 
-            VStack(alignment: .leading ,spacing: 12) {
-                HStack {
-                    Text("Widget Selection")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                    Spacer()
-                }
-                /// Widget Selection
+            /// Arrange Widgets
+            arrangeWidgets
+            comfyDivider
             
-                // Other Widget Previews in a Grid
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 280), spacing: 20)], spacing: 24) {
-                    ForEach(widgetPreviews, id: \.title) { widget in
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text(widget.title)
-                                .font(.headline)
-                                .padding(.leading, 5)
-                            if widget.title != "Event Widget" && widget.title != "Camera Widget" {
-                                widget.view
-                                    .disabled(true)
-                                    .padding(5)
-                                    .modifier(WidgetCardStyle(widgetName: widget.widgetName))
-                            } else {
-                                Text("Preview Not Available For Widget")
-                                    .padding(5)
-                                    .modifier(WidgetCardStyle(widgetName: widget.widgetName))
-                            }
-                        }
-                    }
-                }
-                .padding(.horizontal)
-                /// End of Widget Selection
-            }
-            .padding(.bottom, 80)
+            widgetSettings
+
+            /// Widget Selection
+            widgetSelection
+        }
+    }
+
+    // MARK: - Title
+    private var titleView: some View {
+        HStack {
+            Text("Home Settings")
+                .font(.largeTitle)
+            Spacer()
         }
     }
     
+    // MARK: - Arrange Widgets
+    private var arrangeWidgets: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Text("Preview: Drag & Drop to Rearrange")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.secondary)
+                Spacer()
+            }
+            
+            if settings.selectedWidgets.isEmpty {
+                Text("No Widgets Selected")
+            } else {
+                HStack(spacing: 1) {
+                    ForEach(settings.selectedWidgets, id: \.self) { widget in
+                        draggableWidgetRow(for: widget)
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+    }
+
+    // MARK: - Widget Settings
+    private var widgetSettings: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            if settings.selectedWidgets.contains(where: { $0.contains("Widget") }) {
+                HStack {
+                    Text("Widget Settings")
+                        .font(.body)
+                        .fontWeight(.medium)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                }
+            }
+            
+            if settings.selectedWidgets.contains("AIChatWidget") {
+                settingsCard(title: "AI Settings") {
+                    aiSettings
+                }
+            }
+            
+            if settings.selectedWidgets.contains("MusicPlayerWidget") {
+                settingsCard(title: "Music Player Settings") {
+                    musicPlayerSettings
+                }
+            }
+            
+            if settings.selectedWidgets.contains("CameraWidget") {
+                settingsCard(title: "Camera Settings") {
+                    cameraSettingsSection
+                }
+            }
+            
+            if settings.selectedWidgets.contains(where: {
+                $0.contains("AIChatWidget") || $0.contains("MusicPlayerWidget") || $0.contains("CameraWidget")
+            }) {
+                comfyDivider
+            }
+        }
+        .padding(.top, 12)
+    }
+    
+    // MARK: - Widget Selection
+    private var widgetSelection: some View {
+        /// Widget Selection
+        VStack(alignment: .leading ,spacing: 12) {
+            HStack {
+                Text("Widget Selection")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                Spacer()
+                if !settings.selectedWidgets.isEmpty {
+                    Text("\(settings.selectedWidgets.count) selected")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            /// Widget Selection
+            
+            // Other Widget Previews in a Grid
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 280), spacing: 20)], spacing: 24) {
+                ForEach(widgetPreviews, id: \.title) { widget in
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(widget.title)
+                            .font(.headline)
+                            .padding(.leading, 5)
+                        if widget.title != "Event Widget" && widget.title != "Camera Widget" {
+                            widget.view
+                                .disabled(true)
+                                .padding(5)
+                                .modifier(WidgetCardStyle(widgetName: widget.widgetName))
+                        } else {
+                            Text("Preview Not Available For Widget")
+                                .padding(5)
+                                .modifier(WidgetCardStyle(widgetName: widget.widgetName))
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal)
+            /// End of Widget Selection
+        }
+        .padding(.bottom, 80)
+    }
+    
+    // MARK: - Helpers
+
     private func draggableWidgetRow(for widget: String) -> some View {
         ZStack {
             getWidgetView(for: widget)
@@ -182,6 +248,117 @@ struct QuickAccessSettingsView_Home: View {
         case "NotesWidget": NotesWidget()
         case "CameraWidget": Text("Camera Widget")
         default: EmptyView()
+        }
+    }
+    
+    private var comfyDivider: some View {
+        VStack {
+            Spacer().frame(height: 20)
+            /// Divider
+            Rectangle()
+                .fill(Color.gray.opacity(0.3))
+                .frame(height: 1)
+                .padding(.vertical, 8)
+            Spacer().frame(height: 20)
+        }
+    }
+
+    // MARK: - Settings Helpers
+    private func settingsCard<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(title)
+                .font(.subheadline)
+                .fontWeight(.medium)
+                .foregroundColor(.secondary)
+            
+            content()
+        }
+        .padding()
+        .background(Color.black.opacity(0.1)) // or .regularMaterial if you're using blur
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+    
+    private var cameraSettingsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Toggle("Flip Camera", isOn: $settings.isCameraFlipped)
+                .onChange(of: settings.isCameraFlipped) { settings.saveSettings() }
+                .padding(.vertical, 8)
+                .toggleStyle(.switch)
+            
+            /// Camera Quality
+            Picker("Camera Quality", selection: $settings.cameraQualitySelection) {
+                Text("4K (3840×2160)").tag(AVCaptureSession.Preset.hd4K3840x2160)
+                Text("Full HD (1920×1080)").tag(AVCaptureSession.Preset.hd1920x1080)
+                Text("HD (1280×720)").tag(AVCaptureSession.Preset.hd1280x720)
+                Text("High (Auto)").tag(AVCaptureSession.Preset.high)
+                Text("Medium (640×480)").tag(AVCaptureSession.Preset.medium)
+                Text("Low (352×288)").tag(AVCaptureSession.Preset.low)
+                Text("Photo (Still Only)").tag(AVCaptureSession.Preset.photo)
+            }
+            
+            Toggle("Enable Camera Overlay", isOn: $settings.enableCameraOverlay)
+                .onChange(of: settings.enableCameraOverlay) {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        settings.saveSettings()
+                    }
+                }
+                .padding(.vertical, 8)
+                .toggleStyle(.switch)
+            
+            if settings.enableCameraOverlay {
+                ComfyLabeledStepper(
+                    "Overlay Timer",
+                    value: $settings.cameraOverlayTimer,
+                    in: 5...120,
+                    step: 1
+                )
+                .transition(.opacity)
+            }
+        }
+    }
+    
+    private var musicPlayerSettings: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Toggle(isOn: $settings.showMusicProvider) {
+                Text("Show Music Provider")
+            }
+            .toggleStyle(.switch)
+            .onChange(of: settings.showMusicProvider) {
+                settings.saveSettings()
+            }
+        }
+    }
+    
+    
+    private var aiSettings: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            TextField("AI API Key", text: $settings.aiApiKey)
+                .textFieldStyle(PlainTextFieldStyle()) // ✅ Removes system styling
+                .padding(8)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.gray.opacity(0.1))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.gray.opacity(0.1))
+                )
+                .padding()
+                .focusable(true)
+            
+            HStack {
+                Spacer()
+                Button( action: addFromClipboard ) {
+                    Text("Add From Clipboard")
+                }
+                .padding(.horizontal)
+            }
+        }
+    }
+
+    func addFromClipboard() {
+        if let clipboardString = NSPasteboard.general.string(forType: .string) {
+            settings.aiApiKey = clipboardString
         }
     }
 }

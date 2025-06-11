@@ -26,8 +26,8 @@ struct QuickAccessSettingsView: View {
                 VStack {
                     switch selected {
                     case 0: QuickAccessSettingsView_Home()
-                    case 1: messagesView
-                    case 2: utilsView
+                    case 1: QuickAccessSettingsView_Messages()
+                    case 2: QuickAccessSettingsView_Utils()
                     case 3: QuickAccessSettingsView_FileTray()
                     default: EmptyView()
                     }
@@ -49,15 +49,6 @@ struct QuickAccessSettingsView: View {
         }
     }
     
-    var messagesView: some View {
-        VStack {
-            Text("Messages Settings")
-                .font(.largeTitle)
-                .padding(.bottom, 80)
-            Spacer()
-        }
-    }
-    
     var iconDisplay: some View {
         HStack(spacing: 16) {
             iconButton("house", isSelected: selected == 0) { selected = 0 }
@@ -67,7 +58,8 @@ struct QuickAccessSettingsView: View {
         }
         .frame(height: 80)
         .padding(.horizontal)
-        .background(Color.black)
+//        .background(Color.black)
+        .background(.ultraThickMaterial)
         .clipShape(RoundedCornersShape(topLeft: 0, topRight: 0, bottomLeft: 20, bottomRight: 20))
     }
     
