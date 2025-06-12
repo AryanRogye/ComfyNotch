@@ -39,7 +39,7 @@ struct MessagesView: View {
             messagesManager.checkFullDiskAccess()
             messagesManager.checkContactAccess()
         }
-        .background(Color.black)
+        .background(Color.clear)
         .animation(
             .easeInOut(duration: animationState.isExpanded ? 2 : 0.1),
             value: animationState.isExpanded

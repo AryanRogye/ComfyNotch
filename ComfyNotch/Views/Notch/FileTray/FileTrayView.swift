@@ -26,23 +26,17 @@ struct FileTrayView: View {
     @State var droppedFileInfo : FileInfo = FileInfo()
     
     var body: some View {
-        let columns = [
-            GridItem(.adaptive(minimum: 100))
-        ]
-        
         VStack(spacing: 0) {
             if animationState.isExpanded
             {
                 Group {
                     /// Conditional to show the delete page
                     if !showDeleteFileAlert {
-                        let droppedFiles = self.getFilesFromStoredDirectory()
                         /// If No Files
                         /// If Files Are There
                         HStack {
-                            /// Add File Look
-                            addFilesTray()
-                            
+//                            /// Add File Look
+                            addFilesTray
                                 .padding(.horizontal, 10)
                                 .frame(width: 150, height: 150)
                                 .background(
@@ -57,21 +51,17 @@ struct FileTrayView: View {
                             Spacer()
                             
                             /// What Files Are There
-                            ScrollView {
-                                LazyVGrid(columns: columns, spacing: 1) {
-                                    ForEach(droppedFiles, id: \.self) { fileURL in
-                                        showFile(for: fileURL)
-                                    }
-                                }
-                            }
-                            .padding(.horizontal, 10)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
-                                    .foregroundColor(.white.opacity(0.5))
-                            )
-                            .frame(maxWidth: .infinity)
-                            .padding(4)
+                            userTray
+                                .padding(.horizontal, 10)
+                                .frame(width: .infinity, height: 150)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(animationState.isDroppingFiles ? Color.blue.opacity(0.8) : Color.gray, style: StrokeStyle(lineWidth: 1, dash: [5]))
+                                        .foregroundColor(.gray.opacity(0.5))
+                                        .animation(.easeInOut(duration: 0.3), value: animationState.isDroppingFiles)
+                                )
+                                .padding(.vertical, 5)
+                                .padding(.trailing, 10)
                         }
                     }
                     /// If Delete is pressed
@@ -82,15 +72,31 @@ struct FileTrayView: View {
                 .transition(.opacity) // 👈 adds fade in/out
             }
         }
-        .background(Color.black)
+        .background(Color.clear)
         .animation(
             .easeInOut(duration: animationState.isExpanded ? 2 : 0.1),
             value: animationState.isExpanded
         )
     }
     
-    @ViewBuilder
-    func addFilesTray() -> some View {
+    private var userTray: some View {
+        HStack {
+            let columns = [
+                GridItem(.adaptive(minimum: 100))
+            ]
+            let droppedFiles = self.getFilesFromStoredDirectory()
+            
+            ComfyScrollView {
+                LazyVGrid(columns: columns, spacing: 1) {
+                    ForEach(droppedFiles, id: \.self) { fileURL in
+                        showFile(for: fileURL)
+                    }
+                }
+            }
+        }
+    }
+    
+    var addFilesTray: some View {
         VStack {
 //            if let dropped = animationState.droppedFile {
 //                VStack {

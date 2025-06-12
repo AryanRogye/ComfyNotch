@@ -40,9 +40,6 @@ struct ComfyNotchApp: App {
         }
         .windowResizability(.contentSize)
         .defaultPosition(.center)
+        .windowStyle(.hiddenTitleBar)
     }
-}
-
-#Preview {
-    SettingsView()
 }

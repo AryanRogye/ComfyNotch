@@ -11,7 +11,7 @@ struct HomeNotchView: View {
             if animationState.isExpanded {
                 /// Big Panel Widgets
                 ZStack {
-                    Color.black.opacity(1)
+                    Color.clear.opacity(1)
                         .clipShape(RoundedCornersShape(
                             topLeft: 10,
                             topRight: 10,

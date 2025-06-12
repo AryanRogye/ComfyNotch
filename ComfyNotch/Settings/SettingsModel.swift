@@ -63,6 +63,8 @@ class SettingsModel: ObservableObject {
     @Published var selectedScreen: NSScreen! = NSScreen.main!
     /// ---------- Animation Settings ----------
     @Published var openingAnimation: String = "iOS"
+    @Published var notchBackgroundAnimation: ShaderOption = .ambientGradient
+    @Published var enableMetalAnimation: Bool = true
     
     /// ---------- Utils Settings ----------
     /// Set to true at the start, will change if the user wants tp
@@ -187,6 +189,8 @@ class SettingsModel: ObservableObject {
         }
         /// ----------------------- Animation Settings -----------------------
         defaults.set(openingAnimation, forKey: "openingAnimation")
+        defaults.set(notchBackgroundAnimation.rawValue, forKey: "notchBackgroundAnimation")
+        defaults.set(enableMetalAnimation, forKey: "enableMetalAnimation")
         
         /// ------------ Utils Settings -----------------------
         defaults.set(enableUtilsOption, forKey: "enableUtilsOption")
@@ -306,10 +310,24 @@ class SettingsModel: ObservableObject {
             self.selectedScreen = NSScreen.main
         }
         
+        /// ----------------------- Animation Settings -----------------------
         if let openingAnimation = defaults.string(forKey: "openingAnimation") {
             self.openingAnimation = openingAnimation
         } else {
             self.openingAnimation = "iOS" // Default animation
+        }
+        
+        if let name = defaults.string(forKey: "notchBackgroundAnimation"),
+           let option = ShaderOption(rawValue: name) {
+            self.notchBackgroundAnimation = option
+        } else {
+            self.notchBackgroundAnimation = .ambientGradient
+        }
+        
+        if let enableMetalAnimation = defaults.object(forKey: "enableMetalAnimation") as? Bool {
+            self.enableMetalAnimation = enableMetalAnimation
+        } else {
+            self.enableMetalAnimation = true // Default to true
         }
         
         /// ----------------------- Utils Settings -----------------------

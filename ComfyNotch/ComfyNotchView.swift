@@ -87,7 +87,7 @@ struct ComfyNotchView: View {
     var body: some View {
         ZStack {
             //            MetalBlobView()
-            //                    .ignoresSafeArea()
+            //                .ignoresSafeArea()
             Color.clear
                 .contentShape(Rectangle())
                 .padding(-100) // expands hit area
@@ -95,21 +95,20 @@ struct ComfyNotchView: View {
                     handleDrop(providers: providers)
                 }
             
-            RoundedCornersShape(
-                topLeft: 0,
-                topRight: 0,
-                bottomLeft: cornerRadius,
-                bottomRight: cornerRadius
-            )
-            .fill(Color.black, style: FillStyle(eoFill: true))
-            .contentShape(Rectangle())
+            // TODO: Remove Underneath, later when I can verify nothing is getting fucked up
+            //            RoundedCornersShape(
+            //                topLeft: 0,
+            //                topRight: 0,
+            //                bottomLeft: cornerRadius,
+            //                bottomRight: cornerRadius
+            //            )
+            //            .fill(Color.black, style: FillStyle(eoFill: true))
+            //            .contentShape(Rectangle())
             //            .offset(y: dragProgress * 12)
             //            .scaleEffect(1 + dragProgress * 0.03)
             //            .onDrop(of: [UTType.fileURL.identifier, UTType.image.identifier], isTargeted: $isDroppingFiles) { providers in
             //                handleDrop(providers: providers)
             //            }
-            
-            
             
             VStack(alignment: .leading,spacing: 0) {
                 /// Compact Widgets
@@ -128,6 +127,18 @@ struct ComfyNotchView: View {
                 Spacer()
             }
             .frame(maxWidth: .infinity, alignment: .top)
+            .background(
+                settings.enableMetalAnimation
+                ? AnyView(MetalBackground().ignoresSafeArea())
+                : AnyView(Color.black.ignoresSafeArea())
+            )
+            /// This is for the metal background to normalize to its set color
+            .onChange(of: UIManager.shared.panelState) { _, newState in
+                MetalAnimationState.shared.animateBlurProgress(
+                    to: newState == .open ? 1.0 : 0.0,
+                    duration: newState == .open ? 2 : 0.5
+                )
+            }
             /// To make sure the notch doesnt go over the bottom of the screen
             .clipShape(
                 RoundedCornersShape(
