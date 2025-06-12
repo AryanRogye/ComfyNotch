@@ -68,7 +68,7 @@ struct UtilsView: View {
                 .padding(.horizontal, 5)
             }
         }
-        .background(Color.black)
+        .background(Color.clear)
         .animation(
             .easeInOut(duration: animationState.isExpanded ? 0.3 : 0.1),
             value: animationState.isExpanded
