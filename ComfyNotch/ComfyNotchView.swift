@@ -128,8 +128,9 @@ struct ComfyNotchView: View {
             }
             .frame(maxWidth: .infinity, alignment: .top)
             .background(
-                MetalBackground()
-                    .ignoresSafeArea()
+                settings.enableMetalAnimation
+                ? AnyView(MetalBackground().ignoresSafeArea())
+                : AnyView(Color.black.ignoresSafeArea())
             )
             /// This is for the metal background to normalize to its set color
             .onChange(of: UIManager.shared.panelState) { _, newState in

@@ -160,47 +160,93 @@ struct GeneralSettingsView: View {
         }
     }
     
+    // MARK: - Animation
     private var animationSettings: some View {
         VStack {
-            Picker("", selection: $settings.openingAnimation) {
-                Text("Spring Animation").tag("spring")
-                Text("iOS Animation").tag("iOS")
-            }
-            .labelsHidden()
-            .pickerStyle(.menu)
-            .tint(.accentColor)
-            .onChange(of: settings.openingAnimation) {
-                settings.saveSettings()
-            }
-            
-            //            LoopingVideoView(url: Bundle.main.url(forResource: "notchAnimation_demo", withExtension: "mp4", subdirectory: "Assets")!)
-            //                .frame(width: 350, height: 120)
-            //                .cornerRadius(10)
             
             HStack {
-                Text("Notch Background Animation")
+                Text("Opening Animation")
                     .font(.subheadline)
                     .foregroundColor(.primary)
                 
                 Spacer()
                 
-                Picker("", selection: $settings.notchBackgroundAnimation) {
-                    ForEach(ShaderOption.allCases, id: \.self) { option in
-                        Text(option.displayName)
-                            .tag(option)
-                    }
+                Picker("", selection: $settings.openingAnimation) {
+                    Text("Spring Animation").tag("spring")
+                    Text("iOS Animation").tag("iOS")
                 }
                 .labelsHidden()
                 .pickerStyle(.menu)
                 .tint(.accentColor)
-                .onChange(of: settings.notchBackgroundAnimation) {
+                .onChange(of: settings.openingAnimation) {
                     settings.saveSettings()
                 }
+                .frame(width: 250)
             }
             
+            Text("Experimental Metal Rendering")
+                .font(.title)
+                .foregroundColor(.primary)
+                .padding(.top, 10)
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("⚠️ Warning: This feature will increase memory usage and CPU usage")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .padding(12)
+                    .background(
+                        AnyView(RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.yellow.opacity(0.1)))
+                    )
+                
+                HStack {
+                    VStack {
+                        Text("Enable Metal Animations/Shaders")
+                            .font(.subheadline)
+                            .foregroundColor(.primary)
+                    }
+                    
+                    Spacer()
+                    
+                    Toggle("",isOn: $settings.enableMetalAnimation)
+                        .toggleStyle(.switch)
+                        .onChange(of: settings.enableMetalAnimation) { _, newValue in
+                            settings.saveSettings()
+                        }
+                }
+                .padding(.top, 10)
+                
+                if settings.enableMetalAnimation {
+                    HStack {
+                        Text("Notch Background Animation")
+                            .font(.subheadline)
+                            .foregroundColor(.primary)
+                        
+                        Spacer()
+                        
+                        Picker("", selection: $settings.notchBackgroundAnimation) {
+                            ForEach(ShaderOption.allCases, id: \.self) { option in
+                                Text(option.displayName)
+                                    .tag(option)
+                            }
+                        }
+                        .labelsHidden()
+                        .pickerStyle(.menu)
+                        .tint(.accentColor)
+                        .onChange(of: settings.notchBackgroundAnimation) {
+                            settings.saveSettings()
+                        }
+                        .frame(width: 250)
+                    }
+                    .padding(.top, 10)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .animation(settings.enableMetalAnimation ? .interactiveSpring(duration: 0.3) : .none, value: settings.notchBackgroundAnimation)
+                }
+            }
         }
     }
     
+    // MARK: - Notch Settings
     private var notchSettings: some View {
         HStack {
             VStack {
@@ -304,6 +350,7 @@ struct GeneralSettingsView: View {
         }
     }
     
+    // MARK: - HUD Settings
     private var hudSettings: some View {
         HStack {
             /// One Side Volume Controls
@@ -344,6 +391,7 @@ struct GeneralSettingsView: View {
         }
     }
     
+    // MARK: - Scroll Speed
     private var scrollSpeed: some View {
         HStack {
             /// One Side Notch Controls

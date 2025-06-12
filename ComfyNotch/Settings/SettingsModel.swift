@@ -64,6 +64,7 @@ class SettingsModel: ObservableObject {
     /// ---------- Animation Settings ----------
     @Published var openingAnimation: String = "iOS"
     @Published var notchBackgroundAnimation: ShaderOption = .ambientGradient
+    @Published var enableMetalAnimation: Bool = true
     
     /// ---------- Utils Settings ----------
     /// Set to true at the start, will change if the user wants tp
@@ -189,7 +190,8 @@ class SettingsModel: ObservableObject {
         /// ----------------------- Animation Settings -----------------------
         defaults.set(openingAnimation, forKey: "openingAnimation")
         defaults.set(notchBackgroundAnimation.rawValue, forKey: "notchBackgroundAnimation")
-
+        defaults.set(enableMetalAnimation, forKey: "enableMetalAnimation")
+        
         /// ------------ Utils Settings -----------------------
         defaults.set(enableUtilsOption, forKey: "enableUtilsOption")
         defaults.set(enableClipboardListener, forKey: "enableClipboardListener")
@@ -320,6 +322,12 @@ class SettingsModel: ObservableObject {
             self.notchBackgroundAnimation = option
         } else {
             self.notchBackgroundAnimation = .ambientGradient
+        }
+        
+        if let enableMetalAnimation = defaults.object(forKey: "enableMetalAnimation") as? Bool {
+            self.enableMetalAnimation = enableMetalAnimation
+        } else {
+            self.enableMetalAnimation = true // Default to true
         }
         
         /// ----------------------- Utils Settings -----------------------
