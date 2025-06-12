@@ -134,16 +134,16 @@ struct GeneralSettingsView: View {
     
     // MARK: - Notch Section
     private var notchSettingsSection: some View {
-//        ComfySection(title: "Notch Settings") {
+        //        ComfySection(title: "Notch Settings") {
         VStack {
             ComfySection(title: "Dimensions", isSub: true) {
                 notchSettings
             }
-            ComfySection(title: "Display", isSub: true) {
-                displaySection
-            }
             ComfySection(title: "Animations", isSub: true) {
                 animationSettings
+            }
+            ComfySection(title: "Display", isSub: true) {
+                displaySection
             }
             ComfySection(title: "Notch Controls", isSub: true) {
                 scrollSpeed
@@ -176,6 +176,28 @@ struct GeneralSettingsView: View {
             //            LoopingVideoView(url: Bundle.main.url(forResource: "notchAnimation_demo", withExtension: "mp4", subdirectory: "Assets")!)
             //                .frame(width: 350, height: 120)
             //                .cornerRadius(10)
+            
+            HStack {
+                Text("Notch Background Animation")
+                    .font(.subheadline)
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                Picker("", selection: $settings.notchBackgroundAnimation) {
+                    ForEach(ShaderOption.allCases, id: \.self) { option in
+                        Text(option.displayName)
+                            .tag(option)
+                    }
+                }
+                .labelsHidden()
+                .pickerStyle(.menu)
+                .tint(.accentColor)
+                .onChange(of: settings.notchBackgroundAnimation) {
+                    settings.saveSettings()
+                }
+            }
+            
         }
     }
     

@@ -3,7 +3,40 @@ import AppKit
 import Combine
 import MetalKit
 
+enum ShaderOption: String, CaseIterable {
+    case ambientGradient = "ambientGradient"
+    case spotlight = "spotlight"
+    case rippleEffect = "rippleEffect"
+    case plasmaWave = "plasmaWave"
+    case vortexSpiral = "vortexSpiral"
+    case breathingGlow = "breathingGlow"
+    case electricGrid = "electricGrid"
+    case noiseClouds = "noiseClouds"
+    case pulsingDots = "pulsingDots"
+    case waveInterference = "waveInterference"
+    case hexagonPattern = "hexagonPattern"
+    case flowingLines = "flowingLines"
+    
+    var displayName: String {
+        switch self {
+        case .ambientGradient: return "Ambient Gradient"
+        case .spotlight: return "Spotlight"
+        case .rippleEffect: return "Ripple Effect"
+        case .plasmaWave: return "Plasma Wave"
+        case .vortexSpiral: return "Vortex Spiral"
+        case .breathingGlow: return "Breathing Glow"
+        case .electricGrid: return "Electric Grid"
+        case .noiseClouds: return "Noise Clouds"
+        case .pulsingDots: return "Pulsing Dots"
+        case .waveInterference: return "Wave Interference"
+        case .hexagonPattern: return "Hexagon Pattern"
+        case .flowingLines: return "Flowing Lines"
+        }
+    }
+}
+
 final class MetalAnimationState: ObservableObject {
+    
     static let shared = MetalAnimationState()
     
     @Published var blurProgress: Float = 0.0
@@ -70,7 +103,10 @@ struct MetalBackground: NSViewRepresentable {
         private var vertexBuffer: MTLBuffer!
         
         private var blurProgress: Float = 0.0
+        private var animationName: String = "ambientGradient"
+        
         private var cancellables = Set<AnyCancellable>()
+        private var settings: SettingsModel = .shared
         
         
         override init() {
@@ -81,6 +117,12 @@ struct MetalBackground: NSViewRepresentable {
             MetalAnimationState.shared.$blurProgress
                 .sink { [weak self] newValue in
                     self?.blurProgress = newValue
+                }
+                .store(in: &cancellables)
+            SettingsModel.shared.$notchBackgroundAnimation
+                .sink { [weak self] newAnimation in
+                    self?.animationName = newAnimation.rawValue
+                    self?.setupMetal() // Re-setup pipeline with new shader
                 }
                 .store(in: &cancellables)
         }
@@ -121,7 +163,7 @@ struct MetalBackground: NSViewRepresentable {
             
             let pipelineDescriptor = MTLRenderPipelineDescriptor()
             pipelineDescriptor.vertexFunction = library.makeFunction(name: "vertexPassthrough")
-            pipelineDescriptor.fragmentFunction = library.makeFunction(name: "ambientGradient")
+            pipelineDescriptor.fragmentFunction = library.makeFunction(name: animationName)
             pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
             
             pipelineState = try! device.makeRenderPipelineState(descriptor: pipelineDescriptor)

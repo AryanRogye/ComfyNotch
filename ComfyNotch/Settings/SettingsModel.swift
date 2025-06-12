@@ -63,6 +63,7 @@ class SettingsModel: ObservableObject {
     @Published var selectedScreen: NSScreen! = NSScreen.main!
     /// ---------- Animation Settings ----------
     @Published var openingAnimation: String = "iOS"
+    @Published var notchBackgroundAnimation: ShaderOption = .ambientGradient
     
     /// ---------- Utils Settings ----------
     /// Set to true at the start, will change if the user wants tp
@@ -187,7 +188,8 @@ class SettingsModel: ObservableObject {
         }
         /// ----------------------- Animation Settings -----------------------
         defaults.set(openingAnimation, forKey: "openingAnimation")
-        
+        defaults.set(notchBackgroundAnimation.rawValue, forKey: "notchBackgroundAnimation")
+
         /// ------------ Utils Settings -----------------------
         defaults.set(enableUtilsOption, forKey: "enableUtilsOption")
         defaults.set(enableClipboardListener, forKey: "enableClipboardListener")
@@ -306,10 +308,18 @@ class SettingsModel: ObservableObject {
             self.selectedScreen = NSScreen.main
         }
         
+        /// ----------------------- Animation Settings -----------------------
         if let openingAnimation = defaults.string(forKey: "openingAnimation") {
             self.openingAnimation = openingAnimation
         } else {
             self.openingAnimation = "iOS" // Default animation
+        }
+        
+        if let name = defaults.string(forKey: "notchBackgroundAnimation"),
+           let option = ShaderOption(rawValue: name) {
+            self.notchBackgroundAnimation = option
+        } else {
+            self.notchBackgroundAnimation = .ambientGradient
         }
         
         /// ----------------------- Utils Settings -----------------------
