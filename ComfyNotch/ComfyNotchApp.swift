@@ -43,7 +43,3 @@ struct ComfyNotchApp: App {
         .windowStyle(.hiddenTitleBar)
     }
 }
-
-#Preview {
-    SettingsView()
-}

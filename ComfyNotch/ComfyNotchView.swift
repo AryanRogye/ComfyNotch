@@ -95,6 +95,7 @@ struct ComfyNotchView: View {
                     handleDrop(providers: providers)
                 }
             
+            // TODO: Remove Underneath, later when I can verify nothing is getting fucked up
             //            RoundedCornersShape(
             //                topLeft: 0,
             //                topRight: 0,
@@ -108,8 +109,6 @@ struct ComfyNotchView: View {
             //            .onDrop(of: [UTType.fileURL.identifier, UTType.image.identifier], isTargeted: $isDroppingFiles) { providers in
             //                handleDrop(providers: providers)
             //            }
-            
-            
             
             VStack(alignment: .leading,spacing: 0) {
                 /// Compact Widgets
