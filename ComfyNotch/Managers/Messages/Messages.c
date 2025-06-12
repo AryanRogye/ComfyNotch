@@ -16,23 +16,38 @@
 char *base64_encode(const unsigned char *data, size_t input_length) {
     static const char encoding_table[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    static const char padding_char = '=';
+    
+    if (input_length == 0) {
+        char *empty = malloc(1);
+        if (empty) empty[0] = '\0';
+        return empty;
+    }
     
     size_t output_length = 4 * ((input_length + 2) / 3);
-    char *encoded_data = malloc(output_length + 1); // +1 for null terminator
-    if (encoded_data == NULL) return NULL;
+    char *encoded_data = malloc(output_length + 1);
+    if (!encoded_data) return NULL;
     
-    for (size_t i = 0, j = 0; i < input_length;) {
-        uint32_t octet_a = i < input_length ? data[i++] : 0;
-        uint32_t octet_b = i < input_length ? data[i++] : 0;
-        uint32_t octet_c = i < input_length ? data[i++] : 0;
-        
-        uint32_t triple = (octet_a << 16) | (octet_b << 8) | octet_c;
+    size_t i = 0, j = 0;
+    
+    // Process 3-byte chunks efficiently
+    while (i + 2 < input_length) {
+        uint32_t triple = (data[i] << 16) | (data[i+1] << 8) | data[i+2];
+        encoded_data[j++] = encoding_table[(triple >> 18) & 0x3F];
+        encoded_data[j++] = encoding_table[(triple >> 12) & 0x3F];
+        encoded_data[j++] = encoding_table[(triple >> 6) & 0x3F];
+        encoded_data[j++] = encoding_table[triple & 0x3F];
+        i += 3;
+    }
+    
+    // Handle remaining 1-2 bytes with padding
+    if (i < input_length) {
+        uint32_t triple = data[i] << 16;
+        if (i + 1 < input_length) triple |= data[i+1] << 8;
         
         encoded_data[j++] = encoding_table[(triple >> 18) & 0x3F];
         encoded_data[j++] = encoding_table[(triple >> 12) & 0x3F];
-        encoded_data[j++] = i > input_length + 1 ? padding_char : encoding_table[(triple >> 6) & 0x3F];
-        encoded_data[j++] = i > input_length     ? padding_char : encoding_table[triple & 0x3F];
+        encoded_data[j++] = (i + 1 < input_length) ? encoding_table[(triple >> 6) & 0x3F] : '=';
+        encoded_data[j++] = '=';
     }
     
     encoded_data[output_length] = '\0';
