@@ -87,6 +87,11 @@ struct MetalBackground: NSViewRepresentable {
     
     func makeNSView(context: Context) -> MTKView {
         let mtkView = MTKView()
+        guard let device = MTLCreateSystemDefaultDevice() else {
+            print("Error: Metal is not supported on this device.")
+            return MTKView()
+        }
+        mtkView.device = device
         mtkView.device = MTLCreateSystemDefaultDevice()
         mtkView.delegate = context.coordinator
         mtkView.framebufferOnly = false
