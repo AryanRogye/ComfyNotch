@@ -34,14 +34,16 @@ struct TopNotchView: View {
                 
             }
             
+            
+//            Spacer()
+//                .frame(width: PanelAnimationState.shared.isExpanded ? 450 : getNotchWidth())
+//                .padding([.trailing, .leading], paddingWidth)
+            
             Spacer()
                 .frame(width: PanelAnimationState.shared.isExpanded ? 450 : getNotchWidth())
                 .padding([.trailing, .leading], paddingWidth)
-            
-//            Spacer()
-//                .frame(width: calculatedSpacerWidth)
+                .animation(.interpolatingSpring(stiffness: 180, damping: 18), value: animationState.currentPanelWidth)
 //                .padding(.horizontal, animationState.currentPanelWidth >= 320 ? paddingWidth : 0)
-//                .animation(.interpolatingSpring(stiffness: 180, damping: 18), value: animationState.currentPanelWidth)
             
 //            Spacer()
 //                .frame(width: animationState.currentPanelWidth >= 320

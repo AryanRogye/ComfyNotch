@@ -84,6 +84,8 @@ struct ComfyNotchView: View {
         _droppedFiles = droppedFilesBinding
     }
     
+    @State private var isPlaying = false
+    
     var body: some View {
         ZStack {
             //            MetalBlobView()
@@ -112,8 +114,20 @@ struct ComfyNotchView: View {
             
             VStack(alignment: .leading,spacing: 0) {
                 /// Compact Widgets
-                TopNotchView()
-                    .environmentObject(widgetStore)
+                VStack {
+                    if isPlaying || UIManager.shared.panelState == .open {
+                        TopNotchView()
+                            .environmentObject(widgetStore)
+                    }
+                }
+                .onReceive(AudioManager.shared.nowPlayingInfo.$isPlaying) { playing in
+                    isPlaying = playing          // <- fires every time isPlaying changes
+                    if !playing {
+                        ScrollHandler.shared.reduceWidth()
+                    } else {
+                        ScrollHandler.shared.expandWidth()
+                    }
+                }
                 
                 /// see QuickAccessWidget.swift file to see how it works
                 switch animationState.currentPanelState {

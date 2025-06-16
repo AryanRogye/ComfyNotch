@@ -56,6 +56,8 @@ class ScrollHandler {
         if UIManager.shared.panelState == .closed {
             let newWidth: CGFloat = self.getNotchWidth()
             
+            print("Using WidtH: \(newWidth)")
+            
             /// first hide the items inside it
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 UIManager.shared.applyOpeningLayout()
@@ -73,7 +75,7 @@ class ScrollHandler {
                 let reducedFrame = NSRect(
                     x: newX,
                     y: panel.frame.origin.y,
-                    width: 0,
+                    width: newWidth,
                     height: panel.frame.height
                 )
                 NSAnimationContext.runAnimationGroup { ctx in

@@ -273,6 +273,9 @@ final class AppleScriptMusicController: NowPlayingProvider {
         nowPlayingInfo.artworkImage = nil
         nowPlayingInfo.dominantColor = .white
         nowPlayingInfo.isPlaying = false
+        
+        lastTrackInfo = ""
+        lastArtworkIdentifier = nil
     }
 
     /**
