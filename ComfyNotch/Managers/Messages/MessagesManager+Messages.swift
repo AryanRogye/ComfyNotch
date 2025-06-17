@@ -31,23 +31,30 @@ extension MessagesManager {
         end tell
         """
         
-        var error: NSDictionary?
-        if let appleScript = NSAppleScript(source: script) {
-            appleScript.executeAndReturnError(&error)
-            if let error = error {
-                print("❌ AppleScript error: \(error)")
-            } else {
-                print("✅ Message sent to \(handle.id)")
+        DispatchQueue.global(qos: .userInitiated).async {
+            var error: NSDictionary?
+            if let appleScript = NSAppleScript(source: script) {
+                appleScript.executeAndReturnError(&error)
+                DispatchQueue.main.async {
+                    if let error = error {
+                        print("❌ AppleScript error: \(error)")
+                    } else {
+                        print("✅ Message sent to \(handle.id)")
+                    }
+                }
             }
-        }
-        
-        /// Clear the messagesText
-        messagesText = ""
-        /// Fetch right away
-        self.fetchMessagesWithUser(for: handle.ROWID)
-        /// Fetch the latest messages for this user after 1.5 second to avoid any issues
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            self.fetchMessagesWithUser(for: handle.ROWID)
+            
+            DispatchQueue.main.async {
+                /// Clear the messagesText
+                self.messagesText = ""
+                self.lastLocalSendTimestamp = Date()
+                /// Fetch right away
+                self.fetchMessagesWithUser(for: handle.ROWID)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    self.fetchMessagesWithUser(for: handle.ROWID)
+                }
+                self.isMessaging = false
+            }
         }
     }
     

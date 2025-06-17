@@ -38,7 +38,9 @@ final class DisplayManager: NSObject, ObservableObject {
             
             let timer = Timer(timeInterval: 10.0, repeats: true) { [weak self] _ in
                 guard let self = self else { return }
-                self.updateScreenInformation()
+                if self.hasScreenRecordingPermission() {
+                    self.updateScreenInformation()
+                }
             }
             self.timer = timer
             
@@ -79,8 +81,9 @@ final class DisplayManager: NSObject, ObservableObject {
     }
     
     func hasScreenRecordingPermission() -> Bool {
-        guard let id = NSScreen.main?.displayID else { return false }
-        return CGDisplayCreateImage(id) != nil
+        guard let screen = NSScreen.main else { return false }
+        let image = CGWindowListCreateImage(screen.frame, .optionOnScreenOnly, kCGNullWindowID, [.bestResolution])
+        return image != nil
     }
     
     /// Function will generate a snapshot of the current screen
