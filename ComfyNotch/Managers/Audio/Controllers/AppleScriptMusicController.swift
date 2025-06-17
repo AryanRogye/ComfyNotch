@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Accelerate
 
 /// A fallback NowPlayingProvider implementation using AppleScript to control and fetch information from Spotify and Apple Music.
 ///
@@ -450,6 +451,7 @@ final class AppleScriptMusicController: NowPlayingProvider {
 
         return nil
     }
+    
     /**
      * Extracts the dominant color from an image for UI theming.
      * Ensures minimum brightness for visibility.
@@ -457,48 +459,106 @@ final class AppleScriptMusicController: NowPlayingProvider {
      * - Returns: The dominant NSColor, or nil if extraction fails.
      */
     private func getDominantColor(from image: NSImage) -> NSColor? {
-        // Resize image to very small size for faster processing
-        let targetSize = NSSize(width: 1, height: 1)
-        let smallImage = NSImage(size: targetSize)
-        
-        smallImage.lockFocus()
-        image.draw(in: NSRect(origin: .zero, size: targetSize))
-        smallImage.unlockFocus()
-        
-        guard let cgImage = smallImage.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
+        guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
             return nil
         }
         
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
-        var pixelData = [UInt8](repeating: 0, count: 4)
+        // Use vImage for fast resizing (part of Accelerate framework)
+        let targetSize = CGSize(width: 1, height: 1)
         
-        guard let context = CGContext(
-            data: &pixelData,
-            width: 1,
-            height: 1,
-            bitsPerComponent: 8,
-            bytesPerRow: 4,
-            space: colorSpace,
-            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-        ) else { return nil }
-        
-        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: 1, height: 1))
-        
-        var red = CGFloat(pixelData[0]) / 255.0
-        var green = CGFloat(pixelData[1]) / 255.0
-        var blue = CGFloat(pixelData[2]) / 255.0
-        let alpha = CGFloat(pixelData[3]) / 255.0
-        
-        // Brightness adjustment
-        let brightness = (red + green + blue) / 3.0 * 255.0
-        if brightness < 128 {
-            let scale = 128.0 / brightness
-            red = min(red * CGFloat(scale), 1.0)
-            green = min(green * CGFloat(scale), 1.0)
-            blue = min(blue * CGFloat(scale), 1.0)
+        guard let resized = resizeImageWithVImage(cgImage, to: targetSize) else {
+            return nil
         }
         
-        return NSColor(red: red, green: green, blue: blue, alpha: alpha)
+        // Direct pixel access - much faster than CGContext
+        guard let pixelData = resized.dataProvider?.data,
+              let bytes = CFDataGetBytePtr(pixelData) else {
+            return nil
+        }
+        
+        // Extract RGBA values (assuming RGBA format)
+        let red = CGFloat(bytes[0]) / 255.0
+        let green = CGFloat(bytes[1]) / 255.0
+        let blue = CGFloat(bytes[2]) / 255.0
+        let alpha = CGFloat(bytes[3]) / 255.0
+        
+        // Apply brightness adjustment
+        return adjustBrightness(red: red, green: green, blue: blue, alpha: alpha)
+    }
+    
+    /**
+     * Ultra-fast image resizing using vImage (Accelerate framework)
+     */
+    private func resizeImageWithVImage(_ cgImage: CGImage, to size: CGSize) -> CGImage? {
+        let width = Int(size.width)
+        let height = Int(size.height)
+        
+        // Define the format
+        var format = vImage_CGImageFormat(
+            bitsPerComponent: 8,
+            bitsPerPixel: 32,
+            colorSpace: Unmanaged.passRetained(CGColorSpaceCreateDeviceRGB()),
+            bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue),
+            version: 0,
+            decode: nil,
+            renderingIntent: .defaultIntent
+        )
+        
+        // Source buffer
+        var sourceBuffer = vImage_Buffer()
+        var destBuffer = vImage_Buffer()
+        
+        // Init source buffer
+        guard vImageBuffer_InitWithCGImage(&sourceBuffer, &format, nil, cgImage, vImage_Flags(kvImageNoFlags)) == kvImageNoError else {
+            return nil
+        }
+        
+        destBuffer.width = vImagePixelCount(width)
+        destBuffer.height = vImagePixelCount(height)
+        destBuffer.rowBytes = width * 4
+        destBuffer.data = malloc(height * width * 4)
+        
+        // Resize
+        let error = vImageScale_ARGB8888(&sourceBuffer, &destBuffer, nil, vImage_Flags(kvImageHighQualityResampling))
+        
+        free(sourceBuffer.data)
+        
+        guard error == kvImageNoError else {
+            free(destBuffer.data)
+            return nil
+        }
+        
+        // Make image
+        let context = CGContext(
+            data: destBuffer.data,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: destBuffer.rowBytes,
+            space: format.colorSpace.takeRetainedValue(),
+            bitmapInfo: format.bitmapInfo.rawValue
+        )
+        
+        let result = context?.makeImage()
+        free(destBuffer.data)
+        return result
+    }
+    
+    private func adjustBrightness(red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) -> NSColor {
+        var adjustedRed = red
+        var adjustedGreen = green
+        var adjustedBlue = blue
+        
+        let brightness = (red + green + blue) / 3.0
+        
+        if brightness < 0.5 { // 128/255 ≈ 0.5
+            let scale = 0.5 / brightness
+            adjustedRed = min(red * scale, 1.0)
+            adjustedGreen = min(green * scale, 1.0)
+            adjustedBlue = min(blue * scale, 1.0)
+        }
+        
+        return NSColor(red: adjustedRed, green: adjustedGreen, blue: adjustedBlue, alpha: alpha)
     }
     
     func hashImage(_ image: NSImage) -> Int? {

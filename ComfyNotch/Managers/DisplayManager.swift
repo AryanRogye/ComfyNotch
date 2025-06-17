@@ -81,8 +81,8 @@ final class DisplayManager: NSObject, ObservableObject {
     }
     
     func hasScreenRecordingPermission() -> Bool {
-        guard let screen = NSScreen.main else { return false }
-        let image = CGWindowListCreateImage(screen.frame, .optionOnScreenOnly, kCGNullWindowID, [.bestResolution])
+        let rect = CGRect(x: 0, y: 0, width: 1, height: 1)
+        let image = CGWindowListCreateImage(rect, .optionOnScreenOnly, kCGNullWindowID, [.bestResolution])
         return image != nil
     }
     
