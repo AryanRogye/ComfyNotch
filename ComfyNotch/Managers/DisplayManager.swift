@@ -78,6 +78,11 @@ final class DisplayManager: NSObject, ObservableObject {
         return "Unknown Name"
     }
     
+    func hasScreenRecordingPermission() -> Bool {
+        guard let id = NSScreen.main?.displayID else { return false }
+        return CGDisplayCreateImage(id) != nil
+    }
+    
     /// Function will generate a snapshot of the current screen
     /// used to show in the UI
     private func generateSnapShot(for screen: NSScreen) -> NSImage? {
@@ -91,6 +96,8 @@ final class DisplayManager: NSObject, ObservableObject {
     private func updateScreenInformation() {
         for screen in NSScreen.screens {
             guard let id = screen.displayID else { continue }
+            
+            guard hasScreenRecordingPermission() else { continue }
             /// Dont generate a snapshot if it already exists
             if screenSnapshots[id] == nil {
                 DispatchQueue.global(qos: .userInitiated).async {

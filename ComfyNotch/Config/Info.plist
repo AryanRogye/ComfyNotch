@@ -29,5 +29,9 @@
     
     <key>SUPublicEDKey</key>
     <string>taI+LYHIWwzdMURizdr5HG9kfibtBtqxnman2PKkZSU=</string>
+    
+    <key>NSRequiresAquaSystemAppearance</key>
+    <false/>
+    
 </dict>
 </plist>

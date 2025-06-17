@@ -34,12 +34,13 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
      */
     
     public func applicationDidFinishLaunching(_ notification: Notification) {
+        NSApp.appearance = NSAppearance(named: .darkAqua)
         let _ = {
             NSKeyedUnarchiver.setClass(NSAttributedString.self, forClassName: "__NSCFAttributedString")
             NSKeyedUnarchiver.setClass(NSAttributedString.self, forClassName: "NSConcreteAttributedString")
             NSKeyedUnarchiver.setClass(NSAttributedString.self, forClassName: "NSFrozenAttributedString")
         }()
-        
+
         #if !DEBUG
         /// Close the SettingsPage On Launch if not debug
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
