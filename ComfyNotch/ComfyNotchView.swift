@@ -165,19 +165,23 @@ struct ComfyNotchView: View {
                 animationState.fileTriggeredTray = true
                 /// Set the page of the notch to be the file tray
                 /// Open the panel
+                animationState.currentPanelState = .home
+                UIManager.shared.applyOpeningLayout()
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    UIManager.shared.applyOpeningLayout()
+                    DispatchQueue.main.async {
+                        CATransaction.flush()
+                        DispatchQueue.main.async {
+                            ScrollHandler.shared.openFull()
+                        }
+                    }
                 }
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                    animationState.isExpanded = true
-                    ScrollHandler.shared.openFull()
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
                     animationState.currentPanelState = .file_tray
+                    animationState.isExpanded = true
                 }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
                     animationState.fileTriggeredTray = false
                 }
             }
