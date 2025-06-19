@@ -131,3 +131,7 @@ open ComfyNotch.xcodeproj
 
 - **Note:** You may need to set up your signing certificate in Xcode.
 - Products > Archive > Distribute App > Developer ID
+
+> 🛠️ **Note:** Building from source may require additional dependencies.  
+> Currently, I'm using a local copy of some modules until they're finalized — including  
+> [ComfyCalendar](https://github.com/AryanRogye/ComfyCalendar)
