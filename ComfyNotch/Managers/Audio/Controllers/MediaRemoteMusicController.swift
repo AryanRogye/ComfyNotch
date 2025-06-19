@@ -32,48 +32,55 @@ final class MediaRemoteMusicController: NowPlayingProvider {
     }
     
     func getNowPlayingInfo(completion: @escaping (Bool) -> Void) {
-        mediaController.onTrackInfoReceived = { trackInfo in
-            let now = Date()
-            if now.timeIntervalSince(self.lastUpdateTime) < self.updateInterval {
-                return
-            }
-            self.lastUpdateTime = now
-            
-            let trackId = "\(trackInfo.payload.title ?? "")|\(trackInfo.payload.artist ?? "")|\(trackInfo.payload.album ?? "")"
-            
-            if trackId == self.lastTrackIdentifier {
-                // Only update time and maybe progress
-                return
-            }
-            self.lastTrackIdentifier = trackId
-            
-            print("Now Playing: \(trackInfo.payload.title ?? "N/A")")
-            self.nowPlayingInfo.trackName = trackInfo.payload.title ?? "Unknown"
-            self.nowPlayingInfo.artistName = trackInfo.payload.artist ?? "Unknown"
-            self.nowPlayingInfo.albumName = trackInfo.payload.album ?? "Unknown"
-            self.nowPlayingInfo.isPlaying = trackInfo.payload.isPlaying ?? false
-            
-            self.nowPlayingInfo.durationSeconds = (trackInfo.payload.durationMicros ?? 0) / 1_000_000
-            
-            if let artworkImage = trackInfo.payload.artwork {
-                let identifier = trackId + (artworkImage.tiffRepresentation?.hashValue.description ?? "")
+        mediaController.onTrackInfoReceived = { [weak self] trackInfo in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                let now = Date()
+                if now.timeIntervalSince(self.lastUpdateTime) < self.updateInterval {
+                    return
+                }
+                self.lastUpdateTime = now
                 
-                self.nowPlayingInfo.artworkImage = artworkImage
+                let trackId = "\(trackInfo.payload.title ?? "")|\(trackInfo.payload.artist ?? "")|\(trackInfo.payload.album ?? "")"
                 
-                if self.lastArtworkIdentifier != identifier {
-                    DispatchQueue.global(qos: .utility).async {
-                        let color = self.getDominantColor(from: artworkImage) ?? .white
-                        DispatchQueue.main.async {
-                            self.nowPlayingInfo.dominantColor = color
+                if trackId == self.lastTrackIdentifier {
+                    // Only update time and maybe progress
+                    return
+                }
+                self.lastTrackIdentifier = trackId
+                
+                self.nowPlayingInfo.trackName = trackInfo.payload.title ?? "Unknown"
+                self.nowPlayingInfo.artistName = trackInfo.payload.artist ?? "Unknown"
+                self.nowPlayingInfo.albumName = trackInfo.payload.album ?? "Unknown"
+                self.nowPlayingInfo.isPlaying = trackInfo.payload.isPlaying ?? false
+                
+                self.nowPlayingInfo.durationSeconds = (trackInfo.payload.durationMicros ?? 0) / 1_000_000
+                
+                if let artworkImage = trackInfo.payload.artwork {
+                    let identifier = trackId + (artworkImage.tiffRepresentation?.hashValue.description ?? "")
+                    
+                    self.nowPlayingInfo.artworkImage = artworkImage
+                    
+                    if self.lastArtworkIdentifier != identifier {
+                        DispatchQueue.global(qos: .utility).async {
+                            let color = self.getDominantColor(from: artworkImage) ?? .white
+                            DispatchQueue.main.async {
+                                self.nowPlayingInfo.dominantColor = color
+                            }
                         }
+                        self.lastArtworkIdentifier = identifier
                     }
-                    self.lastArtworkIdentifier = identifier
                 }
             }
         }
-        mediaController.onPlaybackTimeUpdate = { time in
-            self.nowPlayingInfo.positionSeconds = time
+        mediaController.onPlaybackTimeUpdate = { [weak self] time in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.nowPlayingInfo.positionSeconds = time
+            }
         }
+        
+        completion(true)
     }
     
     func playPreviousTrack() {
