@@ -8,6 +8,16 @@
 
 <img src="Assets/ComfyNotchLogo.png" alt="ComfyNotch Logo" width="200"/>
 
+## 📚 Table of Contents
+- [🎥 Live Demo](#-live-demo)
+- [📦 Download](#-download)
+- [📖 About](#-about)
+- [🎉 Features](#-features)
+- [⚙️ Metal Animations](#️-metal-animations)
+- [⚠️ Known Issues](#️-known-issues)
+- [✅ Planned Features & Improvements](#-planned-features--improvements)
+- [📦 Build From Source](#-build-from-source)
+
 
 ## 🎥 Live Demo
 
@@ -69,6 +79,12 @@ ComfyNotch will temporarily hide itself so you can access toolbar elements under
 Perfect for apps with chunky UIs like Xcode, Finder, or Final Cut.
 
 > 🔥 Pretty sure no other notch utility does this.
+
+
+## ⚙️ Metal Animations
+
+[🔗 View Metal Animation Demo v0.1.23](https://github.com/AryanRogye/ComfyNotch/releases/tag/0.1.23)
+
 
 ## ⚠️ Known Issues
 
