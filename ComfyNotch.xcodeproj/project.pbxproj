@@ -17,6 +17,8 @@
 		9B2A90062DE25AB500046186 /* CoreDisplay.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B2A90052DE25AB500046186 /* CoreDisplay.framework */; };
 		9B2A92242DE29D8100046186 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 9B2A92232DE29D8100046186 /* Sparkle */; };
 		9B707EEF2DE656F2000EA21E /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = 9B707EEE2DE656F2000EA21E /* SQLite */; };
+		9B8C6EFD2E0399AB000EBA08 /* MediaRemoteAdapter in Frameworks */ = {isa = PBXBuildFile; productRef = 9B8C6EFC2E0399AB000EBA08 /* MediaRemoteAdapter */; };
+		9B8C6EFE2E0399B3000EBA08 /* MediaRemoteAdapter in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 9B8C6EFC2E0399AB000EBA08 /* MediaRemoteAdapter */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -26,6 +28,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				9B8C6EFE2E0399B3000EBA08 /* MediaRemoteAdapter in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -101,6 +104,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9B707EEF2DE656F2000EA21E /* SQLite in Frameworks */,
+				9B8C6EFD2E0399AB000EBA08 /* MediaRemoteAdapter in Frameworks */,
 				9B2A90062DE25AB500046186 /* CoreDisplay.framework in Frameworks */,
 				9B2A92242DE29D8100046186 /* Sparkle in Frameworks */,
 				9B2889A82DC68E4400E5DB18 /* SVGView in Frameworks */,
@@ -183,6 +187,7 @@
 				9B288A842DC722BF00E5DB18 /* ComfyCalendar */,
 				9B2A92232DE29D8100046186 /* Sparkle */,
 				9B707EEE2DE656F2000EA21E /* SQLite */,
+				9B8C6EFC2E0399AB000EBA08 /* MediaRemoteAdapter */,
 			);
 			productName = ComfyNotch;
 			productReference = 9B1316742DF10A2800657438 /* ComfyNotch.app */;
@@ -218,6 +223,7 @@
 				9B288A832DC722BF00E5DB18 /* XCLocalSwiftPackageReference "../ComfyCalendar" */,
 				9B2A92222DE29D8100046186 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				9B707EED2DE656F2000EA21E /* XCRemoteSwiftPackageReference "SQLite" */,
+				9B8C6EFB2E0399AB000EBA08 /* XCRemoteSwiftPackageReference "mediaremote-adapter" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9BC3A4592DB1D40000FFD323;
@@ -507,6 +513,14 @@
 				minimumVersion = 0.15.3;
 			};
 		};
+		9B8C6EFB2E0399AB000EBA08 /* XCRemoteSwiftPackageReference "mediaremote-adapter" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ejbills/mediaremote-adapter.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -528,6 +542,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9B707EED2DE656F2000EA21E /* XCRemoteSwiftPackageReference "SQLite" */;
 			productName = SQLite;
+		};
+		9B8C6EFC2E0399AB000EBA08 /* MediaRemoteAdapter */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9B8C6EFB2E0399AB000EBA08 /* XCRemoteSwiftPackageReference "mediaremote-adapter" */;
+			productName = MediaRemoteAdapter;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

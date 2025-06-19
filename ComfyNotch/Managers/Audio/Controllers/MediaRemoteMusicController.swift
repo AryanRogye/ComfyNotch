@@ -7,88 +7,173 @@
 
 import Foundation
 import SwiftUI
+import MediaRemoteAdapter
 
 final class MediaRemoteMusicController: NowPlayingProvider {
+    
     @ObservedObject var nowPlayingInfo: NowPlayingInfo
-    private let mediaRemotePath = "/System/Library/PrivateFrameworks/MediaRemote.framework/MediaRemote"
-    private let handle: UnsafeMutableRawPointer?
-
+    
+    let mediaController = MediaController()
+    
+    private var lastUpdateTime: Date = .distantPast
+    private let updateInterval: TimeInterval = 2.0
+    
+    private var lastTrackIdentifier: String?
+    private var lastArtworkIdentifier: String?
+    
     init(nowPlayingInfo: NowPlayingInfo) {
         self.nowPlayingInfo = nowPlayingInfo
-        self.handle = dlopen(mediaRemotePath, RTLD_NOW)
-        if handle == nil {
-            debugLog("❌ Failed to open MediaRemote via dlopen.")
-        }
+        mediaController.startListening()
     }
-
-    deinit {
-        if let handle = handle {
-            dlclose(handle)
-        }
-    }
-
+    
     func isAvailable() -> Bool {
-        return false
-//        guard let handle = handle else { return false }
-//        return dlsym(handle, "MRMediaRemoteGetNowPlayingInfo") != nil
+        /// DEBUG: Return True
+        return true
     }
-
+    
     func getNowPlayingInfo(completion: @escaping (Bool) -> Void) {
-        guard let handle = handle,
-              let ptr = dlsym(handle, "MRMediaRemoteGetNowPlayingInfo")
-        else {
-            debugLog("❌ MRMediaRemoteGetNowPlayingInfo not found.")
-            return completion(false)
-        }
-
-        typealias MRFunc = @convention(c) (DispatchQueue, @escaping ([String: Any]?) -> Void) -> Void
-        let MR = unsafeBitCast(ptr, to: MRFunc.self)
-
-        MR(DispatchQueue.main) { info in
-            guard let info = info,
-                  let title = info["kMRMediaRemoteNowPlayingInfoTitle"] as? String
-            else {
-                return completion(false)
+        mediaController.onTrackInfoReceived = { trackInfo in
+            let now = Date()
+            if now.timeIntervalSince(self.lastUpdateTime) < self.updateInterval {
+                return
             }
-
-            self.nowPlayingInfo.trackName = title
-            self.nowPlayingInfo.artistName = info["kMRMediaRemoteNowPlayingInfoArtist"] as? String ?? "Unknown"
-            self.nowPlayingInfo.albumName  = info["kMRMediaRemoteNowPlayingInfoAlbum"]  as? String ?? "Unknown"
-            // You can add artwork/color, isPlaying, etc. here
-
-            completion(true)
+            self.lastUpdateTime = now
+            
+            let trackId = "\(trackInfo.payload.title ?? "")|\(trackInfo.payload.artist ?? "")|\(trackInfo.payload.album ?? "")"
+            
+            if trackId == self.lastTrackIdentifier {
+                // Only update time and maybe progress
+                return
+            }
+            self.lastTrackIdentifier = trackId
+            
+            print("Now Playing: \(trackInfo.payload.title ?? "N/A")")
+            self.nowPlayingInfo.trackName = trackInfo.payload.title ?? "Unknown"
+            self.nowPlayingInfo.artistName = trackInfo.payload.artist ?? "Unknown"
+            self.nowPlayingInfo.albumName = trackInfo.payload.album ?? "Unknown"
+            self.nowPlayingInfo.isPlaying = trackInfo.payload.isPlaying ?? false
+            
+            self.nowPlayingInfo.durationSeconds = (trackInfo.payload.durationMicros ?? 0) / 1_000_000
+            
+            if let artworkImage = trackInfo.payload.artwork {
+                let identifier = trackId + (artworkImage.tiffRepresentation?.hashValue.description ?? "")
+                
+                self.nowPlayingInfo.artworkImage = artworkImage
+                
+                if self.lastArtworkIdentifier != identifier {
+                    DispatchQueue.global(qos: .utility).async {
+                        let color = self.getDominantColor(from: artworkImage) ?? .white
+                        DispatchQueue.main.async {
+                            self.nowPlayingInfo.dominantColor = color
+                        }
+                    }
+                    self.lastArtworkIdentifier = identifier
+                }
+            }
+        }
+        mediaController.onPlaybackTimeUpdate = { time in
+            self.nowPlayingInfo.positionSeconds = time
         }
     }
-
-    // MARK: - Actions
-
+    
     func playPreviousTrack() {
-        sendCommand(commandType: 0) // Previous
+        mediaController.previousTrack()
     }
-
+    
     func playNextTrack() {
-        sendCommand(commandType: 1) // Next
+        mediaController.nextTrack()
     }
-
+    
     func togglePlayPause() {
-        sendCommand(commandType: 2) // Toggle
+        mediaController.togglePlayPause()
     }
-
+    
     func playAtTime(to time: Double) {
-        // Not implemented
-    }
-
-    private func sendCommand(commandType: Int) {
-        guard let handle = handle,
-              let ptr = dlsym(handle, "MRMediaRemoteSendCommand")
-        else {
-            debugLog("❌ MRMediaRemoteSendCommand not found.")
-            return
-        }
-
-        typealias SendCommandFunc = @convention(c) (Int, Any?, Int) -> Void
-        let sendCommand = unsafeBitCast(ptr, to: SendCommandFunc.self)
-
-        sendCommand(commandType, nil, 0)
+        mediaController.setTime(seconds: time)
     }
 }
+
+//final class MediaRemoteMusicController: NowPlayingProvider {
+//    @ObservedObject var nowPlayingInfo: NowPlayingInfo
+//    private let mediaRemotePath = "/System/Library/PrivateFrameworks/MediaRemote.framework/MediaRemote"
+//    private let handle: UnsafeMutableRawPointer?
+//
+//    init(nowPlayingInfo: NowPlayingInfo) {
+//        self.nowPlayingInfo = nowPlayingInfo
+//        self.handle = dlopen(mediaRemotePath, RTLD_NOW)
+//        if handle == nil {
+//            debugLog("❌ Failed to open MediaRemote via dlopen.")
+//        }
+//    }
+//
+//    deinit {
+//        if let handle = handle {
+//            dlclose(handle)
+//        }
+//    }
+//
+//    func isAvailable() -> Bool {
+//        return false
+////        guard let handle = handle else { return false }
+////        return dlsym(handle, "MRMediaRemoteGetNowPlayingInfo") != nil
+//    }
+//
+//    func getNowPlayingInfo(completion: @escaping (Bool) -> Void) {
+//        guard let handle = handle,
+//              let ptr = dlsym(handle, "MRMediaRemoteGetNowPlayingInfo")
+//        else {
+//            debugLog("❌ MRMediaRemoteGetNowPlayingInfo not found.")
+//            return completion(false)
+//        }
+//
+//        typealias MRFunc = @convention(c) (DispatchQueue, @escaping ([String: Any]?) -> Void) -> Void
+//        let MR = unsafeBitCast(ptr, to: MRFunc.self)
+//
+//        MR(DispatchQueue.main) { info in
+//            guard let info = info,
+//                  let title = info["kMRMediaRemoteNowPlayingInfoTitle"] as? String
+//            else {
+//                return completion(false)
+//            }
+//
+//            self.nowPlayingInfo.trackName = title
+//            self.nowPlayingInfo.artistName = info["kMRMediaRemoteNowPlayingInfoArtist"] as? String ?? "Unknown"
+//            self.nowPlayingInfo.albumName  = info["kMRMediaRemoteNowPlayingInfoAlbum"]  as? String ?? "Unknown"
+//            // You can add artwork/color, isPlaying, etc. here
+//
+//            completion(true)
+//        }
+//    }
+//
+//    // MARK: - Actions
+//
+//    func playPreviousTrack() {
+//        sendCommand(commandType: 0) // Previous
+//    }
+//
+//    func playNextTrack() {
+//        sendCommand(commandType: 1) // Next
+//    }
+//
+//    func togglePlayPause() {
+//        sendCommand(commandType: 2) // Toggle
+//    }
+//
+//    func playAtTime(to time: Double) {
+//        // Not implemented
+//    }
+//
+//    private func sendCommand(commandType: Int) {
+//        guard let handle = handle,
+//              let ptr = dlsym(handle, "MRMediaRemoteSendCommand")
+//        else {
+//            debugLog("❌ MRMediaRemoteSendCommand not found.")
+//            return
+//        }
+//
+//        typealias SendCommandFunc = @convention(c) (Int, Any?, Int) -> Void
+//        let sendCommand = unsafeBitCast(ptr, to: SendCommandFunc.self)
+//
+//        sendCommand(commandType, nil, 0)
+//    }
+//}
