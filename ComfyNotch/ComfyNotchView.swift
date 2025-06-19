@@ -300,11 +300,11 @@ struct ComfyNotchView: View {
                              copyIfNeeded: Bool,
                              sessionDir: URL) {
         Task.detached(priority: .utility) {
-            guard let (size, hash) = DroppedFileTracker.shared.quickHash(url: url),
-                  DroppedFileTracker.shared.isNewFile(size: size, hash: hash) else {
-                debugLog("Duplicate File Detected: \(url)")
-                return
-            }
+//            guard let (size, hash) = DroppedFileTracker.shared.quickHash(url: url),
+//                  DroppedFileTracker.shared.isNewFile(size: size, hash: hash) else {
+//                debugLog("Duplicate File Detected: \(url)")
+//                return
+//            }
             
             let settings = SettingsModel.shared
             let saveFolder = settings.fileTrayDefaultFolder
@@ -314,9 +314,9 @@ struct ComfyNotchView: View {
             let sourceURL = copyIfNeeded ? url : url // ← future-proof
             try? FileManager.default.copyItem(at: sourceURL, to: destURL)
             
-            DroppedFileTracker.shared.registerFile(size: size,
-                                                   hash: hash,
-                                                   url: destURL)
+//            DroppedFileTracker.shared.registerFile(size: size,
+//                                                   hash: hash,
+//                                                   url: destURL)
             
             // 3. Tell SwiftUI
             await MainActor.run {

@@ -23,9 +23,15 @@ struct CameraWidget: View, Widget {
                 .cornerRadius(10)
                 .clipped()
                 .onAppear {
+                    // Start session when view appears
+                    if !settings.enableCameraOverlay {
+                        model.startSession()
+                    }
                 }
                 .onDisappear {
+                    // CRITICAL: Clean up timer and session
                     overlayTimer?.cancel()
+                    overlayTimer = nil
                     model.stopSession()
                 }
                 .onChange(of: settings.enableCameraOverlay) { _, newValue in
@@ -87,12 +93,15 @@ struct CameraWidget: View, Widget {
                     showOverlay = false
                     
                     if settings.enableCameraOverlay && settings.cameraOverlayTimer > 0 {
+                        // CRITICAL: Cancel existing timer before creating new one
                         overlayTimer?.cancel()
-                        let workItem = DispatchWorkItem { [weak overlayTimer] in
+                        overlayTimer = nil
+                        
+                        let workItem = DispatchWorkItem {
                             DispatchQueue.main.async {
-                                showOverlay = true
-                                sessionStarted = false
-                                model.stopSession()
+                                self.showOverlay = true
+                                self.sessionStarted = false
+                                self.model.stopSession()
                             }
                         }
                         overlayTimer = workItem
@@ -103,8 +112,8 @@ struct CameraWidget: View, Widget {
                 .animation(.easeInOut(duration: 0.25), value: showOverlay)
             }
         }
+        // CRITICAL: Store notification observer and clean it up
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ReloadWidgets"))) { _ in
-            // Force refresh when widgets are reloaded
             model.updateFlipState()
         }
         .frame(minWidth: 100)
@@ -127,10 +136,11 @@ class CameraWidgetModel: ObservableObject {
     
     private let sessionQueue = DispatchQueue(label: "camera.session", qos: .userInitiated)
     private var isSessionSetup = false
-
+    private var currentInput: AVCaptureDeviceInput?
+    
     func zoomIn(step: CGFloat = 0.25)  { adjust(by:  step) }
     func zoomOut(step: CGFloat = 0.25) { adjust(by: -step) }
-
+    
     private func adjust(by delta: CGFloat) {
         var next = zoomScale + delta
         next = min(max(1.0, next), 3.0)       // clamp 1×-3×
@@ -139,15 +149,13 @@ class CameraWidgetModel: ObservableObject {
     
     init() {
         self.flipCamera = SettingsModel.shared.isCameraFlipped
-        // Listen for settings changes
+        
+        // CRITICAL: Use weak self to prevent retain cycles
         SettingsModel.shared.$isCameraFlipped
             .receive(on: RunLoop.main)
             .sink { [weak self] newValue in
-                guard let self = self else { return }
-                if self.flipCamera != newValue {
-                    self.flipCamera = newValue
-                    self.objectWillChange.send()
-                }
+                self?.flipCamera = newValue
+                self?.objectWillChange.send()
             }
             .store(in: &cancellables)
         
@@ -155,15 +163,17 @@ class CameraWidgetModel: ObservableObject {
             .receive(on: RunLoop.main)
             .sink { [weak self] newValue in
                 guard let self = self else { return }
-                /// Session Must Stop First
-                self.sessionQueue.async {
+                self.sessionQueue.async { [weak self] in
+                    guard let self = self else { return }
                     if self.session.isRunning {
                         self.session.stopRunning()
                     }
                     if self.session.canSetSessionPreset(newValue) {
                         self.session.sessionPreset = newValue
                     }
-                    self.session.startRunning()
+                    if self.isSessionSetup {
+                        self.session.startRunning()
+                    }
                 }
             }
             .store(in: &cancellables)
@@ -181,8 +191,10 @@ class CameraWidgetModel: ObservableObject {
         debugLog("[CameraWidgetModel] Deinit called")
         stopSession()
         cleanupSession()
+        // CRITICAL: Cancel all Combine subscriptions
+        cancellables.removeAll()
     }
-
+    
     func startSession() {
         sessionQueue.async { [weak self] in
             guard let self = self else { return }
@@ -195,7 +207,7 @@ class CameraWidgetModel: ObservableObject {
             }
         }
     }
-
+    
     func stopSession() {
         sessionQueue.async { [weak self] in
             guard let self = self else { return }
@@ -214,6 +226,8 @@ class CameraWidgetModel: ObservableObject {
             let input = try AVCaptureDeviceInput(device: device)
             if session.canAddInput(input) {
                 session.addInput(input)
+                // CRITICAL: Store reference to input for proper cleanup
+                currentInput = input
             }
         } catch {
             debugLog("Error setting up camera input: \(error)")
@@ -221,55 +235,69 @@ class CameraWidgetModel: ObservableObject {
     }
     
     private func cleanupSession() {
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+        sessionQueue.sync { [weak self] in
             guard let self = self else { return }
+            
+            if self.session.isRunning {
+                self.session.stopRunning()
+            }
+            
             self.session.beginConfiguration()
+            
+            // CRITICAL: Remove inputs and outputs properly
             for input in self.session.inputs {
                 self.session.removeInput(input)
             }
             for output in self.session.outputs {
                 self.session.removeOutput(output)
             }
+            
             self.session.commitConfiguration()
+            
+            // Clear references
+            self.currentInput = nil
+            self.isSessionSetup = false
         }
+    }
+    
+    // CRITICAL: Add explicit cleanup method
+    func cleanup() {
+        stopSession()
+        cleanupSession()
+        cancellables.removeAll()
     }
 }
 
 struct CameraPreviewView: NSViewRepresentable {
     let session: AVCaptureSession
     let flipCamera: Bool
-    let zoom: CGFloat            // ← NEW
-
+    let zoom: CGFloat
+    
     func makeNSView(context: Context) -> NSView {
         let view = NSView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.wantsLayer = true
-
+        
         let previewLayer = AVCaptureVideoPreviewLayer(session: session)
         previewLayer.videoGravity = .resizeAspectFill
-
         previewLayer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
         previewLayer.frame = view.bounds
-
+        
         context.coordinator.previewLayer = previewLayer
         view.layer?.addSublayer(previewLayer)
-
+        
         return view
     }
     
     func dismantleNSView(_ nsView: NSView, coordinator: Coordinator) {
-        // Remove the preview layer
-        if let previewLayer = coordinator.previewLayer {
-            previewLayer.session = nil
-            previewLayer.removeFromSuperlayer()
-            coordinator.previewLayer = nil
-        }
+        // CRITICAL: Proper cleanup of preview layer
+        coordinator.cleanup()
     }
     
     func updateNSView(_ nsView: NSView, context: Context) {
         guard let preview = context.coordinator.previewLayer else { return }
         preview.frame = nsView.bounds
-
+        
         let parentScale = nsView.layer?.value(forKeyPath: "transform.scale.x") as? CGFloat ?? 1
         let zoomScale = (1 / parentScale) * zoom
         
@@ -284,11 +312,25 @@ struct CameraPreviewView: NSViewRepresentable {
         preview.setAffineTransform(transform)
         CATransaction.commit()
     }
-
+    
     func makeCoordinator() -> Coordinator {
         Coordinator()
     }
+    
     class Coordinator: NSObject {
         var previewLayer: AVCaptureVideoPreviewLayer?
+        
+        // CRITICAL: Add proper cleanup
+        func cleanup() {
+            if let previewLayer = previewLayer {
+                previewLayer.session = nil
+                previewLayer.removeFromSuperlayer()
+                self.previewLayer = nil
+            }
+        }
+        
+        deinit {
+            cleanup()
+        }
     }
 }
