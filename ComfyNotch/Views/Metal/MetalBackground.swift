@@ -145,8 +145,7 @@ struct MetalBackground: NSViewRepresentable {
             var time = Float(CACurrentMediaTime() - startTime)
             encoder.setFragmentBytes(&time, length: MemoryLayout<Float>.size, index: 0)
             
-            let dominant    
-Color = AudioManager.shared.nowPlayingInfo.dominantColor.usingColorSpace(.deviceRGB) ?? .white
+            let dominantColor = AudioManager.shared.nowPlayingInfo.dominantColor.usingColorSpace(.deviceRGB) ?? .white
             /// Generate A Tint From The Dominant Color
             var tint = SIMD3<Float>(
                 Float(dominantColor.redComponent),
