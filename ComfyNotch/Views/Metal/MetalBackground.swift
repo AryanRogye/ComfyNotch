@@ -137,7 +137,7 @@ struct MetalBackground: NSViewRepresentable {
                 .sink { [weak self] newState in
                     DispatchQueue.main.async {
                         guard let self else { return }
-                        guard let view = self.targetView else { return }
+                        guard self.targetView != nil else { return }
                         if newState == .closed {
                             self.drawBlankFrame()
                             self.targetView.enableSetNeedsDisplay = false

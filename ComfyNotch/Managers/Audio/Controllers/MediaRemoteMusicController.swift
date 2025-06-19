@@ -46,7 +46,6 @@ final class MediaRemoteMusicController: NowPlayingProvider {
                     }
                     print("Track ID Matches — updating time only")
                 } else {
-                    print("New track detected: \(trackId)")
                     self.lastTrackIdentifier = trackId
                 }
                 
