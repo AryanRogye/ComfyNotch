@@ -25,11 +25,15 @@ struct MessagesView: View {
     var body: some View {
         VStack(spacing: 0) {
             if !messagesManager.hasFullDiskAccess {
+                Spacer()
                 handleNoDiskAccess
                     .padding(5)
+                Spacer()
             } else if !messagesManager.hasContactAccess {
+                Spacer()
                 handleNoContactAccess
                     .padding(5)
+                Spacer()
             } else {
                 /// Show Regular Content
                 userMessagesHomePage
@@ -44,6 +48,7 @@ struct MessagesView: View {
             .easeInOut(duration: animationState.isExpanded ? 2 : 0.1),
             value: animationState.isExpanded
         )
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     private var userMessagesHomePage: some View {
@@ -105,7 +110,7 @@ struct MessagesView: View {
         .onAppear {
             fetchHandles()
         }
-
+        
     }
     
     private var userClickedMessagePage: some View {
