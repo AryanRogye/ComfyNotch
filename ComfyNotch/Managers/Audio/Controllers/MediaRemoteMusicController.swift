@@ -36,19 +36,22 @@ final class MediaRemoteMusicController: NowPlayingProvider {
             DispatchQueue.main.async {
                 guard let self else { return }
                 let now = Date()
-                if now.timeIntervalSince(self.lastUpdateTime) < self.updateInterval {
-                    return
-                }
-                self.lastUpdateTime = now
                 
                 let trackId = "\(trackInfo.payload.title ?? "")|\(trackInfo.payload.artist ?? "")|\(trackInfo.payload.album ?? "")"
                 
                 if trackId == self.lastTrackIdentifier {
-                    // Only update time and maybe progress
-                    return
+                    if now.timeIntervalSince(self.lastUpdateTime) < self.updateInterval {
+                        print("Skipping update: \(now.timeIntervalSince(self.lastUpdateTime)) seconds since last update")
+                        return
+                    }
+                    print("Track ID Matches — updating time only")
+                } else {
+                    print("New track detected: \(trackId)")
+                    self.lastTrackIdentifier = trackId
                 }
-                self.lastTrackIdentifier = trackId
                 
+                // Always update lastUpdateTime when passing through
+                self.lastUpdateTime = now
                 self.nowPlayingInfo.trackName = trackInfo.payload.title ?? "Unknown"
                 self.nowPlayingInfo.artistName = trackInfo.payload.artist ?? "Unknown"
                 self.nowPlayingInfo.albumName = trackInfo.payload.album ?? "Unknown"

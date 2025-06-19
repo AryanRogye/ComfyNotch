@@ -33,14 +33,14 @@ class FocusablePanel: NSPanel {
  * - Big Panel: Shows expanded widgets and additional functionality
  * - Widget Stores: Manages widget collections for both panels
  */
-class UIManager {
+class UIManager: ObservableObject {
     static let shared = UIManager()
     let compactWidgetStore = CompactWidgetsStore()
     let expandedWidgetStore = ExpandedWidgetsStore()
     
     var smallPanel: NSPanel!
     
-    var panelState: PanelState = .closed
+    @Published var panelState: PanelState = .closed
     
     var startPanelHeight: CGFloat = 0
     var startPanelWidth: CGFloat = 300

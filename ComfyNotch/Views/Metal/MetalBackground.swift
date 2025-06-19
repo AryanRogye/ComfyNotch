@@ -85,6 +85,7 @@ struct MetalBackground: NSViewRepresentable {
     
     func updateNSView(_ nsView: MTKView, context: Context) {}
     
+    
     func makeNSView(context: Context) -> MTKView {
         let mtkView = MTKView()
         guard let device = MTLCreateSystemDefaultDevice() else {
@@ -92,16 +93,17 @@ struct MetalBackground: NSViewRepresentable {
             return MTKView()
         }
         mtkView.device = device
-        mtkView.device = MTLCreateSystemDefaultDevice()
         mtkView.delegate = context.coordinator
         mtkView.framebufferOnly = false
         mtkView.isPaused = false
         mtkView.enableSetNeedsDisplay = false
         mtkView.preferredFramesPerSecond = 120
+        context.coordinator.targetView = mtkView
         return mtkView
     }
     
     class RendererCoordinator: NSObject, MTKViewDelegate {
+        var targetView: MTKView!
         private var startTime = CACurrentMediaTime()
         private var pipelineState: MTLRenderPipelineState!
         private var commandQueue: MTLCommandQueue!
@@ -112,7 +114,6 @@ struct MetalBackground: NSViewRepresentable {
         
         private var cancellables = Set<AnyCancellable>()
         private var settings: SettingsModel = .shared
-        
         
         override init() {
             super.init()
@@ -127,12 +128,49 @@ struct MetalBackground: NSViewRepresentable {
             SettingsModel.shared.$notchBackgroundAnimation
                 .sink { [weak self] newAnimation in
                     self?.animationName = newAnimation.rawValue
-                    self?.setupMetal() // Re-setup pipeline with new shader
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                        self?.setupMetal() // Re-setup pipeline with new shader
+                    }
+                }
+                .store(in: &cancellables)
+            UIManager.shared.$panelState
+                .sink { [weak self] newState in
+                    DispatchQueue.main.async {
+                        guard let self else { return }
+                        guard let view = self.targetView else { return }
+                        if newState == .closed {
+                            self.drawBlankFrame()
+                            self.targetView.enableSetNeedsDisplay = false
+                            self.targetView.isPaused = true
+                        } else {
+                            self.targetView.enableSetNeedsDisplay = true
+                            self.targetView.isPaused = false
+                        }
+                    }
                 }
                 .store(in: &cancellables)
         }
         
+        private func drawBlankFrame() {
+            guard let drawable = targetView.currentDrawable,
+                  let descriptor = targetView.currentRenderPassDescriptor else { return }
+            
+            guard let commandBuffer = commandQueue.makeCommandBuffer() else { return }
+            guard let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor) else { return }
+            
+            descriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 0)
+            descriptor.colorAttachments[0].loadAction = .clear
+            descriptor.colorAttachments[0].storeAction = .store
+            
+            encoder.endEncoding()
+            commandBuffer.present(drawable)
+            commandBuffer.commit()
+        }
+        
         func draw(in view: MTKView) {
+            if view.isPaused { return }
+            guard let pipelineState = pipelineState else { return }
+            
             guard let drawable = view.currentDrawable,
                   let renderPassDescriptor = view.currentRenderPassDescriptor else { return }
             
@@ -171,7 +209,12 @@ struct MetalBackground: NSViewRepresentable {
             pipelineDescriptor.fragmentFunction = library.makeFunction(name: animationName)
             pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
             
-            pipelineState = try! device.makeRenderPipelineState(descriptor: pipelineDescriptor)
+            do {
+                pipelineState = try device.makeRenderPipelineState(descriptor: pipelineDescriptor)
+            } catch {
+                print("Failed to create pipeline state with animation '\(animationName)':", error)
+                pipelineState = nil
+            }
             commandQueue = device.makeCommandQueue()
             
             let quadVertices: [Float] = [
