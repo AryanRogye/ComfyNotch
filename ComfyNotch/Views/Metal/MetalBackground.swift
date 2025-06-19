@@ -85,6 +85,7 @@ struct MetalBackground: NSViewRepresentable {
     
     func updateNSView(_ nsView: MTKView, context: Context) {}
     
+    
     func makeNSView(context: Context) -> MTKView {
         let mtkView = MTKView()
         guard let device = MTLCreateSystemDefaultDevice() else {
@@ -114,7 +115,6 @@ struct MetalBackground: NSViewRepresentable {
         private var cancellables = Set<AnyCancellable>()
         private var settings: SettingsModel = .shared
         
-        
         override init() {
             super.init()
             setupMetal()
@@ -128,7 +128,9 @@ struct MetalBackground: NSViewRepresentable {
             SettingsModel.shared.$notchBackgroundAnimation
                 .sink { [weak self] newAnimation in
                     self?.animationName = newAnimation.rawValue
-                    self?.setupMetal() // Re-setup pipeline with new shader
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                        self?.setupMetal() // Re-setup pipeline with new shader
+                    }
                 }
                 .store(in: &cancellables)
             UIManager.shared.$panelState
@@ -137,9 +139,11 @@ struct MetalBackground: NSViewRepresentable {
                         guard let self else { return }
                         if (newState == .closed) {
                             self.drawBlankFrame()
+                            guard let view = self.targetView else { return }
                             self.targetView.enableSetNeedsDisplay = false
                             self.targetView.isPaused = true
                         } else {
+                            guard let view = self.targetView else { return }
                             self.targetView.enableSetNeedsDisplay = true
                             self.targetView.isPaused = false
                         }
@@ -152,8 +156,8 @@ struct MetalBackground: NSViewRepresentable {
             guard let drawable = targetView.currentDrawable,
                   let descriptor = targetView.currentRenderPassDescriptor else { return }
             
-            let commandBuffer = commandQueue.makeCommandBuffer()!
-            let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)!
+            guard let commandBuffer = commandQueue.makeCommandBuffer() else { return }
+            guard let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor) else { return }
             
             descriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 0)
             descriptor.colorAttachments[0].loadAction = .clear
@@ -166,6 +170,7 @@ struct MetalBackground: NSViewRepresentable {
         
         func draw(in view: MTKView) {
             if view.isPaused { return }
+            guard let pipelineState = pipelineState else { return }
             
             guard let drawable = view.currentDrawable,
                   let renderPassDescriptor = view.currentRenderPassDescriptor else { return }
@@ -209,6 +214,7 @@ struct MetalBackground: NSViewRepresentable {
                 pipelineState = try device.makeRenderPipelineState(descriptor: pipelineDescriptor)
             } catch {
                 print("Failed to create pipeline state with animation '\(animationName)':", error)
+                pipelineState = nil
             }
             commandQueue = device.makeCommandQueue()
             
