@@ -92,16 +92,17 @@ struct MetalBackground: NSViewRepresentable {
             return MTKView()
         }
         mtkView.device = device
-        mtkView.device = MTLCreateSystemDefaultDevice()
         mtkView.delegate = context.coordinator
         mtkView.framebufferOnly = false
         mtkView.isPaused = false
         mtkView.enableSetNeedsDisplay = false
         mtkView.preferredFramesPerSecond = 120
+        context.coordinator.targetView = mtkView
         return mtkView
     }
     
     class RendererCoordinator: NSObject, MTKViewDelegate {
+        var targetView: MTKView!
         private var startTime = CACurrentMediaTime()
         private var pipelineState: MTLRenderPipelineState!
         private var commandQueue: MTLCommandQueue!
@@ -130,9 +131,42 @@ struct MetalBackground: NSViewRepresentable {
                     self?.setupMetal() // Re-setup pipeline with new shader
                 }
                 .store(in: &cancellables)
+            UIManager.shared.$panelState
+                .sink { [weak self] newState in
+                    DispatchQueue.main.async {
+                        guard let self else { return }
+                        if (newState == .closed) {
+                            self.drawBlankFrame()
+                            self.targetView.enableSetNeedsDisplay = false
+                            self.targetView.isPaused = true
+                        } else {
+                            self.targetView.enableSetNeedsDisplay = true
+                            self.targetView.isPaused = false
+                        }
+                    }
+                }
+                .store(in: &cancellables)
+        }
+        
+        private func drawBlankFrame() {
+            guard let drawable = targetView.currentDrawable,
+                  let descriptor = targetView.currentRenderPassDescriptor else { return }
+            
+            let commandBuffer = commandQueue.makeCommandBuffer()!
+            let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)!
+            
+            descriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 0)
+            descriptor.colorAttachments[0].loadAction = .clear
+            descriptor.colorAttachments[0].storeAction = .store
+            
+            encoder.endEncoding()
+            commandBuffer.present(drawable)
+            commandBuffer.commit()
         }
         
         func draw(in view: MTKView) {
+            if view.isPaused { return }
+            
             guard let drawable = view.currentDrawable,
                   let renderPassDescriptor = view.currentRenderPassDescriptor else { return }
             
@@ -171,7 +205,11 @@ struct MetalBackground: NSViewRepresentable {
             pipelineDescriptor.fragmentFunction = library.makeFunction(name: animationName)
             pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
             
-            pipelineState = try! device.makeRenderPipelineState(descriptor: pipelineDescriptor)
+            do {
+                pipelineState = try device.makeRenderPipelineState(descriptor: pipelineDescriptor)
+            } catch {
+                print("Failed to create pipeline state with animation '\(animationName)':", error)
+            }
             commandQueue = device.makeCommandQueue()
             
             let quadVertices: [Float] = [
