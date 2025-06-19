@@ -89,6 +89,7 @@ Perfect for apps with chunky UIs like Xcode, Finder, or Final Cut.
 ## ⚠️ Known Issues
 
 1. **macOS Compatibility**  
+   - ⚠️ **Volume controls** don’t work reliably on all macOS versions — avoid using them unless you really dislike the default OSD (`OSDUIHelper`).
    - ComfyNotch only supports macOS 14 (Sonoma) and above.  
    - ComfyNotch also uses Metal for rendering, which is not available on macOS 13 and below.
    - Users on macOS 13 and below may experience crashes or missing functionalities.  
