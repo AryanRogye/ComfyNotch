@@ -163,21 +163,28 @@ struct ComfyNotchView: View {
         .onChange(of: PanelAnimationState.shared.isDroppingFiles) { _, hovering in
             if hovering && UIManager.shared.panelState == .closed {
                 animationState.fileTriggeredTray = true
-                /// Set the page of the notch to be the file tray
-                /// Open the panel
+                /// Set the page of the notch to be the home
+                animationState.currentPanelState = .home
+                /// Fade Out the Contents
+                UIManager.shared.applyOpeningLayout()
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    UIManager.shared.applyOpeningLayout()
+                    DispatchQueue.main.async {
+                        CATransaction.flush()
+                        DispatchQueue.main.async {
+                            /// Open
+                            ScrollHandler.shared.openFull()
+                        }
+                    }
                 }
                 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                    animationState.isExpanded = true
-                    ScrollHandler.shared.openFull()
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                /// Change View to File Tray
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
                     animationState.currentPanelState = .file_tray
+                    animationState.isExpanded = true
                 }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                /// This will help with snapping on the filetray view
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
                     animationState.fileTriggeredTray = false
                 }
             }

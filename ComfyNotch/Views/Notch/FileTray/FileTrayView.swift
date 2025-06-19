@@ -27,7 +27,7 @@ struct FileTrayView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            if animationState.isExpanded
+            if animationState.isExpanded && !animationState.fileTriggeredTray
             {
                 Group {
                     /// Conditional to show the delete page
@@ -53,7 +53,8 @@ struct FileTrayView: View {
                             /// What Files Are There
                             userTray
                                 .padding(.horizontal, 10)
-                                .frame(width: .infinity, height: 150)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 150)
                                 .background(
                                     RoundedRectangle(cornerRadius: 12)
                                         .stroke(animationState.isDroppingFiles ? Color.blue.opacity(0.8) : Color.gray, style: StrokeStyle(lineWidth: 1, dash: [5]))
