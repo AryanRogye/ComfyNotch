@@ -16,18 +16,18 @@ struct CompactAlbumWidget: View, Widget {
     private let bigSizeHeight: CGFloat = 25
     
     private var width: CGFloat {
-        panelAnimationState.isHoveringOverLeft ? bigSizeWidth : smallSizeWidth
+        panelAnimationState.scaleHoverOverLeftItems ? bigSizeWidth : smallSizeWidth
     }
     
     private var height: CGFloat {
-        panelAnimationState.isHoveringOverLeft ? bigSizeHeight : smallSizeHeight
+        panelAnimationState.scaleHoverOverLeftItems ? bigSizeHeight : smallSizeHeight
     }
     
     private var paddingTrailing: CGFloat {
-        panelAnimationState.isHoveringOverLeft ? 19 : 22
+        panelAnimationState.scaleHoverOverLeftItems ? 19 : 22
     }
     private var paddingTop: CGFloat {
-        panelAnimationState.isHoveringOverLeft ? 1 : 0
+        panelAnimationState.scaleHoverOverLeftItems ? 1 : 0
     }
 
     var body: some View {
@@ -52,12 +52,10 @@ struct CompactAlbumWidget: View, Widget {
                     .padding(.top, 1)
                 }
             }
-            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: panelAnimationState.isHoveringOverLeft)
-            .animation(.easeInOut(duration: 0.25), value: model.nowPlayingInfo.artworkImage)
         }
         .padding(.trailing, paddingTrailing)
         .padding(.top, paddingTop)
-        .animation(.easeInOut(duration: 0.25), value: model.nowPlayingInfo.artworkImage != nil)
+        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: panelAnimationState.scaleHoverOverLeftItems)
     }
 
     private func panelButton<Label: View>(@ViewBuilder label: () -> Label) -> some View {

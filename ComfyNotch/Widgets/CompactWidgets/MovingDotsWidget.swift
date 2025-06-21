@@ -13,15 +13,15 @@ struct AnimatedDot: View {
     @State private var animationCancellable: AnyCancellable?
     
     private var size: CGFloat {
-        return animationState.isHoveringOverLeft ? 7 : 6
+        return animationState.scaleHoverOverLeftItems ? 7 : 6
     }
     
     var body: some View {
         Circle()
             .fill(color)
             .frame(width: size, height: size)
-            .scaleEffect(animationState.isHoveringOverLeft ? 1.15 : 1)
-            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: animationState.isHoveringOverLeft)
+            .scaleEffect(animationState.scaleHoverOverLeftItems ? 1.15 : 1)
+            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: animationState.scaleHoverOverLeftItems)
             .offset(y: shouldAnimate ? bounceOffset : 0)
             .onAppear {
                 startLoopingBounce()
@@ -61,8 +61,11 @@ struct MovingDotsView: View, Widget {
     @ObservedObject var model: MusicPlayerWidgetModel = .shared
     @ObservedObject private var animationState: PanelAnimationState = .shared
     
+    /// I feel like adding a padding of a 9 makes it pop outwards
+    /// doing the same with the left CompactAlbumWidget gives it a more
+    /// "Exploding" feeling of going outwards scaling
     private var paddingLeading: CGFloat {
-        return animationState.isHoveringOverLeft ? 8 : 10
+        return animationState.scaleHoverOverLeftItems ? 9 : 10
     }
     
     var body: some View {

@@ -51,6 +51,7 @@ class PanelAnimationState: ObservableObject {
     @Published var droppedFile: URL?
     
     @Published var isHoveringOverLeft: Bool = false
+    @Published var scaleHoverOverLeftItems: Bool = false
     private var hoverTimer: Timer?
     
     private var cancellables = Set<AnyCancellable>()
@@ -76,6 +77,7 @@ class PanelAnimationState: ObservableObject {
                             }
                         }
                         ScrollHandler.shared.peekOpen()
+                        self.scaleHoverOverLeftItems = true
                     }
                     RunLoop.main.add(self.hoverTimer!, forMode: .common)
                     
@@ -84,6 +86,7 @@ class PanelAnimationState: ObservableObject {
                     hoverTimer?.invalidate()
                     hoverTimer = nil
                     self.currentPanelState = .home
+                    self.scaleHoverOverLeftItems = false
                     ScrollHandler.shared.peekClose()
                 }
             }
