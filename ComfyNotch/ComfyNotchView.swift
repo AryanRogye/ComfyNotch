@@ -32,15 +32,16 @@ class PanelAnimationState: ObservableObject {
     @Published var isExpanded: Bool = false
     @Published var bottomSectionHeight: CGFloat = 0
     @Published var currentPanelWidth: CGFloat = UIManager.shared.startPanelWidth
-    @ObservedObject var musicModel: MusicPlayerWidgetModel = .shared
     @Published var isDroppingFiles = false
     @Published var droppedFiles: [URL] = []
     
     @Published var dontShowHoverMenu: Bool = false
     
     @Published var currentPanelState: NotchViewState = .home
+    
     @Published var currentPopInPresentationState: PopInPresenterType = .nowPlaying
     @Published var isLoadingPopInPresenter = false
+    
     /// This is used for iffffff the notch was opened by dragging
     /// we wanna show a cool animation for it getting activated so the user
     /// doesnt think its blue all the time lol
@@ -50,49 +51,10 @@ class PanelAnimationState: ObservableObject {
     
     @Published var droppedFile: URL?
     
-    @Published var isHoveringOverLeft: Bool = false
-    @Published var scaleHoverOverLeftItems: Bool = false
-    private var hoverTimer: Timer?
-    
-    private var cancellables = Set<AnyCancellable>()
+    let hoverHandler = HoverHandler()
     
     init() {
-        $isHoveringOverLeft
-            .sink { [weak self] hovering in
-                guard let self = self else { return }
-                if SettingsModel.shared.hoverTargetMode != .album { return }
-                
-                if hovering {
-                    if UIManager.shared.panelState != .closed { return }
-                    
-                    self.hoverTimer?.invalidate()
-                    self.hoverTimer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false) { [weak self] _ in
-                        guard let self = self else { return }
-                        
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                            withAnimation(.easeOut(duration: 0.2)) {
-                                if UIManager.shared.panelState != .open {
-                                    PanelAnimationState.shared.currentPopInPresentationState = .nowPlaying
-                                    PanelAnimationState.shared.currentPanelState = .popInPresentation
-                                }
-                            }
-                        }
-                        ScrollHandler.shared.peekOpen()
-                        self.scaleHoverOverLeftItems = true
-                    }
-                    RunLoop.main.add(self.hoverTimer!, forMode: .common)
-                    
-                } else {
-                    // Always allow closing, even if panel is open
-                    hoverTimer?.invalidate()
-                    hoverTimer = nil
-                    self.currentPanelState = .home
-                    self.scaleHoverOverLeftItems = false
-                    ScrollHandler.shared.peekClose()
-                }
-            }
-            .store(in: &cancellables)
-        
+        hoverHandler.bindHoveringOverLeft(for: self)
     }
 }
 

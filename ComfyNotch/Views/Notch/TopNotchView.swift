@@ -11,6 +11,7 @@ struct TopNotchView: View {
     @EnvironmentObject var widgetStore: CompactWidgetsStore
     @ObservedObject var animationState = PanelAnimationState.shared
     @ObservedObject var settings: SettingsModel = .shared
+    @ObservedObject var musicModel: MusicPlayerWidgetModel = .shared
 
     @State private var isHovering: Bool = false /// Hovering for Pause or Play
     private var paddingWidth: CGFloat = 20
@@ -32,9 +33,9 @@ struct TopNotchView: View {
             .onHover { hover in
                 if settings.hoverTargetMode != .album { return }
                 if animationState.bottomSectionHeight == 0 {
-                    animationState.isHoveringOverLeft = hover
+                    animationState.hoverHandler.isHoveringOverLeft = hover
                 } else {
-                    animationState.isHoveringOverLeft = false
+                    animationState.hoverHandler.isHoveringOverLeft = false
                 }
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
@@ -71,13 +72,13 @@ struct TopNotchView: View {
                 } else {
                     HStack(spacing: 0) {
                         //// If the widget is playing show pause
-                        if animationState.musicModel.nowPlayingInfo.trackName != "No Song Playing" {
+                        if musicModel.nowPlayingInfo.trackName != "No Song Playing" {
                             Button(action: AudioManager.shared.togglePlayPause ) {
                                 Image(systemName: "pause.fill")
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
                                     .frame(width: 17, height: 15)
-                                    .foregroundColor(Color(nsColor: animationState.musicModel.nowPlayingInfo.dominantColor))
+                                    .foregroundColor(Color(nsColor: musicModel.nowPlayingInfo.dominantColor))
                             }
                             .buttonStyle(.plain)
                             .padding(.trailing, 23)
@@ -89,7 +90,7 @@ struct TopNotchView: View {
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
                                     .frame(width: 17, height: 15)
-                                    .foregroundColor(Color(nsColor: animationState.musicModel.nowPlayingInfo.dominantColor))
+                                    .foregroundColor(Color(nsColor: musicModel.nowPlayingInfo.dominantColor))
                             }
                             .buttonStyle(.plain)
                             .padding(.trailing, 23)

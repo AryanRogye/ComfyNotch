@@ -13,15 +13,19 @@ struct AnimatedDot: View {
     @State private var animationCancellable: AnyCancellable?
     
     private var size: CGFloat {
-        return animationState.scaleHoverOverLeftItems ? 7 : 6
+        return animationState.hoverHandler.scaleHoverOverLeftItems ? 7 : 6
+    }
+    
+    private var scale: CGFloat {
+        return animationState.hoverHandler.scaleHoverOverLeftItems ? 1.15 : 1
     }
     
     var body: some View {
         Circle()
             .fill(color)
             .frame(width: size, height: size)
-            .scaleEffect(animationState.scaleHoverOverLeftItems ? 1.15 : 1)
-            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: animationState.scaleHoverOverLeftItems)
+            .scaleEffect(animationState.hoverHandler.scaleHoverOverLeftItems ? 1.15 : 1)
+            .animation(.spring(response: 0.2, dampingFraction: 0.6), value: animationState.hoverHandler.scaleHoverOverLeftItems)
             .offset(y: shouldAnimate ? bounceOffset : 0)
             .onAppear {
                 startLoopingBounce()
@@ -64,7 +68,7 @@ struct MovingDotsView: View, Widget {
     /// doing the same with the left CompactAlbumWidget gives it a more
     /// "Exploding" feeling of going outwards scaling
     private var paddingLeading: CGFloat {
-        return animationState.scaleHoverOverLeftItems ? 9 : 10
+        return animationState.hoverHandler.scaleHoverOverLeftItems ? 9 : 10
     }
     
     var body: some View {
@@ -81,7 +85,7 @@ struct MovingDotsView: View, Widget {
         // Optionally add an explicit animation for the change in bounce state:
         .animation(.easeInOut(duration: 0.3), value: model.nowPlayingInfo.isPlaying)
     }
-
+    
     var swiftUIView: AnyView {
         AnyView(self)
     }
