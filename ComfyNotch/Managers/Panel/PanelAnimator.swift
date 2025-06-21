@@ -124,7 +124,7 @@ final class PanelAnimator {
             guard let self = self else { return }
             
             defer { self.hoverTimer = nil }
-
+         
             // Add a safety check: only animate if we're not already open
             if UIManager.shared.panelState != .open {
                 /// Delay the animation by 0.25 seconds so it doesnt jitter
