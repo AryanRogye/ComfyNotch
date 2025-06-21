@@ -60,6 +60,7 @@ class PanelAnimationState: ObservableObject {
         $isHoveringOverLeft
             .sink { [weak self] hovering in
                 guard let self = self else { return }
+                if SettingsModel.shared.hoverTargetMode != .album { return }
                 
                 if hovering {
                     if UIManager.shared.panelState != .closed { return }

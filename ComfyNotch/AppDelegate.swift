@@ -110,8 +110,10 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             ClipboardManager.shared.start()
         }
         
-        /// Start the hover handler TODO: we have to a setting if we wanna use the album image or the whole notch
-        /// PanelAnimator.shared.startAnimationListeners()
+        /// Start the hover handler
+        if SettingsModel.shared.hoverTargetMode == .panel {
+            PanelAnimator.shared.startAnimationListeners()
+        }
         
         if SettingsModel.shared.enableNotchHUD {
             /// Start The Media Key Interceptor

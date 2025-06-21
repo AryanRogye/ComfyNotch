@@ -146,6 +146,7 @@ struct GeneralSettingsView: View {
                 displaySection
             }
             ComfySection(title: "Notch Controls", isSub: true) {
+                pickObjectHover
                 scrollSpeed
                 hudSettings
             }
@@ -184,20 +185,27 @@ struct GeneralSettingsView: View {
                 .frame(width: 250)
             }
             
+            Text("Select how the notch opens when activated.")
+                .font(.footnote)
+                .foregroundColor(.secondary)
+            
             Text("Experimental Metal Rendering")
                 .font(.title)
                 .foregroundColor(.primary)
                 .padding(.top, 10)
-
+            
             VStack(alignment: .leading, spacing: 8) {
-                Text("⚠️ Warning: This feature will increase memory usage and CPU usage")
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-                    .padding(12)
-                    .background(
-                        AnyView(RoundedRectangle(cornerRadius: 10)
-                            .fill(Color.yellow.opacity(0.1)))
-                    )
+                HStack {
+                    Text("⚠️ Warning: This feature will increase memory usage and CPU usage")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .padding(12)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color.yellow.opacity(0.1))
+                )
                 
                 HStack {
                     VStack {
@@ -237,6 +245,21 @@ struct GeneralSettingsView: View {
                             settings.saveSettings()
                         }
                         .frame(width: 250)
+                    }
+                    .padding(.top, 10)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .animation(settings.enableMetalAnimation ? .interactiveSpring(duration: 0.3) : .none, value: settings.notchBackgroundAnimation)
+                    
+                    HStack {
+                        Text("Constant 120 FPS")
+                        Spacer()
+                        
+                        Toggle("", isOn: $settings.constant120FPS)
+                            .toggleStyle(.switch)
+                            .onChange(of: settings.constant120FPS) {
+                                settings.saveSettings()
+                            }
+                        
                     }
                     .padding(.top, 10)
                     .transition(.move(edge: .top).combined(with: .opacity))
@@ -389,6 +412,36 @@ struct GeneralSettingsView: View {
                     .cornerRadius(10)
             }
         }
+    }
+    
+    private var pickObjectHover: some View {
+        VStack {
+            HStack {
+                Text("Hover Activation Area")
+                    .font(.headline)
+                
+                Spacer()
+                
+                Picker("Hover Target", selection: $settings.hoverTargetMode) {
+                    ForEach(HoverTarget.allCases) { mode in
+                        Text(mode.displayName).tag(mode)
+                    }
+                }
+                .pickerStyle(.menu)
+                .labelsHidden()
+                .onChange(of: settings.hoverTargetMode) {
+                    settings.saveSettings()
+                    
+                    if settings.hoverTargetMode == .panel {
+                        PanelAnimator.shared.startAnimationListeners()
+                    } else if settings.hoverTargetMode == .album {
+                        PanelAnimator.shared.stopAnimationListeners()
+                        /// The Album should manage it by listening to it inside the TopNotchView and ComfyNotchView
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity)
     }
     
     // MARK: - Scroll Speed
