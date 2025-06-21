@@ -66,7 +66,7 @@ struct DropViewDelegate: DropDelegate {
 struct QuickAccessSettingsView_Home: View {
     
     @ObservedObject var settings: SettingsModel = .shared
-
+    
     let widgetPreviews: [(widgetName: String,title: String, view: AnyView)] = [
         ("NotesWidget","Notes Widget", AnyView(NotesWidget())),
         ("MusicPlayerWidget","Music Player Widget", AnyView(MusicPlayerWidget())),
@@ -78,7 +78,7 @@ struct QuickAccessSettingsView_Home: View {
     
     @State private var draggingItem: String?
     @State private var isDragging = false
-
+    
     var body: some View {
         VStack {
             titleView
@@ -87,18 +87,18 @@ struct QuickAccessSettingsView_Home: View {
                 .fill(Color.gray.opacity(0.3))
                 .frame(height: 1)
                 .padding(.bottom, 8)
-
+            
             /// Arrange Widgets
             arrangeWidgets
             comfyDivider
             
             widgetSettings
-
+            
             /// Widget Selection
             widgetSelection
         }
     }
-
+    
     // MARK: - Title
     private var titleView: some View {
         HStack {
@@ -132,7 +132,7 @@ struct QuickAccessSettingsView_Home: View {
             }
         }
     }
-
+    
     // MARK: - Widget Settings
     private var widgetSettings: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -152,10 +152,12 @@ struct QuickAccessSettingsView_Home: View {
                 }
             }
             
-            if settings.selectedWidgets.contains("MusicPlayerWidget") {
-                settingsCard(title: "Music Player Settings") {
+            settingsCard(title: "Music Player Settings") {
+                if settings.selectedWidgets.contains("MusicPlayerWidget") {
                     musicPlayerSettings
                 }
+                // We Always Show a choose controller
+                musicControllerPicker
             }
             
             if settings.selectedWidgets.contains("CameraWidget") {
@@ -217,7 +219,7 @@ struct QuickAccessSettingsView_Home: View {
     }
     
     // MARK: - Helpers
-
+    
     private func draggableWidgetRow(for widget: String) -> some View {
         ZStack {
             getWidgetView(for: widget)
@@ -262,7 +264,7 @@ struct QuickAccessSettingsView_Home: View {
             Spacer().frame(height: 20)
         }
     }
-
+    
     // MARK: - Settings Helpers
     private func settingsCard<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -335,6 +337,21 @@ struct QuickAccessSettingsView_Home: View {
         }
     }
     
+    private var musicControllerPicker: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Picker("Music Controller", selection: $settings.musicController) {
+                ForEach(MusicController.allCases, id: \.self) { controller in
+                    Text(controller.displayName)
+                        .tag(controller)
+                }
+            }
+            .pickerStyle(.menu)
+            .onChange(of: settings.musicController) {
+                settings.saveSettings()
+            }
+        }
+    }
+    
     
     private var aiSettings: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -364,7 +381,7 @@ struct QuickAccessSettingsView_Home: View {
             }
         }
     }
-
+    
     func addFromClipboard() {
         if let clipboardString = NSPasteboard.general.string(forType: .string) {
             settings.aiApiKey = clipboardString

@@ -29,26 +29,27 @@ final class AppleScriptMusicController: NowPlayingProvider {
     private var spotifyRunningCache: (isRunning: Bool, timestamp: Date)?
     private var appleMusicRunningCache: (isRunning: Bool, timestamp: Date)?
     private let appStatusCacheInterval: TimeInterval = 5.0 // Cache app status for 5 seconds
-
+    
     /// Initializes the controller with a NowPlayingInfo object.
     /// - Parameter nowPlayingInfo: The shared info object to update.
     init(nowPlayingInfo: NowPlayingInfo) {
         self.nowPlayingInfo = nowPlayingInfo
     }
-
+    
     /// Always returns true, as this fallback is always available if the app is running.
     /// - Returns: `true` indicating the provider can be used.
     func isAvailable() -> Bool {
         true
     }
     
-
+    
     /// Fetches the current now playing information from Spotify or Apple Music.
     ///
     /// The method checks which app is playing, fetches info accordingly, and updates the NowPlayingInfo.
     /// If neither app is playing, it clears the now playing info.
     /// - Parameter completion: Closure called with `true` when done (always true for compatibility).
     func getNowPlayingInfo(completion: @escaping (Bool)->Void) {
+        debugLog("Getting Now Playing From AppleScriptMusicController")
         guard !isUpdating else {
             completion(true)
             return
@@ -62,7 +63,7 @@ final class AppleScriptMusicController: NowPlayingProvider {
         
         isUpdating = true
         lastUpdateTime = now
-
+        
         DispatchQueue.global(qos: .utility).async { [weak self] in
             self?.performUpdate { success in
                 DispatchQueue.main.async {
@@ -122,7 +123,7 @@ final class AppleScriptMusicController: NowPlayingProvider {
         // fallback: shouldn't reach here, but just in case
         completion(true)
     }
-
+    
     // MARK: - Playback Actions
     /// Skips to the previous track in the current player.
     func playPreviousTrack() -> Void {
@@ -203,7 +204,7 @@ final class AppleScriptMusicController: NowPlayingProvider {
             }
         }
     }
-
+    
     // MARK: - Optimized App Status Checking
     func isSpotifyPlaying() -> Bool {
         return isAppRunningCached("Spotify", cache: &spotifyRunningCache)
@@ -244,7 +245,7 @@ final class AppleScriptMusicController: NowPlayingProvider {
         }
         return false
     }
-
+    
     // MARK: - AppleScript Execution
     ///
     /// Executes an AppleScript and returns the result as a string.
@@ -277,7 +278,7 @@ final class AppleScriptMusicController: NowPlayingProvider {
         lastTrackInfo = ""
         lastArtworkIdentifier = nil
     }
-
+    
     /**
      * Updates the current playing media information with provided data.
      * Also extracts and updates the dominant color from artwork.
@@ -289,7 +290,7 @@ final class AppleScriptMusicController: NowPlayingProvider {
     ) {
         let (trackName, artistName, albumName, artworkImage, positionSeconds, durationSeconds) = info
         let currentTrackIdentifier = "\(trackName)|\(artistName)|\(albumName)|\(isPlaying)"
-
+        
         if lastTrackInfo == currentTrackIdentifier {
             // Only update time-sensitive info
             nowPlayingInfo.positionSeconds = positionSeconds
@@ -298,7 +299,7 @@ final class AppleScriptMusicController: NowPlayingProvider {
         }
         
         lastTrackInfo = currentTrackIdentifier
-
+        
         nowPlayingInfo.trackName = trackName
         nowPlayingInfo.artistName = artistName
         nowPlayingInfo.albumName = albumName
@@ -330,7 +331,7 @@ final class AppleScriptMusicController: NowPlayingProvider {
     }
     
     // MARK: - Spotify
-
+    
     /**
      * Fetches current playing information from Spotify.
      * Returns tuple of (track, artist, album, artwork, position, duration) if successful.
@@ -352,7 +353,7 @@ final class AppleScriptMusicController: NowPlayingProvider {
             end if
         end tell
         """
-
+        
         if let output = runAppleScript(script), output != "not_playing" {
             let components = output.components(separatedBy: "||")
             if components.count == 6 {
@@ -385,7 +386,7 @@ final class AppleScriptMusicController: NowPlayingProvider {
     }
     
     // MARK: - Apple Music
-
+    
     /**
      * Fetches current playing information from Music app.
      * Returns tuple of (track, artist, album, artwork, position, duration) if successful.
@@ -403,7 +404,7 @@ final class AppleScriptMusicController: NowPlayingProvider {
                 set trackDuration to duration of current track
                 set shuffleState to shuffle enabled
                 set repeatState to false
-
+        
                 try
                     set artData to data of artwork 1 of current track
                     set tempPath to POSIX path of (path to temporary items folder) & "cover.jpg"
@@ -414,7 +415,7 @@ final class AppleScriptMusicController: NowPlayingProvider {
                 on error
                     set tempPath to ""
                 end try
-
+        
                 return (playerState & "||" & currentTrackName & "||" & currentTrackArtist & "||" & currentTrackAlbum & "||" & trackPosition & "||" & trackDuration & "||" & shuffleState & "||" & repeatState & "||" & tempPath) as string
             on error
                 return "false||Not Playing||Unknown||Unknown||0||0||false||false||"
@@ -427,7 +428,7 @@ final class AppleScriptMusicController: NowPlayingProvider {
         
         if let output = runAppleScript(script) {
             let components = output.components(separatedBy: "||")
-
+            
             if components.count >= 9 {
                 let trackName = components[1]
                 let artistName = components[2]
@@ -435,19 +436,19 @@ final class AppleScriptMusicController: NowPlayingProvider {
                 let positionSeconds = Double(components[4]) ?? 0.0
                 let durationSeconds = Double(components[5]) ?? 0.0
                 let artworkPath = components[8].trimmingCharacters(in: .whitespacesAndNewlines)
-
-//                var artworkImage: NSImage? = NSImage(systemSymbolName: "music.note", accessibilityDescription: "Music Placeholder")
+                
+                //                var artworkImage: NSImage? = NSImage(systemSymbolName: "music.note", accessibilityDescription: "Music Placeholder")
                 var artworkImage: NSImage? = nil
                 
                 /// We Have To Check if the artworkPath is empty
                 if !artworkPath.isEmpty, FileManager.default.fileExists(atPath: artworkPath) {
                     artworkImage = NSImage(contentsOfFile: artworkPath)
                 }
-
+                
                 return (trackName, artistName, albumName, artworkImage, positionSeconds, durationSeconds)
             }
         }
-
+        
         return nil
     }
     

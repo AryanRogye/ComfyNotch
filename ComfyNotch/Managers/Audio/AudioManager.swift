@@ -28,6 +28,8 @@ class AudioManager: ObservableObject {
     lazy var mediaRemoteMusicController: MediaRemoteMusicController = {
         MediaRemoteMusicController(nowPlayingInfo: self.nowPlayingInfo)
     }()
+    
+    private var settings: SettingsModel = .shared
 
     private var timer: Timer?
     /// Optional callback invoked when nowPlayingInfo is updated
@@ -46,7 +48,21 @@ class AudioManager: ObservableObject {
      * Tries MediaRemote (Spotify/Apple Music) first, falls back to AppleScript if needed.
      */
     func getNowPlayingInfo(completion: @escaping (Bool) -> Void) {
-        // Attempt to use MediaRemote; fallback to AppleScript if unavailable or fails
+        /// Settings will default to the media remote
+        /// but its up to the user what they want to use
+        if settings.musicController == .mediaRemote {
+            fallbackNowPlaying()
+        } else if settings.musicController == .spotify_music {
+            DispatchQueue.global(qos: .utility).async {
+                self.appleScriptMusicController.getNowPlayingInfo { _ in }
+            }
+        } else {
+            /// if neither works then we use this
+            fallbackNowPlaying()
+        }
+    }
+    
+    private func fallbackNowPlaying() {
         if mediaRemoteMusicController.isAvailable() {
             mediaRemoteMusicController.getNowPlayingInfo { success in
                 if !success {
