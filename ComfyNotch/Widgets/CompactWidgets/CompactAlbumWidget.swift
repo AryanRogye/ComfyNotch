@@ -24,7 +24,7 @@ struct CompactAlbumWidget: View, Widget {
     }
     
     private var paddingTrailing: CGFloat {
-        panelAnimationState.hoverHandler.scaleHoverOverLeftItems ? 22 : 22
+        panelAnimationState.hoverHandler.scaleHoverOverLeftItems ? 20 : 22
     }
     private var paddingTop: CGFloat {
         panelAnimationState.hoverHandler.scaleHoverOverLeftItems ? 1 : 0
