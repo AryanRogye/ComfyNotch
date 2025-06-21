@@ -43,13 +43,12 @@ struct AnimatedDot: View {
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-            animationCancellable = Timer.publish(every: 0.5, on: .main, in: .common)
-                .autoconnect()
-                .sink { _ in
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        bounceOffset = (bounceOffset == -5) ? 5 : -5
-                    }
+            let timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
+            animationCancellable = timer.sink { _ in
+                withAnimation(.easeInOut(duration: 0.5)) {
+                    bounceOffset = (bounceOffset == -5) ? 5 : -5
                 }
+            }
         }
     }
 }
