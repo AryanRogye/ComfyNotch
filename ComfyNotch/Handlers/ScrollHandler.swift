@@ -174,13 +174,17 @@ class ScrollHandler {
     //        CATransaction.commit()
     //    }
     
+    private var isAnimating = false
+
     func peekOpen() {
         guard let _ = DisplayManager.shared.selectedScreen else { return }
         guard let panel = UIManager.shared.smallPanel,
               !isPeeking,
-              !isSnapping else { return }
+              !isSnapping,
+              !isAnimating else { return }
         
         isPeeking = true
+        isAnimating = true
         
         let currentTopY = panel.frame.maxY
         let peekHeight: CGFloat = minPanelHeight + 50
@@ -193,15 +197,15 @@ class ScrollHandler {
             height: peekHeight
         )
         
-        // Use NSAnimationContext but with optimizations
-        NSAnimationContext.runAnimationGroup { ctx in
-            ctx.duration = 0.28 // Perfect balance
-            ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.4, 0.0, 0.2, 1.0) // Material Design easing
+        NSAnimationContext.runAnimationGroup({ ctx in
+            ctx.duration = 0.28
+            ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.4, 0.0, 0.2, 1.0)
             ctx.allowsImplicitAnimation = true
             
-            // Don't set frame immediately - let the animation handle it
             panel.animator().setFrame(targetFrame, display: false)
-        }
+        }, completionHandler: {
+            self.isAnimating = false
+        })
     }
     
     func peekCloseInstantly() {
@@ -227,8 +231,10 @@ class ScrollHandler {
     func peekClose() {
         guard let screen = DisplayManager.shared.selectedScreen else { return }
         guard let panel = UIManager.shared.smallPanel,
-              isPeeking else { return }
+              isPeeking,
+              !isAnimating else { return }
         
+        isAnimating = true
         isPeeking = false
         
         let normalHeight = minPanelHeight
@@ -241,13 +247,15 @@ class ScrollHandler {
             height: normalHeight
         )
         
-        NSAnimationContext.runAnimationGroup { ctx in
-            ctx.duration = 0.22 // Slightly faster close feels natural
+        NSAnimationContext.runAnimationGroup({ ctx in
+            ctx.duration = 0.22
             ctx.timingFunction = CAMediaTimingFunction(controlPoints: 0.4, 0.0, 0.2, 1.0)
             ctx.allowsImplicitAnimation = true
             
             panel.animator().setFrame(targetFrame, display: false)
-        }
+        }, completionHandler: {
+            self.isAnimating = false
+        })
     }
     
     /// This animation makes sure that it just "expands"

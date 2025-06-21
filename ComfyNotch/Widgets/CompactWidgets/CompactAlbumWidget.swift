@@ -7,6 +7,7 @@ struct CompactAlbumWidget: View, Widget {
     var name: String = "AlbumWidget"
 
     @ObservedObject var model: MusicPlayerWidgetModel = .shared
+    @ObservedObject var panelAnimationState: PanelAnimationState = .shared
     var scrollManager = ScrollHandler.shared
 
     var body: some View {
@@ -16,10 +17,12 @@ struct CompactAlbumWidget: View, Widget {
                     Image(nsImage: model.nowPlayingInfo.artworkImage ?? NSImage())
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 25, height: 22)
+                        .frame(width: panelAnimationState.isHoveringOverLeft ? 20 : 25, height: panelAnimationState.isHoveringOverLeft ? 20 : 22)
                         .cornerRadius(4)
                         .padding(.top, 2)
                         .opacity(model.nowPlayingInfo.artworkImage != nil ? 1 : 0)
+                        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: panelAnimationState.isHoveringOverLeft)
+
                 }
                 
                 panelButton {
