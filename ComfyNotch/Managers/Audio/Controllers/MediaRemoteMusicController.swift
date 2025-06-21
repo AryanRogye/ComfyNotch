@@ -32,7 +32,7 @@ final class MediaRemoteMusicController: NowPlayingProvider {
     }
     
     func getNowPlayingInfo(completion: @escaping (Bool) -> Void) {
-        debugLog("MediaRemoteMusicController: getNowPlayingInfo called")
+//        debugLog("MediaRemoteMusicController: getNowPlayingInfo called")
         mediaController.onTrackInfoReceived = { [weak self] trackInfo in
             DispatchQueue.main.async {
                 guard let self else { return }

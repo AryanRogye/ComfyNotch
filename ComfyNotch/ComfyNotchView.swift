@@ -11,20 +11,6 @@ enum NotchViewState {
     case popInPresentation
 }
 
-struct Anim {
-    // macOS 14+ bouncy spring; fallback to a cubic curve
-    static var spring: Animation {
-        if #available(macOS 14, *) {
-            .spring(.bouncy(duration: 0.40))
-        } else {
-            .timingCurve(0.16, 1, 0.3, 1, duration: 0.70)
-        }
-    }
-    
-    /// What they call `.smooth` – a mild ease-out you can use for progress
-    static let smooth = Animation.easeOut(duration: 0.15)
-}
-
 class PanelAnimationState: ObservableObject {
     
     static let shared = PanelAnimationState()
@@ -33,7 +19,6 @@ class PanelAnimationState: ObservableObject {
     @Published var bottomSectionHeight: CGFloat = 0
     @Published var currentPanelWidth: CGFloat = UIManager.shared.startPanelWidth
     @Published var isDroppingFiles = false
-    @Published var droppedFiles: [URL] = []
     
     @Published var currentPanelState: NotchViewState = .home
     
@@ -47,6 +32,7 @@ class PanelAnimationState: ObservableObject {
     
     @Published var utilsSelectedTab : UtilsTab = .clipboard
     
+    @Published var droppedFiles: [URL] = []
     @Published var droppedFile: URL?
     
     let hoverHandler = HoverHandler()
@@ -97,21 +83,6 @@ struct ComfyNotchView: View {
                 .onDrop(of: [UTType.fileURL.identifier, UTType.image.identifier], isTargeted: $isDroppingFiles) { providers in
                     handleDrop(providers: providers)
                 }
-            
-            // TODO: Remove Underneath, later when I can verify nothing is getting fucked up
-            //            RoundedCornersShape(
-            //                topLeft: 0,
-            //                topRight: 0,
-            //                bottomLeft: cornerRadius,
-            //                bottomRight: cornerRadius
-            //            )
-            //            .fill(Color.black, style: FillStyle(eoFill: true))
-            //            .contentShape(Rectangle())
-            //            .offset(y: dragProgress * 12)
-            //            .scaleEffect(1 + dragProgress * 0.03)
-            //            .onDrop(of: [UTType.fileURL.identifier, UTType.image.identifier], isTargeted: $isDroppingFiles) { providers in
-            //                handleDrop(providers: providers)
-            //            }
             
             VStack(alignment: .leading,spacing: 0) {
                 /// Compact Widgets

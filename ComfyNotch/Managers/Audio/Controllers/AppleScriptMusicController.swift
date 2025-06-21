@@ -49,7 +49,7 @@ final class AppleScriptMusicController: NowPlayingProvider {
     /// If neither app is playing, it clears the now playing info.
     /// - Parameter completion: Closure called with `true` when done (always true for compatibility).
     func getNowPlayingInfo(completion: @escaping (Bool)->Void) {
-        debugLog("Getting Now Playing From AppleScriptMusicController")
+//        debugLog("Getting Now Playing From AppleScriptMusicController")
         guard !isUpdating else {
             completion(true)
             return
