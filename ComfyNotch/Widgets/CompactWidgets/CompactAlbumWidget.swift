@@ -17,7 +17,7 @@ struct CompactAlbumWidget: View, Widget {
                     Image(nsImage: model.nowPlayingInfo.artworkImage ?? NSImage())
                         .resizable()
                         .scaledToFit()
-                        .frame(width: panelAnimationState.isHoveringOverLeft ? 20 : 25, height: panelAnimationState.isHoveringOverLeft ? 20 : 22)
+                        .frame(width: panelAnimationState.isHoveringOverLeft ? 27 : 25, height: panelAnimationState.isHoveringOverLeft ? 24 : 22)
                         .cornerRadius(4)
                         .padding(.top, 2)
                         .opacity(model.nowPlayingInfo.artworkImage != nil ? 1 : 0)
