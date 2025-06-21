@@ -64,6 +64,7 @@ final class HoverHandler: ObservableObject {
                     hoverTimer = nil
                     target.currentPanelState = .home
                     self.scaleHoverOverLeftItems = false
+                    target.currentPopInPresentationState = .none
                     ScrollHandler.shared.peekClose()
                 }
             }

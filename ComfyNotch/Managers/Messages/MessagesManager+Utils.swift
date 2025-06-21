@@ -17,7 +17,6 @@ extension MessagesManager {
         let closeItem = DispatchWorkItem { [weak self] in
             guard let self = self else { return }
             self.closeNotch()
-            self.panelState.dontShowHoverMenu = false
             self.messageCloseWorkItem = nil
         }
 

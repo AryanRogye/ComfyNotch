@@ -111,8 +111,6 @@ final class PanelAnimator {
     private func handleMouseMove() {
         let mouseLocation = NSEvent.mouseLocation
         let panelFrame = panel.frame.insetBy(dx: -10, dy: -10)
-            
-        if PanelAnimationState.shared.dontShowHoverMenu { return }
         
         if UIManager.shared.panelState != .open {
             if panelFrame.contains(mouseLocation) {
@@ -126,6 +124,7 @@ final class PanelAnimator {
                 hoverTimer?.invalidate()
                 hoverTimer = nil
                 PanelAnimationState.shared.currentPanelState = .home
+                PanelAnimationState.shared.currentPopInPresentationState = .none
                 ScrollHandler.shared.peekClose()
             }
         }

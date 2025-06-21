@@ -78,7 +78,6 @@ extension MessagesManager {
         // Clear loading state quickly
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
             guard let self = self else { return }
-            panelState.dontShowHoverMenu = true
             withAnimation(.easeOut(duration: 0.2)) {
                 PanelAnimationState.shared.currentPopInPresentationState = .messages
                 PanelAnimationState.shared.currentPanelState = .popInPresentation

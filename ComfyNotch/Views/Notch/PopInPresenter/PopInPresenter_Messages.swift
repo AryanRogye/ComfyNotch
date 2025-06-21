@@ -87,9 +87,9 @@ struct PopInPresenter_Messages: View {
     private func openNotchToMessage() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
             UIManager.shared.applyOpeningLayout()
-            ScrollHandler.shared.peekClose()
             PanelAnimationState.shared.currentPanelState = .home
             PanelAnimationState.shared.currentPopInPresentationState = .none
+            ScrollHandler.shared.peekClose()
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
             PanelAnimationState.shared.isExpanded = true
