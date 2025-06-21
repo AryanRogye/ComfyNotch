@@ -32,6 +32,7 @@ class SettingsModel: ObservableObject {
     
     /// ----------- Notch Settings -----------
     @Published var showDividerBetweenWidgets: Bool = false
+    @Published var hoverTargetMode: HoverTarget = .album
     @Published var nowPlayingScrollSpeed: Int = 40
     @Published var enableNotchHUD: Bool = true
     @Published var notchMaxWidth: CGFloat = 710
@@ -65,6 +66,7 @@ class SettingsModel: ObservableObject {
     @Published var openingAnimation: String = "iOS"
     @Published var notchBackgroundAnimation: ShaderOption = .ambientGradient
     @Published var enableMetalAnimation: Bool = true
+    @Published var constant120FPS: Bool = false
     
     /// ---------- Utils Settings ----------
     /// Set to true at the start, will change if the user wants tp
@@ -145,6 +147,8 @@ class SettingsModel: ObservableObject {
         /// ----------------------- Notch Settings -------------------------------------
         defaults.set(showDividerBetweenWidgets, forKey: "showDividerBetweenWidgets")
         
+        defaults.set(hoverTargetMode.rawValue, forKey: "hoverTargetMode")
+        
         if nowPlayingScrollSpeed > 0 {
             defaults.set(nowPlayingScrollSpeed, forKey: "nowPlayingScrollSpeed")
         } else {
@@ -191,6 +195,7 @@ class SettingsModel: ObservableObject {
         defaults.set(openingAnimation, forKey: "openingAnimation")
         defaults.set(notchBackgroundAnimation.rawValue, forKey: "notchBackgroundAnimation")
         defaults.set(enableMetalAnimation, forKey: "enableMetalAnimation")
+        defaults.set(constant120FPS, forKey: "constant120FPS")
         
         /// ------------ Utils Settings -----------------------
         defaults.set(enableUtilsOption, forKey: "enableUtilsOption")
@@ -254,6 +259,12 @@ class SettingsModel: ObservableObject {
         }
         
         /// ----------------------- Notch Scroll Settings -----------------------
+        if let hoverTarget = defaults.object(forKey: "hoverTargetMode") as? String {
+            self.hoverTargetMode = HoverTarget(rawValue: hoverTarget) ?? .album
+        } else {
+            self.hoverTargetMode = .album // Default to album
+        }
+        
         if let nowPlayingScrollSpeed = defaults.object(forKey: "nowPlayingScrollSpeed") as? Int {
             self.nowPlayingScrollSpeed = nowPlayingScrollSpeed
         } else {
@@ -328,6 +339,12 @@ class SettingsModel: ObservableObject {
             self.enableMetalAnimation = enableMetalAnimation
         } else {
             self.enableMetalAnimation = true // Default to true
+        }
+        
+        if let constant120FPS = defaults.object(forKey: "constant120FPS") as? Bool {
+            self.constant120FPS = constant120FPS
+        } else {
+            self.constant120FPS = false // Default to false
         }
         
         /// ----------------------- Utils Settings -----------------------

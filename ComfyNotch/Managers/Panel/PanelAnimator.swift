@@ -37,6 +37,8 @@ final class PanelAnimator {
     
     private let expansionFactor: CGFloat = 1.5
     private let animationDuration: TimeInterval = 0.2
+    
+    private var globalHoverMonitor: Any?
 
     private init() {}
 
@@ -57,6 +59,19 @@ final class PanelAnimator {
         startHoverListener()
 //        startMusicListener()
     }
+    
+    func stopAnimationListeners() {
+        if let monitor = globalHoverMonitor {
+            NSEvent.removeMonitor(monitor)
+            globalHoverMonitor = nil
+        }
+        
+        hoverTimer?.invalidate()
+        hoverTimer = nil
+        isHovering = false
+    }
+    
+    
 
     /// Music Listener
     /// MARK: - Music Listener
@@ -87,7 +102,7 @@ final class PanelAnimator {
     /// - Description: Listens for mouse movement and triggers animations based on hover state
 
     func startHoverListener() {
-        NSEvent.addGlobalMonitorForEvents(matching: .mouseMoved) { [weak self] event in
+        globalHoverMonitor = NSEvent.addGlobalMonitorForEvents(matching: .mouseMoved) { [weak self] event in
             self?.handleMouseMove()
         }
     }
@@ -124,7 +139,7 @@ final class PanelAnimator {
             guard let self = self else { return }
             
             defer { self.hoverTimer = nil }
-
+         
             // Add a safety check: only animate if we're not already open
             if UIManager.shared.panelState != .open {
                 /// Delay the animation by 0.25 seconds so it doesnt jitter

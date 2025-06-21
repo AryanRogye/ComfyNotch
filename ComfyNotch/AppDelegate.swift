@@ -110,8 +110,10 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             ClipboardManager.shared.start()
         }
         
-        /// Start the hover handler, this also listens for music playing closing and opening slightly
-        PanelAnimator.shared.startAnimationListeners()
+        /// Start the hover handler
+        if SettingsModel.shared.hoverTargetMode == .panel {
+            PanelAnimator.shared.startAnimationListeners()
+        }
         
         if SettingsModel.shared.enableNotchHUD {
             /// Start The Media Key Interceptor

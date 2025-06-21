@@ -10,8 +10,9 @@ struct TopNotchView: View {
 
     @EnvironmentObject var widgetStore: CompactWidgetsStore
     @ObservedObject var animationState = PanelAnimationState.shared
+    @ObservedObject var settings: SettingsModel = .shared
 
-    @State private var isHovering: Bool = false/// Hovering for Pause or Play
+    @State private var isHovering: Bool = false /// Hovering for Pause or Play
     private var paddingWidth: CGFloat = 20
     
     var body: some View {
@@ -28,11 +29,16 @@ struct TopNotchView: View {
                     }
                 }
             }
+            .onHover { hover in
+                if settings.hoverTargetMode != .album { return }
+                if animationState.bottomSectionHeight == 0 {
+                    animationState.isHoveringOverLeft = hover
+                } else {
+                    animationState.isHoveringOverLeft = false
+                }
+            }
             .frame(maxWidth: .infinity, alignment: .trailing)
             /// Gonna Try Adding Handler To This
-            .onHover { hover in
-                
-            }
             
             Spacer()
                 .frame(width: PanelAnimationState.shared.isExpanded ? 450 : getNotchWidth())

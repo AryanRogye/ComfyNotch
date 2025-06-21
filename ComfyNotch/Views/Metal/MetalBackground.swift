@@ -137,11 +137,17 @@ struct MetalBackground: NSViewRepresentable {
                 .sink { [weak self] newState in
                     DispatchQueue.main.async {
                         guard let self else { return }
+                        
                         guard self.targetView != nil else { return }
                         if newState == .closed {
-                            self.drawBlankFrame()
+                            if !self.settings.constant120FPS {
+                                self.drawBlankFrame()
+                            }
+                            
                             self.targetView.enableSetNeedsDisplay = false
-                            self.targetView.isPaused = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                                self?.targetView?.isPaused = true
+                            }
                         } else {
                             self.targetView.enableSetNeedsDisplay = true
                             self.targetView.isPaused = false
@@ -152,6 +158,7 @@ struct MetalBackground: NSViewRepresentable {
         }
         
         private func drawBlankFrame() {
+            debugLog("Drew A Blank Frame")
             guard let drawable = targetView.currentDrawable,
                   let descriptor = targetView.currentRenderPassDescriptor else { return }
             

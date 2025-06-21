@@ -41,7 +41,7 @@ final class MediaRemoteMusicController: NowPlayingProvider {
                 
                 if trackId == self.lastTrackIdentifier {
                     if now.timeIntervalSince(self.lastUpdateTime) < self.updateInterval {
-                        print("Skipping update: \(now.timeIntervalSince(self.lastUpdateTime)) seconds since last update")
+//                        print("Skipping update: \(now.timeIntervalSince(self.lastUpdateTime)) seconds since last update")
                         return
                     }
                     print("Track ID Matches — updating time only")

@@ -7,22 +7,40 @@ struct CompactAlbumWidget: View, Widget {
     var name: String = "AlbumWidget"
 
     @ObservedObject var model: MusicPlayerWidgetModel = .shared
+    @ObservedObject var panelAnimationState: PanelAnimationState = .shared
     var scrollManager = ScrollHandler.shared
+    
+    private let smallSizeWidth: CGFloat = 25
+    private let smallSizeHeight: CGFloat = 22
+    private let bigSizeWidth: CGFloat = 28
+    private let bigSizeHeight: CGFloat = 25
+    
+    private var width: CGFloat {
+        panelAnimationState.scaleHoverOverLeftItems ? bigSizeWidth : smallSizeWidth
+    }
+    
+    private var height: CGFloat {
+        panelAnimationState.scaleHoverOverLeftItems ? bigSizeHeight : smallSizeHeight
+    }
+    
+    private var paddingTrailing: CGFloat {
+        panelAnimationState.scaleHoverOverLeftItems ? 19 : 22
+    }
+    private var paddingTop: CGFloat {
+        panelAnimationState.scaleHoverOverLeftItems ? 1 : 0
+    }
 
     var body: some View {
-        ZStack {
-            if !PanelAnimationState.shared.isExpanded {
-                panelButton {
-                    Image(nsImage: model.nowPlayingInfo.artworkImage ?? NSImage())
+        panelButton {
+            Group {
+                if let artwork = model.nowPlayingInfo.artworkImage {
+                    Image(nsImage: artwork)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 25, height: 22)
+                        .frame(width: width, height: height)
                         .cornerRadius(4)
                         .padding(.top, 2)
-                        .opacity(model.nowPlayingInfo.artworkImage != nil ? 1 : 0)
-                }
-                
-                panelButton {
+                } else {
                     ZStack {
                         RoundedRectangle(cornerRadius: 8)
                             .fill(Color.gray.opacity(0.2))
@@ -32,14 +50,12 @@ struct CompactAlbumWidget: View, Widget {
                             .foregroundColor(.white)
                     }
                     .padding(.top, 1)
-                    .opacity(model.nowPlayingInfo.artworkImage == nil ? 1 : 0)
                 }
-            } else {
-                Text("")
             }
         }
-        .padding(.trailing, 22)
-        .animation(.easeInOut(duration: 0.25), value: model.nowPlayingInfo.artworkImage != nil)
+        .padding(.trailing, paddingTrailing)
+        .padding(.top, paddingTop)
+        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: panelAnimationState.scaleHoverOverLeftItems)
     }
 
     private func panelButton<Label: View>(@ViewBuilder label: () -> Label) -> some View {
