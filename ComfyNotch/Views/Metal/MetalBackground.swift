@@ -141,8 +141,8 @@ struct MetalBackground: NSViewRepresentable {
                         if newState == .closed {
                             self.drawBlankFrame()
                             self.targetView.enableSetNeedsDisplay = false
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                self.targetView.isPaused = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                                self?.targetView.isPaused = true
                             }
                         } else {
                             self.targetView.enableSetNeedsDisplay = true
