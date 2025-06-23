@@ -12,10 +12,13 @@ FetchContent_MakeAvailable(ftxui)
 
 # Include third-party + src
 include_directories(include third_party)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Add executable
-file(GLOB SRC_FILES src/*.cpp third_party/*.c)
+file(GLOB_RECURSE SRC_FILES src/*.cpp third_party/*.c)
 add_executable(comfyx ${SRC_FILES})
+target_include_directories(comfyx PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 set_target_properties(comfyx PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)

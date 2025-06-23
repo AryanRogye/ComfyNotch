@@ -1,6 +1,7 @@
-#include <iostream>
+#include "ui/ComfyUI.h"
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    ComfyUI ui;
+    ui.Run();
     return 0;
 }
