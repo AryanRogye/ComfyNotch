@@ -43,7 +43,7 @@ struct PopInPresenter_NowPlaying: View {
                     let text = "\(musicModel.nowPlayingInfo.trackName) by \(musicModel.nowPlayingInfo.artistName)"
                     
                     Text(text)
-                        .font(.system(size: 18, weight: .medium, design: .rounded))
+                        .font(.system(size: 16, weight: .medium, design: .rounded))
                         .foregroundStyle(Color(nsColor: musicModel.nowPlayingInfo.dominantColor))
                         .fixedSize(horizontal: true, vertical: false)
                         .measureSize { size in
@@ -64,7 +64,7 @@ struct PopInPresenter_NowPlaying: View {
             .frame(height: 40)
             .clipped()
             .padding(.horizontal, 20)
-            .background(Color.black.opacity(0.8))
+//            .background(Color.black.opacity(0.8))
             .cornerRadius(10)
         }
     }

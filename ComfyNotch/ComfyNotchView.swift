@@ -102,7 +102,9 @@ struct ComfyNotchView: View {
             /// This is for the metal background to normalize to its set color
             .onChange(of: UIManager.shared.panelState) { _, newState in
                 MetalAnimationState.shared.animateBlurProgress(
+                    /// if open then blur to 1, if its closed then blur to 0
                     to: newState == .open ? 1.0 : 0.0,
+                    /// if open then take 2 seconds to blur, if closed then take 0.5 seconds to unblur
                     duration: newState == .open ? 2 : 0.5
                 )
             }
@@ -204,5 +206,5 @@ struct ComfyNotchView: View {
                 }
             }
         }
-    }    
+    }
 }
