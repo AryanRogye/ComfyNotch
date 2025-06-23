@@ -91,7 +91,9 @@ final class FileDropManager: ObservableObject {
             let saveFolder = settings.fileTrayDefaultFolder
             
             try? FileManager.default.createDirectory(at: saveFolder, withIntermediateDirectories: true)
-            let destURL = saveFolder.appendingPathComponent(url.lastPathComponent)
+            
+            let prefixedFileName = "Dropped-\(url.lastPathComponent)"
+            let destURL = saveFolder.appendingPathComponent(prefixedFileName)
             let sourceURL = copyIfNeeded ? url : url // ← future-proof
             try? FileManager.default.copyItem(at: sourceURL, to: destURL)
             
