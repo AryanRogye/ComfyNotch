@@ -10,10 +10,16 @@ import UniformTypeIdentifiers
 
 final class FileDropManager: ObservableObject {
     
+    @Published var isDroppingFiles = false
     @Published var droppedFiles: [URL] = []
     @Published var droppedFileInfo: FileInfo?
     @Published var droppedFile: URL?
     
+    /// This is used for iffffff the notch was opened by dragging
+    /// we wanna show a cool animation for it getting activated so the user
+    /// doesnt think its blue all the time lol
+    @Published var fileTriggeredTray: Bool = false
+
     private var settings: SettingsModel = .shared
     
     init() {

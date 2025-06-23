@@ -28,7 +28,7 @@ struct FileTrayView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            if animationState.isExpanded && !animationState.fileTriggeredTray
+            if animationState.isExpanded && !fileDropManager.fileTriggeredTray
             {
                 Group {
                     /// Conditional to show the delete page
@@ -43,9 +43,9 @@ struct FileTrayView: View {
                             /// This allows it to be blue when dragged over
                                 .background(
                                     RoundedRectangle(cornerRadius: 12)
-                                        .stroke(animationState.isDroppingFiles ? Color.blue.opacity(0.8) : Color.gray, style: StrokeStyle(lineWidth: 1, dash: [5]))
+                                        .stroke(fileDropManager.isDroppingFiles ? Color.blue.opacity(0.8) : Color.gray, style: StrokeStyle(lineWidth: 1, dash: [5]))
                                         .foregroundColor(.gray.opacity(0.5))
-                                        .animation(.easeInOut(duration: 0.3), value: animationState.isDroppingFiles)
+                                        .animation(.easeInOut(duration: 0.3), value: fileDropManager.isDroppingFiles)
                                 )
                                 .padding(.vertical, 5)
                                 .padding(.leading, 10)
@@ -60,9 +60,9 @@ struct FileTrayView: View {
                             /// This allows it to be blue when dragged over
                                 .background(
                                     RoundedRectangle(cornerRadius: 12)
-                                        .stroke(animationState.isDroppingFiles ? Color.blue.opacity(0.8) : Color.gray, style: StrokeStyle(lineWidth: 1, dash: [5]))
+                                        .stroke(fileDropManager.isDroppingFiles ? Color.blue.opacity(0.8) : Color.gray, style: StrokeStyle(lineWidth: 1, dash: [5]))
                                         .foregroundColor(.gray.opacity(0.5))
-                                        .animation(.easeInOut(duration: 0.3), value: animationState.isDroppingFiles)
+                                        .animation(.easeInOut(duration: 0.3), value: fileDropManager.isDroppingFiles)
                                 )
                                 .padding(.vertical, 5)
                                 .padding(.trailing, 10)
@@ -124,6 +124,9 @@ struct FileTrayView: View {
                         //                            .buttonStyle(.plain)
                         //                        }
                         
+                        Divider()
+                            .padding([.vertical], 2)
+                            .padding(.horizontal)
                         showDroppedFileDescription(for: dropped)
                     }
                 }
@@ -141,20 +144,26 @@ struct FileTrayView: View {
     @ViewBuilder
     func showDroppedFileDescription(for dropped: FileInfo) -> some View {
         VStack {
-            DisclosureGroup {
-                Text("\(dropped.realType)")
-            } label: {
-                Text("Type")
-            }
             
-            DisclosureGroup {
-                Text("\(dropped.dimensions ?? "No Size")")
-                Text("\(dropped.sizeInKB)KB")
-            } label: {
-                Text("Dimensions")
+            HStack {
+                Text("Type:")
+                Spacer()
+                Text(dropped.realType)
             }
+            .font(.caption)
+
+            if let dims = dropped.dimensions {
+                HStack {
+                    Text("Dimensions:")
+                    Spacer()
+                    Text(dims)
+                }
+                .font(.caption)
+            }
+            Text(ByteFormatter.format(bytes: dropped.sizeInKB * 1024))
+                .font(.caption)
+
         }
-        .padding()
     }
     
     @ViewBuilder
