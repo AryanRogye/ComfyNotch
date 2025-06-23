@@ -8,9 +8,18 @@ struct AnimatedDot: View {
     let color: Color
     var shouldAnimate: Bool
     
+    init(delay: Double, color: Color, shouldAnimate: Bool) {
+        self.delay = delay
+        self.color = color
+        self.shouldAnimate = shouldAnimate
+    }
+    
     @ObservedObject private var animationState: PanelAnimationState = .shared
     @State private var bounceOffset: CGFloat = 5
     @State private var animationCancellable: AnyCancellable?
+    
+    private var animationStiffness: CGFloat = 300
+    private var animationDamping: CGFloat = 15
     
     private var size: CGFloat {
         return animationState.hoverHandler.scaleHoverOverLeftItems ? 7 : 6
@@ -20,12 +29,17 @@ struct AnimatedDot: View {
         return animationState.hoverHandler.scaleHoverOverLeftItems ? 1.15 : 1
     }
     
+    
+    
     var body: some View {
         Circle()
             .fill(color)
             .frame(width: size, height: size)
             .scaleEffect(animationState.hoverHandler.scaleHoverOverLeftItems ? 1.15 : 1)
-            .animation(.spring(response: 0.2, dampingFraction: 0.6), value: animationState.hoverHandler.scaleHoverOverLeftItems)
+            .animation(
+                .interpolatingSpring(stiffness: animationStiffness, damping: animationDamping),
+                value: animationState.hoverHandler.scaleHoverOverLeftItems
+            )
             .offset(y: shouldAnimate ? bounceOffset : 0)
             .onAppear {
                 startLoopingBounce()
@@ -64,11 +78,10 @@ struct MovingDotsView: View, Widget {
     @ObservedObject var model: MusicPlayerWidgetModel = .shared
     @ObservedObject private var animationState: PanelAnimationState = .shared
     
-    /// I feel like adding a padding of a 9 makes it pop outwards
-    /// doing the same with the left CompactAlbumWidget gives it a more
-    /// "Exploding" feeling of going outwards scaling
-    private var paddingLeading: CGFloat {
-        return animationState.hoverHandler.scaleHoverOverLeftItems ? 9 : 10
+    /// Padding of 4-2 range pushes it to the left, that way when we hover of the left side,
+    /// it pops OUT to the right, making it look like its cool yk
+    private var paddingTrailing: CGFloat {
+        return animationState.hoverHandler.scaleHoverOverLeftItems ? 1 : 3
     }
     
     var body: some View {
@@ -81,7 +94,7 @@ struct MovingDotsView: View, Widget {
                 )
             }
         }
-        .padding(.trailing, paddingLeading)
+        .padding(.trailing, paddingTrailing)
         // Optionally add an explicit animation for the change in bounce state:
         .animation(.easeInOut(duration: 0.3), value: model.nowPlayingInfo.isPlaying)
     }

@@ -23,8 +23,11 @@ struct CompactAlbumWidget: View, Widget {
         panelAnimationState.hoverHandler.scaleHoverOverLeftItems ? bigSizeHeight : smallSizeHeight
     }
     
-    private var paddingTrailing: CGFloat {
-        panelAnimationState.hoverHandler.scaleHoverOverLeftItems ? 20 : 22
+    private var animationStiffness: CGFloat = 300
+    private var animationDamping: CGFloat = 15
+    
+    private var paddingLeading: CGFloat {
+        panelAnimationState.hoverHandler.scaleHoverOverLeftItems ? 1 : 3
     }
     private var paddingTop: CGFloat {
         panelAnimationState.hoverHandler.scaleHoverOverLeftItems ? 1 : 0
@@ -54,9 +57,12 @@ struct CompactAlbumWidget: View, Widget {
                 }
             }
         }
-        .padding(.trailing, paddingTrailing)
+        .padding(.leading, paddingLeading)
         .padding(.top, paddingTop)
-        .animation(.spring(response: 0.2, dampingFraction: 0.6), value: panelAnimationState.hoverHandler.scaleHoverOverLeftItems)
+        .animation(
+            .interpolatingSpring(stiffness: animationStiffness, damping: animationDamping),
+            value: panelAnimationState.hoverHandler.scaleHoverOverLeftItems
+        )
     }
 
     private func panelButton<Label: View>(@ViewBuilder label: () -> Label) -> some View {
@@ -67,7 +73,7 @@ struct CompactAlbumWidget: View, Widget {
                     scrollManager.openFull()
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    PanelAnimationState.shared.currentPanelState = .home
+                    panelAnimationState.currentPanelState = .home
                 }
             }
         }) {

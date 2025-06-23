@@ -7,104 +7,43 @@ enum TopNotchViewStates {
 }
 
 struct TopNotchView: View {
-
+    
     @EnvironmentObject var widgetStore: CompactWidgetsStore
     @ObservedObject var animationState = PanelAnimationState.shared
     @ObservedObject var settings: SettingsModel = .shared
     @ObservedObject var musicModel: MusicPlayerWidgetModel = .shared
-
+    
     @State private var isHovering: Bool = false /// Hovering for Pause or Play
     private var paddingWidth: CGFloat = 20
     
     var body: some View {
         HStack(spacing: 0) {
-            // Left Widgets
-            ZStack(alignment: .leading) {
-                HStack(spacing: 0) {
-                    ForEach(widgetStore.leftWidgetsShown.indices, id: \.self) { index in
-                        let widgetEntry = widgetStore.leftWidgetsShown[index]
-                        if widgetEntry.isVisible {
-                            widgetEntry.widget.swiftUIView
-                                .padding(.top, 2)
-                        }
-                    }
-                }
+            /// Left Widgets
+            HStack {
+                leftWidgets
             }
-            .onHover { hover in
-                if settings.hoverTargetMode != .album { return }
-                if animationState.bottomSectionHeight == 0 {
-                    animationState.hoverHandler.isHoveringOverLeft = hover
-                } else {
-                    animationState.hoverHandler.isHoveringOverLeft = false
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .trailing)
-            /// Gonna Try Adding Handler To This
+            .padding(.leading, 10)
+            
             
             Spacer()
-                .frame(width: PanelAnimationState.shared.isExpanded ? 450 : getNotchWidth())
-                .padding([.trailing, .leading], paddingWidth)
+            //            Spacer()
+            //                .frame(width: calculatedSpacerWidth)
+            //                .padding(.horizontal, animationState.currentPanelWidth >= 320 ? paddingWidth : 0)
+            //                .animation(.interpolatingSpring(stiffness: 180, damping: 18), value: animationState.currentPanelWidth)
             
-//            Spacer()
-//                .frame(width: calculatedSpacerWidth)
-//                .padding(.horizontal, animationState.currentPanelWidth >= 320 ? paddingWidth : 0)
-//                .animation(.interpolatingSpring(stiffness: 180, damping: 18), value: animationState.currentPanelWidth)
+            //            Spacer()
+            //                .frame(width: animationState.currentPanelWidth >= 320
+            //                       ? (animationState.isExpanded ? 450 : getNotchWidth())
+            //                       : 0)
+            //                .padding([.trailing, .leading], animationState.currentPanelWidth >= 320 ? paddingWidth : 0)
+            //                .animation(.spring(response: 0.35, dampingFraction: 0.75), value: animationState.currentPanelWidth)
             
-//            Spacer()
-//                .frame(width: animationState.currentPanelWidth >= 320
-//                       ? (animationState.isExpanded ? 450 : getNotchWidth())
-//                       : 0)
-//                .padding([.trailing, .leading], animationState.currentPanelWidth >= 320 ? paddingWidth : 0)
-//                .animation(.spring(response: 0.35, dampingFraction: 0.75), value: animationState.currentPanelWidth)
             
-            // Right Widgets
-            ZStack(alignment: .leading) {
-                if !isHovering {
-                    HStack(spacing: 0) {
-                        ForEach(widgetStore.rightWidgetsShown.indices, id: \.self) { index in
-                            let widgetEntry = widgetStore.rightWidgetsShown[index]
-                            if widgetEntry.isVisible {
-                                widgetEntry.widget.swiftUIView
-                                    .opacity(isHovering ? 0 : 1)
-                            }
-                        }
-                    }
-                } else {
-                    HStack(spacing: 0) {
-                        //// If the widget is playing show pause
-                        if musicModel.nowPlayingInfo.trackName != "No Song Playing" {
-                            Button(action: AudioManager.shared.togglePlayPause ) {
-                                Image(systemName: "pause.fill")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 17, height: 15)
-                                    .foregroundColor(Color(nsColor: musicModel.nowPlayingInfo.dominantColor))
-                            }
-                            .buttonStyle(.plain)
-                            .padding(.trailing, 23)
-                        }
-                        /// if the widget is not playing show play
-                        else {
-                            Button(action: AudioManager.shared.togglePlayPause ) {
-                                Image(systemName: "play.fill")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 17, height: 15)
-                                    .foregroundColor(Color(nsColor: musicModel.nowPlayingInfo.dominantColor))
-                            }
-                            .buttonStyle(.plain)
-                            .padding(.trailing, 23)
-                        }
-                    }
-                }
+            /// Right Widgets
+            HStack {
+                rightWidgets
             }
-            .onHover { hover in
-                if animationState.bottomSectionHeight == 0 {
-                    isHovering = hover
-                } else {
-                    isHovering = false
-                }
-            }
+            .padding(.trailing, 10)
         }
         .padding(.bottom, 2)
         .frame(maxWidth: .infinity, maxHeight: UIManager.shared.getNotchHeight(), alignment: .top)
@@ -113,24 +52,97 @@ struct TopNotchView: View {
                  animationState.isExpanded
                  
                  ? (animationState.currentPanelState == .file_tray
-                        /// This is to keep the Top Row Steady, if the filetray is showing
-                        ? -1
-                        /// This is when the fileTray is not showing and its just the widgets
-                        /// should have a -1 padding height
-                        /// Note: I realizes that having both being the same was the best in this case
-                        /// Old Value used to be 10, so if soemthing is fucked change it back
-                        : -1
-                 )
+                    /// This is to keep the Top Row Steady, if the filetray is showing
+                    ? -1
+                    /// This is when the fileTray is not showing and its just the widgets
+                    /// should have a -1 padding height
+                    /// Note: I realizes that having both being the same was the best in this case
+                    /// Old Value used to be 10, so if soemthing is fucked change it back
+                    : -1
+                   )
                  /// This is when the panel is closed and we're just looking at it
                  : 1
         )
     }
-
+    
+    // MARK: - Left Widget
+    private var leftWidgets: some View {
+        ZStack(alignment: .leading) {
+            HStack(spacing: 0) {
+                ForEach(widgetStore.leftWidgetsShown.indices, id: \.self) { index in
+                    let widgetEntry = widgetStore.leftWidgetsShown[index]
+                    if widgetEntry.isVisible {
+                        widgetEntry.widget.swiftUIView
+                            .padding(.top, 2)
+                    }
+                }
+            }
+        }
+        .onHover { hover in
+            if settings.hoverTargetMode != .album { return }
+            if animationState.bottomSectionHeight == 0 {
+                animationState.hoverHandler.isHoveringOverLeft = hover
+            } else {
+                animationState.hoverHandler.isHoveringOverLeft = false
+            }
+        }
+    }
+    
+    // MARK: - Right Widget
+    private var rightWidgets: some View {
+        ZStack(alignment: .leading) {
+            if isHovering {
+                playPause
+            } else {
+                HStack(spacing: 0) {
+                    ForEach(widgetStore.rightWidgetsShown.indices, id: \.self) { index in
+                        let widgetEntry = widgetStore.rightWidgetsShown[index]
+                        if widgetEntry.isVisible {
+                            widgetEntry.widget.swiftUIView
+                                .opacity(isHovering ? 0 : 1)
+                        }
+                    }
+                }
+            }
+        }
+        .onHover { hover in
+            if animationState.bottomSectionHeight == 0 {
+                withAnimation(.easeInOut(duration: 0.15)) {
+                    isHovering = hover
+                }
+            } else {
+                isHovering = false
+            }
+        }
+    }
+    
+    // MARK: - Play Pause Button
+    private var playPauseFont: CGFloat = 14
+    private var playPauseTrailing: CGFloat = 12
+    private var playPauseTop: CGFloat = 2
+    
+    private var playPause: some View {
+        HStack(spacing: 0) {
+            let isPlaying = musicModel.nowPlayingInfo.isPlaying
+            Button(action: AudioManager.shared.togglePlayPause) {
+                Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                    .font(.system(size: playPauseFont, weight: .medium)) // Native sizing
+                    .foregroundStyle(Color(nsColor: musicModel.nowPlayingInfo.dominantColor))
+                    .animation(.easeInOut(duration: 0.15), value: isHovering)
+            }
+            .buttonStyle(.borderless)
+            .padding(.trailing, playPauseTrailing)
+            .padding(.top, playPauseTop)
+            .contentShape(Rectangle()) // Better hitbox
+        }
+    }
+    
+    // MARK: - Internals
     private func getNotchWidth() -> CGFloat {
         guard let screen = DisplayManager.shared.selectedScreen else { return 180 } // Default to 180 if it fails
-
+        
         let screenWidth = screen.frame.width
-
+        
         // Rough estimates based on Apple specs
         if screenWidth >= 3456 { // 16-inch MacBook Pro
             return 180
@@ -139,7 +151,7 @@ struct TopNotchView: View {
         } else if screenWidth >= 2880 { // 15-inch MacBook Air
             return 170
         }
-
+        
         // Default if we can't determine it
         return 180
     }

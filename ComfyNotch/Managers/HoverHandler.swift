@@ -38,6 +38,8 @@ final class HoverHandler: ObservableObject {
                 guard let self = self else { return }
                 if SettingsModel.shared.hoverTargetMode != .album { return }
                 
+//                print("Is Hover: \(hovering)")
+                
                 if hovering {
                     if UIManager.shared.panelState != .closed { return }
                     
@@ -59,6 +61,8 @@ final class HoverHandler: ObservableObject {
                     RunLoop.main.add(self.hoverTimer!, forMode: .common)
                     
                 } else {
+                    
+                    if UIManager.shared.panelState != .closed { return }
                     // Always allow closing, even if panel is open
                     hoverTimer?.invalidate()
                     hoverTimer = nil
@@ -66,6 +70,7 @@ final class HoverHandler: ObservableObject {
                     self.scaleHoverOverLeftItems = false
                     target.currentPopInPresentationState = .none
                     ScrollHandler.shared.peekClose()
+                    
                 }
             }
             .store(in: &cancellables)

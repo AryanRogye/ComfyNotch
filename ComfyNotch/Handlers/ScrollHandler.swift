@@ -443,4 +443,17 @@ class ScrollHandler {
         // Default if we can't determine it
         return 180
     }
+    
+    // TODO: PLS PLS PLS LOOK AT THIS TO USE
+    func animate(_ duration: TimeInterval,
+                 timing: CAMediaTimingFunction,
+                 animations: @escaping () -> Void,
+                 completion: @escaping () -> Void = {}) {
+        NSAnimationContext.runAnimationGroup({ ctx in
+            ctx.duration = duration
+            ctx.timingFunction = timing
+            ctx.allowsImplicitAnimation = true
+            animations()
+        }, completionHandler: completion)
+    }
 }

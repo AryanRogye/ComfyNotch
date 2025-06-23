@@ -39,6 +39,7 @@ extension NowPlayingProvider {
      * - Returns: The dominant NSColor, or nil if extraction fails.
      */
     public func getDominantColor(from image: NSImage) -> NSColor? {
+        debugLog("Called getDominantColor")
         guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
             return nil
         }

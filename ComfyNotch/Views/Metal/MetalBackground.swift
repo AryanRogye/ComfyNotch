@@ -155,6 +155,36 @@ struct MetalBackground: NSViewRepresentable {
                     }
                 }
                 .store(in: &cancellables)
+            
+            // DOES NOT WORK PROPERLY PLS LOOK
+//            PanelAnimationState.shared.$currentPopInPresentationState
+//                .sink { [weak self] newState in
+//                    guard let self else { return }
+//                    
+//                    if newState == .nowPlaying {
+//                        /// make sure this is set to true
+//                        self.targetView.enableSetNeedsDisplay = true
+//                        self.targetView.isPaused = false
+//                        
+//                        MetalAnimationState.shared.animateBlurProgress(to: 1.0, duration: 0.5)
+//                        
+//                    } else {
+//                        MetalAnimationState.shared.animateBlurProgress(to: 0.0, duration: 0.8)
+//                        
+//                        guard self.targetView != nil else { return }
+//                        if UIManager.shared.panelState == .closed {
+//                            if !self.settings.constant120FPS {
+//                                self.drawBlankFrame()
+//                            }
+//                            self.targetView.enableSetNeedsDisplay = false
+//                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+//                                self?.targetView?.isPaused = true
+//                            }
+//                        }
+//                        
+//                    }
+//                }
+//                .store(in: &cancellables)
         }
         
         private func drawBlankFrame() {
