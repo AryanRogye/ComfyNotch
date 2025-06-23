@@ -38,8 +38,9 @@ struct ComfyNotchView: View {
     
     @StateObject private var fileDropManager = FileDropManager()
     
-    @ObservedObject var animationState = PanelAnimationState.shared
-    @ObservedObject var settings = SettingsModel.shared
+    @ObservedObject private var animationState = PanelAnimationState.shared
+    @ObservedObject private var uiManager      = UIManager.shared
+    @ObservedObject private var settings       = SettingsModel.shared
     
     
     /// Testing:
@@ -53,24 +54,27 @@ struct ComfyNotchView: View {
     
     var body: some View {
         notch
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             /// MODIFIERS
+    
             /// This manager was added in to make sure that the popInPresentation is playing
             /// when we open it, it doesnt bug out
-            .onChange(of: UIManager.shared.panelState) { _, newState in
+            .onChange(of: uiManager.panelState) { _, newState in
                 if newState == .open {
-                    if PanelAnimationState.shared.currentPanelState == .popInPresentation {
-                        PanelAnimationState.shared.currentPanelState = .home
+                    if animationState.currentPanelState == .popInPresentation {
+                        animationState.currentPanelState = .home
                     }
                 }
             }
+        
             /// This is to show the file tray area when dropped
             .onChange(of: fileDropManager.isDroppingFiles) { _, hovering in
-                if hovering && UIManager.shared.panelState == .closed {
-                    fileDropManager.fileTriggeredTray = true
+                if hovering && uiManager.panelState == .closed {
+                    fileDropManager.shouldAutoShowTray = true
                     /// Set the page of the notch to be the home
                     animationState.currentPanelState = .home
                     /// Fade Out the Contents
-                    UIManager.shared.applyOpeningLayout()
+                    uiManager.applyOpeningLayout()
                     
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         DispatchQueue.main.async {
@@ -89,21 +93,20 @@ struct ComfyNotchView: View {
                     }
                     /// This will help with snapping on the filetray view
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
-                        fileDropManager.fileTriggeredTray = false
+                        fileDropManager.shouldAutoShowTray = false
                     }
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
             // MARK: Scroling Logic
             .panGesture(direction: .down) { translation, phase in
                 
-                guard UIManager.shared.panelState == .closed else { return }
+                guard uiManager.panelState == .closed else { return }
                 
-                let threshhold : CGFloat = PanelAnimationState.shared.currentPanelState == .popInPresentation ? 120 : 50
+                let threshhold : CGFloat = animationState.currentPanelState == .popInPresentation ? 120 : 50
                 if translation > threshhold {
                     //                debugLog("Called Down With Threshold \(translation)")
-                    PanelAnimationState.shared.currentPanelState = .home
-                    UIManager.shared.applyOpeningLayout()
+                    animationState.currentPanelState = .home
+                    uiManager.applyOpeningLayout()
                     DispatchQueue.main.async {
                         CATransaction.flush()
                         DispatchQueue.main.async {
@@ -113,8 +116,9 @@ struct ComfyNotchView: View {
                 }
             }
             .panGesture(direction: .up) { translation, phase in
-                guard UIManager.shared.panelState == .open else { return }
+                guard uiManager.panelState == .open else { return }
                 
+                /// TODO: idk what this is look into it pls
                 if WidgetHoverState.shared.isHoveringOverEventWidget {
                     debugLog("Ignoring scroll — hovering EventWidget")
                     return
@@ -128,7 +132,7 @@ struct ComfyNotchView: View {
                 }
                 
                 if translation > 50 {
-                    UIManager.shared.applyOpeningLayout()
+                    uiManager.applyOpeningLayout()
                     /// This will make sure that the applyOpeningLayout will
                     /// actually do something because the CATransaction
                     /// Force commits of pending layout changes
@@ -179,7 +183,7 @@ struct ComfyNotchView: View {
                 : AnyView(Color.black.ignoresSafeArea())
             )
             /// This is for the metal background to normalize to its set color
-            .onChange(of: UIManager.shared.panelState) { _, newState in
+            .onChange(of: uiManager.panelState) { _, newState in
                 MetalAnimationState.shared.animateBlurProgress(
                     /// if open then blur to 1, if its closed then blur to 0
                     to: newState == .open ? 1.0 : 0.0,

@@ -18,7 +18,7 @@ final class FileDropManager: ObservableObject {
     /// This is used for iffffff the notch was opened by dragging
     /// we wanna show a cool animation for it getting activated so the user
     /// doesnt think its blue all the time lol
-    @Published var fileTriggeredTray: Bool = false
+    @Published var shouldAutoShowTray: Bool = false
 
     private var settings: SettingsModel = .shared
     

@@ -28,7 +28,7 @@ struct FileTrayView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            if animationState.isExpanded && !fileDropManager.fileTriggeredTray
+            if animationState.isExpanded && !fileDropManager.shouldAutoShowTray
             {
                 Group {
                     /// Conditional to show the delete page
