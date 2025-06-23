@@ -18,12 +18,13 @@ struct FileRow: View {
 
 struct FileTrayView: View {
     
+    @EnvironmentObject var fileDropManager : FileDropManager
+    
     @ObservedObject var animationState = PanelAnimationState.shared
     @ObservedObject var settings = SettingsModel.shared
     
     @State var showDeleteFileAlert: Bool = false
     @State var currentDeleteFileURL: URL?
-    @State var droppedFileInfo : FileInfo = FileInfo()
     
     var body: some View {
         VStack(spacing: 0) {
@@ -35,10 +36,11 @@ struct FileTrayView: View {
                         /// If No Files
                         /// If Files Are There
                         HStack {
-//                            /// Add File Look
+                            //                            /// Add File Look
                             addFilesTray
                                 .padding(.horizontal, 10)
                                 .frame(width: 150, height: 150)
+                            /// This allows it to be blue when dragged over
                                 .background(
                                     RoundedRectangle(cornerRadius: 12)
                                         .stroke(animationState.isDroppingFiles ? Color.blue.opacity(0.8) : Color.gray, style: StrokeStyle(lineWidth: 1, dash: [5]))
@@ -55,6 +57,7 @@ struct FileTrayView: View {
                                 .padding(.horizontal, 10)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 150)
+                            /// This allows it to be blue when dragged over
                                 .background(
                                     RoundedRectangle(cornerRadius: 12)
                                         .stroke(animationState.isDroppingFiles ? Color.blue.opacity(0.8) : Color.gray, style: StrokeStyle(lineWidth: 1, dash: [5]))
@@ -85,11 +88,10 @@ struct FileTrayView: View {
             let columns = [
                 GridItem(.adaptive(minimum: 100))
             ]
-            let droppedFiles = self.getFilesFromStoredDirectory()
             
             ComfyScrollView {
                 LazyVGrid(columns: columns, spacing: 1) {
-                    ForEach(droppedFiles, id: \.self) { fileURL in
+                    ForEach(fileDropManager.droppedFiles.filter { FileManager.default.fileExists(atPath: $0.path) }, id: \.self) { fileURL in
                         showFile(for: fileURL)
                     }
                 }
@@ -99,50 +101,60 @@ struct FileTrayView: View {
     
     var addFilesTray: some View {
         VStack {
-//            if let dropped = animationState.droppedFile {
-//                VStack {
-//                    ScrollView {
-//                        showFileThumbnail(fileURL: dropped)
-//                        showFileName(fileURL: dropped)
-//                        
-//                        Text("Are file?")
-//                        HStack {
-//                            Button(action: {animationState.droppedFile = nil}) {
-//                                Image(systemName: "x.circle")
-//                                    .resizable()
-//                                    .frame(width: 18, height: 18)
-//                            }
-//                            .buttonStyle(.plain)
-//                            Button(action: {}) {
-//                                Image(systemName: "checkmark")
-//                                    .resizable()
-//                                    .frame(width: 18, height: 18)
-//                            }
-//                            .buttonStyle(.plain)
-//                        }
-//                        /// Description about the file
-//                        Text(String("Type: \(droppedFileInfo.realType)"))
-//                        Text("Dimensions: \(droppedFileInfo.dimensions ?? "No Size" )")
-//                        Text("Size(KB): \(droppedFileInfo.sizeInKB)")
-//                        Text("Created: \(droppedFileInfo.creationDate)")
-//                    }
-//                }
-//            } else {
+            /// TODO: This is really cool, maybe think about managing this better
+            if let dropped = fileDropManager.droppedFileInfo, let droppedFile = fileDropManager.droppedFile {
+                VStack {
+                    ScrollView {
+                        showFileThumbnail(fileURL: droppedFile)
+                        showFileName(fileURL: droppedFile)
+                        
+                        //                        Text("Are file?")
+                        //                        HStack {
+                        //                            Button(action: {animationState.droppedFile = nil}) {
+                        //                                Image(systemName: "x.circle")
+                        //                                    .resizable()
+                        //                                    .frame(width: 18, height: 18)
+                        //                            }
+                        //                            .buttonStyle(.plain)
+                        //                            Button(action: {}) {
+                        //                                Image(systemName: "checkmark")
+                        //                                    .resizable()
+                        //                                    .frame(width: 18, height: 18)
+                        //                            }
+                        //                            .buttonStyle(.plain)
+                        //                        }
+                        
+                        showDroppedFileDescription(for: dropped)
+                    }
+                }
+            } else {
                 Text("Add Files Here")
                     .font(.headline)
                     .foregroundColor(.gray)
                     .multilineTextAlignment(.center)
                     .padding()
-//            }
-//            Spacer()
+            }
+            //            Spacer()
         }
-        .onChange(of: animationState.droppedFile) { _, newValue in
-            if let file = newValue {
-                if let info = DroppedFileTracker.shared.extractFileInfo(from: file) {
-                    self.droppedFileInfo = info
-                }
+    }
+    
+    @ViewBuilder
+    func showDroppedFileDescription(for dropped: FileInfo) -> some View {
+        VStack {
+            DisclosureGroup {
+                Text("\(dropped.realType)")
+            } label: {
+                Text("Type")
+            }
+            
+            DisclosureGroup {
+                Text("\(dropped.dimensions ?? "No Size")")
+                Text("\(dropped.sizeInKB)KB")
+            } label: {
+                Text("Dimensions")
             }
         }
+        .padding()
     }
     
     @ViewBuilder
@@ -153,7 +165,7 @@ struct FileTrayView: View {
                 showFileName(fileURL: fileURL)
                 showMenu(fileURL: fileURL)
             }
-                .padding([.horizontal, .top], 5)
+            .padding([.horizontal, .top], 5)
             
             showTimeStamp(fileURL: fileURL)
         }
@@ -223,38 +235,6 @@ struct FileTrayView: View {
         }
     }
     
-    private func getTimestamp(fileURL: URL) -> Date {
-        do {
-            let resourceVlaues =  try fileURL.resourceValues(forKeys: [.creationDateKey])
-            return resourceVlaues.creationDate ?? Date()
-        } catch {
-            debugLog("Error Getting Timestamp \(error.localizedDescription)")
-        }
-        return Date()
-    }
-    
-    private func getFormattedTimestamp(for fileURL: URL) -> String {
-        let createdAt = getTimestamp(fileURL: fileURL)
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .short
-        return formatter.localizedString(for: createdAt, relativeTo: Date())
-    }
-    
-    private func getFormattedName(for fileURL: URL) -> String {
-        let fileName = fileURL.lastPathComponent
-
-        // Check if the filename contains "DroppedImage"
-        guard let range = fileName.range(of: "DroppedImage") else {
-            return fileName  // fallback: return original name if not found
-        }
-
-        // Cut everything after "DroppedImage"
-        let afterPrefix = fileName[range.upperBound...]
-
-        // Drop the extension
-        return afterPrefix.split(separator: ".").first.map(String.init) ?? String(afterPrefix)
-    }
-    
     @ViewBuilder
     func showPopup() -> some View {
         if showDeleteFileAlert {
@@ -308,72 +288,16 @@ struct FileTrayView: View {
     
     @ViewBuilder
     func showTimeStamp(fileURL: URL) -> some View {
-        Text(getFormattedTimestamp(for: fileURL))
+        Text(fileDropManager.getFormattedTimestamp(for: fileURL))
     }
     
     @ViewBuilder
     func showFileName(fileURL: URL) -> some View {
-        Text(getFormattedName(for: fileURL))
+        Text(fileDropManager.getFormattedName(for: fileURL))
             .font(.system(size: 10, weight: .regular))
             .foregroundColor(.white)
             .lineLimit(1)
             .truncationMode(.tail)
             .frame(maxWidth: .infinity, alignment: .leading)
-    }
-    
-    private func addFilesToTray(url: URL) {
-        let fileManager = FileManager.default
-        let folderURL = settings.fileTrayDefaultFolder
-
-        // Make sure the folder exists
-        if !fileManager.fileExists(atPath: folderURL.path) {
-            do {
-                try fileManager.createDirectory(at: folderURL, withIntermediateDirectories: true)
-            } catch {
-                debugLog("❌ Failed to create folder: \(error.localizedDescription)")
-                return
-            }
-        }
-
-        // Generate a destination filename, preserve original name if you want
-        let destinationURL = folderURL.appendingPathComponent("Dropped-\(UUID().uuidString)-\(url.lastPathComponent)")
-
-        do {
-            try fileManager.copyItem(at: url, to: destinationURL)
-            debugLog("✅ File copied to tray: \(destinationURL.lastPathComponent)")
-        } catch {
-            debugLog("❌ Failed to copy file: \(error.localizedDescription)")
-        }
-    }
-    private func getFilesFromStoredDirectory() -> [URL] {
-        let fileManager = FileManager.default
-        let folderURL = settings.fileTrayDefaultFolder
-        var matchedFiles: [URL] = []
-        /// we wanna return the ones that start with a "DroppedImage" name
-        /// This is the one that we added to that selected "Directory", if the user wants to remove
-        /// or change the name then it wont show anymore and thats ok, thats up
-        /// to them
-        if !fileManager.fileExists(atPath: folderURL.path) {
-            do {
-                try fileManager.createDirectory(at: folderURL, withIntermediateDirectories: true)
-                debugLog("✅ Created missing folder at: \(folderURL.path)")
-            } catch {
-                debugLog("❌ Failed to create folder: \(error.localizedDescription)")
-                return []
-            }
-        }
-        
-        /// settings.fileTrayDefaultFolder is the folder to watch for
-        do {
-            let contents = try fileManager.contentsOfDirectory(at: folderURL, includingPropertiesForKeys: nil)
-            for url in contents {
-                if url.lastPathComponent.hasPrefix("Dropped") {
-                    matchedFiles.append(url)
-                }
-            }
-        } catch {
-            debugLog("There Was A Error Getting Paths \(error.localizedDescription)")
-        }
-        return matchedFiles
     }
 }
