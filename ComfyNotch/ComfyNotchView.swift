@@ -54,7 +54,7 @@ struct ComfyNotchView: View {
     @State private var dragProgress: CGFloat = 0
     
     private var contentInset: CGFloat = 40
-    private var cornerRadius: CGFloat = 20
+    private var cornerRadius: CGFloat = 30
     
     init() {
         let panelAnimationState = PanelAnimationState.shared
