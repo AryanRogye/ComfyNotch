@@ -1,6 +1,10 @@
 #include "ui/ComfyUI.h"
 #include "ui/ConfigView.h"
 #include "ui/BuildArchiveView.h"
+#include "utils/ProcessRunner.h"
+#include <filesystem>
+#include "utils/Logger.h"
+#include "utils/SafeDelete.h"
 
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/component_base.hpp>
@@ -18,10 +22,12 @@ ComfyUI::ComfyUI(const Config config) : config(config), screen(ScreenInteractive
     // Assign commands for each menu option
     commands = {
         [this]() { show_build_archive_view(); },
-        [this]() { message = "[Create DMG] command executed."; },
-        [this]() { show_config_view(); }
+        [this]() { show_create_dmg_view(); },
+        [this]() { show_config_view(); },
+        [this]() { clean_archive_folder(); },
+        [this]() { clean_dmg_folder(); },
     };
-    options = {"Build Archive", "Create DMG", "Configuration"};
+    options = {"Build Archive", "Create DMG", "Configuration", "Clean Archive Folder", "Clean DMG Folder"};
 
     build_menu_renderer();
     build_keybindings();
@@ -132,8 +138,64 @@ void ComfyUI::show_build_archive_view() {
     // Create the build archive view (pass config as needed)
     build_archive_view = std::make_unique<BuildArchiveView>(config);
     build_archive_view->Run();
-
     message = "Returned from build archive view.";
+    build_menu_renderer();
+    build_keybindings();
+    build_renderer();
+}
+
+// MARK: - Cleanup
+
+void ComfyUI::show_create_dmg_view() {
+    ProcessRunner::Run(ProcessType::CreateDMG, config);
+}
+
+void ComfyUI::clean_archive_folder() {
+    namespace fs = std::filesystem;
+    bool removed = false;
+    std::string archive_dir = "ComfyXData/Archive";
+    std::string export_dir = "ComfyXData/Export";
+    if (SafeDelete::is_safe_to_remove(archive_dir) && !SafeDelete::contains_forbidden_files(archive_dir)) {
+        std::error_code ec;
+        if (fs::exists(archive_dir)) {
+            fs::remove_all(archive_dir, ec);
+            Logger::Log("Removed archive folder: " + archive_dir + (ec ? (" (error: " + ec.message() + ")") : ""));
+            removed = true;
+        }
+    } else if (SafeDelete::contains_forbidden_files(archive_dir)) {
+        Logger::Log("Aborted: forbidden files/folders found in " + archive_dir);
+    }
+    if (SafeDelete::is_safe_to_remove(export_dir) && !SafeDelete::contains_forbidden_files(export_dir)) {
+        std::error_code ec;
+        if (fs::exists(export_dir)) {
+            fs::remove_all(export_dir, ec);
+            Logger::Log("Removed export folder: " + export_dir + (ec ? (" (error: " + ec.message() + ")") : ""));
+            removed = true;
+        }
+    } else if (SafeDelete::contains_forbidden_files(export_dir)) {
+        Logger::Log("Aborted: forbidden files/folders found in " + export_dir);
+    }
+    message = removed ? "Archive and/or export folders cleaned." : "No archive/export folders to clean, unsafe path, or forbidden files present.";
+    build_menu_renderer();
+    build_keybindings();
+    build_renderer();
+}
+
+void ComfyUI::clean_dmg_folder() {
+    namespace fs = std::filesystem;
+    bool removed = false;
+    std::string dmg_folder = "ComfyXData/Updates";
+    if (SafeDelete::is_safe_to_remove(dmg_folder) && !SafeDelete::contains_forbidden_files(dmg_folder)) {
+        std::error_code ec;
+        if (fs::exists(dmg_folder)) {
+            fs::remove_all(dmg_folder, ec);
+            Logger::Log("Removed DMG folder: " + dmg_folder + (ec ? (" (error: " + ec.message() + ")") : ""));
+            removed = true;
+        }
+    } else if (SafeDelete::contains_forbidden_files(dmg_folder)) {
+        Logger::Log("Aborted: forbidden files/folders found in " + dmg_folder);
+    }
+    message = removed ? "DMG folder cleaned." : "No DMG folder to clean, unsafe path, or forbidden files present.";
     build_menu_renderer();
     build_keybindings();
     build_renderer();

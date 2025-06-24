@@ -14,9 +14,6 @@ std::vector<std::string> Config::validate() const {
     if (!project) missing.push_back("project");
     if (!scheme) missing.push_back("scheme");
     if (!archive_configuration) missing.push_back("archive_configuration");
-    if (!archive_path) missing.push_back("archive_path");
-    if (!archive_export_path) missing.push_back("archive_export_path");
-    if (!archive_export_options) missing.push_back("archive_export_options");
     return missing;
 }
 
@@ -39,6 +36,7 @@ Config ConfigParser::parse(const std::string& ini_path) {
     if (!missing.empty()) {
         logMissingKeys(missing);
     }
+    // comfyx_data_root and all generated paths are now fixed, no need to parse from ini
     return config;
 }
 
@@ -69,18 +67,7 @@ bool ConfigParser::save(const Config& config) {
         sanitized_config.archive_configuration->erase(std::remove(sanitized_config.archive_configuration->begin(), sanitized_config.archive_configuration->end(), '\n'), sanitized_config.archive_configuration->end());
         trim(*sanitized_config.archive_configuration);
     }
-    if (sanitized_config.archive_path) {
-        sanitized_config.archive_path->erase(std::remove(sanitized_config.archive_path->begin(), sanitized_config.archive_path->end(), '\n'), sanitized_config.archive_path->end());
-        trim(*sanitized_config.archive_path);
-    }
-    if (sanitized_config.archive_export_path) {
-        sanitized_config.archive_export_path->erase(std::remove(sanitized_config.archive_export_path->begin(), sanitized_config.archive_export_path->end(), '\r'), sanitized_config.archive_export_path->end());
-        trim(*sanitized_config.archive_export_path);
-    }
-    if (sanitized_config.archive_export_options) {
-        sanitized_config.archive_export_options->erase(std::remove(sanitized_config.archive_export_options->begin(), sanitized_config.archive_export_options->end(), '\n'), sanitized_config.archive_export_options->end());
-        trim(*sanitized_config.archive_export_options);
-    }
+    // No more archive_path, archive_export_path, archive_export_options, etc.
     if (!sanitized_config.ini_path) return false;
     // Validate before writing
     auto missing = sanitized_config.validate();
@@ -97,15 +84,23 @@ bool ConfigParser::save(const Config& config) {
         out << "[build]\n";
         if (sanitized_config.project) out << "project = " << *sanitized_config.project << "\n";
         if (sanitized_config.scheme) out << "scheme = " << *sanitized_config.scheme << "\n";
-        // [archive] section
+        // [archive] section (only archive_configuration and archive_destructive remain)
         out << "\n[archive]\n";
-        if (sanitized_config.archive_path) out << "archive_path = " << *sanitized_config.archive_path << "\n";
-        if (sanitized_config.archive_export_path) out << "archive_export_path = " << *sanitized_config.archive_export_path << "\n";
-        if (sanitized_config.archive_export_options) out << "archive_export_options = " << *sanitized_config.archive_export_options << "\n";
         if (sanitized_config.archive_configuration) out << "archive_configuration = " << *sanitized_config.archive_configuration << "\n";
         if (sanitized_config.archive_destructive.has_value()) {
             out << "archive_destructive = " << (sanitized_config.archive_destructive.value() ? "true" : "false") << "\n";
         }
+        // [dmg] section
+        if (sanitized_config.dmg_name || sanitized_config.dmg_app_name || sanitized_config.dmg_volume_name || sanitized_config.dmg_move_from_archive) {
+            out << "\n[dmg]\n";
+            if (sanitized_config.dmg_name) out << "dmg_name = " << *sanitized_config.dmg_name << "\n";
+            if (sanitized_config.dmg_app_name) out << "dmg_app_name = " << *sanitized_config.dmg_app_name << "\n";
+            if (sanitized_config.dmg_volume_name) out << "dmg_volume_name = " << *sanitized_config.dmg_volume_name << "\n";
+            if (sanitized_config.dmg_move_from_archive.has_value()) {
+                out << "dmg_move_from_archive = " << (sanitized_config.dmg_move_from_archive.value() ? "true" : "false") << "\n";
+            }
+        }
+        // No [general] section needed
     }
     // Verify the temp file parses
     try {
@@ -139,18 +134,24 @@ int ConfigParser::iniHandler(void* user, const char* section, const char* name, 
             config->scheme = value;
         }
     } else if (std::strcmp(section, "archive") == 0) {
-        if (std::strcmp(name, "archive_path") == 0) {
-            config->archive_path = value;
-        } else if (std::strcmp(name, "archive_export_path") == 0) {
-            config->archive_export_path = value;
-        } else if (std::strcmp(name, "archive_export_options") == 0) {
-            config->archive_export_options = value;
-        } else if (std::strcmp(name, "archive_configuration") == 0) {
+        if (std::strcmp(name, "archive_configuration") == 0) {
             config->archive_configuration = value;
         } else if (std::strcmp(name, "archive_destructive") == 0) {
             std::string val = value;
             std::transform(val.begin(), val.end(), val.begin(), ::tolower);
             config->archive_destructive = (val == "true" || val == "1" || val == "yes");
+        }
+    } else if (std::strcmp(section, "dmg") == 0) {
+        if (std::strcmp(name, "dmg_name") == 0) {
+            config->dmg_name = value;
+        } else if (std::strcmp(name, "dmg_app_name") == 0) {
+            config->dmg_app_name = value;
+        } else if (std::strcmp(name, "dmg_volume_name") == 0) {
+            config->dmg_volume_name = value;
+        } else if (std::strcmp(name, "dmg_move_from_archive") == 0) {
+            std::string val = value;
+            std::transform(val.begin(), val.end(), val.begin(), ::tolower);
+            config->dmg_move_from_archive = (val == "true" || val == "1" || val == "yes");
         }
     }
     return 1;

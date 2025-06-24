@@ -45,6 +45,9 @@ private:
 
   void show_config_view();
   void show_build_archive_view();
+  void show_create_dmg_view();
+  void clean_archive_folder();
+  void clean_dmg_folder();
   std::unique_ptr<ConfigView> config_view;
   std::unique_ptr<BuildArchiveView> build_archive_view;
 };

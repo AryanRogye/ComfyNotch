@@ -25,4 +25,7 @@ private:
     static std::vector<std::string> log_lines;
     static std::mutex logger_mutex;
     static void EnsureLogDir();
+    static std::string GetLogDir() {
+        return "ComfyXData/Logs";
+    }
 };

@@ -9,11 +9,13 @@ struct Config {
   std::optional<std::string> project;
   std::optional<std::string> scheme;
   // [archive]
-  std::optional<std::string> archive_path;
-  std::optional<std::string> archive_export_path;
-  std::optional<std::string> archive_export_options;
   std::optional<std::string> archive_configuration;
   std::optional<bool>        archive_destructive;
+  // [dmg] section
+  std::optional<std::string> dmg_name;
+  std::optional<std::string> dmg_app_name;
+  std::optional<std::string> dmg_volume_name;
+  std::optional<bool> dmg_move_from_archive;
 
   // Returns a vector of missing required keys
   std::vector<std::string> validate() const;

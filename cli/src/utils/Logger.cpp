@@ -14,7 +14,7 @@ std::vector<std::string> Logger::log_lines;
 std::mutex Logger::logger_mutex;
 
 void Logger::EnsureLogDir() {
-    std::filesystem::create_directories("logs");
+    std::filesystem::create_directories(GetLogDir());
 }
 
 void Logger::Init() {
@@ -23,7 +23,7 @@ void Logger::Init() {
     auto now = std::chrono::system_clock::now();
     auto t = std::chrono::system_clock::to_time_t(now);
     std::stringstream ss;
-    ss << "logs/cli_run_" << std::put_time(std::localtime(&t), "%Y%m%d_%H%M%S") << ".log";
+    ss << GetLogDir() << "/cli_run_" << std::put_time(std::localtime(&t), "%Y%m%d_%H%M%S") << ".log";
     log_file_path = ss.str();
     log_stream = std::make_unique<std::ofstream>(log_file_path, std::ios::out | std::ios::app);
     Log("--- Logger started ---");
@@ -64,3 +64,4 @@ ftxui::Component Logger::LogComponent() {
 std::string Logger::CurrentLogFile() {
     return log_file_path;
 }
+
