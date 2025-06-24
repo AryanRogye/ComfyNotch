@@ -11,16 +11,22 @@ public:
 
     // Render the configuration view
   void Run();
+  const Config& GetConfig() const { return config; }
 
 private:
   Config config;
   int selected_option = 0;
+  int editing_field = -1;
 
   std::vector<std::string> options;
+  std::vector<std::string> field_values;
+  std::vector<ftxui::Component> input_fields;
 
   ftxui::Component view;
   ftxui::Component form;
+  ftxui::Component form_renderer;
   ftxui::Component keybindings;
 
   void build_keybindings();
+  void refresh();
 };

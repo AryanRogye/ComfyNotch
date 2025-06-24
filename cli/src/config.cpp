@@ -3,6 +3,9 @@
 #include <stdexcept>
 #include <cstring>
 #include <iostream>
+#include <fstream>
+
+// MARK: Validation
 
 /// Function to validate the configuration and return missing keys
 /// @return A vector of strings containing the names of missing required keys
@@ -17,27 +20,101 @@ std::vector<std::string> Config::validate() const {
     return missing;
 }
 
-/// Constructor for ConfigParser that reads the INI file and populates the config object
+// MARK: ConfigParser Implementation
+
+/// Parse the INI file at the given path and return a Config object
 /// @param ini_path Path to the INI file to parse
+/// @return A Config object populated with the values from the INI file
 /// @throws std::runtime_error if the file cannot be opened or parsed
-ConfigParser::ConfigParser(const std::string& ini_path) {
-    int error = ini_parse(ini_path.c_str(), ConfigParser::iniHandler, &config_);
+Config ConfigParser::parse(const std::string& ini_path) {
+    Config config;
+    config.ini_path = ini_path;
+    int error = ini_parse(ini_path.c_str(), ConfigParser::iniHandler, &config);
     if (error < 0) {
         throw std::runtime_error("Could not open INI file: " + ini_path);
     } else if (error > 0) {
         throw std::runtime_error("INI parse error on line: " + std::to_string(error));
     }
-    auto missing = config_.validate();
+    auto missing = config.validate();
     if (!missing.empty()) {
         logMissingKeys(missing);
     }
+    return config;
 }
 
-/// Accessor for the parsed configuration
-/// @return The Config object containing the parsed values
-const Config& ConfigParser::config() const {
-    return config_;
+// MARK: Save Config
+/// Save the given Config object to an INI file
+/// @param config The Config object to save
+/// @return true if successful, false otherwise
+bool ConfigParser::save(const Config& config) {
+    if (!config.ini_path) return false;
+
+    // Sanitize and trim config values
+    auto trim = [](std::string& s) {
+        // Remove leading whitespace
+        s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) { return !std::isspace(ch); }));
+        // Remove trailing whitespace
+        s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), s.end());
+    };
+    Config sanitized_config = config;
+    if (sanitized_config.project) {
+        sanitized_config.project->erase(std::remove(sanitized_config.project->begin(), sanitized_config.project->end(), '\n'), sanitized_config.project->end());
+        trim(*sanitized_config.project);
+    }
+    if (sanitized_config.scheme) {
+        sanitized_config.scheme->erase(std::remove(sanitized_config.scheme->begin(), sanitized_config.scheme->end(), '\n'), sanitized_config.scheme->end());
+        trim(*sanitized_config.scheme);
+    }
+    if (sanitized_config.configuration) {
+        sanitized_config.configuration->erase(std::remove(sanitized_config.configuration->begin(), sanitized_config.configuration->end(), '\n'), sanitized_config.configuration->end());
+        trim(*sanitized_config.configuration);
+    }
+    if (sanitized_config.archive_path) {
+        sanitized_config.archive_path->erase(std::remove(sanitized_config.archive_path->begin(), sanitized_config.archive_path->end(), '\n'), sanitized_config.archive_path->end());
+        trim(*sanitized_config.archive_path);
+    }
+    if (sanitized_config.export_path) {
+        sanitized_config.export_path->erase(std::remove(sanitized_config.export_path->begin(), sanitized_config.export_path->end(), '\n'), sanitized_config.export_path->end());
+        trim(*sanitized_config.export_path);
+    }
+    if (sanitized_config.export_options) {
+        sanitized_config.export_options->erase(std::remove(sanitized_config.export_options->begin(), sanitized_config.export_options->end(), '\n'), sanitized_config.export_options->end());
+        trim(*sanitized_config.export_options);
+    }
+    if (!sanitized_config.ini_path) return false;
+    // Validate before writing
+    auto missing = sanitized_config.validate();
+    if (!missing.empty()) {
+        logMissingKeys(missing);
+        return false; // Cannot save if validation fails
+    }
+    // Write to a temp file first for atomicity
+    std::string tmp_path = *sanitized_config.ini_path + ".tmp";
+    {
+        std::ofstream out(tmp_path);
+        if (!out) return false;
+        out << "[build]\n";
+        if (sanitized_config.project) out << "project = " << *sanitized_config.project << "\n";
+        if (sanitized_config.scheme) out << "scheme = " << *sanitized_config.scheme << "\n";
+        if (sanitized_config.configuration) out << "configuration = " << *sanitized_config.configuration << "\n";
+        if (sanitized_config.archive_path) out << "archive_path = " << *sanitized_config.archive_path << "\n";
+        if (sanitized_config.export_path) out << "export_path = " << *sanitized_config.export_path << "\n";
+        if (sanitized_config.export_options) out << "export_options = " << *sanitized_config.export_options << "\n";
+    }
+    // Verify the temp file parses
+    try {
+        Config verified = ConfigParser::parse(tmp_path);
+        // If parse is good, move temp file to real file
+        std::rename(tmp_path.c_str(), sanitized_config.ini_path->c_str());
+        return true;
+    } catch (const std::exception& e) {
+        std::remove(tmp_path.c_str());
+        logMissingKeys({"Failed to verify config after save: " + std::string(e.what())});
+        return false;
+    }
 }
+
+// MARK: INI Handler
 
 /// Static handler function for the INI parser
 /// This function is called for each key-value pair in the INI file.
@@ -69,9 +146,11 @@ int ConfigParser::iniHandler(void* user, const char* section, const char* name, 
     return 1;
 }
 
+// MARK: Logging Missing Keys
+
 /// Log missing required keys to standard error
 /// @param missing A vector of strings containing the names of missing keys
-void ConfigParser::logMissingKeys(const std::vector<std::string>& missing) const {
+void ConfigParser::logMissingKeys(const std::vector<std::string>& missing) {
     std::cerr << "Warning: Missing required config keys:";
     for (const auto& key : missing) {
         std::cerr << " " << key;

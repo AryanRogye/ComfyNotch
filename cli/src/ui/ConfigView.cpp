@@ -1,5 +1,6 @@
 #include "ui/ConfigView.h"
 
+#include "config.h"
 #include "ftxui/component/component.hpp"
 #include "ftxui/component/component_base.hpp"
 #include "ftxui/component/screen_interactive.hpp"
@@ -7,42 +8,75 @@
 
 using namespace ftxui;
 
-ConfigView::ConfigView(const Config &config) : config(config) {
-  options = {"Project: " + config.project.value_or("N/A"),
-             "Scheme: " + config.scheme.value_or("N/A"),
-             "Scheme: " + config.scheme.value_or("N/A"),
-             "Configuration: " + config.configuration.value_or("N/A"),
-             "Archive Path: " + config.archive_path.value_or("N/A"),
-             "Export Path: " + config.export_path.value_or("N/A"),
-             "Export Options:  " + config.export_options.value_or("N/A")};
-
-
-  // Initialize the form with the configuration values
-  form = Renderer([this]() {
-    Elements entries;
-
-    for (size_t i = 0; i < options.size(); ++i) {
-        Element line = text(options[i]);
-        if (i == selected_option)
-            line = line | inverted | bold | color(Color::Green);
-        else
-            line = line | color(Color::GrayDark);
-        entries.push_back(line);
+// Mark: COnstructors
+ConfigView::ConfigView(const Config &config) : config(config), input_fields() {
+  // Always load the latest config from disk if ini_path is set
+  if (config.ini_path) {
+    try {
+      this->config = ConfigParser::parse(*config.ini_path);
+    } catch (...) {
+      this->config = config;
     }
-    return vbox(std::move(entries));
-  });
+  } else {
+    this->config = config;
+  }
+  // Sync field_values with config
+  field_values = {
+    this->config.project.value_or("") ,
+    this->config.scheme.value_or("") ,
+    this->config.configuration.value_or("") ,
+    this->config.archive_path.value_or("") ,
+    this->config.export_path.value_or("") ,
+    this->config.export_options.value_or("")
+  };
+  static const std::vector<std::string> labels = {
+    "Project", "Scheme", "Configuration", "Archive Path", "Export Path", "Export Options"
+  };
+  input_fields.clear();
+  for (size_t i = 0; i < field_values.size(); ++i) {
+    input_fields.push_back(Input(&field_values[i], "Enter value..."));
+  }
 
+  /// Create the form with input fields
+  form = Container::Vertical(input_fields);
+  /// Track which field is currently being edited
+  editing_field = -1;
+
+
+  /// Main renderer for the form
+  form_renderer = Renderer([this] {
+    Elements entries;
+    static const std::vector<std::string> labels = {
+      "Project", "Scheme", "Configuration", "Archive Path", "Export Path", "Export Options"
+    };
+    for (size_t i = 0; i < field_values.size(); ++i) {
+      if (editing_field == (int)i) {
+        entries.push_back(hbox({
+          text(labels[i] + ": ") | size(WIDTH, EQUAL, 18),
+          input_fields[i]->Render()
+        }));
+      } else {
+        Element line = text(labels[i] + ": " + field_values[i]);
+        if ((int)i == selected_option)
+          line = line | inverted | bold | color(Color::Green);
+        else
+          line = line | color(Color::GrayDark);
+        entries.push_back(line);
+      }
+    }
+    return vbox({
+      text("Configuration View"),
+      separator(),
+      text("Use Ctrl+C to go back"),
+      vbox(std::move(entries)) | border | color(Color::GrayDark) | bgcolor(Color::Black),
+      separator(),
+      text("Use j/k or arrows to navigate, Enter to edit, Esc to exit edit, s to save")
+    }) | border;
+  });
   build_keybindings();
 
-  view = Renderer(keybindings ,[this]() {
-    return vbox({
-        text("Configuration View"),
-        separator(),
-        text("Ctrl+C to exit."),
-        keybindings->Render(),
-        text("Use 'j'/'k' to navigate, 'q' to quit.")
-    });
-  });
+  /// Assign the form renderer to the view
+  view = keybindings;
 }
 
 void ConfigView::Run() {
@@ -51,15 +85,89 @@ void ConfigView::Run() {
 }
 
 void ConfigView::build_keybindings() {
-    keybindings = CatchEvent(form, [this](Event event) {
-        if (event == Event::Character("j") || event == Event::ArrowDown) {
-            selected_option = (selected_option + 1) % options.size();
-            return true;
+  keybindings = CatchEvent(form_renderer, [this](Event event) {
+    if (editing_field == -1) {
+      // Normal navigation mode
+      if (event == Event::Character("j") || event == Event::ArrowDown) {
+        selected_option = (selected_option + 1) % field_values.size();
+        return true;
+      }
+      if (event == Event::Character("k") || event == Event::ArrowUp) {
+        selected_option = (selected_option - 1 + field_values.size()) % field_values.size();
+        return true;
+      }
+      if (event == Event::Return) {
+        editing_field = selected_option;
+        return true;
+      }
+      if (event == Event::Character("s")) {
+        // Save previous config for revert
+        auto previous_config = config;
+        config.project = field_values[0].empty() ? std::nullopt : std::make_optional(field_values[0]);
+        config.scheme = field_values[1].empty() ? std::nullopt : std::make_optional(field_values[1]);
+        config.configuration = field_values[2].empty() ? std::nullopt : std::make_optional(field_values[2]);
+        config.archive_path = field_values[3].empty() ? std::nullopt : std::make_optional(field_values[3]);
+        config.export_path = field_values[4].empty() ? std::nullopt : std::make_optional(field_values[4]);
+        config.export_options = field_values[5].empty() ? std::nullopt : std::make_optional(field_values[5]);
+        config.validate(); // Validate the config
+        // Use ConfigParser static logic for save and verify
+        bool save_ok = ConfigParser::save(config);
+        bool verified = false;
+        if (save_ok) {
+          try {
+            Config verified_config = ConfigParser::parse(*config.ini_path);
+            verified = true;
+            refresh();
+          } catch (const std::exception& e) {
+            // Revert: reload previous config if parse fails
+            ConfigParser::save(previous_config); // revert file
+            config = previous_config; // revert in memory
+            // Optionally show error to user (e.g. set a message)
+          }
+        } else {
+          // Save failed, revert in memory
+          config = previous_config;
+          // Optionally show error to user
         }
-        if (event == Event::Character("k") || event == Event::ArrowUp) {
-            selected_option = (selected_option - 1 + options.size()) % options.size();
-            return true;
-        }
-        return false;
-    });
+        return true;
+      }
+    } else {
+      // In edit mode for a field
+      bool handled = input_fields[editing_field]->OnEvent(event);
+      if (event == Event::Escape) {
+        editing_field = -1;
+        return true;
+      }
+      if (event == Event::Return) {
+        editing_field = -1;
+        return true;
+      }
+      return handled;
+    }
+    return false;
+  });
+}
+
+void ConfigView::refresh() {
+  if (config.ini_path) {
+    try {
+      Config latest = ConfigParser::parse(*config.ini_path);
+      config = latest;
+      // Update field_values to match the latest config
+      field_values = {
+        config.project.value_or("") ,
+        config.scheme.value_or("") ,
+        config.configuration.value_or("") ,
+        config.archive_path.value_or("") ,
+        config.export_path.value_or("") ,
+        config.export_options.value_or("")
+      };
+      // Update input fields as well
+      for (size_t i = 0; i < field_values.size() && i < input_fields.size(); ++i) {
+        // The Input component already points to field_values[i], so just updating field_values is enough
+      }
+    } catch (const std::exception& e) {
+      // Optionally handle error (e.g., show a message)
+    }
+  }
 }

@@ -7,6 +7,10 @@
 
 using namespace ftxui;
 
+// MARK: Run
+void ComfyUI::Run() { screen.Loop(renderer); }
+
+
 // MARK: Constructors
 ComfyUI::ComfyUI(const Config config) : config(config), screen(ScreenInteractive::TerminalOutput()) {
     // Assign commands for each menu option
@@ -22,20 +26,37 @@ ComfyUI::ComfyUI(const Config config) : config(config), screen(ScreenInteractive
     build_renderer();
 }
 
-void ComfyUI::show_config_view() {
-    // Create the config view (pass config as needed)
-    config_view = std::make_unique<ConfigView>(config);
-    // Run the config view in its own event loop
-    config_view->Run();
-    // After returning, you can update the message or refresh the main menu
-    message = "Returned from configuration view.";
-    build_menu_renderer();
-    build_keybindings();
-    build_renderer();
+// MARK: Main Renderer
+
+// This function builds the main renderer for the ComfyUI.
+// It creates a Renderer object that combines the title, keybindings, and message into a vertical box layout.
+// The title is displayed at the top, followed by a separator, the keybindings,
+void ComfyUI::build_renderer() {
+    renderer = Renderer(keybindings, [this] {
+        return vbox({
+                   text(title),
+                   separator(),
+                   keybindings->Render() | 
+                       border | color(Color::GrayDark) | bgcolor(Color::Black),
+                   separator(),
+                   text(message.empty() ? "Select an option" : message),
+                   text("Ctrl+C to exit"),
+               }) |
+               border;
+    });
 }
 
 
-// MARK: Internals
+// MARK: Menu Picker
+
+// This function builds the menu renderer, which displays the available options.
+// The selected option is highlighted in green, while unselected options are displayed in gray.
+// The menu_renderer is a Component that can be rendered in the UI.
+// It uses a lambda function to generate the content dynamically based on the current state of options and selected_option.
+// The options are displayed with a leading space for better readability.
+// The selected option is styled with inverted colors, bold text, and green color.
+// Unselected options are styled with a dark gray color.
+// The menu_renderer is then used in the main renderer to display the menu in the UI.
 void ComfyUI::build_menu_renderer() {
     menu_renderer = Renderer([this] {
         Elements entries;
@@ -51,6 +72,10 @@ void ComfyUI::build_menu_renderer() {
     });
 }
 
+// MARK: Keybindings
+
+// This function sets up keybindings for the menu navigation and command execution.
+// It uses the CatchEvent function to handle key events and update the selected option or execute commands
 void ComfyUI::build_keybindings() {
     keybindings = CatchEvent(menu_renderer, [this](Event event) {
         if (event == Event::Character("j") || event == Event::ArrowDown) {
@@ -71,17 +96,16 @@ void ComfyUI::build_keybindings() {
     });
 }
 
-void ComfyUI::build_renderer() {
-    renderer = Renderer(keybindings, [this] {
-        return vbox({
-                   text(title),
-                   separator(),
-                   keybindings->Render(),
-                   separator(),
-                   text(message.empty() ? "Select an option" : message),
-               }) |
-               border;
-    });
-}
+// MARK: Command Functions
 
-void ComfyUI::Run() { screen.Loop(renderer); }
+void ComfyUI::show_config_view() {
+    // Create the config view (pass config as needed)
+    config_view = std::make_unique<ConfigView>(config);
+    // Run the config view in its own event loop
+    config_view->Run();
+    // After returning, you can update the message or refresh the main menu
+    message = "Returned from configuration view.";
+    build_menu_renderer();
+    build_keybindings();
+    build_renderer();
+}
