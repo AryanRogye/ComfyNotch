@@ -9,7 +9,7 @@
 
 using namespace ftxui;
 
-// Mark: COnstructors
+// Mark: Constructors
 ConfigView::ConfigView(const Config &config) : config(config), input_fields() {
   // Always load the latest config from disk if ini_path is set
   if (config.ini_path) {
