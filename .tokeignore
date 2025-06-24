@@ -17,3 +17,7 @@ Contents.json
 cli/build/
 cli/ComfyXData/
 cli/third_party/
+cli/config/
+cli/CMakeLists.txt
+Scripts/
+cli/compile.sh
