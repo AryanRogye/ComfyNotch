@@ -41,6 +41,38 @@ int ProcessRunner::RunBuildArchive(const Config& config) {
     if (result != 0) {
         Logger::Log("BuildArchive process failed with exit code " + std::to_string(result));
     }
+
+
+    if (!config.archive_export_options || !config.archive_export_path)  {
+        Logger::Log("No archive export options provided, skipping export");
+        return result;
+    }
+
+    if (result != 0) {
+        Logger::Log("Archive step failed, skipping export step.");
+        return result;
+    }
+
+    cmd = "xcodebuild -exportArchive -archivePath '" + *config.archive_path + "' -exportPath '" + *config.archive_export_path + "' -exportOptionsPlist '" + *config.archive_export_options + "' > /dev/null 2>&1";
+
+    if (config.archive_destructive && *config.archive_destructive) {
+        if (std::filesystem::exists(*config.archive_export_path)) {
+            Logger::Log("Destructive mode enabled, deleting existing export at " + *config.archive_export_path);
+            std::filesystem::remove_all(*config.archive_export_path);
+        } else {
+            Logger::Log("Destructive mode enabled, but no existing export found at " + *config.archive_export_path);
+        }
+    }
+
+
+    Logger::Log("Running export command: " + cmd);
+    result = std::system(cmd.c_str());
+    if (result != 0) {
+        Logger::Log("Export process failed with exit code " + std::to_string(result));
+    } else {
+        Logger::Log("Export completed successfully to " + *config.archive_export_path);
+    }
+
     return result;
 }
 

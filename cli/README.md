@@ -7,13 +7,9 @@ Easily handle builds, archives, app updates, and more through a fast and minimal
 ## ✨ Features
 
 - Archive and export macOS `.app` bundles
-- Clean build artifacts
+- (Coming Soon) Clean build artifacts
 - Build in Debug or Release mode
-- Generate Sparkle-compatible appcasts (optional)
-- Upcoming: TUI dashboard for status and memory profiling
-
-## 🚀 Usage
-
+- (Coming Soon) Generate Sparkle-compatible appcasts
 
 > This project includes the [inih](https://github.com/benhoyt/inih) library, licensed under the MIT License.
 
