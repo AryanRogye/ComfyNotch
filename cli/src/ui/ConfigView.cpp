@@ -29,9 +29,6 @@ ConfigView::ConfigView(const Config &config) : config(config), input_fields() {
     this->config.export_path.value_or("") ,
     this->config.export_options.value_or("")
   };
-  static const std::vector<std::string> labels = {
-    "Project", "Scheme", "Configuration", "Archive Path", "Export Path", "Export Options"
-  };
   input_fields.clear();
   for (size_t i = 0; i < field_values.size(); ++i) {
     input_fields.push_back(Input(&field_values[i], "Enter value..."));

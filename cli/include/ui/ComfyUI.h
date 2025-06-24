@@ -31,7 +31,6 @@ private:
   std::string title = "Comfyx";
   std::string message = "";
 
-  ftxui::Component button;
   ftxui::Component renderer;
   ftxui::Component menu_renderer;
   ftxui::Component keybindings;

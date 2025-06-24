@@ -18,7 +18,6 @@ private:
   int selected_option = 0;
   int editing_field = -1;
 
-  std::vector<std::string> options;
   std::vector<std::string> field_values;
   std::vector<ftxui::Component> input_fields;
 
