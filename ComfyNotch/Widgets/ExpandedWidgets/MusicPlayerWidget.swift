@@ -3,13 +3,33 @@ import SwiftUI
 import Combine
 import SVGView
 
-
 struct MusicControlButton: ButtonStyle {
+    
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            // Keep general modifiers
-            .frame(width: 30, height: 30)
-            .opacity(configuration.isPressed ? 0.7 : 1.0) // Add visual feedback for press
+        MusicControlButtonView(isPressed: configuration.isPressed) {
+            configuration.label
+        }
+    }
+    
+    struct MusicControlButtonView<Label: View>: View {
+        @State private var isHovering = false
+        let isPressed: Bool
+        let label: () -> Label
+        
+        var body: some View {
+            label()
+                .frame(width: 30, height: 30)
+                .opacity(isPressed ? 0.7 : 1.0)
+                .background(
+                    Circle()
+                        .fill(Color.white.opacity(isHovering ? 0.1 : 0.0))
+                        .scaleEffect(isHovering ? 1.2 : 1.0)
+                        .animation(.easeInOut(duration: 0.2), value: isHovering)
+                )
+                .onHover { hovering in
+                    isHovering = hovering
+                }
+        }
     }
 }
 
@@ -40,7 +60,7 @@ struct MusicPlayerWidget: View, Widget {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
-//            debugLog("Bundle Path: \(Bundle.main.bundlePath)")
+            //            debugLog("Bundle Path: \(Bundle.main.bundlePath)")
         }
     }
     
@@ -49,6 +69,7 @@ struct MusicPlayerWidget: View, Widget {
         VStack(spacing: 8) {
             // Progress bar
             GeometryReader { geometry in
+                let effectivePosition = model.isDragging ? model.manualDragPosition : model.nowPlayingInfo.positionSeconds
                 ZStack(alignment: .leading) {
                     // Background track
                     Rectangle()
@@ -59,14 +80,14 @@ struct MusicPlayerWidget: View, Widget {
                     // Progress bar
                     Rectangle()
                         .fill(Color(nsColor: model.nowPlayingInfo.dominantColor))
-                        .frame(width: max(CGFloat(model.nowPlayingInfo.positionSeconds / max(model.nowPlayingInfo.durationSeconds,1)) * geometry.size.width, 0), height: 4)
+                        .frame(width: max(CGFloat(effectivePosition / max(model.nowPlayingInfo.durationSeconds,1)) * geometry.size.width, 0), height: 4)
                         .cornerRadius(2)
                     
                     // Thumb
                     Circle()
                         .fill(Color(nsColor: model.nowPlayingInfo.dominantColor))
                         .frame(width: 12, height: 12)
-                        .offset(x: max(CGFloat(model.nowPlayingInfo.positionSeconds / max(model.nowPlayingInfo.durationSeconds, 1)) * geometry.size.width - 6, -6))
+                        .offset(x: max(CGFloat(effectivePosition / max(model.nowPlayingInfo.durationSeconds, 1)) * geometry.size.width - 6, -6))
                 }
                 .gesture(
                     DragGesture(minimumDistance: 0)
@@ -74,20 +95,21 @@ struct MusicPlayerWidget: View, Widget {
                             // Set the dragging flag to true
                             model.isDragging = true
                             let percentage = min(max(0, value.location.x / geometry.size.width), 1)
-                            model.nowPlayingInfo.positionSeconds = Double(percentage) * model.nowPlayingInfo.durationSeconds
+                            model.manualDragPosition = Double(percentage) * model.nowPlayingInfo.durationSeconds
                         }
                         .onEnded { value in
                             let percentage = min(max(0, value.location.x / geometry.size.width), 1)
-
+                            
                             // Convert % ➜ absolute seconds
                             let newTimeInSeconds = percentage * model.nowPlayingInfo.durationSeconds
-
+                            
                             // 1. Seek the real player
                             AudioManager.shared.playAtTime(to: newTimeInSeconds)
-
+                            
                             // 2. Keep the thumb where the user left it (UI won’t flash back)
                             model.nowPlayingInfo.positionSeconds = newTimeInSeconds
-
+                            model.manualDragPosition = newTimeInSeconds
+                            
                             // 3. Re-enable live updates after a brief grace period
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                                 model.isDragging = false
@@ -116,7 +138,7 @@ struct MusicPlayerWidget: View, Widget {
         let remainingSeconds = Int(seconds) % 60
         return String(format: "%d:%02d", minutes, remainingSeconds)
     }
-
+    
     @ViewBuilder
     func renderSongMusicControls() -> some View {
         Button(action: {
@@ -130,7 +152,7 @@ struct MusicPlayerWidget: View, Widget {
                 .foregroundColor(.white)
         }
         .buttonStyle(MusicControlButton()) // Apply custom style
-
+        
         Button(action: {
             AudioManager.shared.togglePlayPause()
         }) {
@@ -142,7 +164,7 @@ struct MusicPlayerWidget: View, Widget {
                 .foregroundColor(.white)
         }
         .buttonStyle(MusicControlButton()) // Apply custom style
-
+        
         Button(action: {
             AudioManager.shared.playNextTrack()
         }) {
@@ -155,7 +177,7 @@ struct MusicPlayerWidget: View, Widget {
         }
         .buttonStyle(MusicControlButton()) // Apply custom style
     }
-
+    
     @ViewBuilder
     func renderSongInformation() -> some View {
         Text(model.nowPlayingInfo.trackName)
@@ -171,7 +193,7 @@ struct MusicPlayerWidget: View, Widget {
             .foregroundColor(.white.opacity(0.5))
             .lineLimit(1)
     }
-
+    
     @ViewBuilder
     func renderAlbumCover() -> some View {
         ZStack(alignment: .topLeading) {
@@ -222,7 +244,7 @@ struct MusicPlayerWidget: View, Widget {
             }
         }
     }
-
+    
     var swiftUIView: AnyView {
         AnyView(self)
     }
@@ -233,9 +255,10 @@ class MusicPlayerWidgetModel: ObservableObject {
     
     @ObservedObject var nowPlayingInfo = AudioManager.shared.nowPlayingInfo
     @Published var isDragging: Bool = false
+    @Published var manualDragPosition: Double = 0
     
     private var cancellables = Set<AnyCancellable>()
-
+    
     init() {
         nowPlayingInfo.objectWillChange
             .receive(on: RunLoop.main)
