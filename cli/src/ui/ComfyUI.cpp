@@ -5,6 +5,7 @@
 #include <filesystem>
 #include "utils/Logger.h"
 #include "utils/SafeDelete.h"
+#include "comfyx_paths.h"
 
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/component_base.hpp>
@@ -153,8 +154,8 @@ void ComfyUI::show_create_dmg_view() {
 void ComfyUI::clean_archive_folder() {
     namespace fs = std::filesystem;
     bool removed = false;
-    std::string archive_dir = "ComfyXData/Archive";
-    std::string export_dir = "ComfyXData/Export";
+    std::string archive_dir = comfyx::kArchiveDir;
+    std::string export_dir = comfyx::kExportDir;
     if (SafeDelete::is_safe_to_remove(archive_dir) && !SafeDelete::contains_forbidden_files(archive_dir)) {
         std::error_code ec;
         if (fs::exists(archive_dir)) {
@@ -184,7 +185,7 @@ void ComfyUI::clean_archive_folder() {
 void ComfyUI::clean_dmg_folder() {
     namespace fs = std::filesystem;
     bool removed = false;
-    std::string dmg_folder = "ComfyXData/Updates";
+    std::string dmg_folder = comfyx::kUpdatesDir;
     if (SafeDelete::is_safe_to_remove(dmg_folder) && !SafeDelete::contains_forbidden_files(dmg_folder)) {
         std::error_code ec;
         if (fs::exists(dmg_folder)) {

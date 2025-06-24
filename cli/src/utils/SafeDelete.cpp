@@ -1,11 +1,13 @@
 #include "utils/SafeDelete.h"
+#include "comfyx_paths.h"
+using namespace comfyx;
 #include <filesystem>
 #include <set>
 
 bool SafeDelete::is_safe_to_remove(const std::string& path) {
     if (path.empty()) return false;
     std::filesystem::path abs_path = std::filesystem::absolute(path);
-    std::filesystem::path data_root = std::filesystem::absolute("ComfyXData");
+    std::filesystem::path data_root = std::filesystem::absolute(comfyx::kDataRoot);
     // Only allow deletion inside the ComfyXData directory
     if (abs_path == "/" || abs_path == data_root || abs_path.string().find(data_root.string()) != 0)
         return false;

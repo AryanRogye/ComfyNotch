@@ -1,6 +1,8 @@
 #pragma once
 
+#include <atomic>
 #include <config.h>
+#include <comfyx_paths.h>
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/component_base.hpp>
 #include <ftxui/component/screen_interactive.hpp>
@@ -29,7 +31,7 @@ private:
   ftxui::Component message;
 
   std::future<int> build_future; // Store the async process future
-  bool build_running = false;    // Track if build is running
+  std::atomic<bool> build_running{false};    // Track if build is running (thread-safe)
   int build_result = 0;          // Store result when done
 
   void befresh();

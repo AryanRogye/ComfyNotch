@@ -63,7 +63,7 @@ void BuildArchiveView::Run() {
   auto screen = ScreenInteractive::TerminalOutput();
   // Animation loop to trigger UI refresh while build is running
   std::thread refresher([this, &screen]() {
-    while (build_running) {
+    while (build_running.load()) {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       screen.PostEvent(Event::Custom);
     }

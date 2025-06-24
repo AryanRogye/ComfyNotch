@@ -6,6 +6,7 @@
 #include <mutex>
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/component_base.hpp>
+#include "comfyx_paths.h"
 
 class Logger {
 public:
@@ -26,6 +27,6 @@ private:
     static std::mutex logger_mutex;
     static void EnsureLogDir();
     static std::string GetLogDir() {
-        return "ComfyXData/Logs";
+        return comfyx::kLogsDir;
     }
 };

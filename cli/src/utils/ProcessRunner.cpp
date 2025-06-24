@@ -1,15 +1,18 @@
 #include "utils/ProcessRunner.h"
 #include "utils/Logger.h"
+#include "comfyx_paths.h"
+using namespace comfyx;
 #include <future>
 #include <cstdlib>
 
 // Add a root data directory for all generated files
 std::string comfyx_data_root = "ComfyXData";
 
+namespace comfyx {} // Ensure the namespace is always available
+
 namespace {
     std::string DataPath(const Config& config, const std::string& subdir) {
-        // No longer use config.comfyx_data_root, always use fixed root
-        std::string root = "ComfyXData";
+        std::string root = comfyx::kDataRoot;
         return root + "/" + subdir;
     }
 }
@@ -35,17 +38,16 @@ int ProcessRunner::RunBuildArchive(const Config& config) {
         Logger::Log("Missing required config for BuildArchive");
         return 1;
     }
-
     // Use fixed ComfyXData subfolders for all generated paths
-    std::string archive_dir = "ComfyXData/Archive";
-    std::string export_dir = "ComfyXData/Export";
-    std::string updates_dir = "ComfyXData/Updates";
+    std::string archive_dir = comfyx::kArchiveDir;
+    std::string export_dir = comfyx::kExportDir;
+    std::string updates_dir = comfyx::kUpdatesDir;
     std::filesystem::create_directories(archive_dir);
     std::filesystem::create_directories(export_dir);
     std::filesystem::create_directories(updates_dir);
-    std::string archive_path = archive_dir + "/ComfyNotch.xcarchive";
-    std::string archive_export_path = export_dir;
-    std::string dmg_folder = updates_dir;
+    std::string archive_path = std::string(comfyx::kArchiveDir) + "/ComfyNotch.xcarchive";
+    std::string archive_export_path = comfyx::kExportDir;
+    std::string dmg_folder = comfyx::kUpdatesDir;
 
     std::string cmd = "xcodebuild -project '" + *config.project + "' -scheme '" + *config.scheme + "' -configuration '" + *config.archive_configuration + "' archive -archivePath '" + archive_path + "' > /dev/null 2>&1";
 
