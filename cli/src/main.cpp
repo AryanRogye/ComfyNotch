@@ -1,7 +1,11 @@
+#include "config.h"
 #include "ui/ComfyUI.h"
 
 int main() {
-    ComfyUI ui;
+
+    ConfigParser configParser("config/comfyx.ini");
+
+    ComfyUI ui(configParser.config());
     ui.Run();
     return 0;
 }
