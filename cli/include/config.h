@@ -5,12 +5,15 @@
 #include <vector>
 struct Config {
   std::optional<std::string> ini_path;
+  // [build]
   std::optional<std::string> project;
   std::optional<std::string> scheme;
-  std::optional<std::string> configuration;
+  // [archive]
   std::optional<std::string> archive_path;
-  std::optional<std::string> export_path;
-  std::optional<std::string> export_options;
+  std::optional<std::string> archive_export_path;
+  std::optional<std::string> archive_export_options;
+  std::optional<std::string> archive_configuration;
+  std::optional<bool>        archive_destructive;
 
   // Returns a vector of missing required keys
   std::vector<std::string> validate() const;

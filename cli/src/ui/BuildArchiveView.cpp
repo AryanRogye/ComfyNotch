@@ -4,8 +4,8 @@
 #include "ftxui/component/component.hpp"
 #include "ftxui/component/component_base.hpp"
 #include "ftxui/component/screen_interactive.hpp"
-#include "utils/ProcessRunner.h"
 #include "utils/Logger.h"
+#include "utils/ProcessRunner.h"
 #include <ftxui/dom/node.hpp>
 
 using namespace ftxui;
@@ -13,8 +13,8 @@ using namespace ftxui;
 BuildArchiveView::BuildArchiveView(const Config &config) : config(config) {
   run_button = Button("Run", [this, &config]() {
     message = Renderer([]() {
-      return text("Running build archive process...") |
-             color(Color::Green) | bgcolor(Color::Black);
+      return text("Running build archive process...") | color(Color::Green) |
+             bgcolor(Color::Black);
     });
     build_future = ProcessRunner::Run(ProcessType::BuildArchive, config);
     build_running = true;
@@ -32,20 +32,23 @@ BuildArchiveView::BuildArchiveView(const Config &config) : config(config) {
           if (build_result == 0) {
             return text("Build completed successfully!") | color(Color::Green);
           } else {
-            return text("Build failed (exit code: " + std::to_string(build_result) + ")") | color(Color::Red);
+            return text("Build failed (exit code: " +
+                        std::to_string(build_result) + ")") |
+                   color(Color::Red);
           }
         });
       }
     }
-    return vbox({
-               text("Build Archive Configurations") | bold | color(Color::White),
-               separator(),
-               run_button->Render() | border | color(Color::Green),
-               separator(),
-               message ? message->Render() : text("Nothing Yet"),
-               separator(),
-               Logger::LogComponent()->Render()
-           }) |
+    return vbox({text("Build Archive Configurations") | bold |
+                     color(Color::White),
+                 separator(),
+                 run_button->Render() | border | color(Color::Green),
+                 separator(),
+                 message
+                     ? message->Render()
+                     : text("Build Not Started Yet") | color(Color::GrayDark),
+                 separator(), text("Log Output:") | bold | color(Color::White),
+                 Logger::LogComponent()->Render()}) |
            border | bgcolor(Color::Black);
   });
 
@@ -58,5 +61,13 @@ BuildArchiveView::BuildArchiveView(const Config &config) : config(config) {
 
 void BuildArchiveView::Run() {
   auto screen = ScreenInteractive::TerminalOutput();
+  // Animation loop to trigger UI refresh while build is running
+  std::thread refresher([this, &screen]() {
+    while (build_running) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      screen.PostEvent(Event::Custom);
+    }
+  });
   screen.Loop(view);
+  if (refresher.joinable()) refresher.join();
 }

@@ -13,10 +13,10 @@ std::vector<std::string> Config::validate() const {
     std::vector<std::string> missing;
     if (!project) missing.push_back("project");
     if (!scheme) missing.push_back("scheme");
-    if (!configuration) missing.push_back("configuration");
+    if (!archive_configuration) missing.push_back("archive_configuration");
     if (!archive_path) missing.push_back("archive_path");
-    if (!export_path) missing.push_back("export_path");
-    if (!export_options) missing.push_back("export_options");
+    if (!archive_export_path) missing.push_back("archive_export_path");
+    if (!archive_export_options) missing.push_back("archive_export_options");
     return missing;
 }
 
@@ -65,21 +65,21 @@ bool ConfigParser::save(const Config& config) {
         sanitized_config.scheme->erase(std::remove(sanitized_config.scheme->begin(), sanitized_config.scheme->end(), '\n'), sanitized_config.scheme->end());
         trim(*sanitized_config.scheme);
     }
-    if (sanitized_config.configuration) {
-        sanitized_config.configuration->erase(std::remove(sanitized_config.configuration->begin(), sanitized_config.configuration->end(), '\n'), sanitized_config.configuration->end());
-        trim(*sanitized_config.configuration);
+    if (sanitized_config.archive_configuration) {
+        sanitized_config.archive_configuration->erase(std::remove(sanitized_config.archive_configuration->begin(), sanitized_config.archive_configuration->end(), '\n'), sanitized_config.archive_configuration->end());
+        trim(*sanitized_config.archive_configuration);
     }
     if (sanitized_config.archive_path) {
         sanitized_config.archive_path->erase(std::remove(sanitized_config.archive_path->begin(), sanitized_config.archive_path->end(), '\n'), sanitized_config.archive_path->end());
         trim(*sanitized_config.archive_path);
     }
-    if (sanitized_config.export_path) {
-        sanitized_config.export_path->erase(std::remove(sanitized_config.export_path->begin(), sanitized_config.export_path->end(), '\n'), sanitized_config.export_path->end());
-        trim(*sanitized_config.export_path);
+    if (sanitized_config.archive_export_path) {
+        sanitized_config.archive_export_path->erase(std::remove(sanitized_config.archive_export_path->begin(), sanitized_config.archive_export_path->end(), '\r'), sanitized_config.archive_export_path->end());
+        trim(*sanitized_config.archive_export_path);
     }
-    if (sanitized_config.export_options) {
-        sanitized_config.export_options->erase(std::remove(sanitized_config.export_options->begin(), sanitized_config.export_options->end(), '\n'), sanitized_config.export_options->end());
-        trim(*sanitized_config.export_options);
+    if (sanitized_config.archive_export_options) {
+        sanitized_config.archive_export_options->erase(std::remove(sanitized_config.archive_export_options->begin(), sanitized_config.archive_export_options->end(), '\n'), sanitized_config.archive_export_options->end());
+        trim(*sanitized_config.archive_export_options);
     }
     if (!sanitized_config.ini_path) return false;
     // Validate before writing
@@ -93,13 +93,19 @@ bool ConfigParser::save(const Config& config) {
     {
         std::ofstream out(tmp_path);
         if (!out) return false;
+        // [build] section
         out << "[build]\n";
         if (sanitized_config.project) out << "project = " << *sanitized_config.project << "\n";
         if (sanitized_config.scheme) out << "scheme = " << *sanitized_config.scheme << "\n";
-        if (sanitized_config.configuration) out << "configuration = " << *sanitized_config.configuration << "\n";
+        // [archive] section
+        out << "\n[archive]\n";
         if (sanitized_config.archive_path) out << "archive_path = " << *sanitized_config.archive_path << "\n";
-        if (sanitized_config.export_path) out << "export_path = " << *sanitized_config.export_path << "\n";
-        if (sanitized_config.export_options) out << "export_options = " << *sanitized_config.export_options << "\n";
+        if (sanitized_config.archive_export_path) out << "archive_export_path = " << *sanitized_config.archive_export_path << "\n";
+        if (sanitized_config.archive_export_options) out << "archive_export_options = " << *sanitized_config.archive_export_options << "\n";
+        if (sanitized_config.archive_configuration) out << "archive_configuration = " << *sanitized_config.archive_configuration << "\n";
+        if (sanitized_config.archive_destructive.has_value()) {
+            out << "archive_destructive = " << (sanitized_config.archive_destructive.value() ? "true" : "false") << "\n";
+        }
     }
     // Verify the temp file parses
     try {
@@ -126,23 +132,27 @@ bool ConfigParser::save(const Config& config) {
 /// @throws std::runtime_error if an unknown section or key is encountered
 int ConfigParser::iniHandler(void* user, const char* section, const char* name, const char* value) {
     Config* config = static_cast<Config*>(user);
-    // Only handle [build] for now, but can extend for more sections
     if (std::strcmp(section, "build") == 0) {
         if (std::strcmp(name, "project") == 0) {
             config->project = value;
         } else if (std::strcmp(name, "scheme") == 0) {
             config->scheme = value;
-        } else if (std::strcmp(name, "configuration") == 0) {
-            config->configuration = value;
-        } else if (std::strcmp(name, "archive_path") == 0) {
+        }
+    } else if (std::strcmp(section, "archive") == 0) {
+        if (std::strcmp(name, "archive_path") == 0) {
             config->archive_path = value;
-        } else if (std::strcmp(name, "export_path") == 0) {
-            config->export_path = value;
-        } else if (std::strcmp(name, "export_options") == 0) {
-            config->export_options = value;
+        } else if (std::strcmp(name, "archive_export_path") == 0) {
+            config->archive_export_path = value;
+        } else if (std::strcmp(name, "archive_export_options") == 0) {
+            config->archive_export_options = value;
+        } else if (std::strcmp(name, "archive_configuration") == 0) {
+            config->archive_configuration = value;
+        } else if (std::strcmp(name, "archive_destructive") == 0) {
+            std::string val = value;
+            std::transform(val.begin(), val.end(), val.begin(), ::tolower);
+            config->archive_destructive = (val == "true" || val == "1" || val == "yes");
         }
     }
-    // For future: handle other sections here
     return 1;
 }
 

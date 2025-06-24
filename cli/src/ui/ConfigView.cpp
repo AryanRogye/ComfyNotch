@@ -4,6 +4,7 @@
 #include "ftxui/component/component.hpp"
 #include "ftxui/component/component_base.hpp"
 #include "ftxui/component/screen_interactive.hpp"
+#include <ftxui/dom/elements.hpp>
 #include <ftxui/dom/node.hpp>
 
 using namespace ftxui;
@@ -24,14 +25,24 @@ ConfigView::ConfigView(const Config &config) : config(config), input_fields() {
   field_values = {
     this->config.project.value_or("") ,
     this->config.scheme.value_or("") ,
-    this->config.configuration.value_or("") ,
+    this->config.archive_configuration.value_or("") ,
     this->config.archive_path.value_or("") ,
-    this->config.export_path.value_or("") ,
-    this->config.export_options.value_or("")
+    this->config.archive_export_path.value_or("") ,
+    this->config.archive_export_options.value_or("") ,
+    this->config.archive_destructive.has_value() ? (this->config.archive_destructive.value() ? "true" : "false") : ""
   };
   input_fields.clear();
   for (size_t i = 0; i < field_values.size(); ++i) {
-    input_fields.push_back(Input(&field_values[i], "Enter value..."));
+    InputOption option;
+    option.on_change = []{};
+    option.on_enter = []{};
+    // Set cursor colors to ensure visibility
+    option.cursor_position = field_values[i].size();
+    input_fields.push_back(Input(&field_values[i], "Enter value...", option));
+  }
+  // Ensure each Input's cursor is at the end of the text
+  for (size_t i = 0; i < input_fields.size(); ++i) {
+    input_fields[i]->OnEvent(Event::End);
   }
 
   /// Create the form with input fields
@@ -44,13 +55,15 @@ ConfigView::ConfigView(const Config &config) : config(config), input_fields() {
   form_renderer = Renderer([this] {
     Elements entries;
     static const std::vector<std::string> labels = {
-      "Project", "Scheme", "Configuration", "Archive Path", "Export Path", "Export Options"
+      "Project", "Scheme", "Configuration", "Archive Path", "Export Path", "Export Options", "Destructive"
     };
     for (size_t i = 0; i < field_values.size(); ++i) {
       if (editing_field == (int)i) {
         entries.push_back(hbox({
           text(labels[i] + ": ") | size(WIDTH, EQUAL, 18),
-          input_fields[i]->Render()
+          input_fields[i]->Render() |
+            bgcolor(Color::Blue) |
+            color(field_values[i].empty() ? Color::White : Color::GrayDark)
         }));
       } else {
         Element line = text(labels[i] + ": " + field_values[i]);
@@ -67,7 +80,9 @@ ConfigView::ConfigView(const Config &config) : config(config), input_fields() {
       text("Use Ctrl+C to go back"),
       vbox(std::move(entries)) | border | color(Color::GrayDark) | bgcolor(Color::Black),
       separator(),
-      text("Use j/k or arrows to navigate, Enter to edit, Esc to exit edit, s to save")
+      text("Use j/k or arrows to navigate, Enter to edit, Esc to exit edit, s to save"),
+      separator(),
+      text("For Destructive (yes, 1, true) means true") | border
     }) | border;
   });
   build_keybindings();
@@ -102,10 +117,20 @@ void ConfigView::build_keybindings() {
         auto previous_config = config;
         config.project = field_values[0].empty() ? std::nullopt : std::make_optional(field_values[0]);
         config.scheme = field_values[1].empty() ? std::nullopt : std::make_optional(field_values[1]);
-        config.configuration = field_values[2].empty() ? std::nullopt : std::make_optional(field_values[2]);
+        config.archive_configuration = field_values[2].empty() ? std::nullopt : std::make_optional(field_values[2]);
         config.archive_path = field_values[3].empty() ? std::nullopt : std::make_optional(field_values[3]);
-        config.export_path = field_values[4].empty() ? std::nullopt : std::make_optional(field_values[4]);
-        config.export_options = field_values[5].empty() ? std::nullopt : std::make_optional(field_values[5]);
+        config.archive_export_path = field_values[4].empty() ? std::nullopt : std::make_optional(field_values[4]);
+        config.archive_export_options = field_values[5].empty() ? std::nullopt : std::make_optional(field_values[5]);
+        // Convert string to bool for archive_destructive
+        if (field_values[6].empty()) {
+          config.archive_destructive = std::nullopt;
+        } else {
+          std::string val = field_values[6];
+          // Remove whitespace and newlines
+          val.erase(std::remove_if(val.begin(), val.end(), [](unsigned char c) { return std::isspace(c); }), val.end());
+          std::transform(val.begin(), val.end(), val.begin(), ::tolower);
+          config.archive_destructive = (val == "true" || val == "1" || val == "yes");
+        }
         config.validate(); // Validate the config
         // Use ConfigParser static logic for save and verify
         bool save_ok = ConfigParser::save(config);
@@ -154,10 +179,10 @@ void ConfigView::refresh() {
       field_values = {
         config.project.value_or("") ,
         config.scheme.value_or("") ,
-        config.configuration.value_or("") ,
+        config.archive_configuration.value_or("") ,
         config.archive_path.value_or("") ,
-        config.export_path.value_or("") ,
-        config.export_options.value_or("")
+        config.archive_export_path.value_or("") ,
+        config.archive_export_options.value_or("")
       };
       // Update input fields as well
       for (size_t i = 0; i < field_values.size() && i < input_fields.size(); ++i) {
