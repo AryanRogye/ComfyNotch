@@ -1,8 +1,11 @@
 #include "config.h"
 #include <iostream>
 #include "ui/ComfyUI.h"
+#include "utils/Logger.h"
 
 int main() {
+
+    Logger::Init();
 
     Config config;
     try {

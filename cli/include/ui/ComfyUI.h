@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "ConfigView.h"
+#include "BuildArchiveView.h"
 
 class ComfyUI {
 public:
@@ -43,5 +44,7 @@ private:
   void build_renderer();
 
   void show_config_view();
+  void show_build_archive_view();
   std::unique_ptr<ConfigView> config_view;
+  std::unique_ptr<BuildArchiveView> build_archive_view;
 };

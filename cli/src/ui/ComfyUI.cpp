@@ -1,5 +1,7 @@
 #include "ui/ComfyUI.h"
 #include "ui/ConfigView.h"
+#include "ui/BuildArchiveView.h"
+
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/component_base.hpp>
 #include <ftxui/component/event.hpp>
@@ -15,7 +17,7 @@ void ComfyUI::Run() { screen.Loop(renderer); }
 ComfyUI::ComfyUI(const Config config) : config(config), screen(ScreenInteractive::TerminalOutput()) {
     // Assign commands for each menu option
     commands = {
-        [this]() { message = "[Build Archive] command executed."; },
+        [this]() { show_build_archive_view(); },
         [this]() { message = "[Create DMG] command executed."; },
         [this]() { show_config_view(); }
     };
@@ -30,7 +32,10 @@ ComfyUI::ComfyUI(const Config config) : config(config), screen(ScreenInteractive
 
 // This function builds the main renderer for the ComfyUI.
 // It creates a Renderer object that combines the title, keybindings, and message into a vertical box layout.
-// The title is displayed at the top, followed by a separator, the keybindings,
+// The title is displayed at the top, followed by a separator, the keybindings, and the message.
+// The keybindings are displayed in a smaller font size and are gray in color.
+// The message is displayed in white color.
+// The entire layout is centered both horizontally and vertically on the screen.
 void ComfyUI::build_renderer() {
     renderer = Renderer(keybindings, [this] {
         return vbox({
@@ -99,12 +104,36 @@ void ComfyUI::build_keybindings() {
 // MARK: Command Functions
 
 void ComfyUI::show_config_view() {
-    // Create the config view (pass config as needed)
+    // Always reload the config from disk before showing the config view
+    if (config.ini_path) {
+        try {
+            config = ConfigParser::parse(*config.ini_path);
+        } catch (...) {
+            // Optionally handle error (e.g., show a message)
+        }
+    }
     config_view = std::make_unique<ConfigView>(config);
-    // Run the config view in its own event loop
     config_view->Run();
-    // After returning, you can update the message or refresh the main menu
+    // After returning, reload config again in case it was changed in the view
+    if (config.ini_path) {
+        try {
+            config = ConfigParser::parse(*config.ini_path);
+        } catch (...) {
+            // Optionally handle error
+        }
+    }
     message = "Returned from configuration view.";
+    build_menu_renderer();
+    build_keybindings();
+    build_renderer();
+}
+
+void ComfyUI::show_build_archive_view() {
+    // Create the build archive view (pass config as needed)
+    build_archive_view = std::make_unique<BuildArchiveView>(config);
+    build_archive_view->Run();
+
+    message = "Returned from build archive view.";
     build_menu_renderer();
     build_keybindings();
     build_renderer();
