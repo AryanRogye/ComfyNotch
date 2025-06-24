@@ -46,7 +46,17 @@ dmg_move_from_archive = true          ; Copy .app from export to DMG folder
 > - `dmg_name` is the filename of the DMG disk image (e.g. what you send to users).
 > - `dmg_volume_name` is the name of the disk that appears in Finder when the DMG is opened (the window title and sidebar label).
 
-2. **Run the CLI:**
+2. **Add your ExportOptions.plist:**
+
+Place your `ExportOptions.plist` in the `config/` folder (next to `comfyx.ini`). This file is required for the export step. Example:
+
+```
+config/
+  comfyx.ini
+  ExportOptions.plist
+```
+
+3. **Run the CLI:**
 
 ```sh
 ./bin/comfyx
@@ -56,5 +66,13 @@ All generated files (archives, exports, DMGs, logs) will be placed in the `Comfy
 
 - No need to set output paths—everything is organized for you!
 - Edit the INI file to match your Xcode project and scheme.
+
+4. **Install create-dmg:**
+
+This tool requires the [`create-dmg`](https://github.com/create-dmg/create-dmg) utility. Install it via Homebrew:
+
+```sh
+brew install create-dmg
+```
 
 ---
