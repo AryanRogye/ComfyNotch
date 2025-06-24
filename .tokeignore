@@ -14,3 +14,6 @@ Contents.json
 *.svg
 *.json
 *.xml
+cli/build/
+cli/ComfyXData/
+cli/third_party/

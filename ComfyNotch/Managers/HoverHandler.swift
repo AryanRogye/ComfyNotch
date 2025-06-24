@@ -47,7 +47,9 @@ final class HoverHandler: ObservableObject {
                     self.hoverTimer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false) { [weak self] _ in
                         guard let self = self else { return }
                         
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                        /// This will trigger once the panel is opened, 0.25 is a good spot, but i found that
+                        /// the notch would get a invalid geometry, this avoids that alltogether
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                             withAnimation(.easeOut(duration: 0.2)) {
                                 if UIManager.shared.panelState != .open {
                                     PanelAnimationState.shared.currentPopInPresentationState = .nowPlaying

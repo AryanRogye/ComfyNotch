@@ -2,16 +2,16 @@
 *.swift linguist-language=Swift
 *.m     linguist-language=Objective-C
 *.c     linguist-language=C
+*.cpp   linguist-language=C++
 *.metal linguist-language=Metal
 *.sh    linguist-language=Shell
-
-# Headers apply to both C and Objective-C
-*.h linguist-language=Objective-C
 
 # Force GitHub to include these in language stats
 *.swift linguist-detectable=true
 *.m     linguist-detectable=true
 *.c     linguist-detectable=true
 *.h     linguist-detectable=true
+*.hpp   linguist-detectable=true
+*.cpp   linguist-detectable=true
 *.metal linguist-detectable=true
 *.sh    linguist-detectable=true
