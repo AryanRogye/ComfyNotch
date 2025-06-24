@@ -349,6 +349,20 @@ struct QuickAccessSettingsView_Home: View {
             .onChange(of: settings.musicController) {
                 settings.saveSettings()
             }
+            
+            if settings.musicController == .mediaRemote {
+                Picker("Music Provider", selection: $settings.overridenMusicProvider) {
+                    ForEach(MusicProvider.allCases, id: \.self) { provider in
+                        Text(provider.displayName)
+                            .tag(provider)
+                    }
+                }
+                .pickerStyle(.menu)
+                .onChange(of: settings.overridenMusicProvider) {
+                    settings.saveSettings()
+                }
+                .padding(.top, 2)
+            }
         }
     }
     

@@ -196,7 +196,7 @@ struct MusicPlayerWidget: View, Widget {
     
     @ViewBuilder
     func renderAlbumCover() -> some View {
-        ZStack(alignment: .topLeading) {
+        ZStack(alignment: .bottomTrailing) {
             if let artwork = model.nowPlayingInfo.artworkImage {
                 Image(nsImage: artwork)
                     .resizable()
@@ -216,31 +216,78 @@ struct MusicPlayerWidget: View, Widget {
             }
             if settings.showMusicProvider {
                 Group {
-                    /// Music Provider
-                    switch model.nowPlayingInfo.musicProvider {
-                    case .apple_music:
-                        if let url = Bundle.main.url(forResource: "apple_music", withExtension: "svg", subdirectory: "Assets") {
-                            Button(action: AudioManager.shared.openProvider ) {
-                                SVGView(contentsOf: url)
-                                    .frame(width: 24, height: 24)
-                                    .padding(8)
-                                    .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
+                    if settings.musicController == .mediaRemote {
+                        if settings.overridenMusicProvider == .apple_music {
+                            appleMusicProvider
+                        } else if settings.overridenMusicProvider == .spotify {
+                            spotifyProvider
                         }
-                    case .spotify:
-                        if let url = Bundle.main.url(forResource: "spotify", withExtension: "svg", subdirectory: "Assets") {
-                            Button(action: AudioManager.shared.openProvider) {
-                                SVGView(contentsOf: url)
-                                    .frame(width: 24, height: 24)
-                                    .padding(8)
-                                    .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
+                    } else if settings.musicController == .spotify_music {
+                        switch model.nowPlayingInfo.musicProvider {
+                        case .apple_music:
+                            appleMusicProvider
+                        case .spotify:
+                            spotifyProvider
+                        case .none: EmptyView()
                         }
-                    case .none: EmptyView()
                     }
+                    /// Music Provider
                 }
+            }
+        }
+    }
+    
+    struct HoverEffectWrapper<Content: View>: View {
+        @State private var isHovering = false
+        let content: () -> Content
+        
+        var body: some View {
+            content()
+                .scaleEffect(isHovering ? 1.05 : 1.0)
+                .animation(.easeInOut(duration: 0.15), value: isHovering)
+                .onHover { hovering in
+                    isHovering = hovering
+                }
+        }
+    }
+    
+    private var spotifyProvider: some View {
+        VStack {
+            if let url = Bundle.main.url(forResource: "spotify", withExtension: "svg", subdirectory: "Assets") {
+                Button(action: AudioManager.shared.openProvider) {
+                    HoverEffectWrapper {
+                        ZStack {
+                            Circle()
+                                .fill(Color.black)
+                                .frame(width: 24, height: 24)
+                            SVGView(contentsOf: url)
+                                .frame(width: 24, height: 24)
+                        }
+                    }
+                    .offset(x: 8, y: 8)
+                    .zIndex(1)
+                    .shadow(color: .black.opacity(0.5), radius: 8, x: 0, y: 4)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+    
+    private var appleMusicProvider: some View {
+        VStack {
+            if let url = Bundle.main.url(forResource: "apple_music", withExtension: "svg", subdirectory: "Assets") {
+                Button(action: AudioManager.shared.openProvider ) {
+                    HoverEffectWrapper {
+                        SVGView(contentsOf: url)
+                            .frame(width: 24, height: 24)
+                    }
+                    .offset(x: 8, y: 8)
+                    .zIndex(1)
+                    .shadow(color: .black.opacity(0.5), radius: 8, x: 0, y: 4)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
             }
         }
     }

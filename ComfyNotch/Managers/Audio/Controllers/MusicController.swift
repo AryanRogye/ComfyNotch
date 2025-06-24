@@ -5,6 +5,7 @@
 //  Created by Aryan Rogye on 6/21/25.
 //
 
+
 enum MusicController: String, Codable, CaseIterable, Identifiable{
     case mediaRemote
     case spotify_music

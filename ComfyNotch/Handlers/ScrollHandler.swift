@@ -281,6 +281,7 @@ class ScrollHandler {
                     self.isSnapping = false
                     self.updateState(for: trueH)
                     UIManager.shared.panelState = .open
+                    self.verifyAndCorrectFrame(panel: panel, expectedFrame: trueFrame, expectedHeight: trueH)
                 })
             })
         }
@@ -315,9 +316,25 @@ class ScrollHandler {
                     self.isSnapping = false
                     self.updateState(for: trueH)
                     UIManager.shared.panelState = .open
+                    self.verifyAndCorrectFrame(panel: panel, expectedFrame: trueFrame, expectedHeight: trueH)
                 })
             })
         }
+    }
+    
+    private func verifyAndCorrectFrame(panel: NSPanel, expectedFrame: NSRect, expectedHeight: CGFloat) {
+        let tolerance: CGFloat = 1.0 // Allow 1 pixel tolerance
+        let actualFrame = panel.frame
+        
+        if abs(actualFrame.height - expectedHeight) > tolerance {
+            print("Height mismatch! Expected: \(expectedHeight), Got: \(actualFrame.height)")
+            // Force correct frame without animation
+            panel.setFrame(expectedFrame, display: true)
+        }
+        
+        self.isSnapping = false
+        self.updateState(for: expectedHeight)
+        UIManager.shared.panelState = .open
     }
     
     func closeFull() {

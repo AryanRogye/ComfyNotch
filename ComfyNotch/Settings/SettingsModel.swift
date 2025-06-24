@@ -41,6 +41,7 @@ class SettingsModel: ObservableObject {
     /// ---------- Music Player Settings ----------
     @Published var showMusicProvider: Bool = true
     @Published var musicController: MusicController = .mediaRemote
+    @Published var overridenMusicProvider: MusicProvider = .none
     
     /// ---------- Camera Settings ----------
     @Published var isCameraFlipped: Bool = false
@@ -175,6 +176,7 @@ class SettingsModel: ObservableObject {
         /// ----------------------- Music Player Settings -----------------------
         defaults.set(showMusicProvider, forKey: "showMusicProvider")
         defaults.set(musicController.rawValue, forKey: "musicController")
+        defaults.set(overridenMusicProvider.rawValue, forKey: "overridenMusicProvider")
         
         /// ----------------------- Messages Settings -----------------------
         defaults.set(enableMessagesNotifications, forKey: "enableMessagesNotifications")
@@ -302,6 +304,13 @@ class SettingsModel: ObservableObject {
             self.musicController = musicController
         } else {
             self.musicController = .mediaRemote
+        }
+        
+        if let overridenMusicProviderRawValue = defaults.string(forKey: "overridenMusicProvider"),
+           let overridenMusicProvider = MusicProvider(rawValue: overridenMusicProviderRawValue) {
+            self.overridenMusicProvider = overridenMusicProvider
+        } else {
+            self.overridenMusicProvider = .none
         }
         
         /// ----------------------- Messages Settings -----------------------
