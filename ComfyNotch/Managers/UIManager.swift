@@ -90,6 +90,9 @@ class UIManager: ObservableObject {
             defer: false
         )
         
+        /// Allow content to draw outside panel bounds
+        smallPanel.contentView?.wantsLayer = true
+        
         smallPanel.registerForDraggedTypes([.fileURL])
         smallPanel.title = "ComfyNotch"
         
@@ -102,6 +105,7 @@ class UIManager: ObservableObject {
         smallPanel.isOpaque = false
         smallPanel.hasShadow = false
         
+        
         let contentView = ComfyNotchView()
             .environmentObject(compactWidgetStore)
             .environmentObject(expandedWidgetStore)
@@ -109,7 +113,10 @@ class UIManager: ObservableObject {
         
         let hostingView = NSHostingView(rootView: contentView)
         hostingView.frame = panelRect
-        smallPanel.contentView?.wantsLayer = true
+        
+        /// Allow hosting view to overflow
+        hostingView.wantsLayer = true
+        hostingView.layer?.masksToBounds = false
         
         smallPanel.contentView = hostingView
         smallPanel.makeKeyAndOrderFront(nil)

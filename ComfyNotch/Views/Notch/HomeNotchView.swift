@@ -11,13 +11,6 @@ struct HomeNotchView: View {
             if animationState.isExpanded {
                 /// Big Panel Widgets
                 ZStack {
-                    Color.clear.opacity(1)
-                        .clipShape(RoundedCornersShape(
-                            topLeft: 10,
-                            topRight: 10,
-                            bottomLeft: 10,
-                            bottomRight: 10
-                        ))
                     HStack(spacing: 2) {
                         ForEach(bigWidgetStore.widgets.indices, id: \.self) { index in
                             let widgetEntry = bigWidgetStore.widgets[index]
