@@ -53,10 +53,10 @@ struct ComfyNotchView: View {
     var body: some View {
         notch
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            /// MODIFIERS
+        /// MODIFIERS
         
-            /// This manager was added in to make sure that the popInPresentation is playing
-            /// when we open it, it doesnt bug out
+        /// This manager was added in to make sure that the popInPresentation is playing
+        /// when we open it, it doesnt bug out
             .onChange(of: uiManager.panelState) { _, newState in
                 if newState == .open {
                     if animationState.currentPanelState == .popInPresentation {
@@ -65,7 +65,7 @@ struct ComfyNotchView: View {
                 }
             }
         
-            /// This is to show the file tray area when dropped
+        /// This is to show the file tray area when dropped
             .onChange(of: fileDropManager.isDroppingFiles) { _, hovering in
                 if hovering && uiManager.panelState == .closed {
                     fileDropManager.shouldAutoShowTray = true
@@ -95,7 +95,7 @@ struct ComfyNotchView: View {
                     }
                 }
             }
-            // MARK: Scroling Logic
+        // MARK: Scroling Logic
             .panGesture(direction: .down) { translation, phase in
                 
                 guard uiManager.panelState == .closed else { return }
@@ -200,4 +200,39 @@ struct ComfyNotchView: View {
             duration: panelState == .open ? 2 : 0.5
         )
     }
+}
+
+
+/// Preview in Xcode 26 works for ComfyNotch
+#Preview {
+    let widgetStore = CompactWidgetsStore()
+    let bigWidgetStore = ExpandedWidgetsStore()
+    
+    let settings = SettingsButtonWidget()
+    let dots = MovingDotsView()
+    let quick = QuickAccessWidget()
+    let com = CompactAlbumWidget()
+    
+    let musicPlayer = MusicPlayerWidget()
+    
+    widgetStore.addWidget(settings)
+    widgetStore.addWidget(dots)
+    widgetStore.addWidget(quick)
+    widgetStore.addWidget(com)
+    
+    
+    bigWidgetStore.addWidget(musicPlayer)
+    
+    PanelAnimationState.shared.currentPanelState = .file_tray
+    PanelAnimationState.shared.isExpanded = true
+
+    UIManager.shared.panelState = .open
+    
+    return ZStack {
+        Color.gray.opacity(0.2) // Just to visualize the frame
+        ComfyNotchView()
+            .environmentObject(widgetStore)
+            .environmentObject(bigWidgetStore)
+    }
+    .frame(width: 350, height: 180)
 }
