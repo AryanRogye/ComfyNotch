@@ -27,7 +27,7 @@ struct CompactAlbumWidget: View, Widget {
     private var animationDamping: CGFloat = 15
     
     private var paddingLeading: CGFloat {
-        panelAnimationState.hoverHandler.scaleHoverOverLeftItems ? 1 : 3
+        panelAnimationState.hoverHandler.scaleHoverOverLeftItems ? 2 : 4
     }
     private var paddingTop: CGFloat {
         panelAnimationState.hoverHandler.scaleHoverOverLeftItems ? 1 : 0
@@ -58,7 +58,7 @@ struct CompactAlbumWidget: View, Widget {
             }
         }
         .padding(.leading, paddingLeading)
-        .padding(.top, paddingTop)
+//        .padding(.top, paddingTop)
         .animation(
             .interpolatingSpring(stiffness: animationStiffness, damping: animationDamping),
             value: panelAnimationState.hoverHandler.scaleHoverOverLeftItems

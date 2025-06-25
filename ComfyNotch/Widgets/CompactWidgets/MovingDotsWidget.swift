@@ -35,7 +35,7 @@ struct AnimatedDot: View {
         Circle()
             .fill(color)
             .frame(width: size, height: size)
-            .scaleEffect(animationState.hoverHandler.scaleHoverOverLeftItems ? 1.15 : 1)
+            .scaleEffect(animationState.hoverHandler.scaleHoverOverLeftItems ? 1.10 : 1)
             .animation(
                 .interpolatingSpring(stiffness: animationStiffness, damping: animationDamping),
                 value: animationState.hoverHandler.scaleHoverOverLeftItems
@@ -81,7 +81,7 @@ struct MovingDotsView: View, Widget {
     /// Padding of 4-2 range pushes it to the left, that way when we hover of the left side,
     /// it pops OUT to the right, making it look like its cool yk
     private var paddingTrailing: CGFloat {
-        return animationState.hoverHandler.scaleHoverOverLeftItems ? 1 : 3
+        return animationState.hoverHandler.scaleHoverOverLeftItems ? 3 : 5
     }
     
     var body: some View {
