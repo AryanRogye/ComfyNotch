@@ -85,11 +85,11 @@ class UIManager: ObservableObject {
             backing: .buffered,
             defer: false
         )
-        smallPanel.registerForDraggedTypes([.fileURL])
         
+        smallPanel.registerForDraggedTypes([.fileURL])
         smallPanel.title = "ComfyNotch"
         
-        let overlayRaw = CGWindowLevelForKey(.overlayWindow)  // sits under screenSaver
+        let overlayRaw = CGWindowLevelForKey(.overlayWindow)
         smallPanel.level = NSWindow.Level(rawValue: Int(overlayRaw))
         
         smallPanel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
@@ -102,8 +102,11 @@ class UIManager: ObservableObject {
             .environmentObject(compactWidgetStore)
             .environmentObject(expandedWidgetStore)
         
+        
         let hostingView = NSHostingView(rootView: contentView)
         hostingView.frame = panelRect
+        smallPanel.contentView?.wantsLayer = true
+        
         smallPanel.contentView = hostingView
         smallPanel.makeKeyAndOrderFront(nil)
         
@@ -164,9 +167,10 @@ class UIManager: ObservableObject {
             self.expandedWidgetStore.hideWidget(named: "EventWidget")
         }
     }
+    
     public func applyExpandedWidgetLayout() {
-            DispatchQueue.main.async {
-                withAnimation(Anim.spring) {
+        DispatchQueue.main.async {
+            withAnimation(Anim.spring) {
                 /// When the notch is expanded we want the top row to show the settings widget on the right
                 /// But we wanna first hide any of the shown stuff
                 self.compactWidgetStore.hideWidget(named: "MovingDotsWidget")
@@ -186,10 +190,10 @@ class UIManager: ObservableObject {
     }
     
     public func applyCompactWidgetLayout() {
-            /// When the notch is closed we wanna show the compact album on the left, and dots on the right and hide
-            /// The Settings Widget
-            DispatchQueue.main.async {
-                withAnimation(Anim.spring) {
+        /// When the notch is closed we wanna show the compact album on the left, and dots on the right and hide
+        /// The Settings Widget
+        DispatchQueue.main.async {
+            withAnimation(Anim.spring) {
                 self.compactWidgetStore.hideWidget(named: "QuickAccessWidget")
                 self.compactWidgetStore.hideWidget(named: "Settings")
                 self.compactWidgetStore.showWidget(named: "AlbumWidget")
@@ -222,9 +226,6 @@ class UIManager: ObservableObject {
      */
     func addWidgetToBigPanel(_ widget: Widget) {
         expandedWidgetStore.addWidget(widget)
-    }
-    
-    func addWidgetsToSmallPanel(_ widget: Widget) {
     }
     
     func getNotchHeight() -> CGFloat {

@@ -52,6 +52,7 @@ struct ComfyNotchView: View {
     init() {
     }
     
+    // MARK: - Main Body
     var body: some View {
         notch
             .frame(maxWidth: .infinity, maxHeight: .infinity)
