@@ -58,7 +58,6 @@ struct CompactAlbumWidget: View, Widget {
             }
         }
         .padding(.leading, paddingLeading)
-//        .padding(.top, paddingTop)
         .animation(
             .interpolatingSpring(stiffness: animationStiffness, damping: animationDamping),
             value: panelAnimationState.hoverHandler.scaleHoverOverLeftItems

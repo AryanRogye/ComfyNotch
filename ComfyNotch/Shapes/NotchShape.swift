@@ -60,6 +60,7 @@ struct ComfyNotchShape: Shape {
         
         // Top horizontal line back to start
         path.addLine(to: CGPoint(x: rect.minX, y: rect.minY))
+        path.closeSubpath()
         
         return path
     }

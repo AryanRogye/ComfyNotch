@@ -26,8 +26,9 @@ struct AnimatedDot: View {
     }
     
     private var scale: CGFloat {
-        return animationState.hoverHandler.scaleHoverOverLeftItems ? 1.15 : 1
+        return animationState.hoverHandler.scaleHoverOverLeftItems ? 1.10 : 1
     }
+    
     
     
     
@@ -35,7 +36,7 @@ struct AnimatedDot: View {
         Circle()
             .fill(color)
             .frame(width: size, height: size)
-            .scaleEffect(animationState.hoverHandler.scaleHoverOverLeftItems ? 1.10 : 1)
+            .scaleEffect(scale)
             .animation(
                 .interpolatingSpring(stiffness: animationStiffness, damping: animationDamping),
                 value: animationState.hoverHandler.scaleHoverOverLeftItems
