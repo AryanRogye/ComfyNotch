@@ -46,17 +46,15 @@ struct ComfyNotchView: View {
     /// Testing:
     @State private var dragProgress: CGFloat = 0
     
-    private var contentInset: CGFloat = 40
-    private var cornerRadius: CGFloat = 30
-    
     init() {
     }
     
+    // MARK: - Main Body
     var body: some View {
         notch
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             /// MODIFIERS
-    
+        
             /// This manager was added in to make sure that the popInPresentation is playing
             /// when we open it, it doesnt bug out
             .onChange(of: uiManager.panelState) { _, newState in
@@ -147,18 +145,9 @@ struct ComfyNotchView: View {
         /// End of body
     }
     
-    
     // MARK: - NOTCH
     private var notch: some View {
         ZStack {
-            /// Drop Logic
-            Color.clear
-                .contentShape(Rectangle())
-                .padding(-100) // expands hit area
-                .onDrop(of: [UTType.fileURL.identifier, UTType.image.identifier], isTargeted: $fileDropManager.isDroppingFiles) { providers in
-                    fileDropManager.handleDrop(providers: providers)
-                }
-            
             /// Notch
             VStack(alignment: .leading,spacing: 0) {
                 /// Compact Widgets
@@ -166,42 +155,49 @@ struct ComfyNotchView: View {
                     .environmentObject(widgetStore)
                 
                 /// see QuickAccessWidget.swift file to see how it works
-                switch animationState.currentPanelState {
-                case .home:         HomeNotchView().environmentObject(bigWidgetStore)
-                case .file_tray:    FileTrayView().environmentObject(fileDropManager)
-                case .messages:     MessagesView()
-                case .utils:        UtilsView()
-                case .popInPresentation: PopInPresenter()
+                ZStack{
+                    switch animationState.currentPanelState {
+                    case .home:         HomeNotchView().environmentObject(bigWidgetStore)
+                    case .file_tray:    FileTrayView().environmentObject(fileDropManager)
+                    case .messages:     MessagesView()
+                    case .utils:        UtilsView()
+                    case .popInPresentation: PopInPresenter()
+                    }
                 }
+                .padding(.horizontal, 4)
                 
                 Spacer()
             }
             .frame(maxWidth: .infinity, alignment: .top)
+            /// This is for the metal background to normalize to its set color
+            .onChange(of: uiManager.panelState) { _, newState in
+                handleBlurringBackground(newState)
+            }
+            /// Notch Background
             .background(
                 settings.enableMetalAnimation
                 ? AnyView(MetalBackground().ignoresSafeArea())
                 : AnyView(Color.black.ignoresSafeArea())
             )
-            /// This is for the metal background to normalize to its set color
-            .onChange(of: uiManager.panelState) { _, newState in
-                MetalAnimationState.shared.animateBlurProgress(
-                    /// if open then blur to 1, if its closed then blur to 0
-                    to: newState == .open ? 1.0 : 0.0,
-                    /// if open then take 2 seconds to blur, if closed then take 0.5 seconds to unblur
-                    duration: newState == .open ? 2 : 0.5
-                )
-            }
-            /// To make sure the notch doesnt go over the bottom of the screen
-            .clipShape(
-                /// TODO: Idk how to make a good notch shape similar to the others
-                RoundedCornersShape(
-                    topLeft: 0,
-                    topRight: 0,
-                    bottomLeft: cornerRadius,
-                    bottomRight: cornerRadius
+            /// Notch Shape
+            .mask(
+                ComfyNotchShape(
+                    topRadius: 8,
+                    bottomRadius: 13
                 )
             )
-            
+            .onDrop(of: [UTType.fileURL.identifier, UTType.image.identifier], isTargeted: $fileDropManager.isDroppingFiles) { providers in
+                fileDropManager.handleDrop(providers: providers)
+            }
         }
+    }
+    
+    private func handleBlurringBackground(_ panelState: PanelState) {
+        MetalAnimationState.shared.animateBlurProgress(
+            /// if open then blur to 1, if its closed then blur to 0
+            to: panelState == .open ? 1.0 : 0.0,
+            /// if open then take 2 seconds to blur, if closed then take 0.5 seconds to unblur
+            duration: panelState == .open ? 2 : 0.5
+        )
     }
 }

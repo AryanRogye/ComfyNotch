@@ -58,10 +58,10 @@ struct QuickAccessSettingsView: View {
         }
         .frame(height: 80)
         .padding(.horizontal)
-//        .background(Color.black)
-//        .background(.ultraThickMaterial)
         .background(Color.clear)
-        .clipShape(RoundedCornersShape(topLeft: 0, topRight: 0, bottomLeft: 20, bottomRight: 20))
+        .mask(
+            ComfyNotchShape()
+        )
     }
     
     @ViewBuilder

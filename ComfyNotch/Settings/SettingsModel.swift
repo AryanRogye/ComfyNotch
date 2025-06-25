@@ -36,7 +36,7 @@ class SettingsModel: ObservableObject {
     @Published var nowPlayingScrollSpeed: Int = 40
     @Published var enableNotchHUD: Bool = true
     @Published var notchMaxWidth: CGFloat = 710
-    @Published var quickAccessWidgetDistanceFromLeft: CGFloat = 7
+    @Published var quickAccessWidgetDistanceFromLeft: CGFloat = 18
     
     /// ---------- Music Player Settings ----------
     @Published var showMusicProvider: Bool = true
@@ -92,6 +92,19 @@ class SettingsModel: ObservableObject {
     
     private init() {
         loadSettings()
+        
+        $isSettingsWindowOpen
+            .receive(on: RunLoop.main)
+            .sink { isOpen in
+                if isOpen {
+                    NSApp.setActivationPolicy(.regular)
+                    NSApp.activate(ignoringOtherApps: true)
+                } else {
+                    NSApp.setActivationPolicy(.prohibited)
+                    NSApp.activate(ignoringOtherApps: true)
+                }
+            }
+            .store(in: &cancellables)
     }
     
     func checkForUpdates() {
@@ -167,10 +180,6 @@ class SettingsModel: ObservableObject {
         }
         defaults.set(notchMaxWidth, forKey: "notchMaxWidth")
         
-        /// Make sure quickAccessWidgetDistanceFromLeft min is 7
-        //        if quickAccessWidgetDistanceFromLeft < 7 {
-        //            quickAccessWidgetDistanceFromLeft = 7
-        //        }
         defaults.set(quickAccessWidgetDistanceFromLeft, forKey: "quickAccessWidgetDistanceFromLeft")
         
         /// ----------------------- Music Player Settings -----------------------
@@ -289,7 +298,7 @@ class SettingsModel: ObservableObject {
         if let quickAccessWidgetDistanceFromLeft = defaults.object(forKey: "quickAccessWidgetDistanceFromLeft") as? CGFloat {
             self.quickAccessWidgetDistanceFromLeft = quickAccessWidgetDistanceFromLeft
         } else {
-            self.quickAccessWidgetDistanceFromLeft = 7
+            self.quickAccessWidgetDistanceFromLeft = 18
         }
         
         /// ----------------------- Music Player Settings -----------------------

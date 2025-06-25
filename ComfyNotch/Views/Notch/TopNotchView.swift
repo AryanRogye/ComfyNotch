@@ -16,34 +16,29 @@ struct TopNotchView: View {
     @State private var isHovering: Bool = false /// Hovering for Pause or Play
     private var paddingWidth: CGFloat = 20
     
+    private var leadingPadding: CGFloat {
+        return 11
+    }
+    
+    private var trailingPadding: CGFloat {
+        return 11
+    }
+    
     var body: some View {
         HStack(spacing: 0) {
-            /// Left Widgets
+            //MARK: - Left Widgets
             HStack {
                 leftWidgets
             }
-            .padding(.leading, 10)
-            
+            .padding(.leading, leadingPadding)
             
             Spacer()
-            //            Spacer()
-            //                .frame(width: calculatedSpacerWidth)
-            //                .padding(.horizontal, animationState.currentPanelWidth >= 320 ? paddingWidth : 0)
-            //                .animation(.interpolatingSpring(stiffness: 180, damping: 18), value: animationState.currentPanelWidth)
             
-            //            Spacer()
-            //                .frame(width: animationState.currentPanelWidth >= 320
-            //                       ? (animationState.isExpanded ? 450 : getNotchWidth())
-            //                       : 0)
-            //                .padding([.trailing, .leading], animationState.currentPanelWidth >= 320 ? paddingWidth : 0)
-            //                .animation(.spring(response: 0.35, dampingFraction: 0.75), value: animationState.currentPanelWidth)
-            
-            
-            /// Right Widgets
+            //MARK: - Right Widgets
             HStack {
                 rightWidgets
             }
-            .padding(.trailing, 10)
+            .padding(.trailing, trailingPadding)
         }
         .padding(.bottom, 2)
         .frame(maxWidth: .infinity, maxHeight: UIManager.shared.getNotchHeight(), alignment: .top)
@@ -118,8 +113,8 @@ struct TopNotchView: View {
     
     // MARK: - Play Pause Button
     private var playPauseFont: CGFloat = 14
-    private var playPauseTrailing: CGFloat = 12
-    private var playPauseTop: CGFloat = 2
+    private var playPauseTrailing: CGFloat = 14
+    private var playPauseTop: CGFloat = 4
     
     private var playPause: some View {
         HStack(spacing: 0) {

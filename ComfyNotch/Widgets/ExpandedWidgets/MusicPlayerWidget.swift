@@ -38,8 +38,13 @@ struct MusicPlayerWidget: View, Widget {
     var imageWidth: CGFloat = 120
     var imageHeight: CGFloat = 120
     
+    private var spotifyUpdatePropagationDelay = 1.5
+    
     @ObservedObject private var model = MusicPlayerWidgetModel.shared
     @ObservedObject private var settings = SettingsModel.shared
+    
+    /// Trying thing for performance
+    @State private var isVisible: Bool = true
     
     var body: some View {
         HStack(spacing: 10) {
@@ -60,77 +65,87 @@ struct MusicPlayerWidget: View, Widget {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
-            //            debugLog("Bundle Path: \(Bundle.main.bundlePath)")
+            isVisible = true
+        }
+        .onDisappear {
+            isVisible = false
+            model.isDragging = false
         }
     }
     
     @ViewBuilder
     func renderCurrentSongPosition() -> some View {
-        VStack(spacing: 8) {
-            // Progress bar
-            GeometryReader { geometry in
-                let effectivePosition = model.isDragging ? model.manualDragPosition : model.nowPlayingInfo.positionSeconds
-                ZStack(alignment: .leading) {
-                    // Background track
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.3))
-                        .frame(height: 4)
-                        .cornerRadius(2)
-                    
-                    // Progress bar
-                    Rectangle()
-                        .fill(Color(nsColor: model.nowPlayingInfo.dominantColor))
-                        .frame(width: max(CGFloat(effectivePosition / max(model.nowPlayingInfo.durationSeconds,1)) * geometry.size.width, 0), height: 4)
-                        .cornerRadius(2)
-                    
-                    // Thumb
-                    Circle()
-                        .fill(Color(nsColor: model.nowPlayingInfo.dominantColor))
-                        .frame(width: 12, height: 12)
-                        .offset(x: max(CGFloat(effectivePosition / max(model.nowPlayingInfo.durationSeconds, 1)) * geometry.size.width - 6, -6))
-                }
-                .gesture(
-                    DragGesture(minimumDistance: 0)
-                        .onChanged { value in
-                            // Set the dragging flag to true
-                            model.isDragging = true
-                            let percentage = min(max(0, value.location.x / geometry.size.width), 1)
-                            model.manualDragPosition = Double(percentage) * model.nowPlayingInfo.durationSeconds
-                        }
-                        .onEnded { value in
-                            let percentage = min(max(0, value.location.x / geometry.size.width), 1)
-                            
-                            // Convert % ➜ absolute seconds
-                            let newTimeInSeconds = percentage * model.nowPlayingInfo.durationSeconds
-                            
-                            // 1. Seek the real player
-                            AudioManager.shared.playAtTime(to: newTimeInSeconds)
-                            
-                            // 2. Keep the thumb where the user left it (UI won’t flash back)
-                            model.nowPlayingInfo.positionSeconds = newTimeInSeconds
-                            model.manualDragPosition = newTimeInSeconds
-                            
-                            // 3. Re-enable live updates after a brief grace period
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                model.isDragging = false
+        if isVisible {
+            VStack(spacing: 8) {
+                // Progress bar
+                GeometryReader { geometry in
+                    let effectivePosition = model.isDragging ? model.manualDragPosition : model.nowPlayingInfo.positionSeconds
+                    ZStack(alignment: .leading) {
+                        // Background track
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(height: 4)
+                            .cornerRadius(2)
+                        
+                        // Progress bar
+                        Rectangle()
+                            .fill(Color(nsColor: model.nowPlayingInfo.dominantColor))
+                            .frame(width: max(CGFloat(effectivePosition / max(model.nowPlayingInfo.durationSeconds,1)) * geometry.size.width, 0), height: 4)
+                            .cornerRadius(2)
+                        
+                        // Thumb
+                        Circle()
+                            .fill(Color(nsColor: model.nowPlayingInfo.dominantColor))
+                            .frame(width: 12, height: 12)
+                            .offset(x: max(CGFloat(effectivePosition / max(model.nowPlayingInfo.durationSeconds, 1)) * geometry.size.width - 6, -6))
+                    }
+                    .gesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { value in
+                                // Set the dragging flag to true
+                                model.isDragging = true
+                                let percentage = min(max(0, value.location.x / geometry.size.width), 1)
+                                model.manualDragPosition = Double(percentage) * model.nowPlayingInfo.durationSeconds
                             }
-                        }
-                )
-            }
-            .frame(height: 12)
-            
-            // Time labels
-            HStack {
-                Text(formatDuration(model.nowPlayingInfo.positionSeconds))
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                            .onEnded { value in
+                                let percentage = min(max(0, value.location.x / geometry.size.width), 1)
+                                
+                                // Convert % ➜ absolute seconds
+                                let newTimeInSeconds = percentage * model.nowPlayingInfo.durationSeconds
+                                
+                                // 1. Seek the real player
+                                AudioManager.shared.playAtTime(to: newTimeInSeconds)
+                                
+                                // 2. Keep the thumb where the user left it (UI won’t flash back)
+                                model.manualDragPosition = newTimeInSeconds
+                                
+                                /// This is delayed because someone like me plays spotify on my tv
+                                /// the device is seperate from the controller so updates for spotify
+                                /// take some time to propagate.
+                                DispatchQueue.main.asyncAfter(deadline: .now() + spotifyUpdatePropagationDelay) {
+                                    model.nowPlayingInfo.positionSeconds = newTimeInSeconds
+                                    model.isDragging = false
+                                }
+                            }
+                    )
+                }
+                .frame(height: 12)
                 
-                Spacer()
-                
-                Text(formatDuration(model.nowPlayingInfo.durationSeconds))
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                // Time labels
+                HStack {
+                    Text(formatDuration(model.nowPlayingInfo.positionSeconds))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    Spacer()
+                    
+                    Text(formatDuration(model.nowPlayingInfo.durationSeconds))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
             }
+        } else {
+            EmptyView()
         }
     }    // Helper function to format seconds as "MM:SS"
     private func formatDuration(_ seconds: Double) -> String {
@@ -196,42 +211,44 @@ struct MusicPlayerWidget: View, Widget {
     
     @ViewBuilder
     func renderAlbumCover() -> some View {
-        ZStack(alignment: .bottomTrailing) {
-            if let artwork = model.nowPlayingInfo.artworkImage {
-                Image(nsImage: artwork)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: imageWidth, height: imageHeight)
-                    .cornerRadius(8)
-                    .padding(.leading, 7.5)
-                    .padding(.top, 7.5)
-            } else {
-                Rectangle()
-                    .fill(Color.gray.opacity(0.3))
-                    .cornerRadius(8)
-                    .padding(.leading, 7.5)
-                    .frame(width: imageWidth, height: imageHeight)
-                    .allowsHitTesting(false)
-                    .padding(.top, 7.5)
-            }
-            if settings.showMusicProvider {
-                Group {
-                    if settings.musicController == .mediaRemote {
-                        if settings.overridenMusicProvider == .apple_music {
-                            appleMusicProvider
-                        } else if settings.overridenMusicProvider == .spotify {
-                            spotifyProvider
+        if isVisible {
+            ZStack(alignment: .bottomTrailing) {
+                if let artwork = model.nowPlayingInfo.artworkImage {
+                    Image(nsImage: artwork)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: imageWidth, height: imageHeight)
+                        .cornerRadius(8)
+                        .padding(.leading, 7.5)
+                        .padding(.top, 7.5)
+                } else {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .cornerRadius(8)
+                        .padding(.leading, 7.5)
+                        .frame(width: imageWidth, height: imageHeight)
+                        .allowsHitTesting(false)
+                        .padding(.top, 7.5)
+                }
+                if settings.showMusicProvider {
+                    Group {
+                        if settings.musicController == .mediaRemote {
+                            if settings.overridenMusicProvider == .apple_music {
+                                renderAppleMusicProvider()
+                            } else if settings.overridenMusicProvider == .spotify {
+                                renderSpotifyProvider()
+                            }
+                        } else if settings.musicController == .spotify_music {
+                            switch model.nowPlayingInfo.musicProvider {
+                            case .apple_music:
+                                renderAppleMusicProvider()
+                            case .spotify:
+                                renderSpotifyProvider()
+                            case .none: EmptyView()
+                            }
                         }
-                    } else if settings.musicController == .spotify_music {
-                        switch model.nowPlayingInfo.musicProvider {
-                        case .apple_music:
-                            appleMusicProvider
-                        case .spotify:
-                            spotifyProvider
-                        case .none: EmptyView()
-                        }
+                        /// Music Provider
                     }
-                    /// Music Provider
                 }
             }
         }
@@ -251,44 +268,42 @@ struct MusicPlayerWidget: View, Widget {
         }
     }
     
-    private var spotifyProvider: some View {
-        VStack {
-            if let url = Bundle.main.url(forResource: "spotify", withExtension: "svg", subdirectory: "Assets") {
-                Button(action: AudioManager.shared.openProvider) {
-                    HoverEffectWrapper {
-                        ZStack {
-                            Circle()
-                                .fill(Color.black)
-                                .frame(width: 24, height: 24)
-                            SVGView(contentsOf: url)
-                                .frame(width: 24, height: 24)
-                        }
-                    }
-                    .offset(x: 8, y: 8)
-                    .zIndex(1)
-                    .shadow(color: .black.opacity(0.5), radius: 8, x: 0, y: 4)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-            }
-        }
-    }
-    
-    private var appleMusicProvider: some View {
-        VStack {
-            if let url = Bundle.main.url(forResource: "apple_music", withExtension: "svg", subdirectory: "Assets") {
-                Button(action: AudioManager.shared.openProvider ) {
-                    HoverEffectWrapper {
+    @ViewBuilder
+    func renderSpotifyProvider() -> some View {
+        if let url = Bundle.main.url(forResource: "spotify", withExtension: "svg", subdirectory: "Assets") {
+            Button(action: AudioManager.shared.openProvider) {
+                HoverEffectWrapper {
+                    ZStack {
+                        Circle()
+                            .fill(Color.black)
+                            .frame(width: 24, height: 24)
                         SVGView(contentsOf: url)
                             .frame(width: 24, height: 24)
                     }
-                    .offset(x: 8, y: 8)
-                    .zIndex(1)
-                    .shadow(color: .black.opacity(0.5), radius: 8, x: 0, y: 4)
-                    .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .offset(x: 8, y: 8)
+                .zIndex(1)
+                .shadow(color: .black.opacity(0.5), radius: 8, x: 0, y: 4)
+                .contentShape(Rectangle())
             }
+            .buttonStyle(.plain)
+        }
+    }
+    
+    @ViewBuilder
+    func renderAppleMusicProvider() -> some View {
+        if let url = Bundle.main.url(forResource: "apple_music", withExtension: "svg", subdirectory: "Assets") {
+            Button(action: AudioManager.shared.openProvider ) {
+                HoverEffectWrapper {
+                    SVGView(contentsOf: url)
+                        .frame(width: 24, height: 24)
+                }
+                .offset(x: 8, y: 8)
+                .zIndex(1)
+                .shadow(color: .black.opacity(0.5), radius: 8, x: 0, y: 4)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
         }
     }
     
