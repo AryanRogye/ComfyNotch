@@ -100,8 +100,9 @@ class SettingsModel: ObservableObject {
                     NSApp.setActivationPolicy(.regular)
                     NSApp.activate(ignoringOtherApps: true)
                 } else {
-                    NSApp.setActivationPolicy(.prohibited)
-                    NSApp.activate(ignoringOtherApps: true)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        NSApp.setActivationPolicy(.prohibited)
+                    }
                 }
             }
             .store(in: &cancellables)
