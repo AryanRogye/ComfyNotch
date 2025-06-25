@@ -31,46 +31,13 @@ struct FileTrayView: View {
             if animationState.isExpanded && !fileDropManager.shouldAutoShowTray
             {
                 Group {
-                    /// Conditional to show the delete page
-                    if !showDeleteFileAlert {
-                        /// If No Files
-                        /// If Files Are There
-                        HStack {
-                            //                            /// Add File Look
-                            addFilesTray
-                                .padding(.horizontal, 10)
-                                .frame(width: 150, height: 150)
-                            /// This allows it to be blue when dragged over
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(fileDropManager.isDroppingFiles ? Color.blue.opacity(0.8) : Color.gray, style: StrokeStyle(lineWidth: 1, dash: [5]))
-                                        .foregroundColor(.gray.opacity(0.5))
-                                        .animation(.easeInOut(duration: 0.3), value: fileDropManager.isDroppingFiles)
-                                )
-                                .padding(.vertical, 5)
-                                .padding(.leading, 10)
-                            
-                            Spacer()
-                            
-                            /// What Files Are There
-                            userTray
-                                .padding(.horizontal, 10)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 150)
-                            /// This allows it to be blue when dragged over
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(fileDropManager.isDroppingFiles ? Color.blue.opacity(0.8) : Color.gray, style: StrokeStyle(lineWidth: 1, dash: [5]))
-                                        .foregroundColor(.gray.opacity(0.5))
-                                        .animation(.easeInOut(duration: 0.3), value: fileDropManager.isDroppingFiles)
-                                )
-                                .padding(.vertical, 5)
-                                .padding(.trailing, 10)
-                        }
-                    }
-                    /// If Delete is pressed
-                    else {
+                    if showDeleteFileAlert {
+                        /// Delete View
                         showPopup()
+                    }
+                    else {
+                        /// Main View
+                        fileTray
                     }
                 }
                 .transition(.opacity) // 👈 adds fade in/out
@@ -81,24 +48,45 @@ struct FileTrayView: View {
             .easeInOut(duration: animationState.isExpanded ? 2 : 0.1),
             value: animationState.isExpanded
         )
+        .padding(.top, 2)
+//        .padding(.horizontal, 4)
     }
     
-    private var userTray: some View {
+    private var fileTray: some View {
         HStack {
-            let columns = [
-                GridItem(.adaptive(minimum: 100))
-            ]
+            //                            /// Add File Look
+            addFilesTray
+                .padding(.horizontal, 10)
+                .frame(width: 140)
+                .frame(maxHeight: .infinity)
+            /// This allows it to be blue when dragged over
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(fileDropManager.isDroppingFiles ? Color.blue.opacity(0.8) : Color.gray, style: StrokeStyle(lineWidth: 1, dash: [5]))
+                        .foregroundColor(.gray.opacity(0.5))
+                        .animation(.easeInOut(duration: 0.3), value: fileDropManager.isDroppingFiles)
+                )
+                .padding(.leading, 10)
             
-            ComfyScrollView {
-                LazyVGrid(columns: columns, spacing: 1) {
-                    ForEach(fileDropManager.droppedFiles.filter { FileManager.default.fileExists(atPath: $0.path) }, id: \.self) { fileURL in
-                        showFile(for: fileURL)
-                    }
-                }
-            }
+            Spacer()
+            
+            /// What Files Are There
+//            EmptyView()
+            userTray
+                .padding(.horizontal, 10)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            /// This allows it to be blue when dragged over
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(fileDropManager.isDroppingFiles ? Color.blue.opacity(0.8) : Color.gray, style: StrokeStyle(lineWidth: 1, dash: [5]))
+                        .foregroundColor(.gray.opacity(0.5))
+                        .animation(.easeInOut(duration: 0.3), value: fileDropManager.isDroppingFiles)
+                )
+                .padding(.trailing, 10)
         }
     }
     
+    // MARK: - Add Files Tray
     var addFilesTray: some View {
         VStack {
             /// TODO: This is really cool, maybe think about managing this better
@@ -138,6 +126,23 @@ struct FileTrayView: View {
                     .padding()
             }
             //            Spacer()
+        }
+    }
+
+    // MARK: - User Tray
+    private var userTray: some View {
+        HStack {
+            let columns = [
+                GridItem(.adaptive(minimum: 100))
+            ]
+            
+            ComfyScrollView {
+                LazyVGrid(columns: columns, spacing: 1) {
+                    ForEach(fileDropManager.droppedFiles.filter { FileManager.default.fileExists(atPath: $0.path) }, id: \.self) { fileURL in
+                        showFile(for: fileURL)
+                    }
+                }
+            }
         }
     }
     

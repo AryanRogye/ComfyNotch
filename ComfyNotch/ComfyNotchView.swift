@@ -155,13 +155,16 @@ struct ComfyNotchView: View {
                     .environmentObject(widgetStore)
                 
                 /// see QuickAccessWidget.swift file to see how it works
-                switch animationState.currentPanelState {
-                case .home:         HomeNotchView().environmentObject(bigWidgetStore)
-                case .file_tray:    FileTrayView().environmentObject(fileDropManager)
-                case .messages:     MessagesView()
-                case .utils:        UtilsView()
-                case .popInPresentation: PopInPresenter()
+                ZStack{
+                    switch animationState.currentPanelState {
+                    case .home:         HomeNotchView().environmentObject(bigWidgetStore)
+                    case .file_tray:    FileTrayView().environmentObject(fileDropManager)
+                    case .messages:     MessagesView()
+                    case .utils:        UtilsView()
+                    case .popInPresentation: PopInPresenter()
+                    }
                 }
+                .padding(.horizontal, 4)
                 
                 Spacer()
             }
