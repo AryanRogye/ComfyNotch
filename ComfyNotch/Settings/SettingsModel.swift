@@ -101,7 +101,7 @@ class SettingsModel: ObservableObject {
                     NSApp.activate(ignoringOtherApps: true)
                 } else {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                        NSApp.setActivationPolicy(.prohibited)
+                        NSApp.setActivationPolicy(.accessory)
                     }
                 }
             }
