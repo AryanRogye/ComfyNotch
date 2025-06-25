@@ -92,6 +92,19 @@ class SettingsModel: ObservableObject {
     
     private init() {
         loadSettings()
+        
+        $isSettingsWindowOpen
+            .receive(on: RunLoop.main)
+            .sink { isOpen in
+                if isOpen {
+                    NSApp.setActivationPolicy(.regular)
+                    NSApp.activate(ignoringOtherApps: true)
+                } else {
+                    NSApp.setActivationPolicy(.prohibited)
+                    NSApp.activate(ignoringOtherApps: true)
+                }
+            }
+            .store(in: &cancellables)
     }
     
     func checkForUpdates() {
