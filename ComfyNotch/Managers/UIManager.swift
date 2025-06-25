@@ -72,14 +72,10 @@ class UIManager: ObservableObject {
         let screenFrame = screen.frame
         let notchHeight = getNotchHeight()
         
-        let extraCurveWidth: CGFloat = 40 // This allows the curves to extend beyond content
-        let expandedPanelWidth = startPanelWidth + (extraCurveWidth * 2)
-        
         let panelRect = NSRect(
-            // Offset X to center the expanded panel
-            x: (screenFrame.width - expandedPanelWidth) / 2,
+            x: (screenFrame.width - startPanelWidth) / 2,
             y: screenFrame.height - notchHeight - startPanelYOffset,
-            width: expandedPanelWidth,
+            width: startPanelWidth,
             height: notchHeight
         )
         
@@ -89,7 +85,6 @@ class UIManager: ObservableObject {
             backing: .buffered,
             defer: false
         )
-        
         /// Allow content to draw outside panel bounds
         smallPanel.contentView?.wantsLayer = true
         
