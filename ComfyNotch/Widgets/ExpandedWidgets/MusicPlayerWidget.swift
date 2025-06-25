@@ -38,6 +38,8 @@ struct MusicPlayerWidget: View, Widget {
     var imageWidth: CGFloat = 120
     var imageHeight: CGFloat = 120
     
+    private var spotifyUpdatePropagationDelay = 1.5
+    
     @ObservedObject private var model = MusicPlayerWidgetModel.shared
     @ObservedObject private var settings = SettingsModel.shared
     
@@ -120,7 +122,7 @@ struct MusicPlayerWidget: View, Widget {
                                 /// This is delayed because someone like me plays spotify on my tv
                                 /// the device is seperate from the controller so updates for spotify
                                 /// take some time to propagate.
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + spotifyUpdatePropagationDelay) {
                                     model.nowPlayingInfo.positionSeconds = newTimeInSeconds
                                     model.isDragging = false
                                 }
