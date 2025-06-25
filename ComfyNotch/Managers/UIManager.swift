@@ -72,10 +72,14 @@ class UIManager: ObservableObject {
         let screenFrame = screen.frame
         let notchHeight = getNotchHeight()
         
+        let extraCurveWidth: CGFloat = 40 // This allows the curves to extend beyond content
+        let expandedPanelWidth = startPanelWidth + (extraCurveWidth * 2)
+        
         let panelRect = NSRect(
-            x: (screenFrame.width - startPanelWidth) / 2,
+            // Offset X to center the expanded panel
+            x: (screenFrame.width - expandedPanelWidth) / 2,
             y: screenFrame.height - notchHeight - startPanelYOffset,
-            width: startPanelWidth,
+            width: expandedPanelWidth,
             height: notchHeight
         )
         

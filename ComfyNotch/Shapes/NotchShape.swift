@@ -1,5 +1,67 @@
 import SwiftUI
 
+struct NotchShape: Shape {
+    let curveRadius: CGFloat
+    let outwardCurveRadius: CGFloat
+    
+    init(curveRadius: CGFloat = 30, outwardCurveRadius: CGFloat = 20) {
+        self.curveRadius = curveRadius
+        self.outwardCurveRadius = outwardCurveRadius
+    }
+    
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        
+        let width = rect.width
+        let height = rect.height
+        
+        // Start from top-left, but inset to allow for outward curve
+        let topInset: CGFloat = 40 // This should match extraCurveWidth/2 from UIManager
+        
+        // Start point (top-left after inset)
+        path.move(to: CGPoint(x: topInset, y: 0))
+        
+        // Top edge to top-right curve start
+        path.addLine(to: CGPoint(x: width - topInset, y: 0))
+        
+        // Top-right outward curve
+        path.addQuadCurve(
+            to: CGPoint(x: width, y: outwardCurveRadius),
+            control: CGPoint(x: width + outwardCurveRadius, y: 0)
+        )
+        
+        // Right edge
+        path.addLine(to: CGPoint(x: width, y: height - curveRadius))
+        
+        // Bottom-right inward curve
+        path.addQuadCurve(
+            to: CGPoint(x: width - curveRadius, y: height),
+            control: CGPoint(x: width, y: height)
+        )
+        
+        // Bottom edge
+        path.addLine(to: CGPoint(x: curveRadius, y: height))
+        
+        // Bottom-left inward curve
+        path.addQuadCurve(
+            to: CGPoint(x: 0, y: height - curveRadius),
+            control: CGPoint(x: 0, y: height)
+        )
+        
+        // Left edge
+        path.addLine(to: CGPoint(x: 0, y: outwardCurveRadius))
+        
+        // Top-left outward curve
+        path.addQuadCurve(
+            to: CGPoint(x: topInset, y: 0),
+            control: CGPoint(x: -outwardCurveRadius, y: 0)
+        )
+        
+        path.closeSubpath()
+        return path
+    }
+}
+
 struct RoundedCornersShape: Shape {
     var topLeft: CGFloat = 0
     var topRight: CGFloat = 0
