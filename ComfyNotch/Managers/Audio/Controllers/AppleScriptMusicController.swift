@@ -42,6 +42,9 @@ final class AppleScriptMusicController: NowPlayingProvider {
         true
     }
     
+    private var is_sp_playing = false
+    private var is_it_playing = false
+    
     
     /// Fetches the current now playing information from Spotify or Apple Music.
     ///
@@ -49,7 +52,7 @@ final class AppleScriptMusicController: NowPlayingProvider {
     /// If neither app is playing, it clears the now playing info.
     /// - Parameter completion: Closure called with `true` when done (always true for compatibility).
     func getNowPlayingInfo(completion: @escaping (Bool)->Void) {
-//        debugLog("Getting Now Playing From AppleScriptMusicController")
+        //        debugLog("Getting Now Playing From AppleScriptMusicController")
         guard !isUpdating else {
             completion(true)
             return
@@ -75,11 +78,17 @@ final class AppleScriptMusicController: NowPlayingProvider {
     }
     
     private func performUpdate(completion: @escaping (Bool) -> Void) {
-        let spotifyPlaying = isSpotifyPlaying()
-        let appleMusicPlaying = isAppleMusicPlaying()
+        self.is_sp_playing = isSpotifyPlaying()
+        self.is_it_playing = isAppleMusicPlaying()
+        
+        if !is_sp_playing && !is_it_playing {
+            self.updateInterval = 5.0
+        } else {
+            self.updateInterval = 2.0
+        }
         
         // Shortcut if nothing is playing
-        if !spotifyPlaying && !appleMusicPlaying {
+        if !is_sp_playing && !is_it_playing {
             DispatchQueue.main.async {
                 self.clearNowPlaying()
                 self.nowPlayingInfo.musicProvider = .none
@@ -89,7 +98,7 @@ final class AppleScriptMusicController: NowPlayingProvider {
         }
         
         // If Spotify is playing
-        if spotifyPlaying {
+        if is_sp_playing {
             getSpotifyInfo { info in
                 DispatchQueue.main.async {
                     if let info = info {
@@ -106,7 +115,7 @@ final class AppleScriptMusicController: NowPlayingProvider {
         }
         
         // If Apple Music is playing
-        if appleMusicPlaying {
+        if is_it_playing {
             DispatchQueue.main.async {
                 if let info = self.getMusicInfo() {
                     self.updateNowPlaying(with: info, isPlaying: true)
@@ -128,13 +137,13 @@ final class AppleScriptMusicController: NowPlayingProvider {
     /// Skips to the previous track in the current player.
     func playPreviousTrack() -> Void {
         DispatchQueue.global(qos: .userInitiated).async {
-            if self.isSpotifyPlaying() {
+            if self.is_sp_playing {
                 _ = self.runAppleScript("""
                     tell application \"Spotify\"
                         previous track
                     end tell
                 """)
-            } else if self.isAppleMusicPlaying() {
+            } else if self.is_it_playing {
                 _ = self.runAppleScript("""
                     tell application \"Music\"
                         previous track
@@ -146,13 +155,13 @@ final class AppleScriptMusicController: NowPlayingProvider {
     /// Skips to the next track in the current player.
     func playNextTrack() -> Void {
         DispatchQueue.global(qos: .userInitiated).async {
-            if self.isSpotifyPlaying() {
+            if self.is_sp_playing {
                 _ = self.runAppleScript("""
                     tell application \"Spotify\"
                         next track
                     end tell
                 """)
-            } else if self.isAppleMusicPlaying() {
+            } else if self.is_it_playing {
                 _ = self.runAppleScript("""
                     tell application \"Music\"
                         next track
@@ -164,13 +173,13 @@ final class AppleScriptMusicController: NowPlayingProvider {
     /// Toggles play/pause in the current player.
     func togglePlayPause() -> Void {
         DispatchQueue.global(qos: .userInitiated).async {
-            if self.isSpotifyPlaying() {
+            if self.is_sp_playing {
                 _ = self.runAppleScript("""
                     tell application \"Spotify\"
                         playpause
                     end tell
                 """)
-            } else if self.isAppleMusicPlaying() {
+            } else if self.is_it_playing {
                 _ = self.runAppleScript("""
                     tell application \"Music\"
                         playpause
@@ -189,13 +198,13 @@ final class AppleScriptMusicController: NowPlayingProvider {
     /// - Parameter time: The time (in seconds) to seek to.
     func playAtTime(to time: Double) -> Void {
         DispatchQueue.global(qos: .userInitiated).async {
-            if self.isSpotifyPlaying() {
+            if self.is_sp_playing {
                 _ = self.runAppleScript("""
                     tell application \"Spotify\"
                         set player position to \(time)
                     end tell
                 """)
-            } else if self.isAppleMusicPlaying() {
+            } else if self.is_it_playing {
                 _ = self.runAppleScript("""
                     tell application \"Music\"
                         set player position to \(time)

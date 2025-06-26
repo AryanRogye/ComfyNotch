@@ -12,34 +12,26 @@ struct HomeNotchView: View {
                 /// Big Panel Widgets
                 ZStack {
                     HStack(spacing: 2) {
+                        let lastVisibleIndex = bigWidgetStore.widgets.lastIndex(where: { $0.isVisible })
+
                         ForEach(bigWidgetStore.widgets.indices, id: \.self) { index in
                             let widgetEntry = bigWidgetStore.widgets[index]
-                            Group {
-                                if widgetEntry.isVisible {
-                                    HStack(spacing: 0) {
-                                        widgetEntry.widget.swiftUIView
-                                            .padding(.horizontal, 2)
-                                            .frame(maxWidth: .infinity)
-                                            .layoutPriority(1) // make them expand evenly
-                                            .padding(.trailing, 2)
-                                            .padding(.leading, 4)
-                                        
-                                        if settingsModel.showDividerBetweenWidgets {
-                                            if index < bigWidgetStore.widgets.indices.last(where: { bigWidgetStore.widgets[$0].isVisible })! {
-                                                //                                        Rectangle()
-                                                //                                            .frame(width: 1)
-                                                //                                            .foregroundColor(.white.opacity(0.1))
-                                                //                                            .padding(.vertical, 12)
-                                                Divider()
-                                                    .background(.ultraThinMaterial)
-                                                    .frame(width: 1)
-                                                    .padding(.vertical, 12)
-                                            }
-                                        }
+                            if widgetEntry.isVisible {
+                                HStack(spacing: 0) {
+                                    widgetEntry.widget.swiftUIView
+                                        .padding(.horizontal, 2)
+                                        .frame(maxWidth: .infinity)
+                                    
+                                    if settingsModel.showDividerBetweenWidgets,
+                                       let lastVisibleIndex,
+                                       index < lastVisibleIndex {
+                                        Divider()
+                                            .background(.ultraThinMaterial)
+                                            .frame(width: 1)
+                                            .padding(.vertical, 12)
                                     }
                                 }
                             }
-                            .animation(Anim.spring, value: widgetEntry.isVisible ? 1 : 1)
                         }
                     }
                 }

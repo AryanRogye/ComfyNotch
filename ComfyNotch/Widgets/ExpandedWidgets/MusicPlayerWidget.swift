@@ -315,9 +315,9 @@ struct MusicPlayerWidget: View, Widget {
 class MusicPlayerWidgetModel: ObservableObject {
     static let shared = MusicPlayerWidgetModel()
     
-    @ObservedObject var nowPlayingInfo = AudioManager.shared.nowPlayingInfo
     @Published var isDragging: Bool = false
     @Published var manualDragPosition: Double = 0
+    @Published var nowPlayingInfo: NowPlayingInfo = AudioManager.shared.nowPlayingInfo
     
     private var cancellables = Set<AnyCancellable>()
     
@@ -325,7 +325,7 @@ class MusicPlayerWidgetModel: ObservableObject {
         nowPlayingInfo.objectWillChange
             .receive(on: RunLoop.main)
             .sink { [weak self] in
-                self?.objectWillChange.send() // Force view update
+                self?.objectWillChange.send()
             }
             .store(in: &cancellables)
     }

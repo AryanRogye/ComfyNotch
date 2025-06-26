@@ -84,6 +84,7 @@ private struct PanGestureRepresentable: NSViewRepresentable {
 
         // MARK: – Core logic
 
+        @inline(__always)
         private func handleScroll(_ event: NSEvent) {
             sumX += event.scrollingDeltaX
             sumY += event.scrollingDeltaY
