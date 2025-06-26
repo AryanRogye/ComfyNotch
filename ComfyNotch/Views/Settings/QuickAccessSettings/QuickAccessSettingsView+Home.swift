@@ -349,6 +349,10 @@ struct QuickAccessSettingsView_Home: View {
             .onChange(of: settings.musicController) {
                 settings.saveSettings()
             }
+            Text("⚠️ Warning – Media Remote is a third-party Swift Package feature. Performance may vary, and optimizations may be limited.")
+                .font(.footnote)
+                .foregroundColor(.secondary)
+                .padding(.top, 4)
             
             if settings.musicController == .mediaRemote {
                 Picker("Music Provider", selection: $settings.overridenMusicProvider) {

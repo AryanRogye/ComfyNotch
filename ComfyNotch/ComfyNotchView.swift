@@ -154,17 +154,12 @@ struct ComfyNotchView: View {
                 TopNotchView()
                     .environmentObject(widgetStore)
                 
-                /// see QuickAccessWidget.swift file to see how it works
-                ZStack{
-                    switch animationState.currentPanelState {
-                    case .home:         HomeNotchView().environmentObject(bigWidgetStore)
-                    case .file_tray:    FileTrayView().environmentObject(fileDropManager)
-                    case .messages:     MessagesView()
-                    case .utils:        UtilsView()
-                    case .popInPresentation: PopInPresenter()
-                    }
+                if animationState.isExpanded || animationState.currentPanelState == .popInPresentation {
+                    //                    / see QuickAccessWidget.swift file to see how it works
+                    expandedView
+                        .padding(.horizontal, 4)
+                        
                 }
-                .padding(.horizontal, 4)
                 
                 Spacer()
             }
@@ -189,6 +184,33 @@ struct ComfyNotchView: View {
             .onDrop(of: [UTType.fileURL.identifier, UTType.image.identifier], isTargeted: $fileDropManager.isDroppingFiles) { providers in
                 fileDropManager.handleDrop(providers: providers)
             }
+        }
+    }
+    
+    /// The expanded view was switched from a switch statement to
+    /// if conditionals because I saw CPU lower a TON with it
+    @ViewBuilder
+    private var expandedView: some View {
+        if animationState.currentPanelState == .home {
+            HomeNotchView()
+                .environmentObject(bigWidgetStore)
+        }
+        
+        if animationState.currentPanelState == .file_tray {
+            FileTrayView()
+                .environmentObject(fileDropManager)
+        }
+        
+        if animationState.currentPanelState == .messages {
+            MessagesView()
+        }
+        
+        if animationState.currentPanelState == .utils {
+            UtilsView()
+        }
+        
+        if animationState.currentPanelState == .popInPresentation {
+            PopInPresenter()
         }
     }
     
@@ -225,7 +247,7 @@ struct ComfyNotchView: View {
     
     PanelAnimationState.shared.currentPanelState = .file_tray
     PanelAnimationState.shared.isExpanded = true
-
+    
     UIManager.shared.panelState = .open
     
     return ZStack {
