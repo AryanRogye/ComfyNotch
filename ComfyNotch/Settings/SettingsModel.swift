@@ -7,6 +7,8 @@ class SettingsModel: ObservableObject {
     
     static let shared = SettingsModel()
     
+    @Published var isFirstLaunch: Bool = true
+    
     @Published var selectedWidgets: [String] = []
     @Published var isSettingsWindowOpen: Bool = false
     @Published var openStateYOffset = CGFloat(35)

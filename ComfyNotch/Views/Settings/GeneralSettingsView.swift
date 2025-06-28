@@ -3,7 +3,6 @@ import SwiftUI
 struct GeneralSettingsView: View {
     
     @ObservedObject var settings: SettingsModel
-    @ObservedObject    var displayManager: DisplayManager = .shared
     
     @Environment(\.colorScheme) var colorScheme
     
@@ -26,8 +25,6 @@ struct GeneralSettingsView: View {
             }
             ComfyScrollView {
                 headerView
-                
-                // displaySettingsSection
                 
                 notchSettingsSection
                 
@@ -69,68 +66,6 @@ struct GeneralSettingsView: View {
         .padding(.top, 12)
     }
     
-    // MARK: - Display Section
-    private var displaySettingsSection: some View {
-        ComfySection(title: "Display Settings") {
-            displaySection
-        }
-    }
-    
-    private var displaySection: some View {
-        VStack {
-            HStack {
-                let columns = [
-                    /// 2 displays Max
-                    GridItem(.flexible(minimum: 100, maximum: 200)),
-                    GridItem(.flexible(minimum: 100, maximum: 200)),
-                ]
-                Spacer()
-                LazyVGrid(columns: columns, spacing: 16) {
-                    ForEach(Array(displayManager.screenSnapshots.keys), id: \.self) { key in
-                        if let image = displayManager.snapshot(for: key) {
-                            let screen = NSScreen.screens.first(where: { $0.displayID == key })
-                            VStack {
-                                Text(displayManager.displayName(for: key))
-                                    .font(.headline)
-                                    .foregroundColor(.secondary)
-                                    .padding(.bottom, 4)
-                                Image(nsImage: image)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(width: 140, height: 140)
-                                    .cornerRadius(8)
-                                    .padding(4)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                                Button(action: {
-                                    displayManager.selectedScreen = screen
-                                    displayManager.saveSettings()
-                                }) {
-                                    Text("Select")
-                                        .font(.system(size: 13, weight: .semibold))
-                                        .foregroundColor(.primary)
-                                }
-                            }
-                            .padding(6)
-                            .padding(.horizontal, 8)
-                            .background(displayManager.selectedScreen ==  screen ? Color.primary.opacity(0.3) : Color.primary.opacity(0.05))
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                            .contentShape(RoundedRectangle(cornerRadius: 12))
-                        }
-                    }
-                }
-            }
-            VStack(alignment: .center) {
-                Text("Note that ComfyNotch will open the best on a window with a Notch")
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-                    .padding(.top, 8)
-                Text("A newly selected Display will need a relaunch to apply settings properly")
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-            }
-            .frame(maxWidth: .infinity, alignment: .center)
-        }
-    }
     
     // MARK: - Notch Section
     private var notchSettingsSection: some View {
@@ -139,12 +74,7 @@ struct GeneralSettingsView: View {
             ComfySection(title: "Dimensions", isSub: true) {
                 notchSettings
             }
-            ComfySection(title: "Animations", isSub: true) {
-                animationSettings
-            }
-            ComfySection(title: "Display", isSub: true) {
-                displaySection
-            }
+            
             ComfySection(title: "Notch Controls", isSub: true) {
                 pickObjectHover
                 scrollSpeed
@@ -157,114 +87,6 @@ struct GeneralSettingsView: View {
                     }
                     .padding(.vertical, 8)
                     .toggleStyle(.switch)
-            }
-        }
-    }
-    
-    // MARK: - Animation
-    private var animationSettings: some View {
-        VStack {
-            
-            HStack {
-                Text("Opening Animation")
-                    .font(.subheadline)
-                    .foregroundColor(.primary)
-                
-                Spacer()
-                
-                Picker("", selection: $settings.openingAnimation) {
-                    Text("Spring Animation").tag("spring")
-                    Text("iOS Animation").tag("iOS")
-                }
-                .labelsHidden()
-                .pickerStyle(.menu)
-                .tint(.accentColor)
-                .onChange(of: settings.openingAnimation) {
-                    settings.saveSettings()
-                }
-                .frame(width: 250)
-            }
-            
-            Text("Select how the notch opens when activated.")
-                .font(.footnote)
-                .foregroundColor(.secondary)
-            
-            Text("Experimental Metal Rendering")
-                .font(.title)
-                .foregroundColor(.primary)
-                .padding(.top, 10)
-            
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("⚠️ Warning: This feature will increase memory usage and CPU usage")
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .padding(12)
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(Color.yellow.opacity(0.1))
-                )
-                
-                HStack {
-                    VStack {
-                        Text("Enable Metal Animations/Shaders")
-                            .font(.subheadline)
-                            .foregroundColor(.primary)
-                    }
-                    
-                    Spacer()
-                    
-                    Toggle("",isOn: $settings.enableMetalAnimation)
-                        .toggleStyle(.switch)
-                        .onChange(of: settings.enableMetalAnimation) { _, newValue in
-                            settings.saveSettings()
-                        }
-                }
-                .padding(.top, 10)
-                
-                if settings.enableMetalAnimation {
-                    HStack {
-                        Text("Notch Background Animation")
-                            .font(.subheadline)
-                            .foregroundColor(.primary)
-                        
-                        Spacer()
-                        
-                        Picker("", selection: $settings.notchBackgroundAnimation) {
-                            ForEach(ShaderOption.allCases, id: \.self) { option in
-                                Text(option.displayName)
-                                    .tag(option)
-                            }
-                        }
-                        .labelsHidden()
-                        .pickerStyle(.menu)
-                        .tint(.accentColor)
-                        .onChange(of: settings.notchBackgroundAnimation) {
-                            settings.saveSettings()
-                        }
-                        .frame(width: 250)
-                    }
-                    .padding(.top, 10)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .animation(settings.enableMetalAnimation ? .interactiveSpring(duration: 0.3) : .none, value: settings.notchBackgroundAnimation)
-                    
-                    HStack {
-                        Text("Constant 120 FPS")
-                        Spacer()
-                        
-                        Toggle("", isOn: $settings.constant120FPS)
-                            .toggleStyle(.switch)
-                            .onChange(of: settings.constant120FPS) {
-                                settings.saveSettings()
-                            }
-                        
-                    }
-                    .padding(.top, 10)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .animation(settings.enableMetalAnimation ? .interactiveSpring(duration: 0.3) : .none, value: settings.notchBackgroundAnimation)
-                }
             }
         }
     }

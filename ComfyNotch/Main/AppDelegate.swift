@@ -1,8 +1,4 @@
 import AppKit
-import MediaPlayer
-import CoreAudio
-import Foundation
-import EventKit
 
 // _ = SettingsModel.shared
 
@@ -17,7 +13,6 @@ import EventKit
  */
 public class AppDelegate: NSObject, NSApplicationDelegate {
     private var panelProximityHandler: PanelProximityHandler?
-
     /**
      * Called when the application finishes launching.
      * Initializes core components and sets up the UI infrastructure.
@@ -32,7 +27,6 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
      *
      * - Parameter notification: Launch notification object
      */
-    
     public func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.appearance = NSAppearance(named: .darkAqua)
         let _ = {
@@ -40,7 +34,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             NSKeyedUnarchiver.setClass(NSAttributedString.self, forClassName: "NSConcreteAttributedString")
             NSKeyedUnarchiver.setClass(NSAttributedString.self, forClassName: "NSFrozenAttributedString")
         }()
-
+        
         #if !DEBUG
         /// Close the SettingsPage On Launch if not debug
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {

@@ -155,9 +155,14 @@ struct ComfyNotchView: View {
                     .environmentObject(widgetStore)
                 
                 if animationState.isExpanded || animationState.currentPanelState == .popInPresentation {
-                    //                    / see QuickAccessWidget.swift file to see how it works
-                    expandedView
-                        .padding(.horizontal, 4)
+                    /// see QuickAccessWidget.swift file to see how it works
+//                    if settings.isFirstLaunch {
+//                        Onboarding()
+//                            .padding(.horizontal, 4)
+//                    } else {
+                        expandedView
+                            .padding(.horizontal, 4)
+//                    }
                         
                 }
                 

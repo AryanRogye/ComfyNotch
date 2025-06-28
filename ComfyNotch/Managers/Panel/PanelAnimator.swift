@@ -23,7 +23,7 @@ final class PanelAnimator {
     
     private var lastWasPlaying: String? = nil
     var musicModel: MusicPlayerWidgetModel = .shared
-
+    
     /// For Hover
     private var hoverTimer: Timer?
     private var isHovering = false
@@ -31,7 +31,7 @@ final class PanelAnimator {
     private var originalFrame: NSRect = .zero
     private var originalWidth: CGFloat = 0
     private var originalHeight: CGFloat = 0
-
+    
     private var expandedWidth: CGFloat = 0
     private var expandedHeight: CGFloat = 0
     
@@ -39,15 +39,15 @@ final class PanelAnimator {
     private let animationDuration: TimeInterval = 0.2
     
     private var globalHoverMonitor: Any?
-
+    
     private init() {}
-
+    
     func setup() {
         // Safe to access `self.panel` now
         self.originalFrame = panel.frame
         self.originalWidth = originalFrame.width
         self.originalHeight = originalFrame.height
-
+        
         self.expandedWidth = originalWidth
         self.expandedHeight = originalHeight * expansionFactor
     }
@@ -56,8 +56,9 @@ final class PanelAnimator {
     
     
     func startAnimationListeners() {
+        print("Starting animation listeners")
         startHoverListener()
-//        startMusicListener()
+        //        startMusicListener()
     }
     
     func stopAnimationListeners() {
@@ -72,7 +73,7 @@ final class PanelAnimator {
     }
     
     
-
+    
     /// Music Listener
     /// MARK: - Music Listener
     /// - Description: Listens for music changes and triggers animations accordingly
@@ -83,12 +84,12 @@ final class PanelAnimator {
             self?.checkForMusicChange()
         }
     }
-
+    
     private func checkForMusicChange() {
         let currentTrack = musicModel.nowPlayingInfo.trackName
-
+        
         lastWasPlaying = currentTrack
-
+        
         /// check if track name is == No Song Playing
         if currentTrack == "No Song Playing" {
             ScrollHandler.shared.reduceWidth()
@@ -96,18 +97,18 @@ final class PanelAnimator {
             ScrollHandler.shared.expandWidth()
         }
     }
-
+    
     /// HOVER LISTENER
     /// Mark: - Hover Listener
     /// - Description: Listens for mouse movement and triggers animations based on hover state
-
+    
     func startHoverListener() {
         globalHoverMonitor = NSEvent.addGlobalMonitorForEvents(matching: .mouseMoved) { [weak self] event in
             self?.handleMouseMove()
         }
     }
-
-     
+    
+    
     private func handleMouseMove() {
         let mouseLocation = NSEvent.mouseLocation
         let panelFrame = panel.frame.insetBy(dx: -10, dy: -10)
@@ -129,7 +130,7 @@ final class PanelAnimator {
             }
         }
     }
-
+    
     func startHoverTimer() {
         hoverTimer?.invalidate()
         hoverTimer = nil
@@ -138,7 +139,7 @@ final class PanelAnimator {
             guard let self = self else { return }
             
             defer { self.hoverTimer = nil }
-         
+            
             // Add a safety check: only animate if we're not already open
             if UIManager.shared.panelState != .open {
                 /// Delay the animation by 0.25 seconds so it doesnt jitter
@@ -157,7 +158,7 @@ final class PanelAnimator {
         RunLoop.main.add(timer, forMode: .common)
         hoverTimer = timer
     }
-
+    
     
     func openingPanelAnimation() {
         ScrollHandler.shared.openFull()

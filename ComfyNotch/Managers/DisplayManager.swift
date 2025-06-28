@@ -6,6 +6,7 @@
 //
 
 import Cocoa
+import ScreenCaptureKit
 
 /// The Display Manager will manage the displays that are connected to the
 /// users laptop, it will collect and store information about the monitors
@@ -22,17 +23,23 @@ final class DisplayManager: NSObject, ObservableObject {
     private var timer: Timer?
     private var thread: Thread?
     
+    private var cachedPermission: Bool?
+    
     override init() {
         super.init()
+        
         selectedScreen = SettingsModel.shared.selectedScreen
     }
     
     public func start() {
         guard timer == nil else { return }
         
-        /// Assign once at the start
-        updateScreenInformation()
-        
+        if hasScreenRecordingPermission() {
+            updateScreenInformation()
+        } else {
+            print("Screen recording permission missing. Skipping update.")
+        }
+       
         self.thread = Thread {
             let runLoop = RunLoop.current
             
@@ -81,9 +88,29 @@ final class DisplayManager: NSObject, ObservableObject {
     }
     
     func hasScreenRecordingPermission() -> Bool {
+        if let cached = cachedPermission {
+            return cached
+        }
+        
         let rect = CGRect(x: 0, y: 0, width: 1, height: 1)
         let image = CGWindowListCreateImage(rect, .optionOnScreenOnly, kCGNullWindowID, [.bestResolution])
-        return image != nil
+        let result = image != nil
+        cachedPermission = result
+        return result
+    }
+    
+    func requestScreenRecordingPermission() {
+        if #available(macOS 15, *) {
+            // This will show the prompt if needed
+            SCShareableContent.getWithCompletionHandler { _, _ in
+                DispatchQueue.main.async {
+                    self.cachedPermission = self.hasScreenRecordingPermission()
+                }
+            }
+        } else {
+            CGRequestScreenCaptureAccess()
+            cachedPermission = hasScreenRecordingPermission()
+        }
     }
     
     /// Function will generate a snapshot of the current screen
@@ -122,4 +149,5 @@ final class DisplayManager: NSObject, ObservableObject {
             }
         }
     }
+    
 }

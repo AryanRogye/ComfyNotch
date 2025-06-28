@@ -9,9 +9,6 @@
 /* Begin PBXBuildFile section */
 		9B1319642DF10A5200657438 /* Assets in Resources */ = {isa = PBXBuildFile; fileRef = 9B13195E2DF10A5200657438 /* Assets */; };
 		9B1319652DF10A5200657438 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9B13195F2DF10A5200657438 /* Assets.xcassets */; };
-		9B1319BB2DF10A5200657438 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B13195D2DF10A5200657438 /* AppDelegate.swift */; };
-		9B1319BC2DF10A5200657438 /* ComfyNotchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B1319602DF10A5200657438 /* ComfyNotchApp.swift */; };
-		9B1319BD2DF10A5200657438 /* ComfyNotchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B1319612DF10A5200657438 /* ComfyNotchView.swift */; };
 		9B2889A82DC68E4400E5DB18 /* SVGView in Frameworks */ = {isa = PBXBuildFile; productRef = 9B2889A72DC68E4400E5DB18 /* SVGView */; };
 		9B288A852DC722BF00E5DB18 /* ComfyCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = 9B288A842DC722BF00E5DB18 /* ComfyCalendar */; };
 		9B2A90062DE25AB500046186 /* CoreDisplay.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B2A90052DE25AB500046186 /* CoreDisplay.framework */; };
@@ -37,11 +34,8 @@
 
 /* Begin PBXFileReference section */
 		9B1316742DF10A2800657438 /* ComfyNotch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ComfyNotch.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		9B13195D2DF10A5200657438 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9B13195E2DF10A5200657438 /* Assets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Assets; sourceTree = "<group>"; };
 		9B13195F2DF10A5200657438 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		9B1319602DF10A5200657438 /* ComfyNotchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComfyNotchApp.swift; sourceTree = "<group>"; };
-		9B1319612DF10A5200657438 /* ComfyNotchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComfyNotchView.swift; sourceTree = "<group>"; };
 		9B2A90052DE25AB500046186 /* CoreDisplay.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreDisplay.framework; path = ../../../../../System/Library/Frameworks/CoreDisplay.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -96,6 +90,11 @@
 			path = Settings;
 			sourceTree = "<group>";
 		};
+		9B5027962E107EC1001EBE77 /* Main */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Main;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -118,6 +117,7 @@
 		9B1319622DF10A5200657438 /* ComfyNotch */ = {
 			isa = PBXGroup;
 			children = (
+				9B5027962E107EC1001EBE77 /* Main */,
 				9B13195E2DF10A5200657438 /* Assets */,
 				9B131A212DF10A5600657438 /* Api */,
 				9B131A612DF10A5600657438 /* Config */,
@@ -129,10 +129,7 @@
 				9B131A6F2DF10A5600657438 /* Utils */,
 				9B131A022DF10A5600657438 /* Views */,
 				9B1319CC2DF10A5600657438 /* Widgets */,
-				9B13195D2DF10A5200657438 /* AppDelegate.swift */,
 				9B13195F2DF10A5200657438 /* Assets.xcassets */,
-				9B1319602DF10A5200657438 /* ComfyNotchApp.swift */,
-				9B1319612DF10A5200657438 /* ComfyNotchView.swift */,
 			);
 			path = ComfyNotch;
 			sourceTree = "<group>";
@@ -180,6 +177,7 @@
 				9B131A6F2DF10A5600657438 /* Utils */,
 				9B131A782DF10A5600657438 /* Extensions */,
 				9B131A832DF10A5600657438 /* Settings */,
+				9B5027962E107EC1001EBE77 /* Main */,
 			);
 			name = ComfyNotch;
 			packageProductDependencies = (
@@ -252,9 +250,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9B1319BB2DF10A5200657438 /* AppDelegate.swift in Sources */,
-				9B1319BC2DF10A5200657438 /* ComfyNotchApp.swift in Sources */,
-				9B1319BD2DF10A5200657438 /* ComfyNotchView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
