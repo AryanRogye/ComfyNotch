@@ -15,8 +15,12 @@ struct AnimationSettings: View {
         ComfyScrollView {
             headerView
             
-            ComfySection(title: "Animations", isSub: true) {
+            ComfySection(title: "Notch Opening", isSub: true) {
                 animationSettings
+            }
+            
+            ComfySection(title: "Experimental Metal Rendering", hasDescription: true, isSub: true) {
+                experimentalMetalRendering
             }
         }
     }
@@ -37,97 +41,99 @@ struct AnimationSettings: View {
         VStack {
             openingAnimations
             
-            Text("Experimental Metal Rendering")
-                .font(.title)
-                .foregroundColor(.primary)
-                .padding(.top, 10)
+//            VStack(alignment: .leading, spacing: 8) {
+//
+//            }
+        }
+    }
+    
+    private var experimentalMetalRendering: some View {
+        VStack {
+            /// Warning about experimental
+            HStack {
+                Text("⚠️ Warning: This feature will increase memory usage and CPU usage")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(12)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color.yellow.opacity(0.1))
+            )
             
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("⚠️ Warning: This feature will increase memory usage and CPU usage")
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+            /// Turn on and off metal animations
+            HStack {
+                VStack {
+                    Text("Enable Metal Animations/Shaders")
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
                 }
-                .padding(12)
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(Color.yellow.opacity(0.1))
-                )
                 
-                HStack {
-                    VStack {
-                        Text("Enable Metal Animations/Shaders")
-                            .font(.subheadline)
-                            .foregroundColor(.primary)
+                Spacer()
+                
+                Toggle("",isOn: $settings.enableMetalAnimation)
+                    .toggleStyle(.switch)
+                    .onChange(of: settings.enableMetalAnimation) { _, newValue in
+                        settings.saveSettings()
                     }
+            }
+            .padding(.top, 10)
+            
+            
+            /// if metal animations is enabled
+            if settings.enableMetalAnimation {
+                HStack {
+                    Text("Notch Background Animation")
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
                     
                     Spacer()
                     
-                    Toggle("",isOn: $settings.enableMetalAnimation)
-                        .toggleStyle(.switch)
-                        .onChange(of: settings.enableMetalAnimation) { _, newValue in
-                            settings.saveSettings()
+                    Picker("", selection: $settings.notchBackgroundAnimation) {
+                        ForEach(ShaderOption.allCases, id: \.self) { option in
+                            Text(option.displayName)
+                                .tag(option)
                         }
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.menu)
+                    .tint(.accentColor)
+                    .onChange(of: settings.notchBackgroundAnimation) {
+                        settings.saveSettings()
+                    }
+                    .frame(width: 250)
                 }
                 .padding(.top, 10)
+                .transition(.move(edge: .top).combined(with: .opacity))
+                .animation(settings.enableMetalAnimation ? .interactiveSpring(duration: 0.3) : .none, value: settings.notchBackgroundAnimation)
                 
-                if settings.enableMetalAnimation {
-                    HStack {
-                        Text("Notch Background Animation")
-                            .font(.subheadline)
-                            .foregroundColor(.primary)
-                        
-                        Spacer()
-                        
-                        Picker("", selection: $settings.notchBackgroundAnimation) {
-                            ForEach(ShaderOption.allCases, id: \.self) { option in
-                                Text(option.displayName)
-                                    .tag(option)
-                            }
-                        }
-                        .labelsHidden()
-                        .pickerStyle(.menu)
-                        .tint(.accentColor)
-                        .onChange(of: settings.notchBackgroundAnimation) {
+                HStack {
+                    Text("Constant 120 FPS")
+                    Spacer()
+                    
+                    Toggle("", isOn: $settings.constant120FPS)
+                        .toggleStyle(.switch)
+                        .onChange(of: settings.constant120FPS) {
                             settings.saveSettings()
                         }
-                        .frame(width: 250)
-                    }
-                    .padding(.top, 10)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .animation(settings.enableMetalAnimation ? .interactiveSpring(duration: 0.3) : .none, value: settings.notchBackgroundAnimation)
                     
-                    HStack {
-                        Text("Constant 120 FPS")
-                        Spacer()
-                        
-                        Toggle("", isOn: $settings.constant120FPS)
-                            .toggleStyle(.switch)
-                            .onChange(of: settings.constant120FPS) {
-                                settings.saveSettings()
-                            }
-                        
-                    }
-                    .padding(.top, 10)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .animation(settings.enableMetalAnimation ? .interactiveSpring(duration: 0.3) : .none, value: settings.notchBackgroundAnimation)
                 }
+                .padding(.top, 10)
+                .transition(.move(edge: .top).combined(with: .opacity))
+                .animation(settings.enableMetalAnimation ? .interactiveSpring(duration: 0.3) : .none, value: settings.notchBackgroundAnimation)
             }
+
         }
     }
     
     private var openingAnimations: some View {
         VStack {
-            Text("Select how the notch opens when activated.")
-                .font(.footnote)
-                .foregroundColor(.secondary)
-                .padding(.bottom, 5)
-            HStack {
+            HStack(spacing: 0) {
                 Text("Opening Animation")
                     .font(.subheadline)
                     .foregroundColor(.primary)
-                
+            
                 Spacer()
                 
                 Picker("", selection: $settings.openingAnimation) {
@@ -142,8 +148,18 @@ struct AnimationSettings: View {
                 }
                 .frame(width: 250)
             }
-            // TODO: Show the 2 loop animations
+            
+            HStack {
+                Text("Select how the notch opens when activated.")
+                    .foregroundStyle(Color(.systemGray))
+                    .font(.footnote)
+                Spacer()
+            }
         }
     }
     
+}
+
+#Preview {
+    AnimationSettings(settings: SettingsModel.shared)
 }

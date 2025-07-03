@@ -35,7 +35,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             NSKeyedUnarchiver.setClass(NSAttributedString.self, forClassName: "NSFrozenAttributedString")
         }()
         
-        #if !DEBUG
+//        #if !DEBUG
         /// Close the SettingsPage On Launch if not debug
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
             if let window = NSApp.windows.first(where: { $0.title == "SettingsView" }) {
@@ -43,7 +43,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
                 window.close()
             }
         }
-        #endif
+//        #endif
         
         if SettingsModel.shared.enableMessagesNotifications {
             Task {

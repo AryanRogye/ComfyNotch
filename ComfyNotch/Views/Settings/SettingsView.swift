@@ -35,11 +35,11 @@ struct SettingsView: View {
         func destination(settings: SettingsModel) -> some View {
             switch self {
                 
-            case .notch: QuickAccessSettingsView(settings: settings)
-            case .general: GeneralSettingsView(settings: settings)
-            case .animations: AnimationSettings(settings: settings)
-            case .display : DisplaySettingsView(settings: settings)
-            case .updates: UpdatesSettingsView(settings: settings)
+            case .notch:        QuickAccessSettingsView(settings: settings)
+            case .general:      GeneralSettingsView(settings: settings)
+            case .animations:   AnimationSettings(settings: settings)
+            case .display :     DisplaySettingsView(settings: settings)
+            case .updates:      UpdatesSettingsView(settings: settings)
                 
             }
         }

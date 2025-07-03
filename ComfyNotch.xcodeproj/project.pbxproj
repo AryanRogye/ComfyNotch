@@ -85,9 +85,9 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
-		9B131A832DF10A5600657438 /* Settings */ = {
+		9B131A832DF10A5600657438 /* Models */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Settings;
+			path = Models;
 			sourceTree = "<group>";
 		};
 		9B5027962E107EC1001EBE77 /* Main */ = {
@@ -124,7 +124,7 @@
 				9B131A782DF10A5600657438 /* Extensions */,
 				9B131A692DF10A5600657438 /* Handlers */,
 				9B131A452DF10A5600657438 /* Managers */,
-				9B131A832DF10A5600657438 /* Settings */,
+				9B131A832DF10A5600657438 /* Models */,
 				9B1319DB2DF10A5600657438 /* Shapes */,
 				9B131A6F2DF10A5600657438 /* Utils */,
 				9B131A022DF10A5600657438 /* Views */,
@@ -176,7 +176,7 @@
 				9B131A692DF10A5600657438 /* Handlers */,
 				9B131A6F2DF10A5600657438 /* Utils */,
 				9B131A782DF10A5600657438 /* Extensions */,
-				9B131A832DF10A5600657438 /* Settings */,
+				9B131A832DF10A5600657438 /* Models */,
 				9B5027962E107EC1001EBE77 /* Main */,
 			);
 			name = ComfyNotch;

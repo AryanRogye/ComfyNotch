@@ -11,6 +11,8 @@ struct ComfySection<Content: View>: View {
     
     var title: String
     var systemImage: String? = nil
+    var hasDescription: Bool? = nil
+    
     var accentColor: Color = .blue
     var isSub: Bool = false
     
@@ -20,7 +22,6 @@ struct ComfySection<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                
                 if let systemImage = systemImage {
                     Image(systemName: systemImage)
                         .foregroundColor(accentColor)
@@ -35,9 +36,9 @@ struct ComfySection<Content: View>: View {
             .padding(.bottom, 2)
             
             Rectangle()
-                .fill(Color.primary.opacity(isSub ? 0 : 0.1))
+                .fill(Color.primary.opacity((isSub || !(hasDescription ?? false)) ? 0 : 0.1))
                 .frame(height: 0.5)
-                .padding(.bottom, isSub ? 2 : 0)
+                .padding(.bottom, (isSub || !(hasDescription ?? false)) ? 2 : 0)
             
             content()
         }

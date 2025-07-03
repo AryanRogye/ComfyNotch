@@ -93,6 +93,7 @@ struct QuickAccessSettingsView_Home: View {
             comfyDivider
             
             widgetSettings
+                .padding(.bottom, 10)
             
             /// Widget Selection
             widgetSelection
@@ -137,42 +138,31 @@ struct QuickAccessSettingsView_Home: View {
     private var widgetSettings: some View {
         VStack(alignment: .leading, spacing: 16) {
             if settings.selectedWidgets.contains(where: { $0.contains("Widget") }) {
-                HStack {
-                    Text("Widget Settings")
-                        .font(.body)
-                        .fontWeight(.medium)
-                        .foregroundColor(.secondary)
-                    Spacer()
+                ComfySection(title: "Widget Settings", isSub: true) {
+                    
+                    if settings.selectedWidgets.contains("AIChatWidget") {
+                            aiSettings
+                    }
+                    
+                    if settings.selectedWidgets.contains("MusicPlayerWidget") {
+                        musicPlayerSettings
+                    }
+                    // We Always Show a choose controller
+                    musicControllerPicker
+                    
+                    if settings.selectedWidgets.contains("CameraWidget") {
+                        cameraSettingsSection
+                    }
+                    
+                    if settings.selectedWidgets.contains(where: {
+                        $0.contains("AIChatWidget") || $0.contains("MusicPlayerWidget") || $0.contains("CameraWidget")
+                    }) {
+                        comfyDivider
+                    }
+                    
                 }
-            }
-            
-            if settings.selectedWidgets.contains("AIChatWidget") {
-                settingsCard(title: "AI Settings") {
-                    aiSettings
-                }
-            }
-            
-            settingsCard(title: "Music Player Settings") {
-                if settings.selectedWidgets.contains("MusicPlayerWidget") {
-                    musicPlayerSettings
-                }
-                // We Always Show a choose controller
-                musicControllerPicker
-            }
-            
-            if settings.selectedWidgets.contains("CameraWidget") {
-                settingsCard(title: "Camera Settings") {
-                    cameraSettingsSection
-                }
-            }
-            
-            if settings.selectedWidgets.contains(where: {
-                $0.contains("AIChatWidget") || $0.contains("MusicPlayerWidget") || $0.contains("CameraWidget")
-            }) {
-                comfyDivider
             }
         }
-        .padding(.top, 12)
     }
     
     // MARK: - Widget Selection
