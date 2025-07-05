@@ -152,20 +152,30 @@ struct FileTrayView: View {
             
             HStack {
                 Text("Type:")
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
                 Spacer()
                 Text(dropped.realType)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
             }
             .font(.caption)
 
             if let dims = dropped.dimensions {
                 HStack {
                     Text("Dimensions:")
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
                     Spacer()
                     Text(dims)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
                 }
                 .font(.caption)
             }
             Text(ByteFormatter.format(bytes: dropped.sizeInKB * 1024))
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
                 .font(.caption)
 
         }

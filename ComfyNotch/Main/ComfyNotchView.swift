@@ -102,7 +102,7 @@ struct ComfyNotchView: View {
                 
                 let threshhold : CGFloat = animationState.currentPanelState == .popInPresentation ? 120 : 50
                 if translation > threshhold {
-                    //                debugLog("Called Down With Threshold \(translation)")
+                    // debugLog("Called Down With Threshold \(translation)")
                     animationState.currentPanelState = .home
                     uiManager.applyOpeningLayout()
                     DispatchQueue.main.async {
