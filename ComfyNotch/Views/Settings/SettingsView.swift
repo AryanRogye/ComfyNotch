@@ -51,9 +51,17 @@ struct SettingsView: View {
             List(selection: $selectedTab) {
                 ForEach(Tab.allCases, id: \.self) { tab in
                     HStack(spacing: 8) {
-                        Image(systemName: tab.icon)
-                            .foregroundColor(.secondary)
-                            .frame(width: 20)
+                        if tab.rawValue == "Notch" {
+                            Image("comfypillowDesign")
+                                .resizable()
+                                .foregroundColor(.secondary)
+                                .frame(width: 16, height: 14)
+                                .padding(.leading, 4)
+                        } else {
+                            Image(systemName: tab.icon)
+                                .foregroundColor(.secondary)
+                                .frame(width: 20)
+                        }
                         Text(tab.label)
                             .font(.body)
                             .foregroundColor(.primary)

@@ -149,7 +149,6 @@ struct FileTrayView: View {
     @ViewBuilder
     func showDroppedFileDescription(for dropped: FileInfo) -> some View {
         VStack {
-            
             HStack {
                 Text("Type:")
                     .lineLimit(1)
