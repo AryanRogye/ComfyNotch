@@ -148,9 +148,10 @@ struct ComfyNotchView: View {
     }
     private func startMonitoring() {
         let leftClickMonitor = NSEvent.addLocalMonitorForEvents(matching: .leftMouseDown) { event in
-            // TODO: ALSO LOOK AT THE HOVER VALUES LATER
             if uiManager.panelState == .closed {
-                print("one-finger / left click detected")
+                if !animationState.hoverHandler.isHoveringOverLeft && !animationState.hoverHandler.isHoveringOverPlayPause {
+                    print("one-finger / left click detected")
+                }
             }
             return event
         }

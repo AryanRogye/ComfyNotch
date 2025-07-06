@@ -14,6 +14,7 @@ struct TopNotchView: View {
     @ObservedObject var musicModel: MusicPlayerWidgetModel = .shared
     
     @State private var isHovering: Bool = false /// Hovering for Pause or Play
+    
     private var paddingWidth: CGFloat = 20
     
     private var leadingPadding: CGFloat {
@@ -100,12 +101,20 @@ struct TopNotchView: View {
                 }
             }
         }
+        // NOTE: We sync both local isHovering and global hoverHandler here.
+        // This allows NSEvent-based monitoring to check hover state globally,
+        // while preserving local animation performance.
+        //
+        // See ComfyNotchView.swift: startMonitoring() for usage of
+        // `animationState.hoverHandler.isHoveringOverPlayPause`.
         .onHover { hover in
             if animationState.bottomSectionHeight == 0 {
                 withAnimation(.easeInOut(duration: 0.15)) {
+                    animationState.hoverHandler.isHoveringOverPlayPause = hover
                     isHovering = hover
                 }
             } else {
+                animationState.hoverHandler.isHoveringOverPlayPause = false
                 isHovering = false
             }
         }
