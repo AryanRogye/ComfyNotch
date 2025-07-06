@@ -92,7 +92,7 @@ struct ComfyNotchView: View {
                     }
                 }
             }
-            // MARK: - Scroling Logic
+            // MARK: - Scrolling Logic
             .panGesture(direction: .down) { translation, phase in
                 guard uiManager.panelState == .closed else { return }
                 

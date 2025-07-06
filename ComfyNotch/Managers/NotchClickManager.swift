@@ -12,6 +12,7 @@ final class NotchClickManager: ObservableObject {
     private var eventMonitors: [Any] = []
     private let animationState : PanelAnimationState = .shared
     private let uiManager : UIManager = .shared
+    private let settings: SettingsModel = .shared
     
     private var isMonitoring: Bool = false
     
@@ -21,7 +22,10 @@ final class NotchClickManager: ObservableObject {
         
         let leftClickMonitor = NSEvent.addLocalMonitorForEvents(matching: .leftMouseDown) { event in
             if self.uiManager.panelState == .closed {
-                if !self.animationState.hoverHandler.isHoveringOverLeft && !self.animationState.hoverHandler.isHoveringOverPlayPause {
+                if !self.animationState.hoverHandler.isHoveringOverLeft &&
+                    !self.animationState.hoverHandler.isHoveringOverPlayPause &&
+                    self.settings.isSettingsWindowOpen == false
+                {
                     print("one-finger / left click detected")
                 }
             }
@@ -29,7 +33,9 @@ final class NotchClickManager: ObservableObject {
         }
         let rightClickMonitor = NSEvent.addLocalMonitorForEvents(matching: .rightMouseDown) { event in
             if self.uiManager.panelState == .closed {
-                print("two-finger / right click detected")
+                if self.settings.isSettingsWindowOpen == false {
+                    print("two-finger / right click detected")
+                }
             }
             return event
         }

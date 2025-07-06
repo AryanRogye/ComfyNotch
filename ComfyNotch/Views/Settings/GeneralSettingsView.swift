@@ -1,5 +1,27 @@
 import SwiftUI
 
+enum GeneralSettingsTab: CaseIterable {
+    case dimensions, controls, touch, misc
+    
+    var title: String {
+        switch self {
+        case .dimensions: "Dimensions"
+        case .controls:   "Controls"
+        case .touch:      "Touch"
+        case .misc:        "Misc"
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .dimensions: "square.resize"
+        case .controls:   "slider.horizontal.3"
+        case .touch:      "hand.raised"
+        case .misc:        "gearshape"
+        }
+    }
+}
+
 struct GeneralSettingsView: View {
     
     @ObservedObject var settings: SettingsModel
@@ -16,6 +38,24 @@ struct GeneralSettingsView: View {
     
     private let maxWidgetCount = 3  // Limit to 3 widgets
     
+    enum TouchAction: String, CaseIterable, Codable {
+        case none
+        case openFileTray
+        case showUtils
+        case toggleMusic
+        
+        var displayName: String {
+            switch self {
+            case .none:           "Do Nothing"
+            case .openFileTray:   "Open File Tray"
+            case .showUtils:      "Show Utilities"
+            case .toggleMusic:    "Toggle Music"
+            }
+        }
+    }
+
+    @State private var selectedTab: GeneralSettingsTab = .dimensions
+    
     var body: some View {
         VStack {
             HStack {
@@ -26,7 +66,23 @@ struct GeneralSettingsView: View {
             ComfyScrollView {
                 headerView
                 
-                notchSettingsSection
+                ComfySettingsTabBar(selectedTab: $selectedTab)
+                
+                Divider()
+                
+                Group {
+                    switch selectedTab {
+                    case .dimensions:
+                        dimensionsSettings
+                    case .controls:
+                        controlsSettings
+                    case .touch:
+                        touchSettings
+                    case .misc:
+                        miscSettings
+                    }
+                }
+                
                 
                 Spacer()
                 
@@ -67,27 +123,66 @@ struct GeneralSettingsView: View {
     }
     
     
-    // MARK: - Notch Section
-    private var notchSettingsSection: some View {
-        //        ComfySection(title: "Notch Settings") {
+///    MARK: - Notch Section
+//    private var notchSettingsSection: some View {
+//        VStack {
+//            ComfySection(title: "Dimensions", isSub: true) {
+//                notchSettings
+//            }
+//            
+//            ComfySection(title: "Notch Controls", isSub: true) {
+//                pickObjectHover
+//                scrollSpeed
+//                hudSettings
+//            }
+//            ComfySection(title: "Divider Settings") {
+//                Toggle("Enable Divider", isOn: $settings.showDividerBetweenWidgets)
+//                    .onChange(of: settings.showDividerBetweenWidgets) {
+//                        settings.saveSettings()
+//                    }
+//                    .padding(.vertical, 8)
+//                    .toggleStyle(.switch)
+//            }
+//        }
+//    }
+    
+    // MARK: - Dimension Settings
+    private var dimensionsSettings: some View {
+        ComfySection(title: "Dimensions", isSub: false) {
+            notchSettings
+        }
+    }
+    
+    // MARK: - Controls Settings
+    private var controlsSettings: some View {
         VStack {
-            ComfySection(title: "Dimensions", isSub: true) {
-                notchSettings
-            }
-            
-            ComfySection(title: "Notch Controls", isSub: true) {
+            /// TODO: Look into hovering off and on toggles not really something i like but other users may not like it
+            ComfySection(title: "Hover", isSub: false) {
                 pickObjectHover
+            }
+            ComfySection(title: "Notch Pop-In", isSub: false) {
                 scrollSpeed
                 hudSettings
             }
-            ComfySection(title: "Divider Settings") {
-                Toggle("Enable Divider", isOn: $settings.showDividerBetweenWidgets)
-                    .onChange(of: settings.showDividerBetweenWidgets) {
-                        settings.saveSettings()
-                    }
-                    .padding(.vertical, 8)
-                    .toggleStyle(.switch)
-            }
+        }
+    }
+    
+    // MARK: - Touch Settings
+    private var touchSettings: some View {
+        ComfySection(title: "Touch Settings", isSub: false) {
+            touchSettingsView
+        }
+    }
+    
+    // MARK: - Misc Settings
+    private var miscSettings: some View {
+        ComfySection(title: "Divider Settings", isSub: false) {
+            Toggle("Enable Divider Between Widgets", isOn: $settings.showDividerBetweenWidgets)
+                .onChange(of: settings.showDividerBetweenWidgets) {
+                    settings.saveSettings()
+                }
+                .padding(.vertical, 8)
+                .toggleStyle(.switch)
         }
     }
     
@@ -307,6 +402,52 @@ struct GeneralSettingsView: View {
         }
     }
     
+    // MARK: - Touch View
+    private var touchSettingsView: some View {
+        VStack {
+            GroupBox(label: Label("One-Finger Click", systemImage: "hand.tap")) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Choose the action performed when you click with one finger while the notch is closed.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                    
+                    Picker("One-Finger Action", selection: $settings.oneFingerAction) {
+                        ForEach(TouchAction.allCases, id: \.self) { action in
+                            Text(action.displayName)
+                                .tag(action)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .onChange(of: settings.oneFingerAction) {
+                        settings.saveSettings()
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+            
+            GroupBox(label: Label("Two-Finger Click", systemImage: "hand.point.up.left")) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Choose the action performed with a two-finger click while the notch is closed.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                    
+                    Picker("Two-Finger Action", selection: $settings.twoFingerAction) {
+                        ForEach(TouchAction.allCases, id: \.self) { action in
+                            Text(action.displayName)
+                                .tag(action)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .onChange(of: settings.twoFingerAction) {
+                        settings.saveSettings()
+                    }
+
+                }
+                .padding(.vertical, 4)
+            }
+        }
+    }
+    
     // MARK: - Buttons
     private var saveSettingsButton: some View {
         Button("Save Settings") {
@@ -331,5 +472,43 @@ struct GeneralSettingsView: View {
     
     func closeWindow() {
         NSApp.terminate(nil)
+    }
+}
+
+
+struct ComfySettingsTabBar: View {
+    @Binding var selectedTab: GeneralSettingsTab
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(GeneralSettingsTab.allCases, id: \.self) { tab in
+                Button(action: {
+                    selectedTab = tab
+                }) {
+                    VStack(spacing: 6) {
+                        Image(systemName: tab.icon)
+                            .font(.system(size: 16, weight: .medium))
+                        Text(tab.title)
+                            .font(.system(size: 11, weight: .medium))
+                            .lineLimit(1)
+                    }
+                    .foregroundColor(selectedTab == tab ? .accentColor : .secondary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .padding(.horizontal, 8)
+                    .background(
+                        selectedTab == tab
+                        ? Color.accentColor.opacity(0.1)
+                        : Color.clear
+                    )
+                    .cornerRadius(8)                     // round that full label area
+                    .contentShape(Rectangle())           // make that full rectangle hit-testable
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(8)
+        .background(.regularMaterial)
+        .cornerRadius(12)
     }
 }

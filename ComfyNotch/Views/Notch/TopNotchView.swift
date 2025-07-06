@@ -15,7 +15,7 @@ struct TopNotchView: View {
     
     @State private var isHovering: Bool = false /// Hovering for Pause or Play
     
-    private var paddingWidth: CGFloat = 20
+    private let paddingWidth: CGFloat = 20
     
     private var leadingPadding: CGFloat {
         return 11
