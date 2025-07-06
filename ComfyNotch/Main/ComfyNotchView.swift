@@ -37,12 +37,11 @@ struct ComfyNotchView: View {
     @EnvironmentObject var bigWidgetStore: ExpandedWidgetsStore
     
     @StateObject private var fileDropManager = FileDropManager()
+    @StateObject private var notchClickManager = NotchClickManager()
     
     @ObservedObject private var animationState = PanelAnimationState.shared
     @ObservedObject private var uiManager      = UIManager.shared
     @ObservedObject private var settings       = SettingsModel.shared
-    
-    @State private var eventMonitors: [Any] = []
     
     init() {
     }
@@ -140,35 +139,11 @@ struct ComfyNotchView: View {
                 }
             }
             .onAppear {
-                startMonitoring()
+                notchClickManager.startMonitoring()
             }
             .onDisappear {
-                stopMonitoring()
+                notchClickManager.stopMonitoring()
             }
-    }
-    private func startMonitoring() {
-        let leftClickMonitor = NSEvent.addLocalMonitorForEvents(matching: .leftMouseDown) { event in
-            if uiManager.panelState == .closed {
-                if !animationState.hoverHandler.isHoveringOverLeft && !animationState.hoverHandler.isHoveringOverPlayPause {
-                    print("one-finger / left click detected")
-                }
-            }
-            return event
-        }
-        let rightClickMonitor = NSEvent.addLocalMonitorForEvents(matching: .rightMouseDown) { event in
-            if uiManager.panelState == .closed {
-                print("two-finger / right click detected")
-            }
-            return event
-        }
-        eventMonitors = [leftClickMonitor, rightClickMonitor].compactMap { $0 }
-    }
-    
-    private func stopMonitoring() {
-        for monitor in eventMonitors {
-            NSEvent.removeMonitor(monitor)
-        }
-        eventMonitors.removeAll()
     }
     
     // MARK: - NOTCH
