@@ -42,9 +42,7 @@ struct ComfyNotchView: View {
     @ObservedObject private var uiManager      = UIManager.shared
     @ObservedObject private var settings       = SettingsModel.shared
     
-    
-    /// Testing:
-    @State private var dragProgress: CGFloat = 0
+    @State private var eventMonitors: [Any] = []
     
     init() {
     }
@@ -95,9 +93,8 @@ struct ComfyNotchView: View {
                     }
                 }
             }
-        // MARK: Scroling Logic
+            // MARK: - Scroling Logic
             .panGesture(direction: .down) { translation, phase in
-                
                 guard uiManager.panelState == .closed else { return }
                 
                 let threshhold : CGFloat = animationState.currentPanelState == .popInPresentation ? 120 : 50
@@ -142,7 +139,35 @@ struct ComfyNotchView: View {
                     }
                 }
             }
-        /// End of body
+            .onAppear {
+                startMonitoring()
+            }
+            .onDisappear {
+                stopMonitoring()
+            }
+    }
+    private func startMonitoring() {
+        let leftClickMonitor = NSEvent.addLocalMonitorForEvents(matching: .leftMouseDown) { event in
+            // TODO: ALSO LOOK AT THE HOVER VALUES LATER
+            if uiManager.panelState == .closed {
+                print("one-finger / left click detected")
+            }
+            return event
+        }
+        let rightClickMonitor = NSEvent.addLocalMonitorForEvents(matching: .rightMouseDown) { event in
+            if uiManager.panelState == .closed {
+                print("two-finger / right click detected")
+            }
+            return event
+        }
+        eventMonitors = [leftClickMonitor, rightClickMonitor].compactMap { $0 }
+    }
+    
+    private func stopMonitoring() {
+        for monitor in eventMonitors {
+            NSEvent.removeMonitor(monitor)
+        }
+        eventMonitors.removeAll()
     }
     
     // MARK: - NOTCH
