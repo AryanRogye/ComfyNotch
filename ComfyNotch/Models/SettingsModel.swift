@@ -39,8 +39,8 @@ class SettingsModel: ObservableObject {
     @Published var enableNotchHUD: Bool = true
     @Published var notchMaxWidth: CGFloat = 710
     @Published var quickAccessWidgetDistanceFromLeft: CGFloat = 18
-    @Published var oneFingerAction: GeneralSettingsView.TouchAction = .none
-    @Published var twoFingerAction: GeneralSettingsView.TouchAction = .none
+    @Published var oneFingerAction: TouchAction = .none
+    @Published var twoFingerAction: TouchAction = .none
     
     /// ---------- Music Player Settings ----------
     @Published var showMusicProvider: Bool = true
@@ -310,14 +310,14 @@ class SettingsModel: ObservableObject {
         }
         
         if let oneFingerActionRawValue = defaults.string(forKey: "oneFingerAction"),
-           let oneFingerAction = GeneralSettingsView.TouchAction(rawValue: oneFingerActionRawValue) {
+           let oneFingerAction = TouchAction(rawValue: oneFingerActionRawValue) {
             self.oneFingerAction = oneFingerAction
         } else {
             self.oneFingerAction = .none
         }
         
         if let twoFingerActionRawValue = defaults.string(forKey: "twoFingerAction"),
-           let twoFingerAction = GeneralSettingsView.TouchAction(rawValue: twoFingerActionRawValue) {
+           let twoFingerAction = TouchAction(rawValue: twoFingerActionRawValue) {
             self.twoFingerAction = twoFingerAction
         } else {
             self.twoFingerAction = .none

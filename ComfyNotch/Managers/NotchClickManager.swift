@@ -6,6 +6,24 @@
 //
 
 import AppKit
+import SwiftUI
+
+enum TouchAction: String, CaseIterable, Codable {
+    case none
+    case openFileTray
+    case showUtils
+    case openSettings
+    
+    var displayName: String {
+        switch self {
+        case .none:           "Do Nothing"
+        case .openFileTray:   "Open File Tray"
+        case .showUtils:      "Show Utilities"
+        case .openSettings:   "Open Settings"
+        }
+    }
+}
+
 
 final class NotchClickManager: ObservableObject {
     
@@ -16,6 +34,8 @@ final class NotchClickManager: ObservableObject {
     
     private var isMonitoring: Bool = false
     
+    private var openWindow: OpenWindowAction?
+
     public func startMonitoring() {
         if isMonitoring { return }
         isMonitoring = true
@@ -26,7 +46,7 @@ final class NotchClickManager: ObservableObject {
                     !self.animationState.hoverHandler.isHoveringOverPlayPause &&
                     self.settings.isSettingsWindowOpen == false
                 {
-                    print("one-finger / left click detected")
+                    self.handleFingerAction(for: self.settings.oneFingerAction)
                 }
             }
             return event
@@ -34,12 +54,25 @@ final class NotchClickManager: ObservableObject {
         let rightClickMonitor = NSEvent.addLocalMonitorForEvents(matching: .rightMouseDown) { event in
             if self.uiManager.panelState == .closed {
                 if self.settings.isSettingsWindowOpen == false {
-                    print("two-finger / right click detected")
+                    self.handleFingerAction(for: self.settings.twoFingerAction)
                 }
             }
             return event
         }
         eventMonitors = [leftClickMonitor, rightClickMonitor].compactMap { $0 }
+    }
+    
+    private func handleFingerAction(for finger: TouchAction) {
+        switch finger {
+        case .none:
+            break
+        case .openFileTray:
+            openFileTray()
+        case .showUtils:
+            openUtils()
+        case .openSettings:
+            openSettings()
+        }
     }
     
     public func stopMonitoring() {
@@ -48,5 +81,31 @@ final class NotchClickManager: ObservableObject {
         }
         eventMonitors.removeAll()
         isMonitoring = false
+    }
+    
+    // MARK: - Action Handlers
+    
+    private func openFileTray() {
+        ScrollHandler.shared.openFull()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+            self.animationState.currentPanelState = .file_tray
+        }
+    }
+    
+    private func openUtils() {
+        ScrollHandler.shared.openFull()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+            self.animationState.currentPanelState = .utils
+        }
+    }
+    
+    func setOpenWindow(_ action: OpenWindowAction?) {
+        self.openWindow = action
+    }
+    
+    private func openSettings() {
+        NSApp.activate(ignoringOtherApps: true)
+        openWindow?(id: "SettingsView")
+        settings.isSettingsWindowOpen = true
     }
 }

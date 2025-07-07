@@ -38,22 +38,6 @@ struct GeneralSettingsView: View {
     
     private let maxWidgetCount = 3  // Limit to 3 widgets
     
-    enum TouchAction: String, CaseIterable, Codable {
-        case none
-        case openFileTray
-        case showUtils
-        case toggleMusic
-        
-        var displayName: String {
-            switch self {
-            case .none:           "Do Nothing"
-            case .openFileTray:   "Open File Tray"
-            case .showUtils:      "Show Utilities"
-            case .toggleMusic:    "Toggle Music"
-            }
-        }
-    }
-
     @State private var selectedTab: GeneralSettingsTab = .dimensions
     
     var body: some View {
@@ -121,30 +105,6 @@ struct GeneralSettingsView: View {
         }
         .padding(.top, 12)
     }
-    
-    
-///    MARK: - Notch Section
-//    private var notchSettingsSection: some View {
-//        VStack {
-//            ComfySection(title: "Dimensions", isSub: true) {
-//                notchSettings
-//            }
-//            
-//            ComfySection(title: "Notch Controls", isSub: true) {
-//                pickObjectHover
-//                scrollSpeed
-//                hudSettings
-//            }
-//            ComfySection(title: "Divider Settings") {
-//                Toggle("Enable Divider", isOn: $settings.showDividerBetweenWidgets)
-//                    .onChange(of: settings.showDividerBetweenWidgets) {
-//                        settings.saveSettings()
-//                    }
-//                    .padding(.vertical, 8)
-//                    .toggleStyle(.switch)
-//            }
-//        }
-//    }
     
     // MARK: - Dimension Settings
     private var dimensionsSettings: some View {

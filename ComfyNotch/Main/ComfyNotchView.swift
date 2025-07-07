@@ -33,6 +33,7 @@ class PanelAnimationState: ObservableObject {
 }
 
 struct ComfyNotchView: View {
+    @Environment(\.openWindow) var openWindow
     @EnvironmentObject var widgetStore: CompactWidgetsStore
     @EnvironmentObject var bigWidgetStore: ExpandedWidgetsStore
     
@@ -139,6 +140,7 @@ struct ComfyNotchView: View {
                 }
             }
             .onAppear {
+                notchClickManager.setOpenWindow(openWindow)
                 notchClickManager.startMonitoring()
             }
             .onDisappear {
