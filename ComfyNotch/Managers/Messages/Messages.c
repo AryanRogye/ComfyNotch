@@ -112,3 +112,27 @@ int64_t get_last_talked_to(sqlite3 *db, int64_t handle_id) {
     sqlite3_finalize(stmt);
     return result;
 }
+
+const int has_chat_db_changed(sqlite3 *db, int64_t last_known_time) {
+    
+    sqlite3_stmt *stmt;
+    const char *sql = "SELECT date, is_from_me FROM message ORDER BY date DESC LIMIT 1;";
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK) {
+        return -1;
+    }
+    
+    int rc = sqlite3_step(stmt);
+    if (rc == SQLITE_ROW) {
+        int64_t date = sqlite3_column_int64(stmt, 0);
+        int is_from_me = sqlite3_column_int(stmt, 1);
+        
+        if (date > last_known_time && is_from_me == 0) {
+            sqlite3_finalize(stmt);
+            return 1; // new incoming message
+        }
+    }
+    
+    sqlite3_finalize(stmt);
+    return 0;
+}

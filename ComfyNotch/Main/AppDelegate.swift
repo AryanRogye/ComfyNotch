@@ -112,7 +112,6 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-
     /**
      * Loads and configures widgets based on user settings.
      * This method ensures all system components are properly initialized

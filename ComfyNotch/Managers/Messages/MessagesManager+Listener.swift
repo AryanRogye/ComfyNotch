@@ -13,7 +13,7 @@ extension MessagesManager {
     func startPolling() {
         guard !isPolling else { return }
         isPolling = true
-
+        
         stopPolling()
         timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
             guard let self = self else { return }
@@ -29,9 +29,17 @@ extension MessagesManager {
         timer = nil
         isPolling = false
     }
-
+    
     private func checkAndFetchIfChanged() async {
-        let didChange = self.hasChatDBChanged()
+        /// Figure out of if we need to update the handles
+        var didChange = self.hasChatDBChanged()
+        
+        /// First message will always be a "fake or a placeholder" message
+        if dontShowFirstMessage {
+            self.dontShowFirstMessage = false
+            return
+        }
+        
         if didChange {
             await self.fetchAllHandles()
             
@@ -68,7 +76,7 @@ extension MessagesManager {
     private func executeNotchOpen() {
         messageCloseWorkItem?.cancel()
         messageCloseWorkItem = nil
-
+        
         // Set loading state if needed (optional)
         panelState.isLoadingPopInPresenter = true
         
@@ -99,18 +107,39 @@ extension MessagesManager {
     }
     
     private func hasChatDBChanged() -> Bool {
-        let newMessagesPath = messagesDBPath + "-wal"
-        guard let attrs = try? FileManager.default.attributesOfItem(atPath: newMessagesPath),
-              let modDate = attrs[.modificationDate] as? Date else {
+        guard let db = db else {
+            print("❌ DB not available")
             return false
         }
         
-        if let lastLocalSend = lastLocalSendTimestamp,
-           modDate.timeIntervalSince(lastLocalSend) < 1.0 {
-            return false
-        }
+        var dbHandle: OpaquePointer?
+        let dbPath = db.description
         
-        defer { lastKnownModificationDate = modDate }
-        return modDate != lastKnownModificationDate
+        let referenceTime = lastLocalSendTimestamp ?? Date.distantPast
+        if sqlite3_open(dbPath, &dbHandle) == SQLITE_OK {
+            defer { sqlite3_close(dbHandle) }
+            let timestampInt = Int64(referenceTime.timeIntervalSinceReferenceDate)
+            let hasChanged: Int32 = has_chat_db_changed(dbHandle, timestampInt)
+            print("Checking chat DB for changes, hasChanged: \(hasChanged)")
+            return hasChanged != 0
+        }
+        return false
+        //        let newMessagesPath = messagesDBPath + "-wal"
+        //        guard let attrs = try? FileManager.default.attributesOfItem(atPath: newMessagesPath),
+        //              let modDate = attrs[.modificationDate] as? Date else {
+        //            return false
+        //        }
+        //
+        //        if let lastLocalSend = lastLocalSendTimestamp,
+        //           modDate.timeIntervalSince(lastLocalSend) < 1.0 {
+        //            return false
+        //        }
+        //
+        //        defer { lastKnownModificationDate = modDate }
+        //
+        //        if modDate != lastKnownModificationDate {
+        //            /// Wanna figure out if a message was the one that was changed since the last time
+        //        }
+        //        return modDate != lastKnownModificationDate
     }
 }
