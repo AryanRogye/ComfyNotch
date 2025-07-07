@@ -56,9 +56,11 @@ final class PanelAnimator {
     
     
     func startAnimationListeners() {
-        print("Starting animation listeners")
-        startHoverListener()
-        //        startMusicListener()
+        if SettingsModel.shared.hoverTargetMode == .panel {
+            print("Starting animation listeners")
+            startHoverListener()
+            //        startMusicListener()
+        }
     }
     
     func stopAnimationListeners() {

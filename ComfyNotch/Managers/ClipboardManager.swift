@@ -47,13 +47,15 @@ class ClipboardManager: ObservableObject {
 
     /// Function to start monitoring clipboard changes.
     func start() {
-        guard timer == nil else { return }
-        /// Poll Time:
-        timer = Timer.scheduledTimer(
-            withTimeInterval: TimeInterval(SettingsModel.shared.clipboardManagerPollingIntervalMS) / 1000.0,
-            repeats: true
-        ) { [weak self] _ in
-            self?.pollClipboard()
+        if SettingsModel.shared.enableClipboardListener {
+            guard timer == nil else { return }
+            /// Poll Time:
+            timer = Timer.scheduledTimer(
+                withTimeInterval: TimeInterval(SettingsModel.shared.clipboardManagerPollingIntervalMS) / 1000.0,
+                repeats: true
+            ) { [weak self] _ in
+                self?.pollClipboard()
+            }
         }
     }
 

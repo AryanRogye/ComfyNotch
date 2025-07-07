@@ -12,6 +12,7 @@ import AppKit
  * - panelProximityHandler: Manages proximity-based interactions for the big panel
  */
 public class AppDelegate: NSObject, NSApplicationDelegate {
+    private let hudManager = HUDManager()
     private var panelProximityHandler: PanelProximityHandler?
     /**
      * Called when the application finishes launching.
@@ -34,8 +35,10 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             NSKeyedUnarchiver.setClass(NSAttributedString.self, forClassName: "NSConcreteAttributedString")
             NSKeyedUnarchiver.setClass(NSAttributedString.self, forClassName: "NSFrozenAttributedString")
         }()
-        
-//        #if !DEBUG
+        /// Wanna Request Access To Acessibility
+        MediaKeyInterceptor.shared.requestAccessibilityIfNeeded()
+
+        #if !DEBUG
         /// Close the SettingsPage On Launch if not debug
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
             if let window = NSApp.windows.first(where: { $0.title == "SettingsView" }) {
@@ -43,21 +46,10 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
                 window.close()
             }
         }
-//        #endif
+        #endif
         
-        if SettingsModel.shared.enableMessagesNotifications {
-            Task {
-                /// Check At start so no weird UI bug
-                MessagesManager.shared.checkFullDiskAccess()
-                MessagesManager.shared.checkContactAccess()
-                await MessagesManager.shared.fetchAllHandles()
-                MessagesManager.shared.startPolling()
-            }
-        }
+        MessagesManager.shared.start()
         
-        /// Wanna Request Access To Acessibility
-        MediaKeyInterceptor.shared.requestAccessibilityIfNeeded()
-
         EventManager.shared.requestPermissionEventsIfNeededOnce { granted in
             DispatchQueue.main.async {
                 if !granted {
@@ -92,30 +84,18 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         /// Start A Display Manager, this will be used by the ui manager
         DisplayManager.shared.start()
         /// Start the panels
-        UIManager.shared.setupFrame()
+        UIManager.shared.start()
         
-        if let smallPanel = UIManager.shared.smallPanel {
-            // Proximity Handler for the Big Panel
-            self.panelProximityHandler = PanelProximityHandler(panel: smallPanel)
-        }
+        // Proximity Handler for the Big Panel
+        self.panelProximityHandler = PanelProximityHandler()
         
         /// Begin The Clipboard Manger
-        if SettingsModel.shared.enableClipboardListener {
-            ClipboardManager.shared.start()
-        }
+        ClipboardManager.shared.start()
         
         /// Start the hover handler
-        if SettingsModel.shared.hoverTargetMode == .panel {
-            PanelAnimator.shared.startAnimationListeners()
-        }
+        PanelAnimator.shared.startAnimationListeners()
         
-        if SettingsModel.shared.enableNotchHUD {
-            /// Start The Media Key Interceptor
-            MediaKeyInterceptor.shared.start()
-            /// Start Volume Manager
-            VolumeManager.shared.start()
-            BrightnessWatcher.shared.start()
-        }
+        hudManager.start()
         
         // Set up the ui by loading the widgets from settings onto it
         self.loadWidgetsFromSettings()
@@ -123,6 +103,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         // Any Screen errors that may happen, is handled in here
         DisplayHandler.shared.start()
         
+        /// Start the Scroll handler later on
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             ScrollHandler.shared.re_align_notch()
         }
