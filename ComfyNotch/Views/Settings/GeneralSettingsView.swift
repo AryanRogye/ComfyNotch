@@ -1,5 +1,27 @@
 import SwiftUI
 
+enum GeneralSettingsTab: CaseIterable {
+    case dimensions, controls, touch, misc
+    
+    var title: String {
+        switch self {
+        case .dimensions: "Dimensions"
+        case .controls:   "Controls"
+        case .touch:      "Touch"
+        case .misc:        "Misc"
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .dimensions: "square.resize"
+        case .controls:   "slider.horizontal.3"
+        case .touch:      "hand.raised"
+        case .misc:        "gearshape"
+        }
+    }
+}
+
 struct GeneralSettingsView: View {
     
     @ObservedObject var settings: SettingsModel
@@ -16,6 +38,8 @@ struct GeneralSettingsView: View {
     
     private let maxWidgetCount = 3  // Limit to 3 widgets
     
+    @State private var selectedTab: GeneralSettingsTab = .dimensions
+    
     var body: some View {
         VStack {
             HStack {
@@ -26,7 +50,23 @@ struct GeneralSettingsView: View {
             ComfyScrollView {
                 headerView
                 
-                notchSettingsSection
+                ComfySettingsTabBar(selectedTab: $selectedTab)
+                
+                Divider()
+                
+                Group {
+                    switch selectedTab {
+                    case .dimensions:
+                        dimensionsSettings
+                    case .controls:
+                        controlsSettings
+                    case .touch:
+                        touchSettings
+                    case .misc:
+                        miscSettings
+                    }
+                }
+                
                 
                 Spacer()
                 
@@ -66,28 +106,43 @@ struct GeneralSettingsView: View {
         .padding(.top, 12)
     }
     
+    // MARK: - Dimension Settings
+    private var dimensionsSettings: some View {
+        ComfySection(title: "Dimensions", isSub: false) {
+            notchSettings
+        }
+    }
     
-    // MARK: - Notch Section
-    private var notchSettingsSection: some View {
-        //        ComfySection(title: "Notch Settings") {
+    // MARK: - Controls Settings
+    private var controlsSettings: some View {
         VStack {
-            ComfySection(title: "Dimensions", isSub: true) {
-                notchSettings
-            }
-            
-            ComfySection(title: "Notch Controls", isSub: true) {
+            /// TODO: Look into hovering off and on toggles not really something i like but other users may not like it
+            ComfySection(title: "Hover", isSub: false) {
                 pickObjectHover
+            }
+            ComfySection(title: "Notch Pop-In", isSub: false) {
                 scrollSpeed
                 hudSettings
             }
-            ComfySection(title: "Divider Settings") {
-                Toggle("Enable Divider", isOn: $settings.showDividerBetweenWidgets)
-                    .onChange(of: settings.showDividerBetweenWidgets) {
-                        settings.saveSettings()
-                    }
-                    .padding(.vertical, 8)
-                    .toggleStyle(.switch)
-            }
+        }
+    }
+    
+    // MARK: - Touch Settings
+    private var touchSettings: some View {
+        ComfySection(title: "Touch Settings", isSub: false) {
+            touchSettingsView
+        }
+    }
+    
+    // MARK: - Misc Settings
+    private var miscSettings: some View {
+        ComfySection(title: "Divider Settings", isSub: false) {
+            Toggle("Enable Divider Between Widgets", isOn: $settings.showDividerBetweenWidgets)
+                .onChange(of: settings.showDividerBetweenWidgets) {
+                    settings.saveSettings()
+                }
+                .padding(.vertical, 8)
+                .toggleStyle(.switch)
         }
     }
     
@@ -303,6 +358,52 @@ struct GeneralSettingsView: View {
                 LoopingVideoView(url: videoURL)
                     .frame(width: 350 ,height: 120)
                     .cornerRadius(10)
+            }
+        }
+    }
+    
+    // MARK: - Touch View
+    private var touchSettingsView: some View {
+        VStack {
+            GroupBox(label: Label("One-Finger Click", systemImage: "hand.tap")) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Choose the action performed when you click with one finger while the notch is closed.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                    
+                    Picker("One-Finger Action", selection: $settings.oneFingerAction) {
+                        ForEach(TouchAction.allCases, id: \.self) { action in
+                            Text(action.displayName)
+                                .tag(action)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .onChange(of: settings.oneFingerAction) {
+                        settings.saveSettings()
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+            
+            GroupBox(label: Label("Two-Finger Click", systemImage: "hand.point.up.left")) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Choose the action performed with a two-finger click while the notch is closed.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                    
+                    Picker("Two-Finger Action", selection: $settings.twoFingerAction) {
+                        ForEach(TouchAction.allCases, id: \.self) { action in
+                            Text(action.displayName)
+                                .tag(action)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .onChange(of: settings.twoFingerAction) {
+                        settings.saveSettings()
+                    }
+
+                }
+                .padding(.vertical, 4)
             }
         }
     }

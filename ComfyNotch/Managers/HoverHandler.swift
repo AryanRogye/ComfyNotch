@@ -26,6 +26,8 @@ extension HoverTarget {
 
 final class HoverHandler: ObservableObject {
     
+    @Published var isHoveringOverPlayPause: Bool = false
+    
     @Published var isHoveringOverLeft: Bool = false
     @Published var scaleHoverOverLeftItems: Bool = false
     private var hoverTimer: Timer?

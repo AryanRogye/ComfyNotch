@@ -33,18 +33,16 @@ class PanelAnimationState: ObservableObject {
 }
 
 struct ComfyNotchView: View {
+    @Environment(\.openWindow) var openWindow
     @EnvironmentObject var widgetStore: CompactWidgetsStore
     @EnvironmentObject var bigWidgetStore: ExpandedWidgetsStore
     
     @StateObject private var fileDropManager = FileDropManager()
+    @StateObject private var notchClickManager = NotchClickManager()
     
     @ObservedObject private var animationState = PanelAnimationState.shared
     @ObservedObject private var uiManager      = UIManager.shared
     @ObservedObject private var settings       = SettingsModel.shared
-    
-    
-    /// Testing:
-    @State private var dragProgress: CGFloat = 0
     
     init() {
     }
@@ -95,9 +93,8 @@ struct ComfyNotchView: View {
                     }
                 }
             }
-        // MARK: Scroling Logic
+            // MARK: - Scrolling Logic
             .panGesture(direction: .down) { translation, phase in
-                
                 guard uiManager.panelState == .closed else { return }
                 
                 let threshhold : CGFloat = animationState.currentPanelState == .popInPresentation ? 120 : 50
@@ -142,7 +139,13 @@ struct ComfyNotchView: View {
                     }
                 }
             }
-        /// End of body
+            .onAppear {
+                notchClickManager.setOpenWindow(openWindow)
+                notchClickManager.startMonitoring()
+            }
+            .onDisappear {
+                notchClickManager.stopMonitoring()
+            }
     }
     
     // MARK: - NOTCH

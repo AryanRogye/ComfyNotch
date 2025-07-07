@@ -39,6 +39,8 @@ class SettingsModel: ObservableObject {
     @Published var enableNotchHUD: Bool = true
     @Published var notchMaxWidth: CGFloat = 710
     @Published var quickAccessWidgetDistanceFromLeft: CGFloat = 18
+    @Published var oneFingerAction: TouchAction = .none
+    @Published var twoFingerAction: TouchAction = .none
     
     /// ---------- Music Player Settings ----------
     @Published var showMusicProvider: Bool = true
@@ -185,6 +187,9 @@ class SettingsModel: ObservableObject {
         
         defaults.set(quickAccessWidgetDistanceFromLeft, forKey: "quickAccessWidgetDistanceFromLeft")
         
+        defaults.set(oneFingerAction.rawValue, forKey: "oneFingerAction")
+        defaults.set(twoFingerAction.rawValue, forKey: "twoFingerAction")
+        
         /// ----------------------- Music Player Settings -----------------------
         defaults.set(showMusicProvider, forKey: "showMusicProvider")
         defaults.set(musicController.rawValue, forKey: "musicController")
@@ -302,6 +307,20 @@ class SettingsModel: ObservableObject {
             self.quickAccessWidgetDistanceFromLeft = quickAccessWidgetDistanceFromLeft
         } else {
             self.quickAccessWidgetDistanceFromLeft = 18
+        }
+        
+        if let oneFingerActionRawValue = defaults.string(forKey: "oneFingerAction"),
+           let oneFingerAction = TouchAction(rawValue: oneFingerActionRawValue) {
+            self.oneFingerAction = oneFingerAction
+        } else {
+            self.oneFingerAction = .none
+        }
+        
+        if let twoFingerActionRawValue = defaults.string(forKey: "twoFingerAction"),
+           let twoFingerAction = TouchAction(rawValue: twoFingerActionRawValue) {
+            self.twoFingerAction = twoFingerAction
+        } else {
+            self.twoFingerAction = .none
         }
         
         /// ----------------------- Music Player Settings -----------------------
