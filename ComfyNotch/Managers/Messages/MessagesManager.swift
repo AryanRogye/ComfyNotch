@@ -64,8 +64,19 @@ final class MessagesManager: ObservableObject {
     internal var pendingNotchOpen: DispatchWorkItem?
     internal var messageCloseWorkItem: DispatchWorkItem?
 
-    
     internal var isPolling = false
+    
+    public func start() {
+        if SettingsModel.shared.enableMessagesNotifications {
+            Task {
+                /// Check At start so no weird UI bug
+                self.checkFullDiskAccess()
+                self.checkContactAccess()
+                await self.fetchAllHandles()
+                self.startPolling()
+            }
+        }
+    }
 
     func checkContactAccess() {
         DispatchQueue.main.async {

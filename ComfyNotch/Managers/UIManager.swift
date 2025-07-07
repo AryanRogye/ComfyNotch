@@ -59,7 +59,7 @@ class UIManager: ObservableObject {
     /**
      * Sets up both small and big panels with their initial configurations.
      */
-    func setupFrame() {
+    func start() {
         setupSmallPanel()
     }
     

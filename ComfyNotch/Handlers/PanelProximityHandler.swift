@@ -11,8 +11,10 @@ class PanelProximityHandler: NSObject {
     private var padding: CGFloat = 15
     private var distanceThreshold: CGFloat = 300
     
-    init(panel: NSPanel) {
-        self.panel = panel
+    private let uiManager = UIManager.shared
+    
+    override init() {
+        self.panel = uiManager.smallPanel
         super.init()
         
         startListeningForPanelProximityWhenOpen()
