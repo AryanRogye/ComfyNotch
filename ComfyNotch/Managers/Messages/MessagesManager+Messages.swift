@@ -15,13 +15,11 @@ extension MessagesManager {
         isMessaging = true
         defer { isMessaging = false }
         
-        /// Make Sure we have a handle
-        guard let handle = handle else { return }
-        /// Make Sure we have a valid messagesText
-        if messagesText.isEmpty { return }
+        /// Make Sure we have a handle and message is valid is not empty
+        guard let handle = handle, !messagesText.isEmpty else { return }
         let safeMessage = messagesText.replacingOccurrences(of: "\"", with: "\\\"")
-        
         self.lastLocalSendTimestamp = Date()
+        self.messagesText = ""
         
         let script = """
         tell application "Messages"
@@ -32,29 +30,31 @@ extension MessagesManager {
         """
         
         DispatchQueue.global(qos: .userInitiated).async {
-            var error: NSDictionary?
-            if let appleScript = NSAppleScript(source: script) {
-                appleScript.executeAndReturnError(&error)
-                DispatchQueue.main.async {
-                    if let error = error {
-                        print("❌ AppleScript error: \(error)")
-                    } else {
-                        print("✅ Message sent to \(handle.id)")
-                    }
-                }
+            self.executeAppleScript(script, for: handle)
+        }
+    }
+    
+    nonisolated private func executeAppleScript(_ script: String, for handle: Handle) {
+        var error: NSDictionary?
+        if let appleScript = NSAppleScript(source: script) {
+            appleScript.executeAndReturnError(&error)
+        }
+        
+        let errorDescription = error?.description // ✅ safe String copy
+        
+        DispatchQueue.main.async {
+            if let errorDescription = errorDescription {
+                print("❌ AppleScript error: \(errorDescription)")
+            } else {
+                print("✅ Message sent to \(handle.id)")
             }
             
-            DispatchQueue.main.async {
-                /// Clear the messagesText
-                self.messagesText = ""
-                self.lastLocalSendTimestamp = Date()
-                /// Fetch right away
+            self.lastLocalSendTimestamp = Date()
+            self.fetchMessagesWithUser(for: handle.ROWID)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                 self.fetchMessagesWithUser(for: handle.ROWID)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                    self.fetchMessagesWithUser(for: handle.ROWID)
-                }
-                self.isMessaging = false
             }
+            self.isMessaging = false
         }
     }
     

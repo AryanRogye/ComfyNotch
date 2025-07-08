@@ -13,7 +13,7 @@ extension MessagesManager {
     func startPolling() {
         guard !isPolling else { return }
         isPolling = true
-
+        
         stopPolling()
         timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
             guard let self = self else { return }
@@ -29,9 +29,17 @@ extension MessagesManager {
         timer = nil
         isPolling = false
     }
-
+    
     private func checkAndFetchIfChanged() async {
-        let didChange = self.hasChatDBChanged()
+        /// Figure out of if we need to update the handles
+        var didChange = self.hasChatDBChanged()
+        
+        /// First message will always be a "fake or a placeholder" message
+        if dontShowFirstMessage {
+            self.dontShowFirstMessage = false
+            return
+        }
+        
         if didChange {
             await self.fetchAllHandles()
             
@@ -68,7 +76,7 @@ extension MessagesManager {
     private func executeNotchOpen() {
         messageCloseWorkItem?.cancel()
         messageCloseWorkItem = nil
-
+        
         // Set loading state if needed (optional)
         panelState.isLoadingPopInPresenter = true
         
@@ -99,18 +107,13 @@ extension MessagesManager {
     }
     
     private func hasChatDBChanged() -> Bool {
-        let newMessagesPath = messagesDBPath + "-wal"
-        guard let attrs = try? FileManager.default.attributesOfItem(atPath: newMessagesPath),
-              let modDate = attrs[.modificationDate] as? Date else {
+        guard let dbHandle = self.dbHandle else {
+            print("❌ DB not available")
             return false
         }
         
-        if let lastLocalSend = lastLocalSendTimestamp,
-           modDate.timeIntervalSince(lastLocalSend) < 1.0 {
-            return false
-        }
-        
-        defer { lastKnownModificationDate = modDate }
-        return modDate != lastKnownModificationDate
+        let timestampInt = Int64(Date().timeIntervalSinceReferenceDate * 1_000_000)
+        let hasChanged: Int32 = has_chat_db_changed(dbHandle, timestampInt)
+        return hasChanged != 0
     }
 }

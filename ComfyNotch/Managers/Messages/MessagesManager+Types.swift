@@ -41,7 +41,7 @@ extension MessagesManager {
     }
     
     /// This represents a phone number or Apple ID you’re chatting with
-    public struct Handle: Hashable {
+    public struct Handle: Hashable, @unchecked Sendable {
         /// handle_id in Message points to this
         var ROWID: Int64
         
