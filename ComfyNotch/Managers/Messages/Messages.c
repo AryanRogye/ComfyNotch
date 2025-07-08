@@ -11,7 +11,12 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "MessageMeta.h"
+#include "MessageHashMap.h"
 #include "Messages.h"
+
+void preload_hashmap(sqlite3 *db, int64_t last_known_time);
+void print_guid(const char *guid, int length);
 
 char *base64_encode(const unsigned char *data, size_t input_length) {
     static const char encoding_table[] =
@@ -94,8 +99,8 @@ const char *get_last_message_text(sqlite3 *db, long long handle_id) {
 
 int64_t get_last_talked_to(sqlite3 *db, int64_t handle_id) {
     
-//    printf("Fetching last talked to for handle_id: %lld\n", handle_id);
-//    printf("DB: %p\n", db);
+    //    printf("Fetching last talked to for handle_id: %lld\n", handle_id);
+    //    printf("DB: %p\n", db);
     
     sqlite3_stmt *stmt;
     const char *sql = "SELECT date FROM message WHERE handle_id = ? ORDER BY date DESC LIMIT 1;";
@@ -113,26 +118,96 @@ int64_t get_last_talked_to(sqlite3 *db, int64_t handle_id) {
     return result;
 }
 
-const int has_chat_db_changed(sqlite3 *db, int64_t last_known_time) {
-    
-    sqlite3_stmt *stmt;
-    const char *sql = "SELECT date, is_from_me FROM message ORDER BY date DESC LIMIT 1;";
+static bool didLoadHashMap = false;
 
+/// Function will check if the chat db has any changed "chat" from the time then it will check if it is from me/the user or not
+const int has_chat_db_changed(sqlite3 *db, int64_t last_known_time) {
+    sqlite3_stmt *stmt;
+    const char *sql = "SELECT guid, date, is_from_me FROM message ORDER BY date DESC LIMIT 1;";
+    
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK) {
         return -1;
     }
     
+    /// Only once at start we will preload the hashmap with the last data
+    if (!didLoadHashMap) {
+        preload_hashmap(db, last_known_time);
+        didLoadHashMap = true;
+    }
+    
     int rc = sqlite3_step(stmt);
     if (rc == SQLITE_ROW) {
-        int64_t date = sqlite3_column_int64(stmt, 0);
-        int is_from_me = sqlite3_column_int(stmt, 1);
         
-        if (date > last_known_time && is_from_me == 0) {
+        const char *_ = (const char *)sqlite3_column_text(stmt, 0);
+        
+        int guid_len = sqlite3_column_bytes(stmt, 0);
+        char *guidCopy = malloc(guid_len + 1);
+        memcpy(guidCopy, sqlite3_column_text(stmt, 0), guid_len);
+        guidCopy[guid_len] = '\0';
+        
+        int64_t date = sqlite3_column_int64(stmt, 1);
+        int is_from_me = sqlite3_column_int(stmt, 2);
+        
+        /// Create a MessageMeta struct to check against the hashmap
+        MessageMeta meta = {
+            .date = date,
+            .isFromMe = is_from_me
+        };
+        
+        MessageMeta *existing = hashmap_get(guidCopy);
+        
+        if (existing == NULL) {
+            print_guid(guidCopy, guid_len);
+            /// NOTE: Uncomment the next lines to see if the message that I sent/recevied is new or not
+//            printf("🟢 New message detected: %s\n", guidCopy);
+//            printf("Date: %lld, From Me: %d\n", date, is_from_me);
+            
+            hashmap_put(guidCopy, meta);
+            free(guidCopy);
+            
+            int result = meta.isFromMe ? 0 : 1;
             sqlite3_finalize(stmt);
-            return 1; // new incoming message
+            return result;
         }
+        free(guidCopy);
     }
     
     sqlite3_finalize(stmt);
     return 0;
+}
+
+
+void preload_hashmap(sqlite3 *db, int64_t last_known_time) {
+    sqlite3_stmt *stmt;
+    const char *sql = "SELECT guid, date, is_from_me FROM message LIMIT 50;";
+    
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK) {
+        return;
+    }
+    
+    sqlite3_bind_int64(stmt, 1, last_known_time);
+    
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        const char *guid = (const char *)sqlite3_column_text(stmt, 0);
+        int64_t date = sqlite3_column_int64(stmt, 1);
+        int is_from_me = sqlite3_column_int(stmt, 2);
+        
+        MessageMeta meta = {
+            .date = date,
+            .isFromMe = is_from_me == 1
+        };
+        
+        hashmap_put(guid, meta); // load into your cache
+    }
+    
+    sqlite3_finalize(stmt);
+//    printf("Size Of Hashmap: %d\n", getSizeOfBucketsStored());
+}
+
+void print_guid(const char *guid, int length) {
+    printf("GUID: ");
+    for (int i = 0; i < length; i++) {
+        printf("%02X", (unsigned char)guid[i]);
+    }
+    printf("\n");
 }

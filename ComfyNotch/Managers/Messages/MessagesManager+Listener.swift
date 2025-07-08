@@ -115,12 +115,12 @@ extension MessagesManager {
         var dbHandle: OpaquePointer?
         let dbPath = db.description
         
-        let referenceTime = lastLocalSendTimestamp ?? Date.distantPast
-        if sqlite3_open(dbPath, &dbHandle) == SQLITE_OK {
+        let referenceTime = Date()
+        if sqlite3_open_v2(dbPath, &dbHandle, SQLITE_OPEN_READONLY | SQLITE_OPEN_FULLMUTEX | SQLITE_OPEN_SHAREDCACHE, nil) == SQLITE_OK {
             defer { sqlite3_close(dbHandle) }
-            let timestampInt = Int64(referenceTime.timeIntervalSinceReferenceDate)
+            
+            let timestampInt = Int64(referenceTime.timeIntervalSinceReferenceDate * 1_000_000)
             let hasChanged: Int32 = has_chat_db_changed(dbHandle, timestampInt)
-            print("Checking chat DB for changes, hasChanged: \(hasChanged)")
             return hasChanged != 0
         }
         return false

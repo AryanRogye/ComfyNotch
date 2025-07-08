@@ -3,4 +3,6 @@
 //
 
 #include "BrightnessManager.h"
+#include "MessageMeta.h"
+#include "MessageHashMap.h"
 #include "Messages.h"
