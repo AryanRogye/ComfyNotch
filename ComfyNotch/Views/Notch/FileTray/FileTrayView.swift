@@ -210,14 +210,14 @@ struct FileTrayView: View {
     }
     
     func share(fileURL: URL) {
-        AppModeSwitcher.switchToUI()
+        AppSwitcherManager.switchToUI()
         
         let service = NSSharingService(named: .sendViaAirDrop)
         service?.perform(withItems: [fileURL])
         
         // Delay hiding again until AirDrop panel likely closed
         DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-            AppModeSwitcher.switchToAccessory()
+            AppSwitcherManager.switchToAccessory()
         }
     }
     

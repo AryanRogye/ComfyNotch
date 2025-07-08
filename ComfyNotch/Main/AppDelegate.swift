@@ -38,15 +38,15 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         /// Wanna Request Access To Acessibility
         MediaKeyInterceptor.shared.requestAccessibilityIfNeeded()
 
-        #if !DEBUG
+//        #if !DEBUG
         /// Close the SettingsPage On Launch if not debug
 //        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-            if let window = NSApp.windows.first(where: { $0.title == "SettingsView" }) {
-                window.performClose(nil)
-                window.close()
-            }
+//            if let window = NSApp.windows.first(where: { $0.title == "SettingsView" }) {
+//                window.performClose(nil)
+//                window.close()
+//            }
 //        }
-        #endif
+//        #endif
         
         MessagesManager.shared.start()
         

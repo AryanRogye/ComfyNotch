@@ -1,12 +1,13 @@
 //
-//  AppModeSwitcher.swift
+//  AppSwitcherManager.swift
 //  ComfyNotch
 //
 //  Created by Aryan Rogye on 5/6/25.
 //
 import SwiftUI
 
-enum AppModeSwitcher {
+/// Mainly used for filetray for airdrop sharing
+enum AppSwitcherManager {
     static func temporarilyShowUI(for seconds: TimeInterval = 2.0) {
         NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
