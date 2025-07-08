@@ -60,6 +60,7 @@ char *base64_encode(const unsigned char *data, size_t input_length) {
 }
 
 const char *get_last_message_text(sqlite3 *db, long long handle_id) {
+    // NOTE: not thread-safe, do not call concurrently
     static char buffer[4096] = {0}; // reuse buffer (not thread-safe)
     memset(buffer, 0, sizeof(buffer));
     
@@ -137,9 +138,6 @@ int has_chat_db_changed(sqlite3 *db, int64_t last_known_time) {
     
     int rc = sqlite3_step(stmt);
     if (rc == SQLITE_ROW) {
-        
-        const char *_ = (const char *)sqlite3_column_text(stmt, 0);
-        
         int guid_len = sqlite3_column_bytes(stmt, 0);
         char *guidCopy = malloc(guid_len + 1);
         memcpy(guidCopy, sqlite3_column_text(stmt, 0), guid_len);
@@ -176,10 +174,9 @@ int has_chat_db_changed(sqlite3 *db, int64_t last_known_time) {
     return 0;
 }
 
-
 void preload_hashmap(sqlite3 *db, int64_t last_known_time) {
     sqlite3_stmt *stmt;
-    const char *sql = "SELECT guid, date, is_from_me FROM message LIMIT 50;";
+    const char *sql = "SELECT guid, date, is_from_me FROM message WHERE date > ? LIMIT 50;";
     
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK) {
         return;

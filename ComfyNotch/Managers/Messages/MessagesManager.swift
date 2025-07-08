@@ -104,6 +104,8 @@ final class MessagesManager: ObservableObject {
             print("✅ SQLite DB closed")
             self.dbHandle = nil
         }
+        
+        hashmap_free()
     }
     
     func checkContactAccess() {

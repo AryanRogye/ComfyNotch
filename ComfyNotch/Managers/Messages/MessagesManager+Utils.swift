@@ -54,14 +54,13 @@ extension MessagesManager {
         guard let data else { return "" }
         
         var attributed: NSAttributedString?
-        var lastError: Error?
         
         // ① secure‑coding path  (modern archives)
         do {
             attributed = try NSKeyedUnarchiver
                 .unarchivedObject(ofClass: NSAttributedString.self, from: data)
         } catch {
-            lastError = error
+            return ""
         }
         
         // ② legacy top‑level path  (pre‑iOS‑14 emoji, etc.)
@@ -70,7 +69,7 @@ extension MessagesManager {
                 attributed = try NSKeyedUnarchiver
                     .unarchiveTopLevelObjectWithData(data) as? NSAttributedString
             } catch {
-                lastError = error
+                return ""
             }
         }
         
@@ -84,7 +83,7 @@ extension MessagesManager {
                                   forKey: NSKeyedArchiveRootObjectKey)
                 unarchiver.finishDecoding()
             } catch {
-                lastError = error
+                return ""
             }
         }
         
@@ -94,7 +93,7 @@ extension MessagesManager {
                 attributed = try NSKeyedUnarchiver
                     .unarchivedObject(ofClass: NSMutableAttributedString.self, from: data)
             } catch {
-                lastError = error
+                return ""
             }
         }
         
