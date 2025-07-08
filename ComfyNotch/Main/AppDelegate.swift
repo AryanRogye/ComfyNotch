@@ -40,7 +40,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
         #if !DEBUG
         /// Close the SettingsPage On Launch if not debug
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
             if let window = NSApp.windows.first(where: { $0.title == "SettingsView" }) {
                 window.performClose(nil)
                 window.close()
@@ -74,6 +74,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         BrightnessWatcher.shared.stop()
         ClipboardManager.shared.stop()
         DisplayManager.shared.stop()
+        MessagesManager.shared.stop()
     }
     
     public func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {

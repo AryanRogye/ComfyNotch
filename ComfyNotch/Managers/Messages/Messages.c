@@ -121,7 +121,7 @@ int64_t get_last_talked_to(sqlite3 *db, int64_t handle_id) {
 static bool didLoadHashMap = false;
 
 /// Function will check if the chat db has any changed "chat" from the time then it will check if it is from me/the user or not
-const int has_chat_db_changed(sqlite3 *db, int64_t last_known_time) {
+int has_chat_db_changed(sqlite3 *db, int64_t last_known_time) {
     sqlite3_stmt *stmt;
     const char *sql = "SELECT guid, date, is_from_me FROM message ORDER BY date DESC LIMIT 1;";
     

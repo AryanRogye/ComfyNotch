@@ -85,13 +85,13 @@ extension MessagesManager {
         return self.allHandles.max(by: { $0.lastTalkedTo < $1.lastTalkedTo }) ?? nil
     }
     
-    func getLastMessageWithUser(for handleID: Int64) -> String? {
-        guard let db = db else {
+    func getLastMessageWithUser(for handleID: Int64) -> String {
+        guard let dbHandle = self.dbHandle else {
             print("❌ DB not available")
             return ""
         }
         
-        guard let rawCString = get_last_message_text(db.handle, handleID) else {
+        guard let rawCString = get_last_message_text(dbHandle, handleID) else {
             return ""
         }
         
@@ -112,24 +112,13 @@ extension MessagesManager {
     
     /// We need to query the message table to get the last talked to for the handle id
     func getLastTalkedTo(for handleID: Int64) -> Date {
-        guard let db = db else {
+        guard let dbHandle = self.dbHandle else {
             print("❌ DB not available")
             return .distantPast
         }
         
-        var dbHandle: OpaquePointer?
-        let dbPath = db.description
-        
-        var date: Date = Date.distantPast
-        
-        /// I had C function that does this now, because swift CPU was
-        /// getting high
-        if sqlite3_open(dbPath, &dbHandle) == SQLITE_OK {
-            let timestamp = get_last_talked_to(dbHandle, handleID)
-            date = formatDate(timestamp)
-            sqlite3_close(dbHandle)
-        }
-        return date
+        let timestamp = get_last_talked_to(dbHandle, handleID)
+        return formatDate(timestamp)
     }
     
     // MARK: - Contact Caching Properties

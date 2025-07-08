@@ -35,12 +35,12 @@ final class MessagesManager: ObservableObject {
     
     internal let settingsManager    : SettingsModel         = .shared
     internal let panelState         : PanelAnimationState   = .shared
-
+    
     @Published var allHandles: [Handle] = []
     /// Holds the current messages with the user the user wants to talk to
     /// this will get reset on back or anything else
     @Published var currentUserMessages: [Message] = []
-
+    
     @Published var hasFullDiskAccess: Bool = false
     @Published var hasContactAccess: Bool = false
     @Published var messagesText: String = ""
@@ -65,12 +65,26 @@ final class MessagesManager: ObservableObject {
     internal var messageCloseWorkItem: DispatchWorkItem?
     
     internal var dontShowFirstMessage: Bool = true
-
+    internal var dbHandle: OpaquePointer?
+    
     internal var isPolling = false
     
     public func start() {
         if SettingsModel.shared.enableMessagesNotifications {
             Task {
+                /// Open the SQLite database connection
+                if sqlite3_open_v2(
+                    messagesDBPath,
+                    &self.dbHandle,
+                    SQLITE_OPEN_READONLY | SQLITE_OPEN_FULLMUTEX | SQLITE_OPEN_SHAREDCACHE,
+                    nil
+                ) == SQLITE_OK {
+                    print("✅ SQLite DB opened and cached")
+                } else {
+                    print("❌ Failed to open SQLite DB")
+                    self.dbHandle = nil
+                }
+                
                 /// Check At start so no weird UI bug
                 self.checkFullDiskAccess()
                 self.checkContactAccess()
@@ -79,7 +93,19 @@ final class MessagesManager: ObservableObject {
             }
         }
     }
-
+    
+    func stop() {
+        self.timer?.invalidate()
+        self.timer = nil
+        self.isPolling = false
+        
+        if let handle = self.dbHandle {
+            sqlite3_close(handle)
+            print("✅ SQLite DB closed")
+            self.dbHandle = nil
+        }
+    }
+    
     func checkContactAccess() {
         DispatchQueue.main.async {
             self.hasContactAccess = self.hasContactPermission()

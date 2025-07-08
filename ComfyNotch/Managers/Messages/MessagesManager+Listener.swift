@@ -107,39 +107,13 @@ extension MessagesManager {
     }
     
     private func hasChatDBChanged() -> Bool {
-        guard let db = db else {
+        guard let dbHandle = self.dbHandle else {
             print("❌ DB not available")
             return false
         }
         
-        var dbHandle: OpaquePointer?
-        let dbPath = db.description
-        
-        let referenceTime = Date()
-        if sqlite3_open_v2(dbPath, &dbHandle, SQLITE_OPEN_READONLY | SQLITE_OPEN_FULLMUTEX | SQLITE_OPEN_SHAREDCACHE, nil) == SQLITE_OK {
-            defer { sqlite3_close(dbHandle) }
-            
-            let timestampInt = Int64(referenceTime.timeIntervalSinceReferenceDate * 1_000_000)
-            let hasChanged: Int32 = has_chat_db_changed(dbHandle, timestampInt)
-            return hasChanged != 0
-        }
-        return false
-        //        let newMessagesPath = messagesDBPath + "-wal"
-        //        guard let attrs = try? FileManager.default.attributesOfItem(atPath: newMessagesPath),
-        //              let modDate = attrs[.modificationDate] as? Date else {
-        //            return false
-        //        }
-        //
-        //        if let lastLocalSend = lastLocalSendTimestamp,
-        //           modDate.timeIntervalSince(lastLocalSend) < 1.0 {
-        //            return false
-        //        }
-        //
-        //        defer { lastKnownModificationDate = modDate }
-        //
-        //        if modDate != lastKnownModificationDate {
-        //            /// Wanna figure out if a message was the one that was changed since the last time
-        //        }
-        //        return modDate != lastKnownModificationDate
+        let timestampInt = Int64(Date().timeIntervalSinceReferenceDate * 1_000_000)
+        let hasChanged: Int32 = has_chat_db_changed(dbHandle, timestampInt)
+        return hasChanged != 0
     }
 }
