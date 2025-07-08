@@ -10,7 +10,9 @@ import SwiftUI
 struct QuickAccessSettingsView_FileTray: View {
     @ObservedObject var settings: SettingsModel = .shared
     @State var selectedFolder: URL?
-
+    
+    @State private var isShowingAllowedOnLocalhost: Bool = false
+    
     var body: some View {
         VStack {
             titleView
@@ -18,7 +20,80 @@ struct QuickAccessSettingsView_FileTray: View {
             persistFileTray()
             Divider()
             saveToFolder()
+            allowToOpenOnLocalhost
         }
+        .onAppear {
+            isShowingAllowedOnLocalhost = settings.fileTrayAllowOpenOnLocalhost
+        }
+    }
+    
+    private var allowToOpenOnLocalhost: some View {
+        VStack {
+            toggleableAllow
+            
+            if isShowingAllowedOnLocalhost {
+                portPicker
+                autoStartServerOnDrag
+                openInBrowserOnStart
+            }
+        }
+    }
+    
+    private var openInBrowserOnStart: some View {
+        HStack {
+            Text("Open In Browser On Start")
+            Spacer()
+            Toggle(isOn: $settings.openInBrowserOnStart) {
+                Text("")
+            }
+            .toggleStyle(.switch)
+            .onChange(of: settings.openInBrowserOnStart) {
+                settings.saveSettings()
+            }
+        }
+    }
+    
+    private var autoStartServerOnDrag: some View {
+        HStack {
+            Text("Auto Start Server On Drag")
+            Spacer()
+            Toggle(isOn: $settings.autoStartServerOnDrag) {
+                Text("")
+            }
+            .toggleStyle(.switch)
+            .onChange(of: settings.autoStartServerOnDrag) {
+                settings.saveSettings()
+            }
+            
+        }
+    }
+    
+    private var portPicker: some View {
+        HStack {
+            Text("Default Port")
+            Spacer()
+            TextField("8080", value: $settings.fileTrayPort, formatter: NumberFormatter.portFormatter)
+                .frame(width: 80)
+                .multilineTextAlignment(.trailing)
+        }
+    }
+    
+    private var toggleableAllow: some View {
+        HStack {
+            Text("Allow to open on localhost")
+            Spacer()
+            Toggle(isOn: $settings.fileTrayAllowOpenOnLocalhost) {
+                Text("")
+            }
+            .toggleStyle(.switch)
+            .onChange(of: settings.fileTrayAllowOpenOnLocalhost) { _, newValue in
+                settings.saveSettings()
+                withAnimation(.easeInOut(duration: 0.4)) {
+                    isShowingAllowedOnLocalhost = newValue
+                }
+            }
+        }
+        .padding(.vertical, 8)
     }
     
     // MARK: - Title
