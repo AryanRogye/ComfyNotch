@@ -60,7 +60,7 @@ extension MessagesManager {
                 }()
                 
                 let lastTalkedTo = getLastTalkedTo(for: row[rowID])
-                let lastMessage = getLastMessageWithUser(for: row[rowID]) ?? ""
+                let lastMessage = getLastMessageWithUser(for: row[rowID])
                 
                 let h = Handle(
                     ROWID: row[rowID],

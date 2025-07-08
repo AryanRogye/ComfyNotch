@@ -127,7 +127,7 @@ int has_chat_db_changed(sqlite3 *db, int64_t last_known_time) {
     const char *sql = "SELECT guid, date, is_from_me FROM message ORDER BY date DESC LIMIT 1;";
     
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK) {
-        return -1;
+        return 0;
     }
     
     /// Only once at start we will preload the hashmap with the last data
