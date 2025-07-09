@@ -8,9 +8,6 @@
 import AppKit
 import Foundation
 import Network
-import CoreImage
-import CoreImage.CIFilterBuiltins
-import SystemConfiguration
 
 /// Function is used to start a localhost server with the image then having a
 @MainActor
@@ -114,81 +111,5 @@ final class QRCodeManager: ObservableObject {
             freeifaddrs(ifaddr)
         }
         return address
-    }
-}
-
-enum LocalFileServerError: Error, LocalizedError {
-    case portInUse(Int)
-    
-    var errorDescription: String? {
-        switch self {
-        case .portInUse(let port):
-            return "Port \(port) is already in use. Please choose a different port in settings."
-        }
-    }
-}
-
-final class LocalFileServer {
-    private var listener: NWListener?
-    
-    private var task: Process?
-    
-    func start(port: Int, serveFileAt fileURL: URL) async throws {
-        if task != nil {
-            print("Server already running.")
-            return
-        }
-        
-        let process = Process()
-        process.currentDirectoryURL = fileURL.deletingLastPathComponent()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/python3")
-        process.arguments = ["-m", "http.server", "\(port)"]
-        
-        let pipe = Pipe()
-        process.standardError = pipe
-        
-        try process.run()
-        self.task = process
-        
-        // Listen for error output
-        let errorData = try await readPipeUntilClose(pipe: pipe)
-        
-        if let errorString = String(data: errorData, encoding: .utf8),
-           errorString.contains("Address already in use") {
-            stop()
-            throw LocalFileServerError.portInUse(port)
-        }
-        
-        print("✅ Server started at localhost:\(port)")
-    }
-    
-    func readPipeUntilClose(pipe: Pipe) async throws -> Data {
-        return try await withCheckedThrowingContinuation { continuation in
-            let handle = pipe.fileHandleForReading
-            handle.readabilityHandler = { handle in
-                let data = handle.availableData
-                handle.readabilityHandler = nil
-                continuation.resume(returning: data)
-            }
-        }
-    }
-    
-    func stop() {
-        task?.terminate()
-        task = nil
-        print("🛑 Server stopped")
-    }
-}
-
-enum QRCodeGenerator {
-    static func generate(from string: String) -> NSImage? {
-        let data = Data(string.utf8)
-        let filter = CIFilter.qrCodeGenerator()
-        filter.setValue(data, forKey: "inputMessage")
-        guard let output = filter.outputImage else { return nil }
-        let rep = NSCIImageRep(ciImage: output)
-        let image = NSImage(size: rep.size)
-        image.addRepresentation(rep)
-        return image
     }
 }

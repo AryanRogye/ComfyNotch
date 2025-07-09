@@ -107,6 +107,13 @@ struct FileTrayView: View {
     // MARK: - QR Code View
     func qrCodeView() -> some View {
         VStack {
+            Button(action: {
+                hasStartedQRScanning = false
+                qrCodeManager.stop()
+            }) {
+                Text("Close")
+            }
+
             switch hoverErrorStatus {
             case .settingsError:
                 Text("Turn On LocalHost QR Code in Settings")
@@ -124,12 +131,6 @@ struct FileTrayView: View {
                     .foregroundColor(.red)
             case .none:
                 VStack {
-                    Button(action: {
-                        hasStartedQRScanning = false
-                        qrCodeManager.stop()
-                    }) {
-                        Text("Close")
-                    }
                     if let image = qrCodeManager.createdQRCodeImage {
                         Image(nsImage: image)
                             .resizable()

@@ -9,13 +9,13 @@
 /* Begin PBXBuildFile section */
 		9B1319642DF10A5200657438 /* Assets in Resources */ = {isa = PBXBuildFile; fileRef = 9B13195E2DF10A5200657438 /* Assets */; };
 		9B1319652DF10A5200657438 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9B13195F2DF10A5200657438 /* Assets.xcassets */; };
-		9B2889A82DC68E4400E5DB18 /* SVGView in Frameworks */ = {isa = PBXBuildFile; productRef = 9B2889A72DC68E4400E5DB18 /* SVGView */; };
 		9B288A852DC722BF00E5DB18 /* ComfyCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = 9B288A842DC722BF00E5DB18 /* ComfyCalendar */; };
 		9B2A90062DE25AB500046186 /* CoreDisplay.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B2A90052DE25AB500046186 /* CoreDisplay.framework */; };
-		9B2A92242DE29D8100046186 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 9B2A92232DE29D8100046186 /* Sparkle */; };
-		9B707EEF2DE656F2000EA21E /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = 9B707EEE2DE656F2000EA21E /* SQLite */; };
-		9B8C6EFD2E0399AB000EBA08 /* MediaRemoteAdapter in Frameworks */ = {isa = PBXBuildFile; productRef = 9B8C6EFC2E0399AB000EBA08 /* MediaRemoteAdapter */; };
-		9B8C6EFE2E0399B3000EBA08 /* MediaRemoteAdapter in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 9B8C6EFC2E0399AB000EBA08 /* MediaRemoteAdapter */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		9B3F12282E1DE64300B5F68B /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 9B3F12272E1DE64300B5F68B /* Sparkle */; };
+		9B3F122B2E1DE67700B5F68B /* SVGView in Frameworks */ = {isa = PBXBuildFile; productRef = 9B3F122A2E1DE67700B5F68B /* SVGView */; };
+		9B3F12312E1DE6DB00B5F68B /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = 9B3F12302E1DE6DB00B5F68B /* SQLite */; };
+		9B3F12342E1DE7A800B5F68B /* MediaRemoteAdapter in Frameworks */ = {isa = PBXBuildFile; productRef = 9B3F12332E1DE7A800B5F68B /* MediaRemoteAdapter */; };
+		9B3F12352E1DE7DE00B5F68B /* MediaRemoteAdapter in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 9B3F12332E1DE7A800B5F68B /* MediaRemoteAdapter */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,7 +25,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				9B8C6EFE2E0399B3000EBA08 /* MediaRemoteAdapter in Embed Frameworks */,
+				9B3F12352E1DE7DE00B5F68B /* MediaRemoteAdapter in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -75,11 +75,6 @@
 			path = Handlers;
 			sourceTree = "<group>";
 		};
-		9B131A6F2DF10A5600657438 /* Utils */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Utils;
-			sourceTree = "<group>";
-		};
 		9B131A782DF10A5600657438 /* Extensions */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Extensions;
@@ -102,11 +97,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9B707EEF2DE656F2000EA21E /* SQLite in Frameworks */,
-				9B8C6EFD2E0399AB000EBA08 /* MediaRemoteAdapter in Frameworks */,
+				9B3F12312E1DE6DB00B5F68B /* SQLite in Frameworks */,
+				9B3F12342E1DE7A800B5F68B /* MediaRemoteAdapter in Frameworks */,
+				9B3F12282E1DE64300B5F68B /* Sparkle in Frameworks */,
 				9B2A90062DE25AB500046186 /* CoreDisplay.framework in Frameworks */,
-				9B2A92242DE29D8100046186 /* Sparkle in Frameworks */,
-				9B2889A82DC68E4400E5DB18 /* SVGView in Frameworks */,
+				9B3F122B2E1DE67700B5F68B /* SVGView in Frameworks */,
 				9B288A852DC722BF00E5DB18 /* ComfyCalendar in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -126,7 +121,6 @@
 				9B131A452DF10A5600657438 /* Managers */,
 				9B131A832DF10A5600657438 /* Models */,
 				9B1319DB2DF10A5600657438 /* Shapes */,
-				9B131A6F2DF10A5600657438 /* Utils */,
 				9B131A022DF10A5600657438 /* Views */,
 				9B1319CC2DF10A5600657438 /* Widgets */,
 				9B13195F2DF10A5200657438 /* Assets.xcassets */,
@@ -174,18 +168,17 @@
 				9B131A212DF10A5600657438 /* Api */,
 				9B131A452DF10A5600657438 /* Managers */,
 				9B131A692DF10A5600657438 /* Handlers */,
-				9B131A6F2DF10A5600657438 /* Utils */,
 				9B131A782DF10A5600657438 /* Extensions */,
 				9B131A832DF10A5600657438 /* Models */,
 				9B5027962E107EC1001EBE77 /* Main */,
 			);
 			name = ComfyNotch;
 			packageProductDependencies = (
-				9B2889A72DC68E4400E5DB18 /* SVGView */,
 				9B288A842DC722BF00E5DB18 /* ComfyCalendar */,
-				9B2A92232DE29D8100046186 /* Sparkle */,
-				9B707EEE2DE656F2000EA21E /* SQLite */,
-				9B8C6EFC2E0399AB000EBA08 /* MediaRemoteAdapter */,
+				9B3F12272E1DE64300B5F68B /* Sparkle */,
+				9B3F122A2E1DE67700B5F68B /* SVGView */,
+				9B3F12302E1DE6DB00B5F68B /* SQLite */,
+				9B3F12332E1DE7A800B5F68B /* MediaRemoteAdapter */,
 			);
 			productName = ComfyNotch;
 			productReference = 9B1316742DF10A2800657438 /* ComfyNotch.app */;
@@ -217,11 +210,11 @@
 			mainGroup = 9BC3A4592DB1D40000FFD323;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				9B2889A62DC68E4400E5DB18 /* XCRemoteSwiftPackageReference "SVGView" */,
 				9B288A832DC722BF00E5DB18 /* XCLocalSwiftPackageReference "../ComfyCalendar" */,
-				9B2A92222DE29D8100046186 /* XCRemoteSwiftPackageReference "Sparkle" */,
-				9B707EED2DE656F2000EA21E /* XCRemoteSwiftPackageReference "SQLite" */,
-				9B8C6EFB2E0399AB000EBA08 /* XCRemoteSwiftPackageReference "mediaremote-adapter" */,
+				9B3F12262E1DE64300B5F68B /* XCRemoteSwiftPackageReference "Sparkle" */,
+				9B3F12292E1DE67700B5F68B /* XCRemoteSwiftPackageReference "SVGView" */,
+				9B3F122F2E1DE6DB00B5F68B /* XCRemoteSwiftPackageReference "SQLite" */,
+				9B3F12322E1DE7A800B5F68B /* XCRemoteSwiftPackageReference "mediaremote-adapter" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9BC3A4592DB1D40000FFD323;
@@ -484,7 +477,15 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		9B2889A62DC68E4400E5DB18 /* XCRemoteSwiftPackageReference "SVGView" */ = {
+		9B3F12262E1DE64300B5F68B /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.7.1;
+			};
+		};
+		9B3F12292E1DE67700B5F68B /* XCRemoteSwiftPackageReference "SVGView" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/exyte/SVGView";
 			requirement = {
@@ -492,23 +493,15 @@
 				minimumVersion = 1.0.6;
 			};
 		};
-		9B2A92222DE29D8100046186 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sparkle-project/Sparkle";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.7.0;
-			};
-		};
-		9B707EED2DE656F2000EA21E /* XCRemoteSwiftPackageReference "SQLite" */ = {
+		9B3F122F2E1DE6DB00B5F68B /* XCRemoteSwiftPackageReference "SQLite" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/stephencelis/SQLite.swift";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 0.15.3;
+				minimumVersion = 0.15.4;
 			};
 		};
-		9B8C6EFB2E0399AB000EBA08 /* XCRemoteSwiftPackageReference "mediaremote-adapter" */ = {
+		9B3F12322E1DE7A800B5F68B /* XCRemoteSwiftPackageReference "mediaremote-adapter" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ejbills/mediaremote-adapter.git";
 			requirement = {
@@ -519,28 +512,28 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		9B2889A72DC68E4400E5DB18 /* SVGView */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 9B2889A62DC68E4400E5DB18 /* XCRemoteSwiftPackageReference "SVGView" */;
-			productName = SVGView;
-		};
 		9B288A842DC722BF00E5DB18 /* ComfyCalendar */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ComfyCalendar;
 		};
-		9B2A92232DE29D8100046186 /* Sparkle */ = {
+		9B3F12272E1DE64300B5F68B /* Sparkle */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 9B2A92222DE29D8100046186 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			package = 9B3F12262E1DE64300B5F68B /* XCRemoteSwiftPackageReference "Sparkle" */;
 			productName = Sparkle;
 		};
-		9B707EEE2DE656F2000EA21E /* SQLite */ = {
+		9B3F122A2E1DE67700B5F68B /* SVGView */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 9B707EED2DE656F2000EA21E /* XCRemoteSwiftPackageReference "SQLite" */;
+			package = 9B3F12292E1DE67700B5F68B /* XCRemoteSwiftPackageReference "SVGView" */;
+			productName = SVGView;
+		};
+		9B3F12302E1DE6DB00B5F68B /* SQLite */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9B3F122F2E1DE6DB00B5F68B /* XCRemoteSwiftPackageReference "SQLite" */;
 			productName = SQLite;
 		};
-		9B8C6EFC2E0399AB000EBA08 /* MediaRemoteAdapter */ = {
+		9B3F12332E1DE7A800B5F68B /* MediaRemoteAdapter */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 9B8C6EFB2E0399AB000EBA08 /* XCRemoteSwiftPackageReference "mediaremote-adapter" */;
+			package = 9B3F12322E1DE7A800B5F68B /* XCRemoteSwiftPackageReference "mediaremote-adapter" */;
 			productName = MediaRemoteAdapter;
 		};
 /* End XCSwiftPackageProductDependency section */
