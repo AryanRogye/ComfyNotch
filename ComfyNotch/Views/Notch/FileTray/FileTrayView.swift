@@ -18,6 +18,7 @@ struct FileRow: View {
 
 struct FileTrayView: View {
     
+    @Environment(\.openWindow) var openWindow
     @EnvironmentObject var fileDropManager : FileDropManager
     @EnvironmentObject var qrCodeManager: QRCodeManager
     
@@ -113,10 +114,12 @@ struct FileTrayView: View {
             }) {
                 Text("Close")
             }
-
+            
             switch hoverErrorStatus {
             case .settingsError:
-                Text("Turn On LocalHost QR Code in Settings")
+                /// If the settings are not setup right then we can ask the user
+                /// to go to that page
+                turnOnLocalHostInSettings
                     .foregroundColor(.red)
             case .noFileDropped:
                 Text("No File Dropped")
@@ -140,6 +143,13 @@ struct FileTrayView: View {
                     }
                 }
             }
+        }
+    }
+    
+    private var turnOnLocalHostInSettings: some View {
+        Button(action: openSettings) {
+            Text("Turn On LocalHost QR Code in Settings")
+                .foregroundColor(.red)
         }
     }
     
@@ -403,5 +413,14 @@ struct FileTrayView: View {
             .lineLimit(1)
             .truncationMode(.tail)
             .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    private func openSettings() {
+        NSApp.activate(ignoringOtherApps: true)
+        openWindow(id: "SettingsView")
+        settings.isSettingsWindowOpen = true
+        settings.selectedTab = .notch
+        /// 3 means filetray section
+        settings.selectedNotchTab = 3
     }
 }

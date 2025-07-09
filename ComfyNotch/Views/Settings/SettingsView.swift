@@ -3,7 +3,6 @@ import Combine
 
 struct SettingsView: View {
     @ObservedObject var settings = SettingsModel.shared
-    @State private var selectedTab: Tab = .general
     
     @State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn
     
@@ -111,7 +110,7 @@ struct SettingsView: View {
     // MARK: - Settings View
     private var settingsView: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
-            List(selection: $selectedTab) {
+            List(selection: $settings.selectedTab) {
                 ForEach(Tab.allCases, id: \.self) { tab in
                     HStack(spacing: 8) {
                         if tab.rawValue == "Notch" {
@@ -134,7 +133,7 @@ struct SettingsView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 8, style: .continuous)
                             .fill(.clear)
-                            .animation(.easeInOut(duration: 0.2), value: selectedTab)
+                            .animation(.easeInOut(duration: 0.2), value: settings.selectedTab)
                     )
                     .tag(tab)
                 }
@@ -142,7 +141,7 @@ struct SettingsView: View {
             .listStyle(.sidebar)
             .navigationTitle("Settings")
         } detail: {
-            selectedTab.destination(settings: settings)
+            settings.selectedTab.destination(settings: settings)
                 .frame(minWidth: 500, maxWidth: .infinity, maxHeight: .infinity)
                 .background(.regularMaterial)
         }

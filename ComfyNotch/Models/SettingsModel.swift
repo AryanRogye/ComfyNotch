@@ -7,6 +7,9 @@ class SettingsModel: ObservableObject {
     
     static let shared = SettingsModel()
     
+    @Published var selectedTab: SettingsView.Tab = .general
+    @Published var selectedNotchTab: Int = 0
+
     @Published var isFirstLaunch: Bool = true
     @Published var hasFirstWindowBeenOpenOnce = false
     

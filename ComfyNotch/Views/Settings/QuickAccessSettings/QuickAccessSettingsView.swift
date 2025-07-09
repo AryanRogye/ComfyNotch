@@ -10,7 +10,6 @@ import SwiftUI
 struct QuickAccessSettingsView: View {
     
     @ObservedObject var settings: SettingsModel
-    @State private var selected: Int = 0
     
     /// Constant Values
     var imageSize: CGFloat = 60
@@ -24,7 +23,7 @@ struct QuickAccessSettingsView: View {
             // 🔽 Make the content scrollable below
             ComfyScrollView {
                 VStack {
-                    switch selected {
+                    switch settings.selectedNotchTab {
                     case 0: QuickAccessSettingsView_Home()
                     case 1: QuickAccessSettingsView_Messages()
                     case 2: QuickAccessSettingsView_Utils()
@@ -51,10 +50,10 @@ struct QuickAccessSettingsView: View {
     
     var iconDisplay: some View {
         HStack(spacing: 16) {
-            iconButton("house", isSelected: selected == 0) { selected = 0 }
-            iconButton("message", isSelected: selected == 1) { selected = 1 }
-            iconButton("wrench.and.screwdriver", isSelected: selected == 2) { selected = 2 }
-            iconButton("tray.full", isSelected: selected == 3) { selected = 3 }
+            iconButton("house", isSelected: settings.selectedNotchTab == 0) { settings.selectedNotchTab = 0 }
+            iconButton("message", isSelected: settings.selectedNotchTab == 1) { settings.selectedNotchTab  = 1 }
+            iconButton("wrench.and.screwdriver", isSelected: settings.selectedNotchTab == 2) { settings.selectedNotchTab = 2 }
+            iconButton("tray.full", isSelected: settings.selectedNotchTab == 3) { settings.selectedNotchTab = 3 }
         }
         .frame(height: 80)
         .padding(.horizontal)

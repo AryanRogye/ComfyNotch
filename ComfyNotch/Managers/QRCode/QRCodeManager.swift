@@ -38,6 +38,7 @@ final class QRCodeManager: ObservableObject {
     
     // MARK: - Start
     public func start() async -> QRCodeManagerError {
+        defer { if createdQRCodeImage == nil { localFileServer.stop() } }
         /// Make sure we have a qr code image
         guard let fileDropManager = fileDropManager else { return .noFileDropped }
         guard settings.fileTrayAllowOpenOnLocalhost else { return .settingsError }
@@ -54,7 +55,8 @@ final class QRCodeManager: ObservableObject {
         do {
             try await localFileServer.start(
                 port: port,
-                serveFileAt: fileDropped
+                serveFileAt: fileDropped,
+                with: "1111"
             )
         } catch LocalFileServerError.portInUse(let port) {
             return .portInUse(port)
