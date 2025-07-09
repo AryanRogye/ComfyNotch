@@ -56,7 +56,7 @@ final class QRCodeManager: ObservableObject {
             try await localFileServer.start(
                 port: port,
                 serveFileAt: fileDropped,
-                with: "1111"
+                with: settings.localHostPin
             )
         } catch LocalFileServerError.portInUse(let port) {
             return .portInUse(port)

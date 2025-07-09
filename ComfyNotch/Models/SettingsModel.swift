@@ -9,7 +9,8 @@ class SettingsModel: ObservableObject {
     
     @Published var selectedTab: SettingsView.Tab = .general
     @Published var selectedNotchTab: Int = 0
-
+    
+    
     @Published var isFirstLaunch: Bool = true
     @Published var hasFirstWindowBeenOpenOnce = false
     
@@ -39,6 +40,7 @@ class SettingsModel: ObservableObject {
     /// qr options
     @Published var fileTrayAllowOpenOnLocalhost: Bool = false
     @Published var fileTrayPort: Int = 8000
+    @Published var localHostPin: String = "1111"
     
     /// ----------- Notch Settings -----------
     @Published var showDividerBetweenWidgets: Bool = false
@@ -49,6 +51,7 @@ class SettingsModel: ObservableObject {
     @Published var quickAccessWidgetDistanceFromLeft: CGFloat = 18
     @Published var oneFingerAction: TouchAction = .none
     @Published var twoFingerAction: TouchAction = .none
+    @Published var notchScrollThreshold: CGFloat = 50
     
     /// ---------- Music Player Settings ----------
     @Published var showMusicProvider: Bool = true
@@ -173,6 +176,13 @@ class SettingsModel: ObservableObject {
             defaults.set(fileTrayPort, forKey: "fileTrayPort")
         }
         
+        if localHostPin != "" {
+            defaults.set(localHostPin, forKey: "localHostPin")
+        } else {
+            localHostPin = "1111" // Default pin
+            defaults.set(localHostPin, forKey: "localHostPin")
+        }
+        
         /// ----------------------- ClipBoard Settings -----------------------------------
         if clipboardManagerMaxHistory >= 0 {
             defaults.set(clipboardManagerMaxHistory, forKey: "clipboardManagerMaxHistory")
@@ -205,6 +215,7 @@ class SettingsModel: ObservableObject {
         
         defaults.set(oneFingerAction.rawValue, forKey: "oneFingerAction")
         defaults.set(twoFingerAction.rawValue, forKey: "twoFingerAction")
+        defaults.set(notchScrollThreshold, forKey: "notchScrollThreshold")
         
         /// ----------------------- Music Player Settings -----------------------
         defaults.set(showMusicProvider, forKey: "showMusicProvider")
@@ -295,6 +306,12 @@ class SettingsModel: ObservableObject {
             self.fileTrayPort = 8000 // Default port
         }
         
+        if let localHostPin = defaults.string(forKey: "localHostPin") {
+            self.localHostPin = localHostPin
+        } else {
+            self.localHostPin = "1111" // Default pin
+        }
+        
         /// ----------------------- ClipBoard Settings -----------------------------------
         if let clipboardManagerMaxHistory = defaults.object(forKey: "clipboardManagerMaxHistory") as? Int {
             self.clipboardManagerMaxHistory = clipboardManagerMaxHistory
@@ -349,6 +366,12 @@ class SettingsModel: ObservableObject {
             self.twoFingerAction = twoFingerAction
         } else {
             self.twoFingerAction = .none
+        }
+        
+        if let notchScrollThreshold = defaults.object(forKey: "notchScrollThreshold") as? CGFloat {
+            self.notchScrollThreshold = notchScrollThreshold
+        } else {
+            self.notchScrollThreshold = 50 // Default threshold
         }
         
         /// ----------------------- Music Player Settings -----------------------

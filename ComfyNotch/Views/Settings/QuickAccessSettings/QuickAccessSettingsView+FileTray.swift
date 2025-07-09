@@ -31,10 +31,40 @@ struct QuickAccessSettingsView_FileTray: View {
         VStack {
             toggleableAllow
             
+            Text("This allows you to drag in a file and get a QR code to scan with your phone. Note: This is not encrypted and anyone on the same network can access your files, there is a pin that you must enter to allow access to the file. But that is all.")
+                .font(.footnote)
+                .foregroundColor(.secondary)
+                .padding(.bottom, 8)
+            
             if isShowingAllowedOnLocalhost {
                 portPicker
+                localHostPin
             }
         }
+    }
+    
+    private var localHostPin: some View {
+        HStack {
+            Text("Localhost PIN")
+            Spacer()
+            TextField("1111", text: $settings.localHostPin)
+                .frame(width: 80)
+                .multilineTextAlignment(.trailing)
+                .onSubmit {
+                    if isValidPin(settings.localHostPin) {
+                        settings.saveSettings()
+                    } else {
+                        NSSound.beep()
+                    }
+                }
+                .onChange(of: settings.localHostPin) {
+                    settings.localHostPin = settings.localHostPin.trimmingCharacters(in: .whitespaces)
+                }
+        }
+    }
+    
+    private func isValidPin(_ pin: String) -> Bool {
+        pin.count == 4 && pin.allSatisfy(\.isNumber)
     }
     
     private var portPicker: some View {

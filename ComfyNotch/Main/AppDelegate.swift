@@ -57,7 +57,6 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     public func applicationWillTerminate(_ notification: Notification) {
-        print("Application will terminate")
         MediaKeyInterceptor.shared.stop()
         VolumeManager.shared.stop()
         BrightnessWatcher.shared.stop()
