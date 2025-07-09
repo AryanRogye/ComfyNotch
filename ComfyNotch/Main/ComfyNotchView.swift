@@ -130,7 +130,9 @@ struct ComfyNotchView: View {
                 switch phase {
                 case .ended:
                     if translation > settings.notchScrollThreshold {
-                        MetalAnimationState.shared.stopAnimatingBlur()
+                        if settings.enableMetalAnimation {
+                            MetalAnimationState.shared.stopAnimatingBlur()
+                        }
                         uiManager.applyOpeningLayout()
                         /// This will make sure that the applyOpeningLayout will
                         /// actually do something because the CATransaction
