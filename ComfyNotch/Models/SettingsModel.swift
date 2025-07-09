@@ -37,9 +37,7 @@ class SettingsModel: ObservableObject {
     @Published var useCustomSaveFolder : Bool = false
     
     /// qr options
-    @Published var fileTrayAllowOpenOnLocalhost: Bool = true
-    @Published var openInBrowserOnStart: Bool = false
-    @Published var autoStartServerOnDrag: Bool = false
+    @Published var fileTrayAllowOpenOnLocalhost: Bool = false
     @Published var fileTrayPort: Int = 8000
     
     /// ----------- Notch Settings -----------
@@ -167,8 +165,7 @@ class SettingsModel: ObservableObject {
         }
         defaults.set(fileTrayPersistFiles, forKey: "fileTrayPersistFiles")
         defaults.set(fileTrayAllowOpenOnLocalhost, forKey: "fileTrayAllowOpenOnLocalhost")
-        defaults.set(openInBrowserOnStart, forKey: "openInBrowserOnStart")
-        defaults.set(autoStartServerOnDrag, forKey: "autoStartServerOnDrag")
+        
         if fileTrayPort > 0 && fileTrayPort < 65536 {
             defaults.set(fileTrayPort, forKey: "fileTrayPort")
         } else {
@@ -289,19 +286,7 @@ class SettingsModel: ObservableObject {
         if let fileTrayAllowOpenOnLocalhost = defaults.object(forKey: "fileTrayAllowOpenOnLocalhost") as? Bool {
             self.fileTrayAllowOpenOnLocalhost = fileTrayAllowOpenOnLocalhost
         } else {
-            self.fileTrayAllowOpenOnLocalhost = true
-        }
-        
-        if let openInBrowserOnStart = defaults.object(forKey: "openInBrowserOnStart") as? Bool {
-            self.openInBrowserOnStart = openInBrowserOnStart
-        } else {
-            self.openInBrowserOnStart = false
-        }
-        
-        if let autoStartServerOnDrag = defaults.object(forKey: "autoStartServerOnDrag") as? Bool {
-            self.autoStartServerOnDrag = autoStartServerOnDrag
-        } else {
-            self.autoStartServerOnDrag = false
+            self.fileTrayAllowOpenOnLocalhost = false
         }
         
         if let fileTrayPort = defaults.object(forKey: "fileTrayPort") as? Int {

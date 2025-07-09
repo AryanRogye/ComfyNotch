@@ -55,14 +55,6 @@ struct FileTrayView: View {
             value: animationState.isExpanded
         )
         .padding(.top, 2)
-        .onChange(of: hasStartedQRScanning) { _, newValue in
-            if newValue {
-                
-            } else {
-                
-            }
-        }
-        //        .padding(.horizontal, 4)
     }
     
     private var fileTray: some View {

@@ -5,7 +5,8 @@ struct SettingsView: View {
     @ObservedObject var settings = SettingsModel.shared
     
     @State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn
-    
+    @State private var localTabSelection: Tab = SettingsModel.shared.selectedTab
+
     init() {}
     
     // MARK: - Tabs
@@ -94,7 +95,7 @@ struct SettingsView: View {
                 settings.isSettingsWindowOpen = true
                 settings.checkForUpdatesSilently()
                 /// Close the SettingsPage On Launch if not debug
-                DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
                     if let window = NSApp.windows.first(where: { $0.title == "SettingsView" }) {
                         settings.isSettingsWindowOpen = false
                         window.performClose(nil)
@@ -110,7 +111,7 @@ struct SettingsView: View {
     // MARK: - Settings View
     private var settingsView: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
-            List(selection: $settings.selectedTab) {
+            List(selection: $localTabSelection) {
                 ForEach(Tab.allCases, id: \.self) { tab in
                     HStack(spacing: 8) {
                         if tab.rawValue == "Notch" {
@@ -147,5 +148,13 @@ struct SettingsView: View {
         }
         .transaction { $0.animation = nil }
         .frame(minWidth: 800, idealWidth: 800, maxWidth: 900, minHeight: 600, maxHeight: 600)
+        .onChange(of: localTabSelection) { _, newValue in
+            settings.selectedTab = newValue
+        }
+        .onReceive(settings.$selectedTab) { newValue in
+            if localTabSelection != newValue {
+                localTabSelection = newValue
+            }
+        }
     }
 }

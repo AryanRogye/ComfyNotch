@@ -33,38 +33,7 @@ struct QuickAccessSettingsView_FileTray: View {
             
             if isShowingAllowedOnLocalhost {
                 portPicker
-                autoStartServerOnDrag
-                openInBrowserOnStart
             }
-        }
-    }
-    
-    private var openInBrowserOnStart: some View {
-        HStack {
-            Text("Open In Browser On Start")
-            Spacer()
-            Toggle(isOn: $settings.openInBrowserOnStart) {
-                Text("")
-            }
-            .toggleStyle(.switch)
-            .onChange(of: settings.openInBrowserOnStart) {
-                settings.saveSettings()
-            }
-        }
-    }
-    
-    private var autoStartServerOnDrag: some View {
-        HStack {
-            Text("Auto Start Server On Drag")
-            Spacer()
-            Toggle(isOn: $settings.autoStartServerOnDrag) {
-                Text("")
-            }
-            .toggleStyle(.switch)
-            .onChange(of: settings.autoStartServerOnDrag) {
-                settings.saveSettings()
-            }
-            
         }
     }
     
@@ -72,9 +41,12 @@ struct QuickAccessSettingsView_FileTray: View {
         HStack {
             Text("Default Port")
             Spacer()
-            TextField("8080", value: $settings.fileTrayPort, formatter: NumberFormatter.portFormatter)
+            TextField("0000", value: $settings.fileTrayPort, formatter: NumberFormatter.portFormatter)
                 .frame(width: 80)
                 .multilineTextAlignment(.trailing)
+                .onSubmit {
+                    settings.saveSettings()
+                }
         }
     }
     
