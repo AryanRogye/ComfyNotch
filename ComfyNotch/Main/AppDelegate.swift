@@ -37,17 +37,6 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         }()
         /// Wanna Request Access To Acessibility
         MediaKeyInterceptor.shared.requestAccessibilityIfNeeded()
-
-        #if !DEBUG
-        /// Close the SettingsPage On Launch if not debug
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-            if let window = NSApp.windows.first(where: { $0.title == "SettingsView" }) {
-                window.performClose(nil)
-                window.close()
-            }
-//        }
-        #endif
-        
         MessagesManager.shared.start()
         
         EventManager.shared.requestPermissionEventsIfNeededOnce { granted in
@@ -68,7 +57,6 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     public func applicationWillTerminate(_ notification: Notification) {
-        print("Application will terminate")
         MediaKeyInterceptor.shared.stop()
         VolumeManager.shared.stop()
         BrightnessWatcher.shared.stop()

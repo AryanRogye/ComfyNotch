@@ -3,10 +3,10 @@ import Combine
 
 struct SettingsView: View {
     @ObservedObject var settings = SettingsModel.shared
-    @State private var selectedTab: Tab = .general
     
     @State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn
-    
+    @State private var localTabSelection: Tab = SettingsModel.shared.selectedTab
+
     init() {}
     
     // MARK: - Tabs
@@ -47,8 +47,71 @@ struct SettingsView: View {
     
     // MARK: - body
     var body: some View {
+        ZStack {
+            if settings.hasFirstWindowBeenOpenOnce {
+                settingsView
+            } else {
+                loadingView
+            }
+        }
+        .onAppear {
+            settings.isSettingsWindowOpen = true
+            
+            /// Make Sure That the Window is Above
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                NSApp.activate(ignoringOtherApps: true)
+                
+                // Find window by title or identifier
+                if let window = NSApp.windows.first(where: {
+                    $0.title.contains("Settings") || $0.identifier?.rawValue == "SettingsView"
+                }) {
+                    window.makeKeyAndOrderFront(nil)
+                    window.orderFrontRegardless()
+                }
+            }
+        }
+        .onDisappear {
+            settings.isSettingsWindowOpen = false
+            settings.refreshUI()
+            NSApp.activate(ignoringOtherApps: false)
+        }
+    }
+    
+    // MARK: - Loading View
+    private var loadingView: some View {
+        VStack(alignment: .center) {
+            Image("Logo")
+                .resizable()
+                .frame(width: 200, height: 200)
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .padding(.bottom, 30)
+            Text("Initializing ComfyNotch")
+            Spacer()
+        }
+        .frame(minWidth: 300, idealWidth: 350, maxWidth: 400, minHeight: 400, maxHeight: 400)
+        .onAppear {
+            /// On First Launch just close the window
+            if !settings.hasFirstWindowBeenOpenOnce {
+                settings.isSettingsWindowOpen = true
+                settings.checkForUpdatesSilently()
+                /// Close the SettingsPage On Launch if not debug
+                DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
+                    if let window = NSApp.windows.first(where: { $0.title == "SettingsView" }) {
+                        settings.isSettingsWindowOpen = false
+                        window.performClose(nil)
+                        window.close()
+                    }
+                    settings.hasFirstWindowBeenOpenOnce = true
+                }
+                /// Clsoe the window once
+            }
+        }
+    }
+
+    // MARK: - Settings View
+    private var settingsView: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
-            List(selection: $selectedTab) {
+            List(selection: $localTabSelection) {
                 ForEach(Tab.allCases, id: \.self) { tab in
                     HStack(spacing: 8) {
                         if tab.rawValue == "Notch" {
@@ -71,7 +134,7 @@ struct SettingsView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 8, style: .continuous)
                             .fill(.clear)
-                            .animation(.easeInOut(duration: 0.2), value: selectedTab)
+                            .animation(.easeInOut(duration: 0.2), value: settings.selectedTab)
                     )
                     .tag(tab)
                 }
@@ -79,33 +142,19 @@ struct SettingsView: View {
             .listStyle(.sidebar)
             .navigationTitle("Settings")
         } detail: {
-            selectedTab.destination(settings: settings)
+            settings.selectedTab.destination(settings: settings)
                 .frame(minWidth: 500, maxWidth: .infinity, maxHeight: .infinity)
                 .background(.regularMaterial)
         }
         .transaction { $0.animation = nil }
-        .frame(minWidth: 700, idealWidth: 750, maxWidth: 900, minHeight: 500)
-        // MARK: - Window Management
-        .onAppear {
-            settings.isSettingsWindowOpen = true
-            
-            /// Make Sure That the Window is Above
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                NSApp.activate(ignoringOtherApps: true)
-                
-                // Find window by title or identifier
-                if let window = NSApp.windows.first(where: {
-                    $0.title.contains("Settings") || $0.identifier?.rawValue == "SettingsView"
-                }) {
-                    window.makeKeyAndOrderFront(nil)
-                    window.orderFrontRegardless()
-                }
-            }
+        .frame(minWidth: 800, idealWidth: 800, maxWidth: 900, minHeight: 600, maxHeight: 600)
+        .onChange(of: localTabSelection) { _, newValue in
+            settings.selectedTab = newValue
         }
-        .onDisappear {
-            settings.isSettingsWindowOpen = false
-            settings.refreshUI()
-            NSApp.activate(ignoringOtherApps: false)
+        .onReceive(settings.$selectedTab) { newValue in
+            if localTabSelection != newValue {
+                localTabSelection = newValue
+            }
         }
     }
 }

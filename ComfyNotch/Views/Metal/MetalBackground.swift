@@ -66,6 +66,15 @@ final class MetalAnimationState: ObservableObject {
         animationTimer?.resume()
     }
     
+    func stopAnimatingBlur(snapToTarget: Bool = false) {
+        animationTimer?.cancel()
+        animationTimer = nil
+        
+        if snapToTarget {
+            blurProgress = animationTargetValue
+        }
+    }
+    
     private func updateAnimation() {
         let elapsed = CACurrentMediaTime() - animationStartTime
         let progress = min(elapsed / animationDuration, 1.0)

@@ -1,61 +1,61 @@
 {
   "images" : [
     {
-      "filename" : "ComfyNotchLogo 4.png",
+      "filename" : "16-mac.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "16x16"
     },
     {
-      "filename" : "ComfyNotchLogo 5.png",
+      "filename" : "32-mac 1.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "16x16"
     },
     {
-      "filename" : "ComfyNotchLogo 6.png",
+      "filename" : "32-mac.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "32x32"
     },
     {
-      "filename" : "ComfyNotchLogo 7.png",
+      "filename" : "64-mac.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "32x32"
     },
     {
-      "filename" : "ComfyNotchLogo 2.png",
+      "filename" : "128-mac.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "128x128"
     },
     {
-      "filename" : "ComfyNotchLogo 3.png",
+      "filename" : "256-mac 1.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "128x128"
     },
     {
-      "filename" : "ComfyNotchLogo 1.png",
+      "filename" : "256-mac.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "256x256"
     },
     {
-      "filename" : "ComfyNotchLogo.png",
+      "filename" : "512-mac 1.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "256x256"
     },
     {
-      "filename" : "ComfyNotchLogo 9.png",
+      "filename" : "512-mac.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "512x512"
     },
     {
-      "filename" : "ComfyNotchLogo 8.png",
+      "filename" : "1024-mac.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "512x512"

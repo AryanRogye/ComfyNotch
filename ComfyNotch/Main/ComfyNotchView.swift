@@ -26,7 +26,7 @@ class PanelAnimationState: ObservableObject {
     @Published var isLoadingPopInPresenter = false
     
     let hoverHandler = HoverHandler()
-    
+
     init() {
         hoverHandler.bindHoveringOverLeft(for: self)
     }
@@ -38,6 +38,7 @@ struct ComfyNotchView: View {
     @EnvironmentObject var bigWidgetStore: ExpandedWidgetsStore
     
     @StateObject private var fileDropManager = FileDropManager()
+    @StateObject private var qrCodeManager = QRCodeManager()
     @StateObject private var notchClickManager = NotchClickManager()
     
     @ObservedObject private var animationState = PanelAnimationState.shared
@@ -63,7 +64,7 @@ struct ComfyNotchView: View {
                 }
             }
         
-        /// This is to show the file tray area when dropped
+            /// This is to show the file tray area when dropped
             .onChange(of: fileDropManager.isDroppingFiles) { _, hovering in
                 if hovering && uiManager.panelState == .closed {
                     fileDropManager.shouldAutoShowTray = true
@@ -93,7 +94,7 @@ struct ComfyNotchView: View {
                     }
                 }
             }
-            // MARK: - Scrolling Logic
+        // MARK: - Scrolling Logic
             .panGesture(direction: .down) { translation, phase in
                 guard uiManager.panelState == .closed else { return }
                 
@@ -119,27 +120,34 @@ struct ComfyNotchView: View {
                     return
                 }
                 
-                if (animationState.currentPanelState == .file_tray
-                    || animationState.currentPanelState == .utils
-                    || animationState.currentPanelState == .popInPresentation
-                    || animationState.currentPanelState == .messages) {
+                // Early return for states that shouldn't handle pan up
+                let restrictedStates: Set<NotchViewState> = [.file_tray, .utils, .popInPresentation, .messages]
+                if restrictedStates.contains(animationState.currentPanelState) {
                     return
                 }
                 
-                if translation > 50 {
-                    uiManager.applyOpeningLayout()
-                    /// This will make sure that the applyOpeningLayout will
-                    /// actually do something because the CATransaction
-                    /// Force commits of pending layout changes
-                    DispatchQueue.main.async {
-                        CATransaction.flush()
+//                print("translation \(translation)")
+                switch phase {
+                case .ended:
+                    if translation > settings.notchScrollThreshold {
+                        if settings.enableMetalAnimation {
+                            MetalAnimationState.shared.stopAnimatingBlur()
+                        }
+                        uiManager.applyOpeningLayout()
+                        /// This will make sure that the applyOpeningLayout will
+                        /// actually do something because the CATransaction
+                        /// Force commits of pending layout changes
                         DispatchQueue.main.async {
+                            CATransaction.flush()
                             ScrollHandler.shared.closeFull()
                         }
                     }
+                default:
+                    break
                 }
             }
             .onAppear {
+                qrCodeManager.assignFileDropManager(fileDropManager)
                 notchClickManager.setOpenWindow(openWindow)
                 notchClickManager.startMonitoring()
             }
@@ -159,14 +167,14 @@ struct ComfyNotchView: View {
                 
                 if animationState.isExpanded || animationState.currentPanelState == .popInPresentation {
                     /// see QuickAccessWidget.swift file to see how it works
-//                    if settings.isFirstLaunch {
-//                        Onboarding()
-//                            .padding(.horizontal, 4)
-//                    } else {
-                        expandedView
-                            .padding(.horizontal, 4)
-//                    }
-                        
+                    //                    if settings.isFirstLaunch {
+                    //                        Onboarding()
+                    //                            .padding(.horizontal, 4)
+                    //                    } else {
+                    expandedView
+                        .padding(.horizontal, 4)
+                    //                    }
+                    
                 }
                 
                 Spacer()
@@ -207,6 +215,7 @@ struct ComfyNotchView: View {
         if animationState.currentPanelState == .file_tray {
             FileTrayView()
                 .environmentObject(fileDropManager)
+                .environmentObject(qrCodeManager)
         }
         
         if animationState.currentPanelState == .messages {

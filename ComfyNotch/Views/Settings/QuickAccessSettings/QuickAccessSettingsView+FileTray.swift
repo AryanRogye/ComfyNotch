@@ -10,7 +10,9 @@ import SwiftUI
 struct QuickAccessSettingsView_FileTray: View {
     @ObservedObject var settings: SettingsModel = .shared
     @State var selectedFolder: URL?
-
+    
+    @State private var isShowingAllowedOnLocalhost: Bool = false
+    
     var body: some View {
         VStack {
             titleView
@@ -18,7 +20,86 @@ struct QuickAccessSettingsView_FileTray: View {
             persistFileTray()
             Divider()
             saveToFolder()
+            allowToOpenOnLocalhost
         }
+        .onAppear {
+            isShowingAllowedOnLocalhost = settings.fileTrayAllowOpenOnLocalhost
+        }
+    }
+    
+    private var allowToOpenOnLocalhost: some View {
+        VStack {
+            toggleableAllow
+            
+            Text("""
+                This allows you to drag in a file and get a QR code to scan with your phone. 
+                Note: This is not encrypted and anyone on the same network can access your files, 
+                there is a pin that you must enter to allow access to the file. But that is all.
+                """)
+                .font(.footnote)
+                .foregroundColor(.secondary)
+                .padding(.bottom, 8)
+            
+            if isShowingAllowedOnLocalhost {
+                portPicker
+                localHostPin
+            }
+        }
+    }
+    
+    private var localHostPin: some View {
+        HStack {
+            Text("Localhost PIN")
+            Spacer()
+            TextField("1111", text: $settings.localHostPin)
+                .frame(width: 80)
+                .multilineTextAlignment(.trailing)
+                .onSubmit {
+                    if isValidPin(settings.localHostPin) {
+                        settings.saveSettings()
+                    } else {
+                        NSSound.beep()
+                    }
+                }
+                .onChange(of: settings.localHostPin) {
+                    settings.localHostPin = settings.localHostPin.trimmingCharacters(in: .whitespaces)
+                }
+        }
+    }
+    
+    private func isValidPin(_ pin: String) -> Bool {
+        pin.count == 4 && pin.allSatisfy(\.isNumber)
+    }
+    
+    private var portPicker: some View {
+        HStack {
+            Text("Default Port")
+            Spacer()
+            TextField("0000", value: $settings.fileTrayPort, formatter: NumberFormatter.portFormatter)
+                .frame(width: 80)
+                .multilineTextAlignment(.trailing)
+                .onSubmit {
+                    settings.saveSettings()
+                }
+        }
+    }
+    
+    private var toggleableAllow: some View {
+        HStack {
+            Text("Allow to open on localhost")
+            Spacer()
+            Toggle(isOn: $settings.fileTrayAllowOpenOnLocalhost) {
+                Text("")
+            }
+            .toggleStyle(.switch)
+            .onChange(of: settings.fileTrayAllowOpenOnLocalhost) { _, newValue in
+                settings.saveSettings()
+                withAnimation(.easeInOut(duration: 0.4)) {
+                    isShowingAllowedOnLocalhost = newValue
+                }
+            }
+        }
+        .padding(.vertical, 8)
     }
     
     // MARK: - Title

@@ -18,13 +18,19 @@ struct FileRow: View {
 
 struct FileTrayView: View {
     
+    @Environment(\.openWindow) var openWindow
     @EnvironmentObject var fileDropManager : FileDropManager
+    @EnvironmentObject var qrCodeManager: QRCodeManager
     
     @ObservedObject var animationState = PanelAnimationState.shared
     @ObservedObject var settings = SettingsModel.shared
     
     @State var showDeleteFileAlert: Bool = false
     @State var currentDeleteFileURL: URL?
+    
+    @State private var isHoveringOverAddedFile: Bool = false
+    @State private var hasStartedQRScanning: Bool = false
+    @State private var hoverErrorStatus: QRCodeManager.QRCodeManagerError = .none
     
     var body: some View {
         VStack(spacing: 0) {
@@ -49,29 +55,34 @@ struct FileTrayView: View {
             value: animationState.isExpanded
         )
         .padding(.top, 2)
-//        .padding(.horizontal, 4)
     }
     
     private var fileTray: some View {
         HStack {
             //                            /// Add File Look
-            addFilesTray
-                .padding(.horizontal, 10)
-                .frame(width: 140)
-                .frame(maxHeight: .infinity)
+            Group {
+                if hasStartedQRScanning {
+                    qrCodeView()
+                } else {
+                    addFilesTray
+                }
+            }
+            .padding(.horizontal, 10)
+            .frame(width: 140)
+            .frame(maxHeight: .infinity)
             /// This allows it to be blue when dragged over
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(fileDropManager.isDroppingFiles ? Color.blue.opacity(0.8) : Color.gray, style: StrokeStyle(lineWidth: 1, dash: [5]))
-                        .foregroundColor(.gray.opacity(0.5))
-                        .animation(.easeInOut(duration: 0.3), value: fileDropManager.isDroppingFiles)
-                )
-                .padding(.leading, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(fileDropManager.isDroppingFiles ? Color.blue.opacity(0.8) : Color.gray, style: StrokeStyle(lineWidth: 1, dash: [5]))
+                    .foregroundColor(.gray.opacity(0.5))
+                    .animation(.easeInOut(duration: 0.3), value: fileDropManager.isDroppingFiles)
+            )
+            .padding(.leading, 10)
             
             Spacer()
             
             /// What Files Are There
-//            EmptyView()
+            //            EmptyView()
             userTray
                 .padding(.horizontal, 10)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -86,36 +97,115 @@ struct FileTrayView: View {
         }
     }
     
+    private var closeButton: some View {
+        VStack {
+            if fileDropManager.droppedFile != nil {
+                Spacer()
+                HStack {
+                    Button(action: fileDropManager.clear) {
+                        HStack {
+                            Image(systemName: "xmark.circle.fill")
+                                .resizable()
+                                .foregroundStyle(.red)
+                                .frame(width: 16, height: 16)
+                                .padding(4)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    Spacer()
+                    
+                }
+                .frame(maxWidth: .infinity)
+                .background(Color.black.opacity(0.4))
+            }
+        }
+        .zIndex(1) // Ensure the close button is on top
+    }
+    
+    // MARK: - QR Code View
+    func qrCodeView() -> some View {
+        VStack {
+            Button(action: {
+                hasStartedQRScanning = false
+                qrCodeManager.stop()
+            }) {
+                Text("Close")
+            }
+            
+            switch hoverErrorStatus {
+            case .settingsError:
+                /// If the settings are not setup right then we can ask the user
+                /// to go to that page
+                turnOnLocalHostInSettings
+                    .foregroundColor(.red)
+            case .noFileDropped:
+                Text("No File Dropped")
+                    .foregroundColor(.red)
+            case .serverStartFailed:
+                Text("Server Start Failed")
+                    .foregroundColor(.red)
+            case .qrGenerationFailed:
+                Text("QR Code Generation Failed")
+            case .portInUse(let int):
+                Text("Port is in use: \(int) Please Open Settings")
+                    .foregroundColor(.red)
+            case .none:
+                VStack {
+                    if let image = qrCodeManager.createdQRCodeImage {
+                        Image(nsImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 80, height: 80)
+                            .padding(.top, 2)
+                    }
+                }
+            }
+        }
+    }
+    
+    private var turnOnLocalHostInSettings: some View {
+        Button(action: openSettings) {
+            Text("Turn On LocalHost QR Code in Settings")
+                .foregroundColor(.red)
+        }
+    }
+    
     // MARK: - Add Files Tray
     var addFilesTray: some View {
         VStack {
             /// TODO: This is really cool, maybe think about managing this better
             if let dropped = fileDropManager.droppedFileInfo, let droppedFile = fileDropManager.droppedFile {
                 VStack {
-                    ScrollView {
-                        showFileThumbnail(fileURL: droppedFile)
-                        showFileName(fileURL: droppedFile)
-                        
-                        //                        Text("Are file?")
-                        //                        HStack {
-                        //                            Button(action: {animationState.droppedFile = nil}) {
-                        //                                Image(systemName: "x.circle")
-                        //                                    .resizable()
-                        //                                    .frame(width: 18, height: 18)
-                        //                            }
-                        //                            .buttonStyle(.plain)
-                        //                            Button(action: {}) {
-                        //                                Image(systemName: "checkmark")
-                        //                                    .resizable()
-                        //                                    .frame(width: 18, height: 18)
-                        //                            }
-                        //                            .buttonStyle(.plain)
-                        //                        }
-                        
-                        Divider()
-                            .padding([.vertical], 2)
-                            .padding(.horizontal)
-                        showDroppedFileDescription(for: dropped)
+                    ZStack(alignment: .bottomTrailing) {
+                        ScrollView {
+                            VStack {
+                                showFileThumbnail(fileURL: droppedFile)
+                                showFileName(fileURL: droppedFile)
+                            }
+                            .overlay {
+                                if isHoveringOverAddedFile {
+                                    hoverView
+                                        .transition(.opacity)
+                                        .animation(.easeInOut(duration: 0.15), value: isHoveringOverAddedFile)
+                                }
+                            }
+                            .onHover { hover in
+                                /// Safety check for the current panel
+                                if animationState.currentPanelState == .file_tray {
+                                    isHoveringOverAddedFile = hover
+                                } else {
+                                    isHoveringOverAddedFile = false
+                                }
+                            }
+                            
+                            Divider()
+                                .padding([.vertical], 2)
+                                .padding(.horizontal)
+                            showDroppedFileDescription(for: dropped)
+                            
+                            closeButton
+ 
+                        }
                     }
                 }
             } else {
@@ -128,7 +218,29 @@ struct FileTrayView: View {
             //            Spacer()
         }
     }
-
+    
+    private var hoverView: some View {
+        Button(action: {
+            hasStartedQRScanning = true
+            Task {
+                self.hoverErrorStatus = await qrCodeManager.start()
+            }
+        }) {
+            VStack {
+                Text("QR Open")
+                Image(systemName: "qrcode")
+                    .font(.system(size: 16, weight: .medium))
+            }
+        }
+        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background {
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.black.opacity(0.4))
+        }
+        .padding(.top, 2)
+    }
+    
     // MARK: - User Tray
     private var userTray: some View {
         HStack {
@@ -159,7 +271,7 @@ struct FileTrayView: View {
                     .minimumScaleFactor(0.5)
             }
             .font(.caption)
-
+            
             if let dims = dropped.dimensions {
                 HStack {
                     Text("Dimensions:")
@@ -176,7 +288,7 @@ struct FileTrayView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
                 .font(.caption)
-
+            
         }
     }
     
@@ -184,40 +296,51 @@ struct FileTrayView: View {
     func showFile(for fileURL: URL) -> some View {
         VStack(spacing: 0) {
             showFileThumbnail(fileURL: fileURL)
-            HStack(alignment: .center ,spacing: 0) {
-                showFileName(fileURL: fileURL)
+            
+            HStack(spacing: 4) {
+                showTimeStamp(fileURL: fileURL)
+                    .font(.caption2)
+                    .foregroundColor(.gray)
                 showMenu(fileURL: fileURL)
             }
-            .padding([.horizontal, .top], 5)
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
             
-            showTimeStamp(fileURL: fileURL)
+            showFileName(fileURL: fileURL)
         }
     }
     
     @ViewBuilder
     func showMenu(fileURL: URL) -> some View {
         Menu {
-            Button("delete") { activateDelete(fileURL: fileURL) }
-            Button("show file") { openFile(fileURL: fileURL) }
-            Button("share") { share(fileURL: fileURL) }
+            Button("Preview") {
+                openFile(fileURL: fileURL)
+            }
+            Button("Share via AirDrop") {
+                share(fileURL: fileURL)
+            }
+            Button("Delete", role: .destructive) {
+                activateDelete(fileURL: fileURL)
+            }
         } label: {
-            Image(systemName: "ellipsis")
-                .resizable()
-                .rotationEffect(.degrees(90))
-                .frame(width: 10, height: 13)
+            Image(systemName: "ellipsis.circle") // or something less triangle-prone
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.secondary)
+                .frame(width: 20, height: 20)
         }
         .buttonStyle(.plain)
     }
     
     func share(fileURL: URL) {
-        AppModeSwitcher.switchToUI()
+        AppSwitcherManager.switchToUI()
         
         let service = NSSharingService(named: .sendViaAirDrop)
         service?.perform(withItems: [fileURL])
         
         // Delay hiding again until AirDrop panel likely closed
         DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-            AppModeSwitcher.switchToAccessory()
+            AppSwitcherManager.switchToAccessory()
         }
     }
     
@@ -230,7 +353,10 @@ struct FileTrayView: View {
         NSWorkspace.shared.open(fileURL)
         /// Close the file tray
         animationState.currentPanelState = .home
-        ScrollHandler.shared.closeFull()
+        UIManager.shared.applyOpeningLayout()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            ScrollHandler.shared.closeFull()
+        }
     }
     
     @ViewBuilder
@@ -256,6 +382,7 @@ struct FileTrayView: View {
         .onDrag {
             NSItemProvider(contentsOf: fileURL)!
         }
+        .padding(.top, 2)
     }
     
     @ViewBuilder
@@ -322,5 +449,14 @@ struct FileTrayView: View {
             .lineLimit(1)
             .truncationMode(.tail)
             .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    private func openSettings() {
+        NSApp.activate(ignoringOtherApps: true)
+        openWindow(id: "SettingsView")
+        settings.isSettingsWindowOpen = true
+        settings.selectedTab = .notch
+        /// 3 means filetray section
+        settings.selectedNotchTab = 3
     }
 }
