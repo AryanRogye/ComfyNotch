@@ -31,7 +31,11 @@ struct QuickAccessSettingsView_FileTray: View {
         VStack {
             toggleableAllow
             
-            Text("This allows you to drag in a file and get a QR code to scan with your phone. Note: This is not encrypted and anyone on the same network can access your files, there is a pin that you must enter to allow access to the file. But that is all.")
+            Text("""
+                This allows you to drag in a file and get a QR code to scan with your phone. 
+                Note: This is not encrypted and anyone on the same network can access your files, 
+                there is a pin that you must enter to allow access to the file. But that is all.
+                """)
                 .font(.footnote)
                 .foregroundColor(.secondary)
                 .padding(.bottom, 8)

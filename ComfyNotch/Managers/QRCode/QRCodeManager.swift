@@ -98,16 +98,23 @@ final class QRCodeManager: ObservableObject {
             while ptr != nil {
                 defer { ptr = ptr?.pointee.ifa_next }
                 let interface = ptr!.pointee
-                let name = String(cString: interface.ifa_name)
                 let family = interface.ifa_addr.pointee.sa_family
                 
-                if family == UInt8(AF_INET), name == "en0" {
+                if family == UInt8(AF_INET) {
+                    let name = String(cString: interface.ifa_name)
+                    guard name != "lo0" else { continue }
+
                     var hostBuffer = [CChar](repeating: 0, count: Int(NI_MAXHOST))
                     getnameinfo(interface.ifa_addr, socklen_t(interface.ifa_addr.pointee.sa_len),
-                                &hostBuffer, socklen_t(hostBuffer.count),
-                                nil, 0, NI_NUMERICHOST)
-                    address = String(cString: hostBuffer)
-                    break
+                        &hostBuffer, socklen_t(hostBuffer.count),
+                        nil, 0, NI_NUMERICHOST)
+
+                    let potentialAddress = String(cString: hostBuffer)
+
+                    if potentialAddress.hasPrefix("192.") || potentialAddress.hasPrefix("10.") || potentialAddress.hasPrefix("172.") {
+                        address = potentialAddress
+                        break
+                    }
                 }
             }
             freeifaddrs(ifaddr)

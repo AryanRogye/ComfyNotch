@@ -19,8 +19,13 @@ final class FileDropManager: ObservableObject {
     /// we wanna show a cool animation for it getting activated so the user
     /// doesnt think its blue all the time lol
     @Published var shouldAutoShowTray: Bool = false
-
+    
     private var settings: SettingsModel = .shared
+    
+    public func clear() {
+        droppedFile = nil
+        droppedFileInfo = nil
+    }
     
     init() {
         self.getFilesFromStoredDirectory()

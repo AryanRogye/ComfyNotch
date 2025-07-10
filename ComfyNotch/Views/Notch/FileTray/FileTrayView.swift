@@ -97,6 +97,31 @@ struct FileTrayView: View {
         }
     }
     
+    private var closeButton: some View {
+        VStack {
+            if fileDropManager.droppedFile != nil {
+                Spacer()
+                HStack {
+                    Button(action: fileDropManager.clear) {
+                        HStack {
+                            Image(systemName: "xmark.circle.fill")
+                                .resizable()
+                                .foregroundStyle(.red)
+                                .frame(width: 16, height: 16)
+                                .padding(4)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    Spacer()
+                    
+                }
+                .frame(maxWidth: .infinity)
+                .background(Color.black.opacity(0.4))
+            }
+        }
+        .zIndex(1) // Ensure the close button is on top
+    }
+    
     // MARK: - QR Code View
     func qrCodeView() -> some View {
         VStack {
@@ -151,31 +176,36 @@ struct FileTrayView: View {
             /// TODO: This is really cool, maybe think about managing this better
             if let dropped = fileDropManager.droppedFileInfo, let droppedFile = fileDropManager.droppedFile {
                 VStack {
-                    ScrollView {
-                        VStack {
-                            showFileThumbnail(fileURL: droppedFile)
-                            showFileName(fileURL: droppedFile)
-                        }
-                        .overlay {
-                            if isHoveringOverAddedFile {
-                                hoverView
-                                    .transition(.opacity)
-                                    .animation(.easeInOut(duration: 0.15), value: isHoveringOverAddedFile)
+                    ZStack(alignment: .bottomTrailing) {
+                        ScrollView {
+                            VStack {
+                                showFileThumbnail(fileURL: droppedFile)
+                                showFileName(fileURL: droppedFile)
                             }
-                        }
-                        .onHover { hover in
-                            /// Saftey cehck for the current panel
-                            if animationState.currentPanelState == .file_tray {
-                                isHoveringOverAddedFile = hover
-                            } else {
-                                isHoveringOverAddedFile = false
+                            .overlay {
+                                if isHoveringOverAddedFile {
+                                    hoverView
+                                        .transition(.opacity)
+                                        .animation(.easeInOut(duration: 0.15), value: isHoveringOverAddedFile)
+                                }
                             }
+                            .onHover { hover in
+                                /// Safety check for the current panel
+                                if animationState.currentPanelState == .file_tray {
+                                    isHoveringOverAddedFile = hover
+                                } else {
+                                    isHoveringOverAddedFile = false
+                                }
+                            }
+                            
+                            Divider()
+                                .padding([.vertical], 2)
+                                .padding(.horizontal)
+                            showDroppedFileDescription(for: dropped)
+                            
+                            closeButton
+ 
                         }
-                        
-                        Divider()
-                            .padding([.vertical], 2)
-                            .padding(.horizontal)
-                        showDroppedFileDescription(for: dropped)
                     }
                 }
             } else {
@@ -266,27 +296,38 @@ struct FileTrayView: View {
     func showFile(for fileURL: URL) -> some View {
         VStack(spacing: 0) {
             showFileThumbnail(fileURL: fileURL)
-            HStack(alignment: .center ,spacing: 0) {
-                showFileName(fileURL: fileURL)
+            
+            HStack(spacing: 4) {
+                showTimeStamp(fileURL: fileURL)
+                    .font(.caption2)
+                    .foregroundColor(.gray)
                 showMenu(fileURL: fileURL)
             }
-            .padding([.horizontal, .top], 5)
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
             
-            showTimeStamp(fileURL: fileURL)
+            showFileName(fileURL: fileURL)
         }
     }
     
     @ViewBuilder
     func showMenu(fileURL: URL) -> some View {
         Menu {
-            Button("delete") { activateDelete(fileURL: fileURL) }
-            Button("show file") { openFile(fileURL: fileURL) }
-            Button("share") { share(fileURL: fileURL) }
+            Button("Preview") {
+                openFile(fileURL: fileURL)
+            }
+            Button("Share via AirDrop") {
+                share(fileURL: fileURL)
+            }
+            Button("Delete", role: .destructive) {
+                activateDelete(fileURL: fileURL)
+            }
         } label: {
-            Image(systemName: "ellipsis")
-                .resizable()
-                .rotationEffect(.degrees(90))
-                .frame(width: 10, height: 13)
+            Image(systemName: "ellipsis.circle") // or something less triangle-prone
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.secondary)
+                .frame(width: 20, height: 20)
         }
         .buttonStyle(.plain)
     }
@@ -312,7 +353,10 @@ struct FileTrayView: View {
         NSWorkspace.shared.open(fileURL)
         /// Close the file tray
         animationState.currentPanelState = .home
-        ScrollHandler.shared.closeFull()
+        UIManager.shared.applyOpeningLayout()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            ScrollHandler.shared.closeFull()
+        }
     }
     
     @ViewBuilder
