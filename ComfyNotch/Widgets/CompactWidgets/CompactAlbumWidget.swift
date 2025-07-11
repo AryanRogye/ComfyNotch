@@ -2,25 +2,22 @@ import AppKit
 import SwiftUI
 import Combine
 
+struct WidgetSizeConfig {
+    let width: CGFloat
+    let height: CGFloat
+}
+
 struct CompactAlbumWidget: View, Widget {
     var alignment: WidgetAlignment? = .left
     var name: String = "AlbumWidget"
-
+    
     @ObservedObject var model: MusicPlayerWidgetModel = .shared
     @ObservedObject var panelAnimationState: PanelAnimationState = .shared
     var scrollManager = ScrollHandler.shared
     
-    private let smallSizeWidth: CGFloat = 25
-    private let smallSizeHeight: CGFloat = 22
-    private let bigSizeWidth: CGFloat = 28
-    private let bigSizeHeight: CGFloat = 25
     
-    private var width: CGFloat {
-        panelAnimationState.hoverHandler.scaleHoverOverLeftItems ? bigSizeWidth : smallSizeWidth
-    }
-    
-    private var height: CGFloat {
-        panelAnimationState.hoverHandler.scaleHoverOverLeftItems ? bigSizeHeight : smallSizeHeight
+    var size: WidgetSizeConfig {
+        widgetSize()
     }
     
     private var animationStiffness: CGFloat = 300
@@ -33,7 +30,30 @@ struct CompactAlbumWidget: View, Widget {
         panelAnimationState.hoverHandler.scaleHoverOverLeftItems ? 1 : 0
     }
     
-
+    func widgetSize() -> WidgetSizeConfig {
+        guard let screen = DisplayManager.shared.selectedScreen else {
+            return .init(width: 22, height: 25)
+        }
+        
+        let scale = screen.backingScaleFactor
+        let resolution = CGSize(width: screen.frame.width * scale,
+                                height: screen.frame.height * scale)
+        
+        let w = resolution.width
+        let h = resolution.height
+        let isExpanded = panelAnimationState.hoverHandler.scaleHoverOverLeftItems
+        
+        print("🖥️ Resolution: \(Int(w))x\(Int(h)), Expanded: \(isExpanded)")
+        if w < 2800 {
+            return isExpanded ? .init(width: 20, height: 20) : .init(width: 15, height: 14)
+        } else if w <= 3500 {
+            return isExpanded ? .init(width: 26, height: 23) : .init(width: 17, height: 17)
+        } else {
+            return isExpanded ? .init(width: 28, height: 25) : .init(width: 22, height: 23)
+        }
+    }
+    
+    
     var body: some View {
         panelButton {
             Group {
@@ -41,7 +61,7 @@ struct CompactAlbumWidget: View, Widget {
                     Image(nsImage: artwork)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: width, height: height)
+                        .frame(width: size.width, height: size.height)
                         .cornerRadius(4)
                         .padding(.top, 2)
                 } else {
@@ -63,7 +83,7 @@ struct CompactAlbumWidget: View, Widget {
             value: panelAnimationState.hoverHandler.scaleHoverOverLeftItems
         )
     }
-
+    
     private func panelButton<Label: View>(@ViewBuilder label: () -> Label) -> some View {
         Button(action: {
             withAnimation(Anim.spring) {
@@ -80,7 +100,7 @@ struct CompactAlbumWidget: View, Widget {
         }
         .buttonStyle(.plain)
     }
-
+    
     var swiftUIView: AnyView {
         AnyView(self)
     }

@@ -132,8 +132,6 @@ struct ComfyNotchView: View {
                 if restrictedStates.contains(animationState.currentPanelState) {
                     return
                 }
-                
-//                print("translation \(translation)")
                 switch phase {
                 case .ended:
                     if translation > settings.notchScrollThreshold {
