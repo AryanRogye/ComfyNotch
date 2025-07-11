@@ -45,6 +45,9 @@ struct ComfyNotchView: View {
     @ObservedObject private var uiManager      = UIManager.shared
     @ObservedObject private var settings       = SettingsModel.shared
     
+    @State private var lastPanelState: PanelState = .closed
+    @State private var lastViewState: NotchViewState = .home
+    
     init() {
     }
     
@@ -57,6 +60,10 @@ struct ComfyNotchView: View {
         /// This manager was added in to make sure that the popInPresentation is playing
         /// when we open it, it doesnt bug out
             .onChange(of: uiManager.panelState) { _, newState in
+                
+                guard newState != lastPanelState else { return }
+                lastPanelState = newState
+                
                 if newState == .open {
                     if animationState.currentPanelState == .popInPresentation {
                         animationState.currentPanelState = .home
@@ -167,14 +174,8 @@ struct ComfyNotchView: View {
                 
                 if animationState.isExpanded || animationState.currentPanelState == .popInPresentation {
                     /// see QuickAccessWidget.swift file to see how it works
-                    //                    if settings.isFirstLaunch {
-                    //                        Onboarding()
-                    //                            .padding(.horizontal, 4)
-                    //                    } else {
                     expandedView
                         .padding(.horizontal, 4)
-                    //                    }
-                    
                 }
                 
                 Spacer()
