@@ -46,7 +46,6 @@ struct ComfyNotchView: View {
     @ObservedObject private var settings       = SettingsModel.shared
     
     @State private var lastPanelState: PanelState = .closed
-    @State private var lastViewState: NotchViewState = .home
     
     init() {
     }
