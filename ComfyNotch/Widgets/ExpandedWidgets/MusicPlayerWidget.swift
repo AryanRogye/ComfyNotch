@@ -5,8 +5,20 @@ import SVGView
 
 struct MusicControlButton: ButtonStyle {
     
+    let size: CGFloat
+    let tintColor: NSColor
+    
+    init(size: CGFloat = 35, tint: NSColor = .white) {
+        self.size = size
+        self.tintColor = tint
+    }
+    
     func makeBody(configuration: Configuration) -> some View {
-        MusicControlButtonView(isPressed: configuration.isPressed) {
+        MusicControlButtonView(
+            isPressed: configuration.isPressed,
+            size: size,
+            tintColor: Color(tintColor)
+        ) {
             configuration.label
         }
     }
@@ -14,21 +26,46 @@ struct MusicControlButton: ButtonStyle {
     struct MusicControlButtonView<Label: View>: View {
         @State private var isHovering = false
         let isPressed: Bool
+        let size: CGFloat
+        let tintColor: Color
         let label: () -> Label
         
         var body: some View {
-            label()
-                .frame(width: 30, height: 30)
-                .opacity(isPressed ? 0.7 : 1.0)
-                .background(
-                    Circle()
-                        .fill(Color.white.opacity(isHovering ? 0.1 : 0.0))
-                        .scaleEffect(isHovering ? 1.2 : 1.0)
-                        .animation(.easeInOut(duration: 0.2), value: isHovering)
-                )
-                .onHover { hovering in
-                    isHovering = hovering
-                }
+            ZStack {
+                // Background circle with glassmorphism
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                tintColor.opacity(isHovering ? 0.25 : 0.15),
+                                tintColor.opacity(isHovering ? 0.15 : 0.05)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .overlay(
+                        Circle()
+                            .stroke(tintColor.opacity(0.25), lineWidth: 1)
+                    )
+                    .scaleEffect(isPressed ? 0.95 : (isHovering ? 1.05 : 1.0))
+                    .shadow(
+                        color: .black.opacity(isHovering ? 0.3 : 0.1),
+                        radius: isHovering ? 8 : 4,
+                        x: 0,
+                        y: isHovering ? 4 : 2
+                    )
+                
+                label()
+                    .foregroundColor(.white)
+                    .scaleEffect(isPressed ? 0.9 : 1.0)
+            }
+            .frame(width: size, height: size)
+            .animation(.easeInOut(duration: 0.2), value: isHovering)
+            .animation(.easeInOut(duration: 0.1), value: isPressed)
+            .onHover { hovering in
+                isHovering = hovering
+            }
         }
     }
 }
@@ -38,32 +75,47 @@ struct MusicPlayerWidget: View, Widget {
     var imageWidth: CGFloat = 120
     var imageHeight: CGFloat = 120
     
-    private var spotifyUpdatePropagationDelay = 1.5
-    
     @ObservedObject private var model = MusicPlayerWidgetModel.shared
     @ObservedObject private var settings = SettingsModel.shared
     
     /// Trying thing for performance
     @State private var isVisible: Bool = true
+    @State private var cardHover = false
     
+    private let cardPadding: CGFloat = 20
+    private let albumSize: CGFloat = 120
+    private let controlButtonSize: CGFloat = 40
+    private let smallControlButtonSize: CGFloat = 32
+    
+    // MARK: - Body
     var body: some View {
         HStack(spacing: 10) {
-            // Album artwork
+            // MARK: - Album View
             renderAlbumCover()
-            // Song info
+            
+            // MARK: - Song Information and Controls
             VStack(alignment: .leading) {
+                /// name/artist/album
                 renderSongInformation()
-                // Control buttons
-                HStack(spacing: 5) {
-                    renderCurrentSongPosition()
-                }
-                HStack(spacing: 5) {
-                    renderSongMusicControls()
-                }
+                
+                /// Slider
+                renderCurrentSongPosition()
+                
+                /// Button
+                renderSongMusicControls()
             }
+            .padding(.top, cardPadding/2)
+            .padding(.leading, cardPadding/3)
+            
+            
             Spacer()
         }
+        // MARK: - Card Styling
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .animation(.easeInOut(duration: 0.3), value: cardHover)
+        .onHover { hovering in
+            cardHover = hovering
+        }
         .onAppear {
             isVisible = true
         }
@@ -73,10 +125,12 @@ struct MusicPlayerWidget: View, Widget {
         }
     }
     
+    
+    // MARK: - Adjust Slider
     @ViewBuilder
     func renderCurrentSongPosition() -> some View {
         if isVisible {
-            VStack(spacing: 8) {
+            VStack(spacing: 6) {
                 // Progress bar
                 GeometryReader { geometry in
                     let effectivePosition = model.isDragging ? model.manualDragPosition : model.nowPlayingInfo.positionSeconds
@@ -84,7 +138,7 @@ struct MusicPlayerWidget: View, Widget {
                         // Background track
                         Rectangle()
                             .fill(Color.gray.opacity(0.3))
-                            .frame(height: 4)
+                            .frame(height: 6)
                             .cornerRadius(2)
                         
                         // Progress bar
@@ -92,12 +146,14 @@ struct MusicPlayerWidget: View, Widget {
                             .fill(Color(nsColor: model.nowPlayingInfo.dominantColor))
                             .frame(width: max(CGFloat(effectivePosition / max(model.nowPlayingInfo.durationSeconds,1)) * geometry.size.width, 0), height: 4)
                             .cornerRadius(2)
+                            .shadow(color: Color(nsColor: model.nowPlayingInfo.dominantColor).opacity(0.5), radius: 4, x: 0, y: 2)
                         
                         // Thumb
                         Circle()
                             .fill(Color(nsColor: model.nowPlayingInfo.dominantColor))
                             .frame(width: 12, height: 12)
                             .offset(x: max(CGFloat(effectivePosition / max(model.nowPlayingInfo.durationSeconds, 1)) * geometry.size.width - 6, -6))
+                        
                     }
                     .gesture(
                         DragGesture(minimumDistance: 0)
@@ -122,10 +178,7 @@ struct MusicPlayerWidget: View, Widget {
                                 /// This is delayed because someone like me plays spotify on my tv
                                 /// the device is seperate from the controller so updates for spotify
                                 /// take some time to propagate.
-                                DispatchQueue.main.asyncAfter(deadline: .now() + spotifyUpdatePropagationDelay) {
-                                    model.nowPlayingInfo.positionSeconds = newTimeInSeconds
-                                    model.isDragging = false
-                                }
+                                checkPositionUpdate(targetPosition: newTimeInSeconds, attempts: 0)
                             }
                     )
                 }
@@ -134,14 +187,14 @@ struct MusicPlayerWidget: View, Widget {
                 // Time labels
                 HStack {
                     Text(formatDuration(model.nowPlayingInfo.positionSeconds))
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .font(.system(size: 11, weight: .medium, design: .monospaced))
+                        .foregroundColor(.white.opacity(0.7))
                     
                     Spacer()
                     
                     Text(formatDuration(model.nowPlayingInfo.durationSeconds))
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .font(.system(size: 11, weight: .medium, design: .monospaced))
+                        .foregroundColor(.white.opacity(0.7))
                 }
             }
         } else {
@@ -154,60 +207,94 @@ struct MusicPlayerWidget: View, Widget {
         return String(format: "%d:%02d", minutes, remainingSeconds)
     }
     
-    @ViewBuilder
-    func renderSongMusicControls() -> some View {
-        Button(action: {
-            AudioManager.shared.playPreviousTrack()
-        }) {
-            // Apply image-specific modifiers here
-            Image(systemName: "backward.fill")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 12, height: 12)
-                .foregroundColor(.white)
-        }
-        .buttonStyle(MusicControlButton()) // Apply custom style
+    private func checkPositionUpdate(targetPosition: Double, attempts: Int) {
+        let maxAttempts = 10
+        let checkInterval = 0.5
         
-        Button(action: {
-            AudioManager.shared.togglePlayPause()
-        }) {
-            // Apply image-specific modifiers here
-            Image(systemName: "playpause.fill")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 12, height: 12)
-                .foregroundColor(.white)
+        if attempts >= maxAttempts {
+            // Give up and reset
+            model.isDragging = false
+            return
         }
-        .buttonStyle(MusicControlButton()) // Apply custom style
         
-        Button(action: {
-            AudioManager.shared.playNextTrack()
-        }) {
-            // Apply image-specific modifiers here
-            Image(systemName: "forward.fill")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 12, height: 12)
-                .foregroundColor(.white)
+        DispatchQueue.main.asyncAfter(deadline: .now() + checkInterval) {
+            let currentDiff = abs(model.nowPlayingInfo.positionSeconds - targetPosition)
+            
+            if currentDiff < 1.0 { // Within 1 second tolerance
+                model.isDragging = false
+            } else {
+                checkPositionUpdate(targetPosition: targetPosition, attempts: attempts + 1)
+            }
         }
-        .buttonStyle(MusicControlButton()) // Apply custom style
     }
     
+    // MARK: - Music Controls
+    
+    @ViewBuilder
+    func renderSongMusicControls() -> some View {
+        HStack(spacing: 8) {
+            Button(action: {
+                AudioManager.shared.playPreviousTrack()
+            }) {
+                // Apply image-specific modifiers here
+                Image(systemName: "backward.fill")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 12, height: 12)
+                    .foregroundColor(.white)
+            }
+            .buttonStyle(MusicControlButton(tint: model.nowPlayingInfo.dominantColor)) // Apply custom style
+
+            Button(action: {
+                AudioManager.shared.togglePlayPause()
+            }) {
+                // Apply image-specific modifiers here
+                Image(systemName: "playpause.fill")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 12, height: 12)
+                    .foregroundColor(.white)
+            }
+            .buttonStyle(MusicControlButton(tint: model.nowPlayingInfo.dominantColor)) // Apply custom style
+
+            Button(action: {
+                AudioManager.shared.playNextTrack()
+            }) {
+                // Apply image-specific modifiers here
+                Image(systemName: "forward.fill")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 12, height: 12)
+                    .foregroundColor(.white)
+            }
+            .buttonStyle(MusicControlButton(tint: model.nowPlayingInfo.dominantColor)) // Apply custom style
+        }
+    }
+    
+    // MARK: - Song Information
     @ViewBuilder
     func renderSongInformation() -> some View {
+        // Song title with better typography
         Text(model.nowPlayingInfo.trackName)
-            .font(.system(size: 13, weight: .medium))
-            .foregroundColor(.white.opacity(0.9))
+            .font(.system(size: 17, weight: .semibold, design: .rounded))
+            .foregroundColor(.white)
             .lineLimit(1)
+            .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
+        
+        // Artist name
         Text(model.nowPlayingInfo.artistName)
-            .font(.system(size: 11, weight: .regular))
-            .foregroundColor(.white.opacity(0.7))
+            .font(.system(size: 11, weight: .regular, design: .rounded))
+            .foregroundColor(.white.opacity(0.8))
             .lineLimit(1)
+        
+        // Album name
         Text(model.nowPlayingInfo.albumName)
-            .font(.system(size: 11, weight: .light))
-            .foregroundColor(.white.opacity(0.5))
+            .font(.system(size: 11, weight: .light, design: .rounded))
+            .foregroundColor(.white.opacity(0.6))
             .lineLimit(1)
     }
+    
+    // MARK: - Album Cover
     
     @ViewBuilder
     func renderAlbumCover() -> some View {
@@ -217,41 +304,115 @@ struct MusicPlayerWidget: View, Widget {
                     Image(nsImage: artwork)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: imageWidth, height: imageHeight)
-                        .cornerRadius(8)
-                        .padding(.leading, 7.5)
-                        .padding(.top, 7.5)
+                        .frame(width: albumSize, height: albumSize)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                        )
+                        .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
                 } else {
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.3))
-                        .cornerRadius(8)
-                        .padding(.leading, 7.5)
-                        .frame(width: imageWidth, height: imageHeight)
-                        .allowsHitTesting(false)
-                        .padding(.top, 7.5)
+                    placeholderAlbumCover
                 }
                 if settings.showMusicProvider {
-                    Group {
-                        if settings.musicController == .mediaRemote {
-                            if settings.overridenMusicProvider == .apple_music {
-                                renderAppleMusicProvider()
-                            } else if settings.overridenMusicProvider == .spotify {
-                                renderSpotifyProvider()
-                            }
-                        } else if settings.musicController == .spotify_music {
-                            switch model.nowPlayingInfo.musicProvider {
-                            case .apple_music:
-                                renderAppleMusicProvider()
-                            case .spotify:
-                                renderSpotifyProvider()
-                            case .none: EmptyView()
-                            }
-                        }
-                        /// Music Provider
-                    }
+                    renderProviderIcon
+                }
+            }
+            .padding(.leading, cardPadding)
+            .padding(.top, cardPadding/2)
+        }
+    }
+    
+    private var renderProviderIcon: some View {
+        Group {
+            if settings.musicController == .mediaRemote {
+                if settings.overridenMusicProvider == .apple_music {
+                    renderAppleMusicProvider()
+                } else if settings.overridenMusicProvider == .spotify {
+                    renderSpotifyProvider()
+                }
+            } else if settings.musicController == .spotify_music {
+                switch model.nowPlayingInfo.musicProvider {
+                case .apple_music:
+                    renderAppleMusicProvider()
+                case .spotify:
+                    renderSpotifyProvider()
+                case .none:
+                    EmptyView()
                 }
             }
         }
+        .offset(x: 8, y: 8)
+    }
+    
+    @ViewBuilder
+    func renderSpotifyProvider() -> some View {
+        if let url = Bundle.main.url(forResource: "spotify", withExtension: "svg", subdirectory: "Assets") {
+            Button(action: AudioManager.shared.openProvider) {
+                ZStack {
+                    Circle()
+                        .fill(Color.black)
+                        .frame(width: 28, height: 28)
+                        .overlay(
+                            Circle()
+                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                        )
+                        .shadow(color: .black.opacity(0.4), radius: 6, x: 0, y: 3)
+                    
+                    SVGView(contentsOf: url)
+                        .frame(width: 16, height: 16)
+                }
+            }
+            .buttonStyle(.plain)
+        }
+    }
+    
+    @ViewBuilder
+    func renderAppleMusicProvider() -> some View {
+        if let url = Bundle.main.url(forResource: "apple_music", withExtension: "svg", subdirectory: "Assets") {
+            Button(action: AudioManager.shared.openProvider) {
+                ZStack {
+                    Circle()
+                        .fill(Color.black)
+                        .frame(width: 28, height: 28)
+                        .overlay(
+                            Circle()
+                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                        )
+                        .shadow(color: .black.opacity(0.4), radius: 6, x: 0, y: 3)
+                    
+                    SVGView(contentsOf: url)
+                        .frame(width: 16, height: 16)
+                }
+            }
+            .buttonStyle(.plain)
+        }
+    }
+    
+    private var placeholderAlbumCover: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color.gray.opacity(0.4),
+                            Color.gray.opacity(0.2)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                )
+            
+            Image(systemName: "music.note")
+                .font(.system(size: 32, weight: .light))
+                .foregroundColor(.white.opacity(0.5))
+        }
+        .frame(width: albumSize, height: albumSize)
+        .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
     }
     
     struct HoverEffectWrapper<Content: View>: View {
@@ -265,45 +426,6 @@ struct MusicPlayerWidget: View, Widget {
                 .onHover { hovering in
                     isHovering = hovering
                 }
-        }
-    }
-    
-    @ViewBuilder
-    func renderSpotifyProvider() -> some View {
-        if let url = Bundle.main.url(forResource: "spotify", withExtension: "svg", subdirectory: "Assets") {
-            Button(action: AudioManager.shared.openProvider) {
-                HoverEffectWrapper {
-                    ZStack {
-                        Circle()
-                            .fill(Color.black)
-                            .frame(width: 24, height: 24)
-                        SVGView(contentsOf: url)
-                            .frame(width: 24, height: 24)
-                    }
-                }
-                .offset(x: 8, y: 8)
-                .zIndex(1)
-                .shadow(color: .black.opacity(0.5), radius: 8, x: 0, y: 4)
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-        }
-    }
-    
-    @ViewBuilder
-    func renderAppleMusicProvider() -> some View {
-        if let url = Bundle.main.url(forResource: "apple_music", withExtension: "svg", subdirectory: "Assets") {
-            Button(action: AudioManager.shared.openProvider ) {
-                HoverEffectWrapper {
-                    SVGView(contentsOf: url)
-                        .frame(width: 24, height: 24)
-                }
-                .offset(x: 8, y: 8)
-                .zIndex(1)
-                .shadow(color: .black.opacity(0.5), radius: 8, x: 0, y: 4)
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
         }
     }
     
