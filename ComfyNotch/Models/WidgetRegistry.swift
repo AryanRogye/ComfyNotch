@@ -11,11 +11,11 @@ class WidgetRegistry {
     private init() {}
     
     
-    /// delaying construction until the "getWidget" is called
-    /// this was causing a crash for lots of users, and I belive this should solve it
-    /// the way to test is is to run
-    /// `defaults delete app.aryanrogye.ComfyNotch` in the terminal
-    var widgetConstructors: [String: () -> Widget] = [
+    /// Delaying widget construction until getWidget is actually called.
+    /// This avoids early instantiation of complex widgets on launch.
+    /// Helpful for resolving crashes from stale or missing UserDefaults.
+    /// To test: `defaults delete app.aryanrogye.ComfyNotch`
+    lazy var widgetConstructors: [String: () -> Widget] = [
         "MusicPlayerWidget": { MusicPlayerWidget() },
         "TimeWidget": { TimeWidget() },
         "NotesWidget": { NotesWidget() },
