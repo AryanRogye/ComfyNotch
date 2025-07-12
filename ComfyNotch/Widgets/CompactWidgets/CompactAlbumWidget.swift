@@ -19,10 +19,6 @@ struct CompactAlbumWidget: View, Widget {
     @ObservedObject var panelAnimationState: PanelAnimationState = .shared
     var scrollManager = ScrollHandler.shared
     
-    var size: WidgetSizeConfig {
-        widgetSize()
-    }
-    
     private var animationStiffness: CGFloat = 300
     private var animationDamping: CGFloat = 15
     
@@ -33,6 +29,8 @@ struct CompactAlbumWidget: View, Widget {
         panelAnimationState.hoverHandler.scaleHoverOverLeftItems ? 1 : 0
     }
     
+    @State private var sizeConfig: WidgetSizeConfig = .init(width: 0, height: 0)
+    
     var body: some View {
         panelButton {
             Group {
@@ -40,7 +38,7 @@ struct CompactAlbumWidget: View, Widget {
                     Image(nsImage: artwork)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: size.width, height: size.height)
+                        .frame(width: sizeConfig.width, height: sizeConfig.height)
                         .cornerRadius(4)
                         .padding(.top, 2)
                 } else {
@@ -61,6 +59,10 @@ struct CompactAlbumWidget: View, Widget {
             .interpolatingSpring(stiffness: animationStiffness, damping: animationDamping),
             value: panelAnimationState.hoverHandler.scaleHoverOverLeftItems
         )
+        .onAppear { sizeConfig = widgetSize() }
+        .onChange(of: panelAnimationState.hoverHandler.scaleHoverOverLeftItems) {
+            sizeConfig = widgetSize()
+        }
     }
     
     private func panelButton<Label: View>(@ViewBuilder label: () -> Label) -> some View {
@@ -90,7 +92,6 @@ struct CompactAlbumWidget: View, Widget {
                                 height: screen.frame.height * scale)
         
         let w = resolution.width
-        let h = resolution.height
         let isExpanded = panelAnimationState.hoverHandler.scaleHoverOverLeftItems
         
         if w < 2800 {
