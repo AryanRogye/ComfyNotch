@@ -47,7 +47,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
                     NSApp.activate(ignoringOtherApps: true)
                 } else {
                     // Go back to your usual background style
-                    NSApp.setActivationPolicy(.prohibited)
+                    NSApp.setActivationPolicy(.accessory)
                     NSApp.activate(ignoringOtherApps: true)
                 }
                 // Start the UI

@@ -7,23 +7,23 @@
 
 class WidgetRegistry {
     static let shared = WidgetRegistry()
-
+    
     private init() {}
-
-    var widgets: [String: Widget] = [
-        "MusicPlayerWidget": MusicPlayerWidget(),
-        "TimeWidget": TimeWidget(),
-        "NotesWidget": NotesWidget(),
-        "CameraWidget": CameraWidget(),
-        "AIChatWidget": AIChatWidget(),
-        "EventWidget": EventWidget()
+    
+    var widgetConstructors: [String: () -> Widget] = [
+        "MusicPlayerWidget": { MusicPlayerWidget() },
+        "TimeWidget": { TimeWidget() },
+        "NotesWidget": { NotesWidget() },
+        "CameraWidget": { CameraWidget() },
+        "AIChatWidget": { AIChatWidget() },
+        "EventWidget": { EventWidget() }
     ]
-
+    
     func getWidget(named name: String) -> Widget? {
-        return widgets[name]
+        return widgetConstructors[name]?()
     }
-
+    
     func getDefaultWidgets() -> [String] {
-        return ["MusicPlayerWidget", "TimeWidget", "NotesWidget"]
+        return ["MusicPlayerWidget", "TimeWidget"]
     }
 }

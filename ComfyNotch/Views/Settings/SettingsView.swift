@@ -57,7 +57,7 @@ struct SettingsView: View {
         .onAppear {
             settings.isSettingsWindowOpen = true
             
-            /// Make Sure That the Window is Above
+            /// Make Sure That the Window is Above runs after 0.2 seconds
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 NSApp.activate(ignoringOtherApps: true)
                 
