@@ -18,6 +18,7 @@ struct Utils_ClipboardView: View {
             prevButton
                 .padding(2)
                 .padding(.horizontal, 2)
+           
             
             editableArea
             
