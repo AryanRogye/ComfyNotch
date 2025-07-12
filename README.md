@@ -26,6 +26,10 @@ https://github.com/user-attachments/assets/03f213db-cb36-4a2b-92c2-c580f07ed741
 _Volume/Brightness Controls_
 > ![image](https://github.com/user-attachments/assets/896964cd-4485-4f1b-981d-8937ea70223d)
 
+_Messages_
+> ![MyMovie-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/0cb336a6-2b14-4947-9dca-a3fd3165e9bd)
+
+
 
 
 
