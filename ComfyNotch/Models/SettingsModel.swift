@@ -92,8 +92,6 @@ class SettingsModel: ObservableObject {
     /// let the userr turn it off
     @Published var enableUtilsOption: Bool = true
     @Published var enableClipboardListener: Bool = true
-//  @Published var enableBluetoothListener: Bool = true
-    
     
     lazy var updaterController: SPUStandardUpdaterController = {
         return SPUStandardUpdaterController(

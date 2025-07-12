@@ -66,6 +66,7 @@ final class FileDropManager: ObservableObject {
                     
                     Task.detached(priority: .utility) {
                         try? png.write(to: tmpURL)   // fast, one write
+                        /// Keep await even if we dont need it, it adds just a little delay needed
                         await self.processFile(at: tmpURL,
                                                copyIfNeeded: false,
                                                sessionDir: sessionDir)
