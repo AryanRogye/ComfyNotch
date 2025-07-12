@@ -10,7 +10,12 @@ class WidgetRegistry {
     
     private init() {}
     
-    var widgetConstructors: [String: () -> Widget] = [
+    
+    /// Delaying widget construction until getWidget is actually called.
+    /// This avoids early instantiation of complex widgets on launch.
+    /// Helpful for resolving crashes from stale or missing UserDefaults.
+    /// To test: `defaults delete app.aryanrogye.ComfyNotch`
+    lazy var widgetConstructors: [String: () -> Widget] = [
         "MusicPlayerWidget": { MusicPlayerWidget() },
         "TimeWidget": { TimeWidget() },
         "NotesWidget": { NotesWidget() },
