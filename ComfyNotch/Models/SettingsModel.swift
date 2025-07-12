@@ -46,7 +46,7 @@ class SettingsModel: ObservableObject {
     @Published var showDividerBetweenWidgets: Bool = false
     @Published var hoverTargetMode: HoverTarget = .album
     @Published var nowPlayingScrollSpeed: Int = 40
-    @Published var enableNotchHUD: Bool = true
+    @Published var enableNotchHUD: Bool = false
     @Published var notchMaxWidth: CGFloat = 710
     @Published var quickAccessWidgetDistanceFromLeft: CGFloat = 18
     @Published var oneFingerAction: TouchAction = .none
@@ -84,7 +84,7 @@ class SettingsModel: ObservableObject {
     @Published var notchBackgroundAnimation: ShaderOption = .ambientGradient
     @Published var enableMetalAnimation: Bool = true
     @Published var constant120FPS: Bool = false
-    
+     
     /// ---------- Utils Settings ----------
     /// Set to true at the start, will change if the user wants tp
     /// The thing is that if the user turns this off we have to verify that the
@@ -92,7 +92,7 @@ class SettingsModel: ObservableObject {
     /// let the userr turn it off
     @Published var enableUtilsOption: Bool = true
     @Published var enableClipboardListener: Bool = true
-    @Published var enableBluetoothListener: Bool = true
+//  @Published var enableBluetoothListener: Bool = true
     
     
     lazy var updaterController: SPUStandardUpdaterController = {
@@ -248,7 +248,6 @@ class SettingsModel: ObservableObject {
         /// ------------ Utils Settings -----------------------
         defaults.set(enableUtilsOption, forKey: "enableUtilsOption")
         defaults.set(enableClipboardListener, forKey: "enableClipboardListener")
-        defaults.set(enableBluetoothListener, forKey: "enableBluetoothListener")
     }
     
     // MARK: - Load Settings
@@ -339,7 +338,7 @@ class SettingsModel: ObservableObject {
         if let enableNotchHUD = defaults.object(forKey: "enableNotchHUD") as? Bool {
             self.enableNotchHUD = enableNotchHUD
         } else {
-            self.enableNotchHUD = true
+            self.enableNotchHUD = false
         }
         
         if let notchMaxWidth = defaults.object(forKey: "notchMaxWidth") as? CGFloat {
@@ -458,12 +457,6 @@ class SettingsModel: ObservableObject {
             self.enableClipboardListener = enableClipboardListener
         } else {
             self.enableClipboardListener = true
-        }
-        
-        if let enableBluetoothListener = defaults.object(forKey: "enableBluetoothListener") as? Bool {
-            self.enableBluetoothListener = enableBluetoothListener
-        } else {
-            self.enableBluetoothListener = true
         }
     }
     

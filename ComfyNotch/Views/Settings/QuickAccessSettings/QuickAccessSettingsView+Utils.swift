@@ -19,7 +19,6 @@ struct QuickAccessSettingsView_Utils: View {
             ComfySection(title: "Options") {
                 enableUtilsOption
                 enableClipboardListener
-                enableBluetoothListener
             }
         }
     }
@@ -40,7 +39,7 @@ struct QuickAccessSettingsView_Utils: View {
             
             Toggle(isOn: $settings.enableUtilsOption) {}
                 .toggleStyle(.switch)
-                .disabled(settings.enableClipboardListener || settings.enableBluetoothListener)
+                .disabled(settings.enableClipboardListener)
         }
         .shadow(color: isHoveringOverUtils ? .red : .black, radius: isHoveringOverUtils ? 3 : 0)
         .overlay(
@@ -58,7 +57,7 @@ struct QuickAccessSettingsView_Utils: View {
             }
         )
         .onHover { hover in
-            if settings.enableClipboardListener || settings.enableBluetoothListener {
+            if settings.enableClipboardListener {
                 isHoveringOverUtils = hover
             } else {
                 isHoveringOverUtils = false
@@ -82,45 +81,9 @@ struct QuickAccessSettingsView_Utils: View {
                         ClipboardManager.shared.start()
                     } else {
                         ClipboardManager.shared.stop()
-                        if PanelAnimationState.shared.utilsSelectedTab == .clipboard {
-                            if settings.enableBluetoothListener {
-                                PanelAnimationState.shared.utilsSelectedTab = .bluetooth
-                            }
-                        }
                     }
                     
-                    if !settings.enableClipboardListener && !settings.enableBluetoothListener {
-                        settings.enableUtilsOption = false
-                    }
-                }
-        }
-    }
-    
-    private var enableBluetoothListener: some View {
-        HStack {
-            Text("Enable Bluetooth Listener")
-            
-            Spacer()
-            
-            Toggle(isOn: $settings.enableBluetoothListener) {}
-                .toggleStyle(.switch)
-                .onChange(of: settings.enableBluetoothListener) {
-                    settings.saveSettings()
-                    
-                    if settings.enableBluetoothListener {
-                        settings.enableUtilsOption = true
-                    }
-                    /// Just turn it off if it is off
-                    if !settings.enableBluetoothListener {
-                        BluetoothManager.shared.stop()
-                        if PanelAnimationState.shared.utilsSelectedTab == .bluetooth {
-                            if settings.enableClipboardListener {
-                                PanelAnimationState.shared.utilsSelectedTab = .clipboard
-                            }
-                        }
-                    }
-                    
-                    if !settings.enableClipboardListener && !settings.enableBluetoothListener {
+                    if !settings.enableClipboardListener {
                         settings.enableUtilsOption = false
                     }
                 }
