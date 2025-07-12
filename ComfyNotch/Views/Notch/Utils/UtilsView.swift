@@ -3,8 +3,6 @@ import CoreBluetooth
 
 enum UtilsTab: String, CaseIterable {
     case clipboard = "Clipboard"
-//    case wifi = "Wi-Fi"
-    case bluetooth = "Bluetooth"
 }
 
 struct UtilsView: View {
@@ -20,8 +18,8 @@ struct UtilsView: View {
                 HStack {
                     if expanded {
                         ForEach(UtilsTab.allCases, id: \.self) { tab in
-                            if (settings.enableClipboardListener || tab != .clipboard) &&
-                            (settings.enableBluetoothListener || tab != .bluetooth) {
+                            /// If clipboard is enabled
+                            if (settings.enableClipboardListener || tab != .clipboard) {
                                 Button(action: {
                                     animationState.utilsSelectedTab = tab
                                 }) {
@@ -61,7 +59,6 @@ struct UtilsView: View {
                     switch animationState.utilsSelectedTab {
                         case .clipboard: Utils_ClipboardView(clipboardManager: clipboardManager)
                                             .frame(maxWidth:.infinity, maxHeight:.infinity, alignment:.top)
-                        case .bluetooth: Utils_BluetoothView()
                     }
                 /// For now just the clipboard
                 }

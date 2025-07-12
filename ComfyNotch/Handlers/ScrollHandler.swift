@@ -165,7 +165,7 @@ class ScrollHandler {
     }
         
     func peekClose() {
-        guard let screen = DisplayManager.shared.selectedScreen else { return }
+        guard let _ = DisplayManager.shared.selectedScreen else { return }
         guard let panel = UIManager.shared.smallPanel,
               isPeeking,
               !isAnimating else { return }

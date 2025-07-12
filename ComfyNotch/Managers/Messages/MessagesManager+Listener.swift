@@ -32,7 +32,7 @@ extension MessagesManager {
     
     private func checkAndFetchIfChanged() async {
         /// Figure out of if we need to update the handles
-        var didChange = self.hasChatDBChanged()
+        let didChange = self.hasChatDBChanged()
         
         /// First message will always be a "fake or a placeholder" message
         if dontShowFirstMessage {

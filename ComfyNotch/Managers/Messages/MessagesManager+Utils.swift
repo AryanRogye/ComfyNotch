@@ -66,8 +66,10 @@ extension MessagesManager {
         // ② legacy top‑level path  (pre‑iOS‑14 emoji, etc.)
         if attributed == nil {
             do {
-                attributed = try NSKeyedUnarchiver
-                    .unarchiveTopLevelObjectWithData(data) as? NSAttributedString
+                attributed = try NSKeyedUnarchiver.unarchivedObject(
+                    ofClass: NSAttributedString.self,
+                    from: data
+                )
             } catch {
                 return ""
             }
