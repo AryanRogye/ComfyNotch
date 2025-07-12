@@ -19,7 +19,7 @@
 - [📦 Build From Source](#-build-from-source)
 
 
-## 🎥 Live Demo
+## Live Demo 🎥
 
 https://github.com/user-attachments/assets/03f213db-cb36-4a2b-92c2-c580f07ed741
 

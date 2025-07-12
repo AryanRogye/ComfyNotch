@@ -155,7 +155,7 @@ int has_chat_db_changed(sqlite3 *db, int64_t last_known_time) {
         MessageMeta *existing = hashmap_get(guidCopy);
         
         if (existing == NULL) {
-            print_guid(guidCopy, guid_len);
+//            print_guid(guidCopy, guid_len);
             /// NOTE: Uncomment the next lines to see if the message that I sent/recevied is new or not
 //            printf("🟢 New message detected: %s\n", guidCopy);
 //            printf("Date: %lld, From Me: %d\n", date, is_from_me);
