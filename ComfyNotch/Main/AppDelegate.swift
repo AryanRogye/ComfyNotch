@@ -90,7 +90,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         self.loadWidgetsFromSettings()
         
         // Any Screen errors that may happen, is handled in here
-//        DisplayHandler.shared.start()
+        // DisplayHandler.shared.start()
         
         /// Start the Scroll handler later on
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
