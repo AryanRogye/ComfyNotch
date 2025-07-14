@@ -154,7 +154,7 @@ struct GeneralSettingsView: View {
                     ComfyLabeledStepper(
                         "Notch Width (Expanded)",
                         value: $settings.notchMaxWidth,
-                        in: 700...1000,
+                        in: settings.setNotchMinWidth...settings.setNotchMaxWidth,
                         step: notchWidthStep
                     )
                     /// This is to show a tooltip or a description

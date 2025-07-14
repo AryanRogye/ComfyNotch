@@ -47,7 +47,12 @@ class SettingsModel: ObservableObject {
     @Published var hoverTargetMode: HoverTarget = .album
     @Published var nowPlayingScrollSpeed: Int = 40
     @Published var enableNotchHUD: Bool = false
+    /// Controling the width of the notch
     @Published var notchMaxWidth: CGFloat = 710
+               /// Values for min and max width set here
+               let setNotchMinWidth: CGFloat = 500
+               let setNotchMaxWidth: CGFloat = 1000
+    
     @Published var quickAccessWidgetDistanceFromLeft: CGFloat = 18
     @Published var oneFingerAction: TouchAction = .none
     @Published var twoFingerAction: TouchAction = .none
@@ -84,7 +89,7 @@ class SettingsModel: ObservableObject {
     @Published var notchBackgroundAnimation: ShaderOption = .ambientGradient
     @Published var enableMetalAnimation: Bool = true
     @Published var constant120FPS: Bool = false
-     
+    
     /// ---------- Utils Settings ----------
     /// Set to true at the start, will change if the user wants tp
     /// The thing is that if the user turns this off we have to verify that the
@@ -201,12 +206,13 @@ class SettingsModel: ObservableObject {
         defaults.set(enableNotchHUD, forKey: "enableNotchHUD")
         
         /// Make sure that the maxWidth is always > 500 the rest is up to the user to break, maybe add a limit of like 1000
-        if notchMaxWidth < 700 {
-            notchMaxWidth = 700
+        if notchMaxWidth < setNotchMinWidth {
+            notchMaxWidth = setNotchMinWidth
         }
-        if notchMaxWidth > 1000 {
-            notchMaxWidth = 1000
+        if notchMaxWidth > setNotchMaxWidth {
+            notchMaxWidth = setNotchMaxWidth
         }
+        
         defaults.set(notchMaxWidth, forKey: "notchMaxWidth")
         
         defaults.set(quickAccessWidgetDistanceFromLeft, forKey: "quickAccessWidgetDistanceFromLeft")
