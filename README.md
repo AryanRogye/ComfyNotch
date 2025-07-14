@@ -19,24 +19,6 @@
 - [📦 Build From Source](#-build-from-source)
 
 
-## Live Demo 🎥
-
-https://github.com/user-attachments/assets/03f213db-cb36-4a2b-92c2-c580f07ed741
-
-_Volume/Brightness Controls_
-> ![output](https://github.com/user-attachments/assets/896964cd-4485-4f1b-981d-8937ea70223d)
-
-_Messages_
-> ![output](https://github.com/user-attachments/assets/0cb336a6-2b14-4947-9dca-a3fd3165e9bd)
-
-_FileTray_
-> with Everything that can go wrong
-
-> ![output](https://github.com/user-attachments/assets/91a99a70-59a7-4e18-b31c-2fa8cafae91e)
-
-
-
-
 _✨ Watch ComfyNotch bring your MacBook’s notch to life ✨_
 
 > ⚠️ *Note:* This video shows a old build, Honestly, I kinda hate recording demos — there’s too much to show and it never captures everything.
@@ -87,6 +69,25 @@ ComfyNotch will temporarily hide itself so you can access toolbar elements under
 Perfect for apps with chunky UIs like Xcode, Finder, or Final Cut.
 
 > 🔥 Pretty sure no other notch utility does this.
+
+
+## Live Demo 🎥
+
+> https://github.com/user-attachments/assets/03f213db-cb36-4a2b-92c2-c580f07ed741
+
+_Volume/Brightness Controls_
+> ![output](https://github.com/user-attachments/assets/896964cd-4485-4f1b-981d-8937ea70223d)
+
+_Messages_
+> ![output](https://github.com/user-attachments/assets/0cb336a6-2b14-4947-9dca-a3fd3165e9bd)
+
+_FileTray_
+> with Everything that can go wrong
+
+> ![output](https://github.com/user-attachments/assets/91a99a70-59a7-4e18-b31c-2fa8cafae91e)
+
+_Notch Width Change_
+> https://github.com/user-attachments/assets/49be94da-219a-44f1-84e6-2b6b693b73aa
 
 
 ## ⚙️ Metal Animations
