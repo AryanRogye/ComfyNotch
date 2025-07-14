@@ -32,30 +32,33 @@ struct MusicControlButton: ButtonStyle {
         
         var body: some View {
             ZStack {
-                // Background circle with glassmorphism
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                tintColor.opacity(isHovering ? 0.25 : 0.15),
-                                tintColor.opacity(isHovering ? 0.15 : 0.05)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
+                if isHovering {
+                    // Background circle with glassmorphism
+                    RoundedRectangle(cornerRadius: 10)
+//                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    tintColor.opacity(isHovering ? 0.25 : 0.15),
+                                    tintColor.opacity(isHovering ? 0.15 : 0.05)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
                         )
-                    )
-                    .overlay(
-                        Circle()
-                            .stroke(tintColor.opacity(0.25), lineWidth: 1)
-                    )
-                    .scaleEffect(isPressed ? 0.95 : (isHovering ? 1.05 : 1.0))
-                    .shadow(
-                        color: .black.opacity(isHovering ? 0.3 : 0.1),
-                        radius: isHovering ? 8 : 4,
-                        x: 0,
-                        y: isHovering ? 4 : 2
-                    )
-                
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+//                            Circle()
+                                .stroke(tintColor.opacity(0.25), lineWidth: 1)
+                        )
+                        .scaleEffect(isPressed ? 0.95 : (isHovering ? 1.05 : 1.0))
+                        .shadow(
+                            color: .black.opacity(isHovering ? 0.3 : 0.1),
+                            radius: isHovering ? 8 : 4,
+                            x: 0,
+                            y: isHovering ? 4 : 2
+                        )
+                }
                 label()
                     .foregroundColor(.white)
                     .scaleEffect(isPressed ? 0.9 : 1.0)
