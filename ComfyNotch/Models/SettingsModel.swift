@@ -47,7 +47,7 @@ class SettingsModel: ObservableObject {
     @Published var hoverTargetMode: HoverTarget = .album
     @Published var nowPlayingScrollSpeed: Int = 40
     @Published var enableNotchHUD: Bool = false
-    /// Controling the width of the notch
+    /// Controlling the width of the notch
     @Published var notchMaxWidth: CGFloat = 710
                /// Values for min and max width set here
                let setNotchMinWidth: CGFloat = 500
