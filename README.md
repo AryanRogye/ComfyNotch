@@ -9,7 +9,7 @@
 <img src="Assets/ComfyNotchLogo.png" alt="ComfyNotch Logo" width="200"/>
 
 ## 📚 Table of Contents
-- [🎥 Live Demo](#-live-demo)
+- [🎥 Live Demo](#live-demo-)
 - [📦 Download](#-download)
 - [📖 About](#-about)
 - [🎉 Features](#-features)
