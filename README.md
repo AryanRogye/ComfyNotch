@@ -24,23 +24,27 @@
 https://github.com/user-attachments/assets/03f213db-cb36-4a2b-92c2-c580f07ed741
 
 _Volume/Brightness Controls_
-> ![image](https://github.com/user-attachments/assets/896964cd-4485-4f1b-981d-8937ea70223d)
+> ![output](https://github.com/user-attachments/assets/896964cd-4485-4f1b-981d-8937ea70223d)
 
 _Messages_
-> ![MyMovie-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/0cb336a6-2b14-4947-9dca-a3fd3165e9bd)
+> ![output](https://github.com/user-attachments/assets/0cb336a6-2b14-4947-9dca-a3fd3165e9bd)
 
+_FileTray_
+> with Everything that can go wrong
+
+> ![output](https://github.com/user-attachments/assets/91a99a70-59a7-4e18-b31c-2fa8cafae91e)
 
 
 
 
 _✨ Watch ComfyNotch bring your MacBook’s notch to life ✨_
 
-> ⚠️ *Note:* This video shows a recent build, but ComfyNotch is under active development —  
-> features and visuals might look a little different in your download!
+> ⚠️ *Note:* This video shows a old build, Honestly, I kinda hate recording demos — there’s too much to show and it never captures everything.
+> ComfyNotch is under active development, so the features and visuals in your download might look a bit different!
 
 ## 📦 Download
 
-> ⚠️ Not on the App Store (yet) — but super easy to run!
+> ⚠️ Not on the App Store - Not Planning on it being on the App Store — but super easy to run!
 
 1. Go to the [**Releases tab**](https://github.com/AryanRogye/ComfyNotch/releases)
 2. Download the latest `.zip` file (e.g. `ComfyNotch-v0.1.0.zip`)
