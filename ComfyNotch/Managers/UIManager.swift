@@ -197,7 +197,6 @@ class UIManager: ObservableObject {
     
     public func applyCompactWidgetLayout() {
         /// When the notch is closed we wanna show the compact album on the left, and dots on the right and hide
-        /// The Settings Widget
         DispatchQueue.main.async {
             withAnimation(Anim.spring) {
                 self.compactWidgetStore.hideWidget(named: "QuickAccessWidget")

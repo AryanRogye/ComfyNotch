@@ -111,19 +111,19 @@ class SettingsModel: ObservableObject {
     private init() {
         loadSettings()
         
-        $isSettingsWindowOpen
-            .receive(on: RunLoop.main)
-            .sink { isOpen in
-                if isOpen {
-                    NSApp.setActivationPolicy(.regular)
-                    NSApp.activate(ignoringOtherApps: true)
-                } else {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                        NSApp.setActivationPolicy(.accessory)
-                    }
-                }
-            }
-            .store(in: &cancellables)
+//        $isSettingsWindowOpen
+//            .receive(on: RunLoop.main)
+//            .sink { isOpen in
+//                if isOpen {
+//                    NSApp.setActivationPolicy(.regular)
+//                    NSApp.activate(ignoringOtherApps: true)
+//                } else {
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+//                        NSApp.setActivationPolicy(.accessory)
+//                    }
+//                }
+//            }
+//            .store(in: &cancellables)
     }
     
     func checkForUpdates() {

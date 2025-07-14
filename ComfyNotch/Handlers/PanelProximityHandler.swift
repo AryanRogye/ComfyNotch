@@ -11,6 +11,11 @@ class PanelProximityHandler: NSObject {
     private var padding: CGFloat = 15
     private var distanceThreshold: CGFloat = 300
     
+    /// Throttling properties
+    private var lastProcessedTime: TimeInterval = 0
+    /// ~30fps (0.016 for 60)
+    private let throttleInterval: TimeInterval = 0.033
+    
     private let uiManager = UIManager.shared
     
     override init() {
@@ -74,7 +79,15 @@ class PanelProximityHandler: NSObject {
     }
     
     private func handleMouseMoved(_ event: NSEvent) {
-        guard let panel = panel else { return }
+        // Throttle the event processing
+        let currentTime = CACurrentMediaTime()
+        guard currentTime - lastProcessedTime > throttleInterval else { return }
+        lastProcessedTime = currentTime
+        
+        // Early exit checks before expensive operations
+        guard let panel = panel,
+              UIManager.shared.panelState == .open,
+              !SettingsModel.shared.isSettingsWindowOpen else { return }
         
         let mouseLocation = NSEvent.mouseLocation
         let panelFrame = panel.frame
@@ -88,11 +101,10 @@ class PanelProximityHandler: NSObject {
         )
         
         /// Don't open the panel with proximity, only allow closing
-        if (UIManager.shared.panelState == .open
-            && !paddedFrame.contains(mouseLocation)) {
+        if !paddedFrame.contains(mouseLocation) {
             let distance = distanceFromPanel(to: mouseLocation, panelFrame: panelFrame)
             
-            if distance > distanceThreshold && !SettingsModel.shared.isSettingsWindowOpen {
+            if distance > distanceThreshold {
                 
                 withAnimation(.easeInOut(duration: 0.1)) {
                     
