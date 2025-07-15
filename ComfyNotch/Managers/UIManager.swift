@@ -47,12 +47,14 @@ class UIManager: ObservableObject {
     
     var startPanelYOffset: CGFloat = 0
     
+    let notchSizeManager = NotchSizeManager.shared
+    
     /**
      * Initializes the UI manager and sets up initial dimensions.
      * Configures panel height based on notch size and initializes audio components.
      */
     private init() {
-        startPanelHeight = getNotchHeight()
+        startPanelHeight = notchSizeManager.notchHeight
         AudioManager.shared.getNowPlayingInfo() { _ in }
     }
     
@@ -70,7 +72,7 @@ class UIManager: ObservableObject {
     func setupSmallPanel() {
         guard let screen = DisplayManager.shared.selectedScreen else { return }
         let screenFrame = screen.frame
-        let notchHeight = getNotchHeight()
+        let notchHeight = notchSizeManager.notchHeight
         
         let panelRect = NSRect(
             x: (screenFrame.width - startPanelWidth) / 2,
@@ -232,13 +234,5 @@ class UIManager: ObservableObject {
      */
     func addWidgetToBigPanel(_ widget: Widget) {
         expandedWidgetStore.addWidget(widget)
-    }
-    
-    func getNotchHeight() -> CGFloat {
-        if let screen = DisplayManager.shared.selectedScreen {
-            let safeAreaInsets = screen.safeAreaInsets
-            return safeAreaInsets.top
-        }
-        return 0
     }
 }

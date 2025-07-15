@@ -49,9 +49,9 @@ class SettingsModel: ObservableObject {
     @Published var enableNotchHUD: Bool = false
     /// Controlling the width of the notch
     @Published var notchMaxWidth: CGFloat = 710
-               /// Values for min and max width set here
-               let setNotchMinWidth: CGFloat = 500
-               let setNotchMaxWidth: CGFloat = 1000
+    /// Values for min and max width set here
+    let setNotchMinWidth: CGFloat = 500
+    let setNotchMaxWidth: CGFloat = 1000
     
     @Published var quickAccessWidgetDistanceFromLeft: CGFloat = 18
     @Published var oneFingerAction: TouchAction = .none
@@ -255,10 +255,16 @@ class SettingsModel: ObservableObject {
     }
     
     // MARK: - Load Settings
-    
     /// Loads the last saved settings from UserDefaults
     func loadSettings() {
         let defaults = UserDefaults.standard
+        
+        // Loading Notch Height from the user defaults
+        if let notchHeightClosed = defaults.object(forKey: "notchHeightClosed") as? Double {
+            DispatchQueue.main.async {
+                NotchSizeManager.shared.setNewNotchHeight(with: CGFloat(notchHeightClosed))
+            }
+        }
         
         // Loading the last state for the settings window
         if let loadedWidgets = defaults.object(forKey: "selectedWidgets") as? [String] {
@@ -463,6 +469,15 @@ class SettingsModel: ObservableObject {
             self.enableClipboardListener = true
         }
     }
+    
+    func saveNotchHeightClosed(for height: CGFloat) {
+        let defaults = UserDefaults.standard
+        
+        // Save the current notch height to user defaults
+        defaults.set(height, forKey: "notchHeightClosed")
+        debugLog("Notch Height Closed Saved: \(NotchSizeManager.shared.notchHeight)")
+    }
+
     
     public func saveSettingsForDisplay(for screen: NSScreen) {
         self.selectedScreen = screen
