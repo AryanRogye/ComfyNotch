@@ -237,8 +237,16 @@ class UIManager: ObservableObject {
     func getNotchHeight() -> CGFloat {
         if let screen = DisplayManager.shared.selectedScreen {
             let safeAreaInsets = screen.safeAreaInsets
-            return safeAreaInsets.top
+            let calculatedHeight = safeAreaInsets.top
+            
+            // If safe area insets are available and greater than 0, use them
+            if calculatedHeight > 0 {
+                return calculatedHeight
+            }
         }
-        return 0
+        
+        // If safe area insets are unavailable or 0, use fallback value
+        let fallbackHeight = SettingsModel.shared.fallbackNotchHeight
+        return fallbackHeight > 0 ? fallbackHeight : 40
     }
 }

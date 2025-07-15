@@ -7,7 +7,9 @@ class ScrollHandler {
     private let settings: SettingsModel = .shared
     
     // MARK: – Configuration
-    var minPanelHeight: CGFloat = UIManager.shared.getNotchHeight()
+    var minPanelHeight: CGFloat {
+        return UIManager.shared.getNotchHeight()
+    }
     var maxPanelHeight: CGFloat = 150
     var minPanelWidth: CGFloat = 320
     

@@ -47,6 +47,8 @@ class SettingsModel: ObservableObject {
     @Published var hoverTargetMode: HoverTarget = .album
     @Published var nowPlayingScrollSpeed: Int = 40
     @Published var enableNotchHUD: Bool = false
+    /// Fallback notch height when safe area insets are unavailable or 0
+    @Published var fallbackNotchHeight: CGFloat = 40
     /// Controlling the width of the notch
     @Published var notchMaxWidth: CGFloat = 710
                /// Values for min and max width set here
@@ -205,6 +207,12 @@ class SettingsModel: ObservableObject {
         }
         defaults.set(enableNotchHUD, forKey: "enableNotchHUD")
         
+        // Ensure fallback height is always > 0
+        if fallbackNotchHeight <= 0 {
+            fallbackNotchHeight = 40
+        }
+        defaults.set(fallbackNotchHeight, forKey: "fallbackNotchHeight")
+        
         /// Make sure that the maxWidth is always > 500 the rest is up to the user to break, maybe add a limit of like 1000
         if notchMaxWidth < setNotchMinWidth {
             notchMaxWidth = setNotchMinWidth
@@ -343,6 +351,13 @@ class SettingsModel: ObservableObject {
             self.enableNotchHUD = enableNotchHUD
         } else {
             self.enableNotchHUD = false
+        }
+        
+        // Load fallback notch height with validation
+        if let fallbackNotchHeight = defaults.object(forKey: "fallbackNotchHeight") as? CGFloat {
+            self.fallbackNotchHeight = fallbackNotchHeight > 0 ? fallbackNotchHeight : 40
+        } else {
+            self.fallbackNotchHeight = 40
         }
         
         if let notchMaxWidth = defaults.object(forKey: "notchMaxWidth") as? CGFloat {

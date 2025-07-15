@@ -199,6 +199,21 @@ struct GeneralSettingsView: View {
                 }
                 .padding(.horizontal, 22)
                 
+                /// Fallback Height For Notch
+                Group {
+                    ComfyLabeledStepper(
+                        "Fallback Height",
+                        value: $settings.fallbackNotchHeight,
+                        in: 20...100,
+                        step: 1
+                    )
+                    Text("Used when safe area insets are unavailable or set to 0")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.top, 2)
+                }
+                .padding(.horizontal, 22)
+                
                 if self.notchWidthChanged {
                     Text("Changes detected. Save and reopen the notch to apply.")
                         .font(.footnote)
