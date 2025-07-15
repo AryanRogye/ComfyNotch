@@ -5,11 +5,9 @@ class ScrollHandler {
     static let shared = ScrollHandler()
     
     private let settings: SettingsModel = .shared
-    private let notchSizeManager: NotchSizeManager = .shared
     
     // MARK: – Configuration
-    var minPanelHeight: CGFloat = 0
-    
+    var minPanelHeight: CGFloat = UIManager.shared.getNotchHeight()
     var maxPanelHeight: CGFloat = 150
     var minPanelWidth: CGFloat = 320
     
@@ -24,21 +22,12 @@ class ScrollHandler {
     private var isSnapping = false
     private var isPeeking = false
     
+    private var cancellables = Set<AnyCancellable>()
+    
     private var cachedPeekFrame: NSRect?
     private var cachedNormalFrame: NSRect?
     
-    private var cancellables = Set<AnyCancellable>()
-
-    private init() {
-        notchSizeManager
-            .$notchHeight
-            .sink { [weak self] newValue in
-                guard let self = self else { return }
-                self.minPanelHeight = newValue
-            }
-            .store(in: &cancellables)
-    }
-    
+    private init() {}
     // MARK: – Public API
     
     

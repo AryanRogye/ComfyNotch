@@ -15,8 +15,6 @@ struct TopNotchView: View {
     
     @State private var isHovering: Bool = false /// Hovering for Pause or Play
     ///
-    @ObservedObject private var notchSizeManager: NotchSizeManager = .shared
-    
     private let paddingWidth: CGFloat = 20
     
     private var leadingPadding: CGFloat {
@@ -44,7 +42,7 @@ struct TopNotchView: View {
             .padding(.trailing, trailingPadding)
         }
         .padding(.bottom, 2)
-        .frame(maxWidth: .infinity, maxHeight: notchSizeManager.notchHeight, alignment: .top)
+        .frame(maxWidth: .infinity, maxHeight: UIManager.shared.getNotchHeight(), alignment: .top)
         // .border(Color.white, width: 0.5)
         .padding(.top,
                  animationState.isExpanded

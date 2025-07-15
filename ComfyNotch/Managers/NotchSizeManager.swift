@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Unused, but kept if I want to move Out the logic
 final class NotchSizeManager: ObservableObject {
     static let shared = NotchSizeManager()
     
@@ -44,13 +45,13 @@ final class NotchSizeManager: ObservableObject {
     
     public func setNewNotchHeight(with height: CGFloat) {
         guard height >= CGFloat(notchHeightMin) && height <= CGFloat(notchHeightMax) else {
-            print("Notch height must be between \(notchHeightMin) and \(notchHeightMax).")
+            debugLog("Notch height must be between \(notchHeightMin) and \(notchHeightMax).")
             return
         }
         
         DispatchQueue.main.async {
             self.notchHeight = height
-            self.settings.saveNotchHeightClosed(for: height)
+//            self.settings.saveNotchHeightClosed(for: height)
         }
     }
     
@@ -59,12 +60,12 @@ final class NotchSizeManager: ObservableObject {
             let safeAreaInsets = screen.safeAreaInsets
             DispatchQueue.main.async {
                 self.notchHeight = safeAreaInsets.top
-                self.settings.saveNotchHeightClosed(for: safeAreaInsets.top)
+//                self.settings.saveNotchHeightClosed(for: safeAreaInsets.top)
             }
         } else {
             DispatchQueue.main.async {
                 self.notchHeight = 40
-                self.settings.saveNotchHeightClosed(for: 40)
+//                self.settings.saveNotchHeightClosed(for: 40)
             }
         }
     }

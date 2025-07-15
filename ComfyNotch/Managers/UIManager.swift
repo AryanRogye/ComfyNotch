@@ -3,7 +3,9 @@ import SwiftUI
 import CoreGraphics
 
 /**
- * Represents the current state of the panel display.
+ * Represents the current state of the panel display, this is used
+ * everwhere to determine how the notch should behave, you can search for
+ * panelState in the codebase to see how it is used
  */
 enum PanelState {
     case closed
@@ -25,19 +27,22 @@ class FocusablePanel: NSPanel {
 }
 
 /**
- * UIManager handles the core UI components of the application.
+ * UIManager handles the core Notch Window.
  * Responsible for managing panels, widget stores, and panel states.
  *
  * Key Components:
- * - Small Panel: Displays compact widgets in the notch area
- * - Big Panel: Shows expanded widgets and additional functionality
+ * - smallPanel: Displays compact widgets in the notch area
  * - Widget Stores: Manages widget collections for both panels
  */
 class UIManager: ObservableObject {
     static let shared = UIManager()
+    
+    // MARK: - Stores
     let compactWidgetStore = CompactWidgetsStore()
     let expandedWidgetStore = ExpandedWidgetsStore()
     
+    
+    // MARK: - Main Panel Components
     var smallPanel: NSPanel!
     
     @Published var panelState: PanelState = .closed
@@ -45,16 +50,15 @@ class UIManager: ObservableObject {
     var startPanelHeight: CGFloat = 0
     var startPanelWidth: CGFloat = 300
     
+    // TODO: look into this if it is really needed
     var startPanelYOffset: CGFloat = 0
-    
-    let notchSizeManager = NotchSizeManager.shared
     
     /**
      * Initializes the UI manager and sets up initial dimensions.
      * Configures panel height based on notch size and initializes audio components.
      */
     private init() {
-        startPanelHeight = notchSizeManager.notchHeight
+        startPanelHeight = getNotchHeight()
         AudioManager.shared.getNowPlayingInfo() { _ in }
     }
     
@@ -65,6 +69,7 @@ class UIManager: ObservableObject {
         setupSmallPanel()
     }
     
+    // MARK: - Construction
     /**
      * Configures the small panel that sits in the notch area.
      * Initializes default widgets and sets up panel properties.
@@ -72,7 +77,7 @@ class UIManager: ObservableObject {
     func setupSmallPanel() {
         guard let screen = DisplayManager.shared.selectedScreen else { return }
         let screenFrame = screen.frame
-        let notchHeight = notchSizeManager.notchHeight
+        let notchHeight = getNotchHeight()
         
         let panelRect = NSRect(
             x: (screenFrame.width - startPanelWidth) / 2,
@@ -121,6 +126,8 @@ class UIManager: ObservableObject {
         self.loadWidgets()
     }
     
+    // MARK: - Widget Loading
+    /// NOTE: this is only called once at the start but it could be rlly weird if battery is low
     private func loadWidgets() {
         /// Strategy for widget loading, to avoid cpu spikes and UI Lag
         let widgets: [(String, () -> Widget, Bool)] = [
@@ -159,6 +166,9 @@ class UIManager: ObservableObject {
         }
     }
     
+    // MARK: - Layout Management
+    
+    /// Fucntion to wipe EVERYTHING off the screen
     public func applyOpeningLayout() {
         DispatchQueue.main.async {
             /// Opening Layout is just hiding every possible widget
@@ -176,6 +186,7 @@ class UIManager: ObservableObject {
         }
     }
     
+    /// Function When Opening and want to show the Top Row
     public func applyExpandedWidgetLayout() {
         DispatchQueue.main.async {
             withAnimation(Anim.spring) {
@@ -197,6 +208,7 @@ class UIManager: ObservableObject {
         }
     }
     
+    /// Function When Closing and dont want to show the Top Row
     public func applyCompactWidgetLayout() {
         /// When the notch is closed we wanna show the compact album on the left, and dots on the right and hide
         /// The Settings Widget
@@ -218,7 +230,7 @@ class UIManager: ObservableObject {
         }
     }
     
-    /// --Mark : Utility Methods
+    // MARK: - Utility Methods
     private func displayCurrentBigPanelWidgets(with title: String = "Current Big Panel Widgets") {
         debugLog("=====================================================")
         debugLog("\(title)")
@@ -234,5 +246,23 @@ class UIManager: ObservableObject {
      */
     func addWidgetToBigPanel(_ widget: Widget) {
         expandedWidgetStore.addWidget(widget)
+    }
+    
+    func getNotchHeight() -> CGFloat {
+        if let screen = DisplayManager.shared.selectedScreen {
+            let safeAreaInsets = screen.safeAreaInsets
+            let calculatedHeight = safeAreaInsets.top
+            
+            /// Only return calculated height if it is greater than 0
+            if calculatedHeight > 0 {
+                return calculatedHeight
+            }
+        }
+        
+        /// if no screen is selected or height is 0, return fallback height
+        let fallbackHeight = SettingsModel.shared.notchMinFallbackHeight
+        
+        /// make sure fallback height is greater than 0 or go to the fallback 40
+        return fallbackHeight > 0 ? fallbackHeight : 40
     }
 }

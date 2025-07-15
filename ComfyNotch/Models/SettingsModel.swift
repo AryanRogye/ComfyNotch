@@ -49,9 +49,34 @@ class SettingsModel: ObservableObject {
     @Published var enableNotchHUD: Bool = false
     /// Controlling the width of the notch
     @Published var notchMaxWidth: CGFloat = 710
-    /// Values for min and max width set here
     let setNotchMinWidth: CGFloat = 500
     let setNotchMaxWidth: CGFloat = 1000
+    
+    /*
+     NOTE: this is is very important because this will be what
+     the notch will be set to when it is closed, if this is
+     <= 0 this is a BIG ISSUE
+     this is cuz in `Managers/UIManager.swift` we use this:
+     
+     let notchHeight = getNotchHeight()
+     
+     let panelRect = NSRect(
+        x: (screenFrame.width - startPanelWidth) / 2,
+        y: screenFrame.height - notchHeight - startPanelYOffset,
+        width: startPanelWidth,
+        height: notchHeight
+     )
+     */
+    @Published var notchMinFallbackHeight: CGFloat = 40
+    /// Min and Max Values for the fallback Height
+    let notchHeightMin : Int = 35
+    let notchHeightMax : Int = 50
+    
+    /// Function to reset the min fallback height to the default value
+    public func resetNotchMinFallbackHeight() {
+        notchMinFallbackHeight = 40
+    }
+    
     
     @Published var quickAccessWidgetDistanceFromLeft: CGFloat = 18
     @Published var oneFingerAction: TouchAction = .none
@@ -205,6 +230,11 @@ class SettingsModel: ObservableObject {
         }
         defaults.set(enableNotchHUD, forKey: "enableNotchHUD")
         
+        if notchMinFallbackHeight <= 0 {
+            notchMinFallbackHeight = 40
+        }
+        defaults.set(notchMinFallbackHeight, forKey: "notchMinFallbackHeight")
+        
         /// Make sure that the maxWidth is always > 500 the rest is up to the user to break, maybe add a limit of like 1000
         if notchMaxWidth < setNotchMinWidth {
             notchMaxWidth = setNotchMinWidth
@@ -259,11 +289,11 @@ class SettingsModel: ObservableObject {
     func loadSettings() {
         let defaults = UserDefaults.standard
         
-        // Loading Notch Height from the user defaults
-        if let notchHeightClosed = defaults.object(forKey: "notchHeightClosed") as? Double {
-            DispatchQueue.main.async {
-                NotchSizeManager.shared.setNewNotchHeight(with: CGFloat(notchHeightClosed))
-            }
+        // Load fallback notch height with validation
+        if let notchMinFallbackHeight = defaults.object(forKey: "notchMinFallbackHeight") as? CGFloat {
+            self.notchMinFallbackHeight = notchMinFallbackHeight > 0 ? notchMinFallbackHeight : 40
+        } else {
+            self.notchMinFallbackHeight = 40
         }
         
         // Loading the last state for the settings window
@@ -469,15 +499,6 @@ class SettingsModel: ObservableObject {
             self.enableClipboardListener = true
         }
     }
-    
-    func saveNotchHeightClosed(for height: CGFloat) {
-        let defaults = UserDefaults.standard
-        
-        // Save the current notch height to user defaults
-        defaults.set(height, forKey: "notchHeightClosed")
-        debugLog("Notch Height Closed Saved: \(NotchSizeManager.shared.notchHeight)")
-    }
-
     
     public func saveSettingsForDisplay(for screen: NSScreen) {
         self.selectedScreen = screen

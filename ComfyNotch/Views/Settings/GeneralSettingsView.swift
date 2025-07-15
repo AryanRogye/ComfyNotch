@@ -25,7 +25,6 @@ enum GeneralSettingsTab: CaseIterable {
 struct GeneralSettingsView: View {
     
     @ObservedObject var settings: SettingsModel
-    @ObservedObject var notchSizeManager = NotchSizeManager.shared
     
     @Environment(\.colorScheme) var colorScheme
     
@@ -155,30 +154,29 @@ struct GeneralSettingsView: View {
                 ComfyLabeledStepper(
                     "Notch Height (Closed)",
                     value: Binding<Int>(
-                        get: { Int(notchSizeManager.notchHeight) },
+                        get: { Int(settings.notchMinFallbackHeight) },
                         set: { newValue in
-                            notchSizeManager.notchHeight = CGFloat(newValue)
+                            settings.notchMinFallbackHeight = CGFloat(newValue)
                         }
                     ),
-                    in: notchSizeManager.notchHeightMin...notchSizeManager.notchHeightMax,
+                    in: settings.notchHeightMin...settings.notchHeightMax,
                     step: 1
                 )
                 
                 HStack(spacing: 6) {
-                    Text("Default notch height: \(Int(notchSizeManager.getNotchHeightValues()))")
+                    Text("Default notch height: \(Int(UIManager.shared.getNotchHeight()))")
                         .font(.footnote)
                         .foregroundColor(.secondary)
                     
-                    if notchSizeManager.getNotchHeightValues() != notchSizeManager.notchHeight {
-                        Button("Reset") {
-                            notchSizeManager.reset()
-                        }
-                        .font(.footnote)
-                        .buttonStyle(.borderless)
+                    Button("Reset") {
+                        settings.resetNotchMinFallbackHeight()
+                        settings.saveSettings()
                     }
+                    .font(.footnote)
+                    .buttonStyle(.borderless)
                     
                     Button("Save") {
-                        notchSizeManager.setNewNotchHeight(with: notchSizeManager.notchHeight)
+                        settings.saveSettings()
                     }
                     .font(.footnote)
                     .buttonStyle(.borderless)
