@@ -31,25 +31,8 @@ class ScrollHandler {
     // MARK: – Public API
     
     
-    /// Handle Pan is what the view will call when a pan gesture is made
-    // MARK: - Unused
-    func handlePan(delta: CGFloat, phase: NSEvent.Phase) {
-        /// Permananet Closing Logic, Works Perfectlly
-        if UIManager.shared.panelState == .open,
-           delta < 0, phase == .began {
-            UIManager.shared.applyOpeningLayout()
-            closeFull()
-            return
-        }
-        /// - Mark: This is New For Scrolling Downwards For Opening
-        if UIManager.shared.panelState == .closed,
-           delta > 0, phase == .began {
-            UIManager.shared.applyOpeningLayout()
-            openFull()
-            return
-        }
-    }
     
+    // MARK: - Reduce Width
     func reduceWidth() {
         guard let panel = UIManager.shared.smallPanel else { return }
         
@@ -85,6 +68,7 @@ class ScrollHandler {
         }
     }
     
+    // MARK: - Expand Width
     func expandWidth() {
         guard let panel = UIManager.shared.smallPanel,!isSnapping,!isPeeking else { return }
         
@@ -116,6 +100,7 @@ class ScrollHandler {
     
     private var isAnimating = false
     
+    // MARK: - Peeking Open for the PopInPresenter
     func peekOpen() {
         guard let _ = DisplayManager.shared.selectedScreen else { return }
         guard let panel = UIManager.shared.smallPanel,
@@ -164,6 +149,7 @@ class ScrollHandler {
         }
     }
     
+    // MARK: - Peeking Close For the PopInPresenter
     func peekClose() {
         guard let _ = DisplayManager.shared.selectedScreen else { return }
         guard let panel = UIManager.shared.smallPanel,
@@ -203,6 +189,7 @@ class ScrollHandler {
         }
     }
     
+    // MARK: - Peek Close Instantly
     func peekCloseInstantly() {
         guard let screen = DisplayManager.shared.selectedScreen else { return }
         guard let panel = UIManager.shared.smallPanel,
@@ -223,6 +210,7 @@ class ScrollHandler {
         panel.setFrame(targetFrame, display: true)
     }
     
+    // MARK: - Open Full Panel
     /// This animation makes sure that it just "expands"
     func openFull() {
         guard let screen = DisplayManager.shared.selectedScreen else { return }
@@ -287,6 +275,8 @@ class ScrollHandler {
         }
     }
     
+    // MARK: - Animation Styles
+    // NOTE: AnimationSettings will handle this
     private func iOSAnimation(
         panel: NSPanel,
         startFrame: NSRect,
@@ -337,6 +327,7 @@ class ScrollHandler {
         UIManager.shared.panelState = .open
     }
     
+    // MARK: - Close Full Panel
     func closeFull() {
         guard let panel = UIManager.shared.smallPanel, !isSnapping else { return }
         guard let screen = DisplayManager.shared.selectedScreen else { return }
@@ -420,22 +411,26 @@ class ScrollHandler {
     // MARK: – Internals
     private func updateState(for height: CGFloat) {
         let open = (height >= maxPanelHeight)
-        // 1️⃣ drive SwiftUI:
+        
         PanelAnimationState.shared.isExpanded = open
         PanelAnimationState.shared.bottomSectionHeight = open
         ? (height - minPanelHeight)
         : 0
         
-        // 2️⃣ keep your existing panel‑store logic:
+        // MARK: - Open Logic
         if open {
             UIManager.shared.panelState = .open
             debugLog("Opening")
             UIManager.shared.applyExpandedWidgetLayout()
-        } else if height <= minPanelHeight {
+        }
+        // MARK: - Close Logic
+        else if height <= minPanelHeight {
             UIManager.shared.panelState = .closed
             debugLog("Closed")
             UIManager.shared.applyCompactWidgetLayout()
-        } else {
+        }
+        // MARK: - Partial Logic 
+        else {
             UIManager.shared.panelState = .partiallyOpen
             debugLog("Applying Partial")
             UIManager.shared.applyOpeningLayout()
