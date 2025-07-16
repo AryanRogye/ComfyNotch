@@ -208,7 +208,7 @@ class UIManager: ObservableObject {
         }
     }
     
-    /// Function When Closing and dont want to show the Top Row
+    /// Function called when closing and not wanting to show the top row
     public func applyCompactWidgetLayout() {
         /// When the notch is closed we wanna show the compact album on the left, and dots on the right and hide
         /// The Settings Widget
@@ -259,10 +259,10 @@ class UIManager: ObservableObject {
             }
         }
         
-        /// if no screen is selected or height is 0, return fallback height
+        /// If no screen is selected or height is 0, return fallback height
         let fallbackHeight = SettingsModel.shared.notchMinFallbackHeight
         
-        /// make sure fallback height is greater than 0 or go to the fallback 40
+        /// Make sure fallback height is greater than 0 or go to the fallback 40
         return fallbackHeight > 0 ? fallbackHeight : 40
     }
 }
