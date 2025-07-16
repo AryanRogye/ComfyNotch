@@ -14,7 +14,7 @@ struct CompactAlbumWidget: View, Widget {
     var swiftUIView: AnyView {
         AnyView(self)
     }
-
+    
     @ObservedObject var model: MusicPlayerWidgetModel = .shared
     @ObservedObject var notchStateManager: NotchStateManager = .shared
     var scrollManager = ScrollHandler.shared
@@ -26,7 +26,7 @@ struct CompactAlbumWidget: View, Widget {
         notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 2 : 4
     }
     private var paddingTop: CGFloat {
-        notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 1 : 0
+        notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 4 : 0
     }
     
     @State private var sizeConfig: WidgetSizeConfig = .init(width: 0, height: 0)
@@ -83,23 +83,9 @@ struct CompactAlbumWidget: View, Widget {
     }
     
     func widgetSize() -> WidgetSizeConfig {
-        guard let screen = DisplayManager.shared.selectedScreen else {
-            return .init(width: 22, height: 25)
-        }
-        
-        let scale = screen.backingScaleFactor
-        let resolution = CGSize(width: screen.frame.width * scale,
-                                height: screen.frame.height * scale)
-        
-        let w = resolution.width
-        let isExpanded = notchStateManager.hoverHandler.scaleHoverOverLeftItems
-        
-        if w < 2800 {
-            return isExpanded ? .init(width: 20, height: 20) : .init(width: 15, height: 14)
-        } else if w <= 3500 {
-            return isExpanded ? .init(width: 26, height: 23) : .init(width: 17, height: 17)
-        } else {
-            return isExpanded ? .init(width: 28, height: 25) : .init(width: 22, height: 23)
-        }
+        let height = UIManager.shared.getNotchHeight()
+        let w = height * 0.68
+        let h = height * 0.68
+        return .init(width: w,height: h)
     }
 }

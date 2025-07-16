@@ -60,22 +60,6 @@ struct TopNotchView: View {
         }
         .padding(.bottom, 2)
         .frame(maxWidth: .infinity, maxHeight: UIManager.shared.getNotchHeight(), alignment: .top)
-        // .border(Color.white, width: 0.5)
-        .padding(.top,
-                 notchStateManager.isExpanded
-                 
-                 ? (notchStateManager.currentPanelState == .file_tray
-                    /// This is to keep the Top Row Steady, if the filetray is showing
-                    ? -1
-                    /// This is when the fileTray is not showing and its just the widgets
-                    /// should have a -1 padding height
-                    /// Note: I realizes that having both being the same was the best in this case
-                    /// Old Value used to be 10, so if soemthing is fucked change it back
-                    : -1
-                   )
-                 /// This is when the panel is closed and we're just looking at it
-                 : 1
-        )
     }
     
     // MARK: - Left Widget

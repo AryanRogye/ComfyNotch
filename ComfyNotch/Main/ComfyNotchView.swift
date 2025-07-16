@@ -100,7 +100,6 @@ struct ComfyNotchView: View {
                 
                 let threshhold : CGFloat = notchStateManager.currentPanelState == .popInPresentation ? 120 : 50
                 if translation > threshhold {
-                    // debugLog("Called Down With Threshold \(translation)")
                     notchStateManager.currentPanelState = .home
                     uiManager.applyOpeningLayout()
                     DispatchQueue.main.async {
@@ -125,8 +124,6 @@ struct ComfyNotchView: View {
                 if restrictedStates.contains(notchStateManager.currentPanelState) {
                     return
                 }
-                
-//                print("translation \(translation)")
                 switch phase {
                 case .ended:
                     if translation > settings.notchScrollThreshold {
@@ -166,15 +163,8 @@ struct ComfyNotchView: View {
                     .environmentObject(widgetStore)
                 
                 if notchStateManager.isExpanded || notchStateManager.currentPanelState == .popInPresentation {
-                    /// see QuickAccessWidget.swift file to see how it works
-                    //                    if settings.isFirstLaunch {
-                    //                        Onboarding()
-                    //                            .padding(.horizontal, 4)
-                    //                    } else {
                     expandedView
                         .padding(.horizontal, 4)
-                    //                    }
-                    
                 }
                 
                 Spacer()

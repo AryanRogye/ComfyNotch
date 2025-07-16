@@ -29,6 +29,6 @@ class WidgetRegistry {
     }
     
     func getDefaultWidgets() -> [String] {
-        return ["MusicPlayerWidget", "TimeWidget"]
+        return ["MusicPlayerWidget"]
     }
 }

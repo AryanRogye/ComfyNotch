@@ -421,19 +421,22 @@ class ScrollHandler {
         // MARK: - Open Logic
         if open {
             UIManager.shared.panelState = .open
-            debugLog("Opening")
+            /// DEBUG DEBUG LOGS
+//            debugLog("Opening")
             UIManager.shared.applyExpandedWidgetLayout()
         }
         // MARK: - Close Logic
         else if height <= minPanelHeight {
             UIManager.shared.panelState = .closed
-            debugLog("Closed")
+            /// DEBUG DEBUG LOGS
+//            debugLog("Closed")
             UIManager.shared.applyCompactWidgetLayout()
         }
         // MARK: - Partial Logic 
         else {
             UIManager.shared.panelState = .partiallyOpen
-            debugLog("Applying Partial")
+            /// DEBUG DEBUG LOGS
+//            debugLog("Applying Partial")
             UIManager.shared.applyOpeningLayout()
         }
     }
@@ -454,7 +457,7 @@ class ScrollHandler {
         }
         
         // Default if we can't determine it
-        return 180
+        return 230
     }
     
     // TODO: PLS PLS PLS LOOK AT THIS TO USE

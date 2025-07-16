@@ -8,7 +8,8 @@ struct SettingsButtonWidget: View, Widget {
     var alignment: WidgetAlignment? = .right
 
     // allow for function to run in here
-    @ObservedObject var model = MusicPlayerWidgetModel.shared
+    @ObservedObject var musicModel = MusicPlayerWidgetModel.shared
+    @ObservedObject var settings = SettingsModel.shared
     @Environment(\.openWindow) var openWindow
 
     var body: some View {
@@ -17,15 +18,12 @@ struct SettingsButtonWidget: View, Widget {
             openWindow(id: "SettingsView")
         }) {
             Image(systemName: "gear")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 20, height: 15)
-                .foregroundColor(Color(nsColor: model.nowPlayingInfo.dominantColor))
-                .background(Color.clear)
+                .foregroundColor(Color(nsColor: musicModel.nowPlayingInfo.dominantColor))
         }
         .buttonStyle(.plain)
-        .padding(.top, 2)
-        .padding(.trailing, 20)
+        .controlSize(.extraLarge)
+        .padding(.trailing, settings.settingsWidgetDistanceFromRight)
+        .padding(.top, settings.quickAccessWidgetDistanceFromTop)
     }
 
     var swiftUIView: AnyView {

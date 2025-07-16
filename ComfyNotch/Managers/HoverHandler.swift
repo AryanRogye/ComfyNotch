@@ -9,6 +9,7 @@ import Combine
 import SwiftUI
 
 enum HoverTarget: String, Codable, CaseIterable, Identifiable {
+    case none
     case album
     case panel
     
@@ -18,6 +19,7 @@ enum HoverTarget: String, Codable, CaseIterable, Identifiable {
 extension HoverTarget {
     var displayName: String {
         switch self {
+        case .none: return "None"
         case .album: return "Album Image Only"
         case .panel: return "Whole Panel"
         }

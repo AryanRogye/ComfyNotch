@@ -300,7 +300,6 @@ extension CompactWidgetsStore {
                 let widgetEntry = self.leftWidgetsShown[index]
                 if widgetEntry.isVisible {
                     widgetEntry.widget.swiftUIView
-                        .padding(.top, 2)
                 }
             }
         }
