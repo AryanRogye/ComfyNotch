@@ -146,105 +146,147 @@ struct GeneralSettingsView: View {
         }
     }
     
+    
     // MARK: - Notch Settings
     private var notchSettings: some View {
-        HStack {
-            VStack {
-                Group {
-                    ComfyLabeledStepper(
-                        "Notch Width (Expanded)",
-                        value: $settings.notchMaxWidth,
-                        in: settings.setNotchMinWidth...settings.setNotchMaxWidth,
-                        step: notchWidthStep
-                    )
-                    /// This is to show a tooltip or a description
-                    /// if the notch width is changed to something that the user
-                    /// did not start with
-                    .onChange(of: settings.notchMaxWidth) { _, newValue in
-                        if newValue != self.startNotchWidth {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                self.notchWidthChanged = true
-                            }
-                        } else {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                self.notchWidthChanged = false
-                            }
+        VStack {
+            Group {
+                ComfyLabeledStepper(
+                    "Notch Height Fallback (Closed)",
+                    value: Binding<Int>(
+                        get: { Int(settings.notchMinFallbackHeight) },
+                        set: { newValue in
+                            settings.notchMinFallbackHeight = CGFloat(newValue)
                         }
-                    }
-                }
-                .padding(.horizontal, 22)
-                /// Control For Step
-                HStack {
-                    Text("Step Size: \(Int(notchWidthStep))")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    Slider(value: $notchWidthStep, in: 1...10, step: 1) {
-                        Text("Step Size")
-                    }
-                    .labelsHidden()
-                    .onChange(of: notchWidthStep) { _, newValue in
-                        settings.notchMaxWidth = max(500, min(1000, settings.notchMaxWidth))
-                    }
-                }
-                .padding(.horizontal)
+                    ),
+                    in: settings.notchHeightMin...settings.notchHeightMax,
+                    step: 1
+                )
                 
-                /// Change The Distance From Left For Quick Acess Widgets
-                Group {
-                    ComfyLabeledStepper(
-                        "Distance From Left (Top Row)",
-                        value: $settings.quickAccessWidgetDistanceFromLeft,
-                        in: -50...50,
-                        step: 1
-                    )
-                }
-                .padding(.horizontal, 22)
+                Text("""
+                This is the fallback height for the notch if its ever 0, SafeArea doesnt exist in Intel Macs.
+                """)
+                .font(.footnote)
+                .foregroundColor(.secondary)
+                .padding(.vertical, 2)
                 
-                if self.notchWidthChanged {
-                    Text("Changes detected. Save and reopen the notch to apply.")
+                HStack(spacing: 6) {
+                    Text("Default notch height: \(Int(UIManager.shared.getNotchHeight()))")
                         .font(.footnote)
                         .foregroundColor(.secondary)
-                        .transition(.opacity)
+                    
+                    Button("Reset") {
+                        settings.resetNotchMinFallbackHeight()
+                        settings.saveSettings()
+                    }
+                    .font(.footnote)
+                    .buttonStyle(.borderless)
+                    
+                    Button("Save") {
+                        settings.saveSettings()
+                    }
+                    .font(.footnote)
+                    .buttonStyle(.borderless)
+                    
                 }
-                
-                /// Reset Button, Add A Revert As Well If Reset Pressed
-                HStack(spacing: 8) {
-                    Button(action: {
-                        if resetPressed { return }
+                .padding(.bottom, 2)
+            }
+            .padding(.horizontal, 22)
+            
+            Group {
+                ComfyLabeledStepper(
+                    "Notch Width (Expanded)",
+                    value: $settings.notchMaxWidth,
+                    in: settings.setNotchMinWidth...settings.setNotchMaxWidth,
+                    step: notchWidthStep
+                )
+                /// This is to show a tooltip or a description
+                /// if the notch width is changed to something that the user
+                /// did not start with
+                .onChange(of: settings.notchMaxWidth) { _, newValue in
+                    if newValue != self.startNotchWidth {
                         withAnimation(.easeInOut(duration: 0.3)) {
-                            self.lastNotchWidth = settings.notchMaxWidth
-                            settings.notchMaxWidth = 710
+                            self.notchWidthChanged = true
+                        }
+                    } else {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            self.notchWidthChanged = false
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 22)
+            /// Control For Step
+            HStack {
+                Text("Step Size: \(Int(notchWidthStep))")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                Slider(value: $notchWidthStep, in: 1...10, step: 1) {
+                    Text("Step Size")
+                }
+                .labelsHidden()
+                .onChange(of: notchWidthStep) { _, newValue in
+                    settings.notchMaxWidth = max(500, min(1000, settings.notchMaxWidth))
+                }
+            }
+            .padding(.horizontal)
+            
+            /// Change The Distance From Left For Quick Acess Widgets
+            Group {
+                ComfyLabeledStepper(
+                    "Distance From Left (Top Row)",
+                    value: $settings.quickAccessWidgetDistanceFromLeft,
+                    in: -50...50,
+                    step: 1
+                )
+            }
+            .padding(.horizontal, 22)
+            
+            if self.notchWidthChanged {
+                Text("Changes detected. Save and reopen the notch to apply.")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .transition(.opacity)
+            }
+            
+            /// Reset Button, Add A Revert As Well If Reset Pressed
+            HStack(spacing: 8) {
+                Button(action: {
+                    if resetPressed { return }
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        self.lastNotchWidth = settings.notchMaxWidth
+                        settings.notchMaxWidth = 710
+                        notchWidthStep = 1.0
+                    }
+                    resetPressed = true
+                }) {
+                    Image(systemName: "arrow.clockwise")
+                        .font(.system(size: 14, weight: .medium))
+                        .padding(6)
+                        .background(Color.blue.opacity(0.1))
+                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                        .foregroundColor(.blue)
+                }
+                .buttonStyle(.plain)
+                
+                if resetPressed {
+                    Button(action: {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            settings.notchMaxWidth = lastNotchWidth
+                            resetPressed = false
                             notchWidthStep = 1.0
                         }
-                        resetPressed = true
                     }) {
-                        Image(systemName: "arrow.clockwise")
-                            .font(.system(size: 14, weight: .medium))
-                            .padding(6)
+                        Text("Revert")
+                            .font(.system(size: 13, weight: .semibold))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
                             .background(Color.blue.opacity(0.1))
                             .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                             .foregroundColor(.blue)
                     }
                     .buttonStyle(.plain)
-                    
-                    if resetPressed {
-                        Button(action: {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                settings.notchMaxWidth = lastNotchWidth
-                                resetPressed = false
-                                notchWidthStep = 1.0
-                            }
-                        }) {
-                            Text("Revert")
-                                .font(.system(size: 13, weight: .semibold))
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.blue.opacity(0.1))
-                                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
-                                .foregroundColor(.blue)
-                        }
-                        .buttonStyle(.plain)
-                        .transition(.opacity.combined(with: .move(edge: .trailing)))
-                    }
+                    .transition(.opacity.combined(with: .move(edge: .trailing)))
                 }
             }
         }
@@ -401,7 +443,7 @@ struct GeneralSettingsView: View {
                     .onChange(of: settings.twoFingerAction) {
                         settings.saveSettings()
                     }
-
+                    
                 }
                 .padding(.vertical, 4)
             }

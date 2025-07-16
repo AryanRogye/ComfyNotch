@@ -7,8 +7,8 @@ class DisplayHandler {
 
     func start() {
         let notificationCenter = NotificationCenter.default
-        let workspaceCenter = NSWorkspace.shared.notificationCenter
-        let distributedCenter = DistributedNotificationCenter.default()
+//        let workspaceCenter = NSWorkspace.shared.notificationCenter
+//        let distributedCenter = DistributedNotificationCenter.default()
         
 //        workspaceCenter.addObserver(
 //            self,

@@ -4,9 +4,8 @@ import Sparkle
 import AVKit
 
 class SettingsModel: ObservableObject {
-    
-    static let shared = SettingsModel()
-    
+    static let shared = SettingsModel(userDefaults: .standard)
+
     @Published var selectedTab: SettingsView.Tab = .general
     @Published var selectedNotchTab: Int = 0
     
@@ -49,9 +48,34 @@ class SettingsModel: ObservableObject {
     @Published var enableNotchHUD: Bool = false
     /// Controlling the width of the notch
     @Published var notchMaxWidth: CGFloat = 710
-               /// Values for min and max width set here
-               let setNotchMinWidth: CGFloat = 500
-               let setNotchMaxWidth: CGFloat = 1000
+    let setNotchMinWidth: CGFloat = 500
+    let setNotchMaxWidth: CGFloat = 1000
+    
+    /*
+     NOTE: this is is very important because this will be what
+     the notch will be set to when it is closed, if this is
+     <= 0 this is a BIG ISSUE
+     this is cuz in `Managers/UIManager.swift` we use this:
+     
+     let notchHeight = getNotchHeight()
+     
+     let panelRect = NSRect(
+        x: (screenFrame.width - startPanelWidth) / 2,
+        y: screenFrame.height - notchHeight - startPanelYOffset,
+        width: startPanelWidth,
+        height: notchHeight
+     )
+     */
+    @Published var notchMinFallbackHeight: CGFloat = 40
+    /// Min and Max Values for the fallback Height
+    let notchHeightMin : Int = 35
+    let notchHeightMax : Int = 50
+    
+    /// Function to reset the min fallback height to the default value
+    public func resetNotchMinFallbackHeight() {
+        notchMinFallbackHeight = 40
+    }
+    
     
     @Published var quickAccessWidgetDistanceFromLeft: CGFloat = 18
     @Published var oneFingerAction: TouchAction = .none
@@ -107,8 +131,10 @@ class SettingsModel: ObservableObject {
     }()
     
     private var cancellables = Set<AnyCancellable>()
+    private let defaults: UserDefaults
     
-    private init() {
+    init(userDefaults: UserDefaults = .standard) {
+        self.defaults = userDefaults
         loadSettings()
         
         $isSettingsWindowOpen
@@ -138,7 +164,6 @@ class SettingsModel: ObservableObject {
     
     /// Saves the current settings to UserDefaults
     func saveSettings() {
-        let defaults = UserDefaults.standard
         
         // Saving the last state for whatever widgets are selected
         defaults.set(selectedWidgets, forKey: "selectedWidgets")
@@ -205,6 +230,11 @@ class SettingsModel: ObservableObject {
         }
         defaults.set(enableNotchHUD, forKey: "enableNotchHUD")
         
+        if notchMinFallbackHeight <= 0 {
+            notchMinFallbackHeight = 40
+        }
+        defaults.set(notchMinFallbackHeight, forKey: "notchMinFallbackHeight")
+        
         /// Make sure that the maxWidth is always > 500 the rest is up to the user to break, maybe add a limit of like 1000
         if notchMaxWidth < setNotchMinWidth {
             notchMaxWidth = setNotchMinWidth
@@ -255,10 +285,14 @@ class SettingsModel: ObservableObject {
     }
     
     // MARK: - Load Settings
-    
     /// Loads the last saved settings from UserDefaults
     func loadSettings() {
-        let defaults = UserDefaults.standard
+        // Load fallback notch height with validation
+        if let notchMinFallbackHeight = defaults.object(forKey: "notchMinFallbackHeight") as? Double {
+            self.notchMinFallbackHeight = CGFloat(notchMinFallbackHeight > 0 ? notchMinFallbackHeight : 40)
+        } else {
+            self.notchMinFallbackHeight = CGFloat(40)
+        }
         
         // Loading the last state for the settings window
         if let loadedWidgets = defaults.object(forKey: "selectedWidgets") as? [String] {
@@ -466,7 +500,6 @@ class SettingsModel: ObservableObject {
     
     public func saveSettingsForDisplay(for screen: NSScreen) {
         self.selectedScreen = screen
-        let defaults = UserDefaults.standard
         
         // Save the display ID of the selected screen
         if let displayID = screen.displayID {
