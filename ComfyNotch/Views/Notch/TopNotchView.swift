@@ -14,7 +14,6 @@ struct TopNotchView: View {
     @ObservedObject var musicModel: MusicPlayerWidgetModel = .shared
     
     @State private var isHovering: Bool = false /// Hovering for Pause or Play
-    ///
     private let paddingWidth: CGFloat = 20
     
     private var leadingPadding: CGFloat {

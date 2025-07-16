@@ -152,7 +152,7 @@ struct GeneralSettingsView: View {
         VStack {
             Group {
                 ComfyLabeledStepper(
-                    "Notch Height (Closed)",
+                    "Notch Height Fallback (Closed)",
                     value: Binding<Int>(
                         get: { Int(settings.notchMinFallbackHeight) },
                         set: { newValue in
