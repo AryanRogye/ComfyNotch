@@ -287,12 +287,11 @@ class SettingsModel: ObservableObject {
     // MARK: - Load Settings
     /// Loads the last saved settings from UserDefaults
     func loadSettings() {
-        
         // Load fallback notch height with validation
-        if let notchMinFallbackHeight = defaults.object(forKey: "notchMinFallbackHeight") as? CGFloat {
-            self.notchMinFallbackHeight = notchMinFallbackHeight > 0 ? notchMinFallbackHeight : 40
+        if let notchMinFallbackHeight = defaults.object(forKey: "notchMinFallbackHeight") as? Double {
+            self.notchMinFallbackHeight = CGFloat(notchMinFallbackHeight > 0 ? notchMinFallbackHeight : 40)
         } else {
-            self.notchMinFallbackHeight = 40
+            self.notchMinFallbackHeight = CGFloat(40)
         }
         
         // Loading the last state for the settings window
