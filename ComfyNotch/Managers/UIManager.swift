@@ -168,7 +168,7 @@ class UIManager: ObservableObject {
     
     // MARK: - Layout Management
     
-    /// Fucntion to wipe EVERYTHING off the screen
+    /// Function to wipe EVERYTHING off the screen
     public func applyOpeningLayout() {
         DispatchQueue.main.async {
             /// Opening Layout is just hiding every possible widget
