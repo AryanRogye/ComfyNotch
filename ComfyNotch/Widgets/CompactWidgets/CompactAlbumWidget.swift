@@ -16,17 +16,17 @@ struct CompactAlbumWidget: View, Widget {
     }
 
     @ObservedObject var model: MusicPlayerWidgetModel = .shared
-    @ObservedObject var panelAnimationState: PanelAnimationState = .shared
+    @ObservedObject var notchStateManager: NotchStateManager = .shared
     var scrollManager = ScrollHandler.shared
     
     private var animationStiffness: CGFloat = 300
     private var animationDamping: CGFloat = 15
     
     private var paddingLeading: CGFloat {
-        panelAnimationState.hoverHandler.scaleHoverOverLeftItems ? 2 : 4
+        notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 2 : 4
     }
     private var paddingTop: CGFloat {
-        panelAnimationState.hoverHandler.scaleHoverOverLeftItems ? 1 : 0
+        notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 1 : 0
     }
     
     @State private var sizeConfig: WidgetSizeConfig = .init(width: 0, height: 0)
@@ -57,10 +57,10 @@ struct CompactAlbumWidget: View, Widget {
         .padding(.leading, paddingLeading)
         .animation(
             .interpolatingSpring(stiffness: animationStiffness, damping: animationDamping),
-            value: panelAnimationState.hoverHandler.scaleHoverOverLeftItems
+            value: notchStateManager.hoverHandler.scaleHoverOverLeftItems
         )
         .onAppear { sizeConfig = widgetSize() }
-        .onChange(of: panelAnimationState.hoverHandler.scaleHoverOverLeftItems) {
+        .onChange(of: notchStateManager.hoverHandler.scaleHoverOverLeftItems) {
             sizeConfig = widgetSize()
         }
     }
@@ -73,7 +73,7 @@ struct CompactAlbumWidget: View, Widget {
                     scrollManager.openFull()
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    panelAnimationState.currentPanelState = .home
+                    notchStateManager.currentPanelState = .home
                 }
             }
         }) {
@@ -92,7 +92,7 @@ struct CompactAlbumWidget: View, Widget {
                                 height: screen.frame.height * scale)
         
         let w = resolution.width
-        let isExpanded = panelAnimationState.hoverHandler.scaleHoverOverLeftItems
+        let isExpanded = notchStateManager.hoverHandler.scaleHoverOverLeftItems
         
         if w < 2800 {
             return isExpanded ? .init(width: 20, height: 20) : .init(width: 15, height: 14)

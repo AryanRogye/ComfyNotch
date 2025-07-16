@@ -7,28 +7,28 @@ enum UtilsTab: String, CaseIterable {
 
 struct UtilsView: View {
     @ObservedObject var settings: SettingsModel = .shared
-    @ObservedObject var animationState: PanelAnimationState = .shared
+    @ObservedObject var notchStateManager: NotchStateManager = .shared
     @ObservedObject var clipboardManager = ClipboardManager.shared
     
     @State private var expanded: Bool = true
 
     var body: some View {
         VStack(spacing: 0) {
-            if animationState.isExpanded {
+            if notchStateManager.isExpanded {
                 HStack {
                     if expanded {
                         ForEach(UtilsTab.allCases, id: \.self) { tab in
                             /// If clipboard is enabled
                             if (settings.enableClipboardListener || tab != .clipboard) {
                                 Button(action: {
-                                    animationState.utilsSelectedTab = tab
+                                    notchStateManager.utilsSelectedTab = tab
                                 }) {
                                     Text(tab.rawValue)
                                         .font(.system(size: 12, weight: .semibold))
-                                        .foregroundColor(animationState.utilsSelectedTab == tab ? .blue : .white)
+                                        .foregroundColor(notchStateManager.utilsSelectedTab == tab ? .blue : .white)
                                         .padding(.horizontal, 8)
                                         .padding(.vertical, 6)
-                                        .background(animationState.utilsSelectedTab == tab ? Color.gray.opacity(0.2) : Color.clear)
+                                        .background(notchStateManager.utilsSelectedTab == tab ? Color.gray.opacity(0.2) : Color.clear)
                                         .cornerRadius(8)
                                 }
                                 .buttonStyle(.plain)
@@ -56,7 +56,7 @@ struct UtilsView: View {
                 }
                 
                 VStack {
-                    switch animationState.utilsSelectedTab {
+                    switch notchStateManager.utilsSelectedTab {
                         case .clipboard: Utils_ClipboardView(clipboardManager: clipboardManager)
                                             .frame(maxWidth:.infinity, maxHeight:.infinity, alignment:.top)
                     }
@@ -67,8 +67,8 @@ struct UtilsView: View {
         }
         .background(Color.clear)
         .animation(
-            .easeInOut(duration: animationState.isExpanded ? 0.3 : 0.1),
-            value: animationState.isExpanded
+            .easeInOut(duration: notchStateManager.isExpanded ? 0.3 : 0.1),
+            value: notchStateManager.isExpanded
         )
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {

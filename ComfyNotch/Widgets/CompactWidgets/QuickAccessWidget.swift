@@ -23,7 +23,7 @@ struct QuickAccessWidget: View, Widget {
         AnyView(self)
     }
     
-    @ObservedObject private var animationState: PanelAnimationState = .shared
+    @ObservedObject private var notchStateManager: NotchStateManager = .shared
     @ObservedObject private var settings      : SettingsModel       = .shared
     
     var body: some View {
@@ -50,14 +50,14 @@ struct QuickAccessWidget: View, Widget {
     
     private var homeButton: some View {
         Button(action: {
-            animationState.currentPanelState = .home
+            notchStateManager.currentPanelState = .home
         }) {
             Image(systemName: "house")
                 .symbolRenderingMode(.hierarchical)
                 .resizable()
                 .frame(width: 21, height: 20)
                 .foregroundColor(
-                    animationState.currentPanelState == .home ? .blue : .white
+                    notchStateManager.currentPanelState == .home ? .blue : .white
                 )
                 .padding(5)
                 .background(Color.black.opacity(0.5))
@@ -71,14 +71,14 @@ struct QuickAccessWidget: View, Widget {
     
     private var messagesButton: some View {
         Button(action: {
-            animationState.currentPanelState = .messages
+            notchStateManager.currentPanelState = .messages
         }) {
             Image(systemName: "message")
                 .symbolRenderingMode(.hierarchical)
                 .resizable()
                 .frame(width: 20, height: 20)
                 .foregroundColor(
-                    animationState.currentPanelState == .messages ? .blue : .white
+                    notchStateManager.currentPanelState == .messages ? .blue : .white
                 )
                 .padding(5)
                 .background(Color.black.opacity(0.5))
@@ -92,14 +92,14 @@ struct QuickAccessWidget: View, Widget {
     
     private var utilsButton: some View {
         Button(action: {
-            animationState.currentPanelState = .utils
+            notchStateManager.currentPanelState = .utils
         } ) {
             Image(systemName: "wrench.and.screwdriver")
                 .symbolRenderingMode(.hierarchical)
                 .resizable()
                 .frame(width: 20, height: 20)
                 .foregroundColor(
-                    animationState.currentPanelState == .utils ?.blue : .white
+                    notchStateManager.currentPanelState == .utils ?.blue : .white
                 )
                 .padding(5)
                 .background(Color.black.opacity(0.5))
@@ -113,14 +113,14 @@ struct QuickAccessWidget: View, Widget {
     
     private var fileTrayButton: some View {
         Button(action: {
-            animationState.currentPanelState = .file_tray
+            notchStateManager.currentPanelState = .file_tray
         }) {
             Image(systemName: "tray.full")
                 .symbolRenderingMode(.hierarchical)
                 .resizable()
                 .frame(width: 20, height: 20)
                 .foregroundColor(
-                    animationState.currentPanelState == .file_tray ? .blue : .white
+                    notchStateManager.currentPanelState == .file_tray ? .blue : .white
                 )
                 .padding(5)
                 .background(Color.black.opacity(0.5))

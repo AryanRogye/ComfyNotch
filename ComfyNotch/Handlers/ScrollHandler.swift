@@ -38,13 +38,14 @@ class ScrollHandler {
         
         if UIManager.shared.panelState == .closed {
             let newWidth: CGFloat = self.getNotchWidth()
+            print("Using New Width: \(newWidth)")
             
             /// first hide the items inside it
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 UIManager.shared.applyOpeningLayout()
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                PanelAnimationState.shared.currentPanelWidth = newWidth
+                NotchStateManager.shared.currentPanelWidth = newWidth
             }
             /// then we wanna reduce the panel width
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
@@ -56,7 +57,7 @@ class ScrollHandler {
                 let reducedFrame = NSRect(
                     x: newX,
                     y: panel.frame.origin.y,
-                    width: 0,
+                    width: newWidth,
                     height: panel.frame.height
                 )
                 NSAnimationContext.runAnimationGroup { ctx in
@@ -92,7 +93,7 @@ class ScrollHandler {
             }
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                PanelAnimationState.shared.currentPanelWidth = newWidth
+                NotchStateManager.shared.currentPanelWidth = newWidth
                 UIManager.shared.applyCompactWidgetLayout()
             }
         }
@@ -332,10 +333,10 @@ class ScrollHandler {
         guard let panel = UIManager.shared.smallPanel, !isSnapping else { return }
         guard let screen = DisplayManager.shared.selectedScreen else { return }
         
-        PanelAnimationState.shared.currentPanelState = .home
+        NotchStateManager.shared.currentPanelState = .home
         isSnapping = true
-        PanelAnimationState.shared.isExpanded = false
-        PanelAnimationState.shared.bottomSectionHeight = 0
+        NotchStateManager.shared.isExpanded = false
+        NotchStateManager.shared.bottomSectionHeight = 0
         
         let startYOffset = UIManager.shared.startPanelYOffset
         let finalWidth = minPanelWidth
@@ -412,8 +413,8 @@ class ScrollHandler {
     private func updateState(for height: CGFloat) {
         let open = (height >= maxPanelHeight)
         
-        PanelAnimationState.shared.isExpanded = open
-        PanelAnimationState.shared.bottomSectionHeight = open
+        NotchStateManager.shared.isExpanded = open
+        NotchStateManager.shared.bottomSectionHeight = open
         ? (height - minPanelHeight)
         : 0
         

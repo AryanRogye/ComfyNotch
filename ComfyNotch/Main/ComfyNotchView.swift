@@ -11,9 +11,9 @@ enum NotchViewState {
     case popInPresentation
 }
 
-class PanelAnimationState: ObservableObject {
+class NotchStateManager: ObservableObject {
     
-    static let shared = PanelAnimationState()
+    static let shared = NotchStateManager()
     
     @Published var isExpanded: Bool = false
     @Published var bottomSectionHeight: CGFloat = 0
@@ -41,7 +41,7 @@ struct ComfyNotchView: View {
     @StateObject private var qrCodeManager = QRCodeManager()
     @StateObject private var notchClickManager = NotchClickManager()
     
-    @ObservedObject private var animationState = PanelAnimationState.shared
+    @ObservedObject private var notchStateManager = NotchStateManager.shared
     @ObservedObject private var uiManager      = UIManager.shared
     @ObservedObject private var settings       = SettingsModel.shared
     
@@ -58,8 +58,8 @@ struct ComfyNotchView: View {
         /// when we open it, it doesnt bug out
             .onChange(of: uiManager.panelState) { _, newState in
                 if newState == .open {
-                    if animationState.currentPanelState == .popInPresentation {
-                        animationState.currentPanelState = .home
+                    if notchStateManager.currentPanelState == .popInPresentation {
+                        notchStateManager.currentPanelState = .home
                     }
                 }
             }
@@ -69,7 +69,7 @@ struct ComfyNotchView: View {
                 if hovering && uiManager.panelState == .closed {
                     fileDropManager.shouldAutoShowTray = true
                     /// Set the page of the notch to be the home
-                    animationState.currentPanelState = .home
+                    notchStateManager.currentPanelState = .home
                     /// Fade Out the Contents
                     uiManager.applyOpeningLayout()
                     
@@ -85,8 +85,8 @@ struct ComfyNotchView: View {
                     
                     /// Change View to File Tray
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-                        animationState.currentPanelState = .file_tray
-                        animationState.isExpanded = true
+                        notchStateManager.currentPanelState = .file_tray
+                        notchStateManager.isExpanded = true
                     }
                     /// This will help with snapping on the filetray view
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
@@ -98,10 +98,10 @@ struct ComfyNotchView: View {
             .panGesture(direction: .down) { translation, phase in
                 guard uiManager.panelState == .closed else { return }
                 
-                let threshhold : CGFloat = animationState.currentPanelState == .popInPresentation ? 120 : 50
+                let threshhold : CGFloat = notchStateManager.currentPanelState == .popInPresentation ? 120 : 50
                 if translation > threshhold {
                     // debugLog("Called Down With Threshold \(translation)")
-                    animationState.currentPanelState = .home
+                    notchStateManager.currentPanelState = .home
                     uiManager.applyOpeningLayout()
                     DispatchQueue.main.async {
                         CATransaction.flush()
@@ -122,7 +122,7 @@ struct ComfyNotchView: View {
                 
                 // Early return for states that shouldn't handle pan up
                 let restrictedStates: Set<NotchViewState> = [.file_tray, .utils, .popInPresentation, .messages]
-                if restrictedStates.contains(animationState.currentPanelState) {
+                if restrictedStates.contains(notchStateManager.currentPanelState) {
                     return
                 }
                 
@@ -165,7 +165,7 @@ struct ComfyNotchView: View {
                 TopNotchView()
                     .environmentObject(widgetStore)
                 
-                if animationState.isExpanded || animationState.currentPanelState == .popInPresentation {
+                if notchStateManager.isExpanded || notchStateManager.currentPanelState == .popInPresentation {
                     /// see QuickAccessWidget.swift file to see how it works
                     //                    if settings.isFirstLaunch {
                     //                        Onboarding()
@@ -207,26 +207,26 @@ struct ComfyNotchView: View {
     /// if conditionals because I saw CPU lower a TON with it
     @ViewBuilder
     private var expandedView: some View {
-        if animationState.currentPanelState == .home {
+        if notchStateManager.currentPanelState == .home {
             HomeNotchView()
                 .environmentObject(bigWidgetStore)
         }
         
-        if animationState.currentPanelState == .file_tray {
+        if notchStateManager.currentPanelState == .file_tray {
             FileTrayView()
                 .environmentObject(fileDropManager)
                 .environmentObject(qrCodeManager)
         }
         
-        if animationState.currentPanelState == .messages {
+        if notchStateManager.currentPanelState == .messages {
             MessagesView()
         }
         
-        if animationState.currentPanelState == .utils {
+        if notchStateManager.currentPanelState == .utils {
             UtilsView()
         }
         
-        if animationState.currentPanelState == .popInPresentation {
+        if notchStateManager.currentPanelState == .popInPresentation {
             PopInPresenter()
         }
     }
@@ -262,8 +262,8 @@ struct ComfyNotchView: View {
     
     bigWidgetStore.addWidget(musicPlayer)
     
-    PanelAnimationState.shared.currentPanelState = .file_tray
-    PanelAnimationState.shared.isExpanded = true
+    NotchStateManager.shared.currentPanelState = .file_tray
+    NotchStateManager.shared.isExpanded = true
     
     UIManager.shared.panelState = .open
     

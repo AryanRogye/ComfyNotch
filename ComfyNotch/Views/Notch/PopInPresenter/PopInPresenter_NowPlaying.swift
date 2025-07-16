@@ -24,7 +24,7 @@ struct PopInPresenter_NowPlaying: View {
     
     @ObservedObject var settingsModel: SettingsModel = .shared
     @ObservedObject var musicModel: MusicPlayerWidgetModel = .shared
-    @ObservedObject var panelState: PanelAnimationState = .shared
+    @ObservedObject var notchStateManager: NotchStateManager = .shared
     
     @State private var textWidth: CGFloat = 0
     @State private var containerWidth: CGFloat = 0

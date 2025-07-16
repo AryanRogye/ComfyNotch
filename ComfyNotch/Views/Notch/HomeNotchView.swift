@@ -3,12 +3,12 @@ import SwiftUI
 struct HomeNotchView: View {
     
     @EnvironmentObject var bigWidgetStore: ExpandedWidgetsStore
-    @ObservedObject var animationState = PanelAnimationState.shared
+    @ObservedObject var notchStateManager = NotchStateManager.shared
     @ObservedObject var settingsModel = SettingsModel.shared
 
     var body: some View {
         VStack {
-            if animationState.isExpanded {
+            if notchStateManager.isExpanded {
                 /// Big Panel Widgets
                 ZStack {
                     HStack(spacing: 2) {
@@ -39,8 +39,8 @@ struct HomeNotchView: View {
         }
         .frame(maxHeight: .infinity)
         .animation(
-            .easeInOut(duration: animationState.isExpanded ? 0.3 : 0.1),
-            value: animationState.isExpanded
+            .easeInOut(duration: notchStateManager.isExpanded ? 0.3 : 0.1),
+            value: notchStateManager.isExpanded
         )
     }
 }
