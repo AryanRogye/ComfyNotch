@@ -163,6 +163,13 @@ struct GeneralSettingsView: View {
                     step: 1
                 )
                 
+                Text("""
+                This is the fallback height for the notch if its ever 0, SafeArea doesnt exist in Intel Macs.
+                """)
+                .font(.footnote)
+                .foregroundColor(.secondary)
+                .padding(.vertical, 2)
+                
                 HStack(spacing: 6) {
                     Text("Default notch height: \(Int(UIManager.shared.getNotchHeight()))")
                         .font(.footnote)
@@ -180,9 +187,9 @@ struct GeneralSettingsView: View {
                     }
                     .font(.footnote)
                     .buttonStyle(.borderless)
-
+                    
                 }
-                .padding(.vertical, 4)
+                .padding(.bottom, 2)
             }
             .padding(.horizontal, 22)
             
