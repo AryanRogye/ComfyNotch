@@ -4,9 +4,8 @@ import Sparkle
 import AVKit
 
 class SettingsModel: ObservableObject {
-    
-    static let shared = SettingsModel()
-    
+    static let shared = SettingsModel(userDefaults: .standard)
+
     @Published var selectedTab: SettingsView.Tab = .general
     @Published var selectedNotchTab: Int = 0
     
@@ -132,8 +131,10 @@ class SettingsModel: ObservableObject {
     }()
     
     private var cancellables = Set<AnyCancellable>()
+    private let defaults: UserDefaults
     
-    private init() {
+    init(userDefaults: UserDefaults = .standard) {
+        self.defaults = userDefaults
         loadSettings()
         
         $isSettingsWindowOpen
@@ -163,7 +164,6 @@ class SettingsModel: ObservableObject {
     
     /// Saves the current settings to UserDefaults
     func saveSettings() {
-        let defaults = UserDefaults.standard
         
         // Saving the last state for whatever widgets are selected
         defaults.set(selectedWidgets, forKey: "selectedWidgets")
@@ -287,7 +287,6 @@ class SettingsModel: ObservableObject {
     // MARK: - Load Settings
     /// Loads the last saved settings from UserDefaults
     func loadSettings() {
-        let defaults = UserDefaults.standard
         
         // Load fallback notch height with validation
         if let notchMinFallbackHeight = defaults.object(forKey: "notchMinFallbackHeight") as? CGFloat {
@@ -502,7 +501,6 @@ class SettingsModel: ObservableObject {
     
     public func saveSettingsForDisplay(for screen: NSScreen) {
         self.selectedScreen = screen
-        let defaults = UserDefaults.standard
         
         // Save the display ID of the selected screen
         if let displayID = screen.displayID {
