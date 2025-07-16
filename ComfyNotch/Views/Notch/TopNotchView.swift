@@ -27,34 +27,34 @@ struct TopNotchView: View {
         HStack(spacing: 0) {
             //MARK: - Left Widgets
             HStack {
-                if uiManager.panelState == .closed && musicModel.nowPlayingInfo.isPlaying {
+//                if uiManager.panelState == .closed && musicModel.nowPlayingInfo.isPlaying {
                     leftWidgets
-                } else if uiManager.panelState == .open {
-                    leftWidgets
-                }
+//                } else if uiManager.panelState == .open {
+//                    leftWidgets
+//                }
             }
             .padding(.leading, leadingPadding)
-            .onReceive(musicModel.nowPlayingInfo.$isPlaying) { isPlaying in
-                if uiManager.panelState == .closed && isPlaying {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        ScrollHandler.shared.expandWidth()
-                    }
-                } else if uiManager.panelState == .closed && !isPlaying {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        ScrollHandler.shared.reduceWidth()
-                    }
-                }
-            }
+//            .onReceive(musicModel.nowPlayingInfo.$isPlaying) { isPlaying in
+//                if uiManager.panelState == .closed && isPlaying {
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+//                        ScrollHandler.shared.expandWidth()
+//                    }
+//                } else if uiManager.panelState == .closed && !isPlaying {
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+//                        ScrollHandler.shared.reduceWidth()
+//                    }
+//                }
+//            }
             
             Spacer()
             
             //MARK: - Right Widgets
             HStack {
-                if uiManager.panelState == .closed && musicModel.nowPlayingInfo.isPlaying {
+//                if uiManager.panelState == .closed && musicModel.nowPlayingInfo.isPlaying {
                     rightWidgets
-                } else if uiManager.panelState == .open {
-                    rightWidgets
-                }
+//                } else if uiManager.panelState == .open {
+//                    rightWidgets
+//                }
             }
             .padding(.trailing, trailingPadding)
         }
@@ -81,15 +81,7 @@ struct TopNotchView: View {
     // MARK: - Left Widget
     private var leftWidgets: some View {
         ZStack(alignment: .leading) {
-            HStack(spacing: 0) {
-                ForEach(widgetStore.leftWidgetsShown.indices, id: \.self) { index in
-                    let widgetEntry = widgetStore.leftWidgetsShown[index]
-                    if widgetEntry.isVisible {
-                        widgetEntry.widget.swiftUIView
-                            .padding(.top, 2)
-                    }
-                }
-            }
+            widgetStore.leftWidgets
         }
         .onHover { hover in
             if settings.hoverTargetMode != .album { return }
@@ -107,15 +99,8 @@ struct TopNotchView: View {
             if isHovering {
                 playPause
             } else {
-                HStack(spacing: 0) {
-                    ForEach(widgetStore.rightWidgetsShown.indices, id: \.self) { index in
-                        let widgetEntry = widgetStore.rightWidgetsShown[index]
-                        if widgetEntry.isVisible {
-                            widgetEntry.widget.swiftUIView
-                                .opacity(isHovering ? 0 : 1)
-                        }
-                    }
-                }
+                widgetStore.rightWidgets
+                    .opacity(isHovering ? 0 : 1)
             }
         }
         // NOTE: We sync both local isHovering and global hoverHandler here.
