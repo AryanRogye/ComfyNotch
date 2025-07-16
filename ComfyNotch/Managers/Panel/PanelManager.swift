@@ -72,6 +72,8 @@ protocol PanelManager {
     
     /**
      * Function to apply a specific layoutGroup to the panel.
+     * This Funciton is used to set the top row layout based on the current group that is passed in.
+     * This is ONLY called by UIManager.swift
      */
     func applyLayout(for group: LayoutGroup)
 }

@@ -197,6 +197,4 @@ class UIManager: ObservableObject {
 
 
 extension CompactWidgetsStore {
-    /// This Funciton is used to set the top row layout based on the current group that is passed in
-    /// this is ONLY called by UIManager.swift
 }
