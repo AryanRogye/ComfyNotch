@@ -12,42 +12,78 @@ import SwiftUI
 
 struct ComfyNotchSettingsView: View {
     
-    @State private var openSettingsChanged: Bool = false
+    @State private var openSettingsChanged      : Bool = false
+    @State private var closedSettingsChanged    : Bool = false
     
     var body: some View {
         ComfyScrollView {
-            // MARK: - Closed Notch Settings
-            ComfySettingsContainer {
-                ComfyNotchSettingsView_OpenNotchSettings(
-                    didChange: $openSettingsChanged
-                )
-            } header: {
-                Text("Open")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.primary)
-                if openSettingsChanged {
-                    Button(action: {}) {
-                        Text("Save")
-                            .font(.system(size: 10, weight: .semibold))
-                            .foregroundColor(.blue)
+            openNotchSettings
+            
+            closedNotchSettings
+        }
+    }
+    
+    // MARK: - Closed Notch Settings
+    private var closedNotchSettings: some View {
+        ComfySettingsContainer {
+            ComfyNotchSettingsView_ClosedNotchSettings(
+                didChange: $closedSettingsChanged
+            )
+        } header: {
+            Text("Closed")
+                .font(.headline)
+                .fontWeight(.semibold)
+                .foregroundColor(.primary)
+            Spacer()
+            
+            Button(action: {}) {
+                Text("Save")
+                    .font(.system(size: 11, weight: .semibold))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 1)
+                    .background {
+                        closedSettingsChanged
+                        ? Color.accentColor.opacity(0.2)
+                        : Color.accentColor.opacity(0.1)
                     }
-                }
-                Spacer()
+                    .foregroundColor(.accentColor)
+                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
             }
+            .buttonStyle(PlainButtonStyle())
+            .controlSize(.small)
+            .disabled(!closedSettingsChanged)
+        }
+    }
+    
+    // MARK: - Open Notch Settings
+    private var openNotchSettings: some View {
+        ComfySettingsContainer {
+            ComfyNotchSettingsView_OpenNotchSettings(
+                didChange: $openSettingsChanged
+            )
+        } header: {
+            Text("Open")
+                .font(.headline)
+                .fontWeight(.semibold)
+                .foregroundColor(.primary)
+            Spacer()
             
-            // MARK: - Open Notch Settings
-            ComfySettingsContainer {
-            } header: {
-                Text("Closed")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.primary)
-                Spacer()
+            Button(action: {}) {
+                Text("Save")
+                    .font(.system(size: 11, weight: .semibold))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 1)
+                    .background {
+                        openSettingsChanged
+                        ? Color.accentColor.opacity(0.2)
+                        : Color.accentColor.opacity(0.1)
+                    }
+                    .foregroundColor(.accentColor)
+                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
             }
-            
-            
-            
+            .buttonStyle(PlainButtonStyle())
+            .controlSize(.small)
+            .disabled(!openSettingsChanged)
         }
     }
 }

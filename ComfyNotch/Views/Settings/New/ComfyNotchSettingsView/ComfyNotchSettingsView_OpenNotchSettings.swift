@@ -16,6 +16,7 @@ struct ComfyNotchSettingsView_OpenNotchSettings: View {
     @State private var rightSpacing: Int = 0
     @State private var topSpacing: Int = 0
     
+    /// Initial Values
     private var leftSpacingInitialValue: Int {
         Int(settings.quickAccessWidgetDistanceFromLeft)
     }
@@ -28,69 +29,9 @@ struct ComfyNotchSettingsView_OpenNotchSettings: View {
     
     var body: some View {
         VStack {
-            VStack(spacing: 0) {
-                Rectangle()
-                    .fill(Color.red.opacity(0.5))
-                    .frame(width: 2, height: CGFloat(topSpacing))
-                HStack {
-                    Rectangle()
-                        .fill(Color.red.opacity(0.5))
-                        .frame(width: CGFloat(leftSpacing), height: 2)
-                    
-                    
-                    /// Both Padding top is set because thats how it is in the notch
-                    
-                    VStack{}
-                        .frame(width: 18, height: 18)
-                        .clipShape(
-                            Rectangle()
-                        )
-                        .border(.blue, width: 1)
-                    Spacer()
-                    VStack{}
-                        .frame(width: 18, height: 18)
-                        .clipShape(
-                            Rectangle()
-                        )
-                        .border(.red, width: 1)
-                    
-                    
-                    Rectangle()
-                        .fill(Color.blue.opacity(0.5))
-                        .frame(width: CGFloat(rightSpacing), height: 2)
-                }
-                
-                Spacer()
-            }
-            .padding(.horizontal, 12)
-            .frame(width: 400, height: 150)
-            .background(
-                ComfyNotchShape(topRadius: 8, bottomRadius: 14)
-                    .fill(Color.black)
-            )
+            notchShapeOpen
             
-            
-            /// Dimensions
-            VStack(alignment: .leading) {
-                ComfySlider(
-                    value: $leftSpacing,
-                    in: 0...100,
-                    label: "Left Spacing"
-                )
-                
-                ComfySlider(
-                    value: $rightSpacing,
-                    in: 0...100,
-                    label: "Right Spacing"
-                )
-                
-                ComfySlider(
-                    value: $topSpacing,
-                    in: 0...100,
-                    label: "Top Spacing"
-                )
-            }
-            .padding()
+            dimensionSettings
         }
         .onAppear {
             leftSpacing = Int(settings.quickAccessWidgetDistanceFromLeft)
@@ -102,6 +43,81 @@ struct ComfyNotchSettingsView_OpenNotchSettings: View {
             rightSpacing != rightSpacingInitialValue ||
             topSpacing != topSpacingInitialValue
         }
+    }
+    
+    // MARK: - Notch Shape
+    private var notchShapeOpen: some View {
+        /// Notch Shape
+        VStack(spacing: 0) {
+            
+            /// Showing Of Top Padding Settings
+            Rectangle()
+                .fill(Color.red.opacity(0.5))
+                .frame(width: 2, height: CGFloat(topSpacing))
+            HStack(spacing: 0) {
+                
+                /// Showing Of Left Padding Settings
+                Rectangle()
+                    .fill(Color.red.opacity(0.5))
+                    .frame(width: CGFloat(leftSpacing), height: 2)
+                
+                
+                /// Both Padding top is set because thats how it is in the notch
+                
+                VStack{}
+                    .frame(width: 18, height: 18)
+                    .clipShape(
+                        Rectangle()
+                    )
+                    .border(.blue, width: 1)
+                Spacer()
+                VStack{}
+                    .frame(width: 18, height: 18)
+                    .clipShape(
+                        Rectangle()
+                    )
+                    .border(.red, width: 1)
+                
+                
+                /// Showing Of Right Padding Settings
+                Rectangle()
+                    .fill(Color.blue.opacity(0.5))
+                    .frame(width: CGFloat(rightSpacing), height: 2)
+            }
+            
+            Spacer()
+        }
+        .padding(.horizontal, 7)
+        .frame(width: 400, height: 150)
+        // MARK: - Actual Notch Shape
+        .background(
+            ComfyNotchShape(topRadius: 8, bottomRadius: 14)
+                .fill(Color.black)
+        )
+    }
+    
+    // MARK: - Dimension Settings
+    private var dimensionSettings: some View {
+        VStack(alignment: .leading) {
+            ComfySlider(
+                value: $leftSpacing,
+                in: 0...100,
+                label: "Left Spacing"
+            )
+            
+            ComfySlider(
+                value: $rightSpacing,
+                in: 0...100,
+                label: "Right Spacing"
+            )
+            
+            ComfySlider(
+                value: $topSpacing,
+                in: 0...100,
+                label: "Top Spacing"
+            )
+        }
+        .padding()
     }
 }
 

@@ -176,6 +176,8 @@ struct SettingsView: View {
     // MARK: - Settings View
     private var settingsView: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
+            /// Sidebar for Settings to click
+            /// TODO: REDO
             List(selection: $localTabSelection) {
                 ForEach(SettingsView.Tab.allCases, id: \.self) { tab in
                     tabItem(tab)
@@ -183,6 +185,7 @@ struct SettingsView: View {
             }
             .navigationSplitViewStyle(.prominentDetail)
         } detail: {
+            // MARK: - Detail For Selected Tab
             VStack(spacing: 8) {
                 HStack(alignment: .center, spacing: 8) {
                     image(for: settings.selectedTab)
@@ -200,6 +203,7 @@ struct SettingsView: View {
                 
                 Divider()
                 
+                // MARK: - Destination
                 settings.selectedTab.destination(settings: settings)
                     .frame(minWidth: 500, maxWidth: .infinity, maxHeight: .infinity)
                     .background(.regularMaterial)
@@ -221,10 +225,8 @@ struct SettingsView: View {
         }
     }
     
-    
+    // MARK: - Helpers
     private func tabItem(_ tab: SettingsView.Tab) -> some View {
-        let isSelected = tab == settings.selectedTab
-        
         return HStack(spacing: 8) {
             image(for: tab)
             Text(tab.label)
