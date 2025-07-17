@@ -6,7 +6,7 @@ struct SettingsView: View {
     
     @State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn
     @State private var localTabSelection: Tab = SettingsModel.shared.selectedTab
-
+    
     init() {}
     
     // MARK: - Tabs
@@ -48,10 +48,18 @@ struct SettingsView: View {
     // MARK: - body
     var body: some View {
         ZStack {
-            if settings.hasFirstWindowBeenOpenOnce {
+            /// If macOS 15 or higher, show settings view directly
+            if #available(macOS 15, *) {
                 settingsView
-            } else {
-                loadingView
+            }
+            /// If is < 15, show loading view first and then the settings view
+            /// this will help spam in the beginning
+            else {
+                if settings.hasFirstWindowBeenOpenOnce {
+                    settingsView
+                } else {
+                    loadingView
+                }
             }
         }
         .onAppear {
@@ -107,7 +115,7 @@ struct SettingsView: View {
             }
         }
     }
-
+    
     // MARK: - Settings View
     private var settingsView: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
@@ -145,6 +153,7 @@ struct SettingsView: View {
             settings.selectedTab.destination(settings: settings)
                 .frame(minWidth: 500, maxWidth: .infinity, maxHeight: .infinity)
                 .background(.regularMaterial)
+                .navigationTitle(localTabSelection.label)
         }
         .transaction { $0.animation = nil }
         .frame(minWidth: 800, idealWidth: 800, maxWidth: 900, minHeight: 600, maxHeight: 600)

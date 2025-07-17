@@ -21,11 +21,19 @@ struct ComfyNotchApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     var body: some Scene {
-        Window("SettingsView", id: "SettingsView") {
-            SettingsView()
+        if #available(macOS 15.0, *) {
+            return Window("SettingsView", id: "SettingsView") {
+                SettingsView()
+            }
+            .windowResizability(.contentSize)
+            .defaultPosition(.center)
+            .defaultLaunchBehavior(.suppressed)
+        } else {
+            return Window("SettingsView", id: "SettingsView") {
+                SettingsView()
+            }
+            .windowResizability(.contentSize)
+            .defaultPosition(.center)
         }
-        .windowResizability(.contentSize)
-        .defaultPosition(.center)
-        .windowStyle(.hiddenTitleBar)
     }
 }
