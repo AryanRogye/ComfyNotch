@@ -9,10 +9,22 @@ import SwiftUI
 
 struct ComfyNotchSettingsView_OpenNotchSettings: View {
     
+    @EnvironmentObject var settings: SettingsModel
+    @Binding var didChange: Bool
     
     @State private var leftSpacing: Int = 0
     @State private var rightSpacing: Int = 0
     @State private var topSpacing: Int = 0
+    
+    private var leftSpacingInitialValue: Int {
+        Int(settings.quickAccessWidgetDistanceFromLeft)
+    }
+    private var rightSpacingInitialValue: Int {
+        Int(settings.settingsWidgetDistanceFromRight)
+    }
+    private var topSpacingInitialValue: Int {
+        Int(settings.quickAccessWidgetDistanceFromTop)
+    }
     
     var body: some View {
         VStack {
@@ -79,6 +91,16 @@ struct ComfyNotchSettingsView_OpenNotchSettings: View {
                 )
             }
             .padding()
+        }
+        .onAppear {
+            leftSpacing = Int(settings.quickAccessWidgetDistanceFromLeft)
+            rightSpacing = Int(settings.settingsWidgetDistanceFromRight)
+            topSpacing = Int(settings.quickAccessWidgetDistanceFromTop)
+        }
+        .onChange(of: [leftSpacing, rightSpacing, topSpacing]) {
+            didChange = leftSpacing != leftSpacingInitialValue ||
+            rightSpacing != rightSpacingInitialValue ||
+            topSpacing != topSpacingInitialValue
         }
     }
 }

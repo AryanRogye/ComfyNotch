@@ -11,18 +11,28 @@ import SwiftUI
 /// NO AI COPY PASTE HERE
 
 struct ComfyNotchSettingsView: View {
+    
+    @State private var openSettingsChanged: Bool = false
+    
     var body: some View {
         ComfyScrollView {
-            
-            
             // MARK: - Closed Notch Settings
             ComfySettingsContainer {
-                ComfyNotchSettingsView_OpenNotchSettings()
+                ComfyNotchSettingsView_OpenNotchSettings(
+                    didChange: $openSettingsChanged
+                )
             } header: {
                 Text("Open")
                     .font(.headline)
                     .fontWeight(.semibold)
                     .foregroundColor(.primary)
+                if openSettingsChanged {
+                    Button(action: {}) {
+                        Text("Save")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundColor(.blue)
+                    }
+                }
                 Spacer()
             }
             
@@ -37,7 +47,7 @@ struct ComfyNotchSettingsView: View {
             }
             
             
-
+            
         }
     }
 }
