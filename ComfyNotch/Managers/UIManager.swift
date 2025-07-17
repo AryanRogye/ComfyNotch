@@ -194,7 +194,3 @@ class UIManager: ObservableObject {
         return fallbackHeight > 0 ? fallbackHeight : 40
     }
 }
-
-
-extension CompactWidgetsStore {
-}

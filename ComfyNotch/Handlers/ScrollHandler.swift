@@ -395,18 +395,50 @@ class ScrollHandler {
         guard UIManager.shared.panelState == .closed else { return }
         
         let screen = DisplayManager.shared.selectedScreen!
+        let id = screen.displayID
+        
+        /// we want to look for the screen with the ID cuz the frame is not logging
+        /// that its different, I had the resolution 1800x1169 and changed to 1512x982
+        /// but the frame was still logging 1800x1169
+        
+        guard let screen = NSScreen.screens.first(where: {
+            $0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID == id
+        }) else {
+            debugLog("❌ Could not find screen with displayID \(String(describing: id))")
+            return
+        }
+        
+        DispatchQueue.main.async {
+            DisplayManager.shared.selectedScreen = screen
+        }
+        
+        minPanelHeight = UIManager.shared.getNotchHeight()
+        /// DEBUG LOG, this is DEBUG DEBUG working
+//        debugLog("Screen Frame: \(screen.frame)")
+//        debugLog("Screen Visible Frame: \(screen.visibleFrame)")
+//        debugLog("Panel Screen Origin: \(panel.screen?.frame.origin ?? .zero)")
+        
         let startYOffset = UIManager.shared.startPanelYOffset
         
         let finalWidth = minPanelWidth
-        let finalHeight = minPanelHeight
         let centerX = (screen.frame.width - finalWidth) / 2
-        let y = screen.frame.height - finalHeight - startYOffset
-        let desiredFrame = NSRect(x: centerX, y: y, width: finalWidth, height: finalHeight)
+        let y = screen.frame.height - minPanelHeight - startYOffset
+        let desiredFrame = NSRect(x: centerX, y: y, width: finalWidth, height: minPanelHeight)
         
         // Optional: Tolerance for micro pixel diff
-        if !panel.frame.equalTo(desiredFrame) {
-            panel.setFrame(desiredFrame, display: true)
-        }
+        //        if !panel.frame.equalTo(desiredFrame) {
+        //            panel.setFrame(desiredFrame, display: true)
+        //        }
+        
+        panel.orderOut(nil)
+        panel.setFrame(desiredFrame, display: true)
+        panel.orderFront(nil)
+        
+//        print("Set Values")
+//        print("Min Height: \(minPanelHeight)")
+//        print("Min Width: \(minPanelWidth)")
+//        print("Panel Frame: \(panel.frame)")
+//        print("Desired Frame: \(desiredFrame)")
     }
     
     // MARK: – Internals
@@ -422,21 +454,21 @@ class ScrollHandler {
         if open {
             UIManager.shared.panelState = .open
             /// DEBUG DEBUG LOGS
-//            debugLog("Opening")
+            //            debugLog("Opening")
             UIManager.shared.applyExpandedWidgetLayout()
         }
         // MARK: - Close Logic
         else if height <= minPanelHeight {
             UIManager.shared.panelState = .closed
             /// DEBUG DEBUG LOGS
-//            debugLog("Closed")
+            //            debugLog("Closed")
             UIManager.shared.applyCompactWidgetLayout()
         }
-        // MARK: - Partial Logic 
+        // MARK: - Partial Logic
         else {
             UIManager.shared.panelState = .partiallyOpen
             /// DEBUG DEBUG LOGS
-//            debugLog("Applying Partial")
+            //            debugLog("Applying Partial")
             UIManager.shared.applyOpeningLayout()
         }
     }

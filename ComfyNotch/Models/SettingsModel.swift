@@ -46,7 +46,6 @@ class SettingsModel: ObservableObject {
     @Published var nowPlayingScrollSpeed: Int = 40
     @Published var enableNotchHUD: Bool = false
     
-    
     /// Controlling the width of the notch, My Refular Used to be 700 but changed to 450
     /// cuz lots of users suggested that it was too wide, looked like a iPhone
     @Published var notchMaxWidth: CGFloat = 450

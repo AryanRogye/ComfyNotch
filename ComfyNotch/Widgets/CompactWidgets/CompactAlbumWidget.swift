@@ -45,7 +45,7 @@ struct CompactAlbumWidget: View, Widget {
                     ZStack {
                         RoundedRectangle(cornerRadius: 8)
                             .fill(Color.gray.opacity(0.2))
-                            .frame(width: 27, height: 23)
+                            .frame(width: sizeConfig.width, height: sizeConfig.height)
                         Image(systemName: "music.note")
                             .font(.system(size: 13, weight: .medium))
                             .foregroundColor(.white)
