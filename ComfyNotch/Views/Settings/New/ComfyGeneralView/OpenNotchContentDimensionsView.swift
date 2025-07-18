@@ -1,5 +1,5 @@
 //
-//  ComfyNotchSettingsView_OpenNotchSettings.swift
+//  OpenNotchContentDimensionsView.swift
 //  ComfyNotch
 //
 //  Created by Aryan Rogye on 7/17/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ComfyNotchSettingsView_OpenNotchSettings: View {
+struct OpenNotchContentDimensionsView: View {
     
     @EnvironmentObject var settings: SettingsModel
     @Binding var didChange: Bool
@@ -47,53 +47,63 @@ struct ComfyNotchSettingsView_OpenNotchSettings: View {
     
     // MARK: - Notch Shape
     private var notchShapeOpen: some View {
-        /// Notch Shape
-        VStack(spacing: 0) {
+        ZStack {
+            Image("ScreenBackgroundNotch")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(maxWidth: .infinity, maxHeight: 150)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             
-            /// Showing Of Top Padding Settings
-            Rectangle()
-                .fill(Color.red.opacity(0.5))
-                .frame(width: 2, height: CGFloat(topSpacing))
-            HStack(spacing: 0) {
+            /// Notch Shape
+            VStack(spacing: 0) {
                 
-                /// Showing Of Left Padding Settings
+                /// Showing Of Top Padding Settings
                 Rectangle()
                     .fill(Color.red.opacity(0.5))
-                    .frame(width: CGFloat(leftSpacing), height: 2)
+                    .frame(width: 2, height: CGFloat(topSpacing))
+                HStack(spacing: 0) {
+                    
+                    /// Showing Of Left Padding Settings
+                    Rectangle()
+                        .fill(Color.red.opacity(0.5))
+                        .frame(width: CGFloat(leftSpacing), height: 2)
+                    
+                    
+                    /// Both Padding top is set because thats how it is in the notch
+                    
+                    VStack{}
+                        .frame(width: 18, height: 18)
+                        .clipShape(
+                            Rectangle()
+                        )
+                        .border(.blue, width: 1)
+                    Spacer()
+                    VStack{}
+                        .frame(width: 18, height: 18)
+                        .clipShape(
+                            Rectangle()
+                        )
+                        .border(.red, width: 1)
+                    
+                    
+                    /// Showing Of Right Padding Settings
+                    Rectangle()
+                        .fill(Color.blue.opacity(0.5))
+                        .frame(width: CGFloat(rightSpacing), height: 2)
+                }
                 
-                
-                /// Both Padding top is set because thats how it is in the notch
-                
-                VStack{}
-                    .frame(width: 18, height: 18)
-                    .clipShape(
-                        Rectangle()
-                    )
-                    .border(.blue, width: 1)
                 Spacer()
-                VStack{}
-                    .frame(width: 18, height: 18)
-                    .clipShape(
-                        Rectangle()
-                    )
-                    .border(.red, width: 1)
-                
-                
-                /// Showing Of Right Padding Settings
-                Rectangle()
-                    .fill(Color.blue.opacity(0.5))
-                    .frame(width: CGFloat(rightSpacing), height: 2)
             }
-            
-            Spacer()
+            .padding(.horizontal, 7)
+            .frame(width: 400, height: 140)
+            // MARK: - Actual Notch Shape
+            .background(
+                ComfyNotchShape(topRadius: 8, bottomRadius: 14)
+                    .fill(Color.black)
+            )
+            /// this is cuz notch is 140 and image is 150, we push it up
+            .padding(.top, -10)
         }
-        .padding(.horizontal, 7)
-        .frame(width: 400, height: 150)
-        // MARK: - Actual Notch Shape
-        .background(
-            ComfyNotchShape(topRadius: 8, bottomRadius: 14)
-                .fill(Color.black)
-        )
     }
     
     // MARK: - Dimension Settings

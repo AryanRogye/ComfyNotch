@@ -58,7 +58,6 @@ struct TopNotchView: View {
             }
             .padding(.trailing, trailingPadding)
         }
-        .padding(.bottom, 2)
         .frame(maxWidth: .infinity, maxHeight: UIManager.shared.getNotchHeight(), alignment: .top)
     }
     

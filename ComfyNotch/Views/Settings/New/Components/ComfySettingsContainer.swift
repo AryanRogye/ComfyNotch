@@ -33,8 +33,8 @@ struct ComfySettingsContainer<Content: View, Header: View>: View {
             .frame(maxWidth: .infinity)
             .padding(10)
             .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(Color(nsColor: .quaternarySystemFill))
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(Color.white.opacity(0.03))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)

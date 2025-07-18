@@ -13,6 +13,9 @@ struct ComfySlider: View {
     let step: Double
     let label: String
     
+    private let thumbDiameter: CGFloat = 15
+    private var thumbRadius: CGFloat { thumbDiameter / 2 }
+    
     init(value: Binding<Double>, in range: ClosedRange<Double>, step: Double = 1.0, label: String = "") {
         self._value = value
         self.range = range
@@ -46,7 +49,7 @@ struct ComfySlider: View {
                     // Progress fill
                     Rectangle()
                         .fill(Color.accentColor)
-                        .frame(width: progressWidth(geometry.size.width), height: 3)
+                        .frame(width: progressWidth(geometry.size.width) > 0 ? progressWidth(geometry.size.width) : 0, height: 3)
                         .cornerRadius(1.5)
                     
                     // Thumb
@@ -71,13 +74,15 @@ struct ComfySlider: View {
     }
     
     private func progressWidth(_ totalWidth: CGFloat) -> CGFloat {
-        let progress = (value - range.lowerBound) / (range.upperBound - range.lowerBound)
-        return totalWidth * progress
+        let usable = totalWidth - thumbDiameter
+        let pct = (value - range.lowerBound) / (range.upperBound - range.lowerBound)
+        return usable * pct + thumbRadius
     }
     
     private func thumbPosition(_ totalWidth: CGFloat) -> CGFloat {
-        let progress = (value - range.lowerBound) / (range.upperBound - range.lowerBound)
-        return totalWidth * progress
+        let usable = totalWidth - thumbDiameter
+        let pct = (value - range.lowerBound) / (range.upperBound - range.lowerBound)
+        return usable * pct + thumbRadius
     }
     
     private func valueFromPosition(_ position: CGFloat, width: CGFloat) -> Double {

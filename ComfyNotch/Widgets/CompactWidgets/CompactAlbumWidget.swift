@@ -26,7 +26,8 @@ struct CompactAlbumWidget: View, Widget {
         notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 2 : 4
     }
     private var paddingTop: CGFloat {
-        notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 4 : 0
+        /// IF 0 it pushes it weirdly
+        notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 4 : 2
     }
     
     @State private var sizeConfig: WidgetSizeConfig = .init(width: 0, height: 0)
@@ -40,17 +41,15 @@ struct CompactAlbumWidget: View, Widget {
                         .scaledToFit()
                         .frame(width: sizeConfig.width, height: sizeConfig.height)
                         .cornerRadius(4)
-                        .padding(.top, 2)
                 } else {
                     ZStack {
                         RoundedRectangle(cornerRadius: 8)
                             .fill(Color.gray.opacity(0.2))
                             .frame(width: sizeConfig.width, height: sizeConfig.height)
                         Image(systemName: "music.note")
-                            .font(.system(size: 13, weight: .medium))
+                            .font(.system(size: sizeConfig.height * 0.5 > 0 ? sizeConfig.height * 0.5 : 1, weight: .medium))
                             .foregroundColor(.white)
                     }
-                    .padding(.top, 1)
                 }
             }
         }
@@ -63,6 +62,7 @@ struct CompactAlbumWidget: View, Widget {
         .onChange(of: notchStateManager.hoverHandler.scaleHoverOverLeftItems) {
             sizeConfig = widgetSize()
         }
+        .padding(.top, paddingTop)
     }
     
     private func panelButton<Label: View>(@ViewBuilder label: () -> Label) -> some View {

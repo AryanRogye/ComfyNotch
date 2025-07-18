@@ -42,7 +42,8 @@ struct SettingsView: View {
             case .general:
                 return Color(red: 0.45, green: 0.45, blue: 0.47) // sleek dark gray
             case .notch:
-                return Color(red: 0.70, green: 0.40, blue: 1.0) // candy purple
+                //                return Color(red: 0.93, green: 0.84, blue: 0.68) // #EED7AD
+                return .black
             case .animations:
                 return Color(red: 0.2, green: 0.6, blue: 1.0) // electric blue
             case .display:
@@ -57,7 +58,7 @@ struct SettingsView: View {
             case .general:
                 return 16
             case .notch:
-                return 16
+                return 21
             case .animations:
                 return 16
             case .display:
@@ -71,7 +72,7 @@ struct SettingsView: View {
             case .general:
                 return 16
             case .notch:
-                return 16
+                return 20
             case .animations:
                 return 16
             case .display:
@@ -86,13 +87,13 @@ struct SettingsView: View {
         func destination(settings: SettingsModel) -> some View {
             switch self {
                 
-//                            case .notch:        QuickAccessSettingsView(settings: settings)
-//                            case .general:      GeneralSettingsView(settings: settings)
-//                            case .animations:   AnimationSettings(settings: settings)
-//                            case .display :     DisplaySettingsView(settings: settings)
-//                            case .updates:      UpdatesSettingsView(settings: settings)
+                //                            case .notch:        QuickAccessSettingsView(settings: settings)
+                //                            case .general:      GeneralSettingsView(settings: settings)
+                //                            case .animations:   AnimationSettings(settings: settings)
+                //                            case .display :     DisplaySettingsView(settings: settings)
+                //                            case .updates:      UpdatesSettingsView(settings: settings)
                 
-            case .notch:        ComfyNotchSettingsView()
+            case .notch:        NotchSettingsView()
             case .general:      ComfyGeneralView()
             case .animations:   AnimationSettings(settings: settings)
             case .display :     DisplaySettingsView(settings: settings)
@@ -100,7 +101,7 @@ struct SettingsView: View {
             }
         }
     }
-
+    
     
     // MARK: - body
     var body: some View {
@@ -176,41 +177,58 @@ struct SettingsView: View {
     // MARK: - Settings View
     private var settingsView: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
-            /// Sidebar for Settings to click
-            /// TODO: REDO
-            List(selection: $localTabSelection) {
-                ForEach(SettingsView.Tab.allCases, id: \.self) { tab in
-                    tabItem(tab)
+            ZStack {
+                
+                VisualEffectView(material: .hudWindow, blendingMode: .behindWindow)
+                    .ignoresSafeArea()
+                
+                Color.black.opacity(0.2)
+                    .ignoresSafeArea()
+                
+                /// Sidebar for Settings to click
+                /// TODO: REDO
+                List(selection: $localTabSelection) {
+                    ForEach(SettingsView.Tab.allCases, id: \.self) { tab in
+                        tabItem(tab)
+                    }
                 }
+                .navigationSplitViewStyle(.prominentDetail)
             }
-            .navigationSplitViewStyle(.prominentDetail)
         } detail: {
-            // MARK: - Detail For Selected Tab
-            VStack(spacing: 8) {
-                HStack(alignment: .center, spacing: 8) {
-                    image(for: settings.selectedTab)
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(.accentColor)
-                        .frame(width: 24, height: 24)
+            ZStack {
+                
+                VisualEffectView(material: .hudWindow, blendingMode: .behindWindow)
+                    .ignoresSafeArea()
+                
+                Color.black.opacity(0.2)
+                    .ignoresSafeArea()
+
+                // MARK: - Detail For Selected Tab
+                VStack(spacing: 8) {
+                    HStack(alignment: .center, spacing: 8) {
+                        image(for: settings.selectedTab)
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(.accentColor)
+                            .frame(width: 24, height: 24)
+                        
+                        Text(settings.selectedTab.label)
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(.primary)
+                        
+                        Spacer()
+                    }
+                    .padding(.horizontal)
                     
-                    Text(settings.selectedTab.label)
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(.primary)
+                    Divider()
+                    
+                    // MARK: - Destination
+                    settings.selectedTab.destination(settings: settings)
+                        .frame(minWidth: 500, maxWidth: .infinity, maxHeight: .infinity)
+                        .navigationTitle(localTabSelection.label)
+                        .environmentObject(settings)
                     
                     Spacer()
                 }
-                .padding(.horizontal)
-                
-                Divider()
-                
-                // MARK: - Destination
-                settings.selectedTab.destination(settings: settings)
-                    .frame(minWidth: 500, maxWidth: .infinity, maxHeight: .infinity)
-                    .background(.regularMaterial)
-                    .navigationTitle(localTabSelection.label)
-                    .environmentObject(settings)
-                
-                Spacer()
             }
         }
         .transaction { $0.animation = nil }
@@ -248,7 +266,7 @@ struct SettingsView: View {
                 Image("comfypillowDesign")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.gray)
                     .frame(width: tab.width, height: tab.height)
             } else {
                 Image(systemName: tab.icon)
@@ -271,4 +289,23 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView()
+}
+
+
+struct VisualEffectView: NSViewRepresentable {
+    var material: NSVisualEffectView.Material = .sidebar
+    var blendingMode: NSVisualEffectView.BlendingMode = .behindWindow
+    
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        view.material = material
+        view.blendingMode = blendingMode
+        view.state = .active
+        view.wantsLayer = true
+        view.layer?.cornerRadius = 12
+        view.layer?.masksToBounds = true
+        return view
+    }
+    
+    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
 }
