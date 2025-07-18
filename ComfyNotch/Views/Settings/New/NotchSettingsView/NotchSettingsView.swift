@@ -16,10 +16,11 @@ struct NotchSettingsView: View {
         VStack {
             ComfyScrollView {
                 currentWidgetsDisplay
+                selectWidgetsDisplay
             }
         }
     }
-
+    
     private var currentWidgetsDisplay: some View {
         ComfySettingsContainer {
             CurrentWidgetsDisplayView()
@@ -29,7 +30,21 @@ struct NotchSettingsView: View {
                 .fontWeight(.semibold)
                 .foregroundColor(.primary)
             Spacer()
-
+            
         }
     }
+    
+    private var selectWidgetsDisplay: some View {
+        ComfySettingsContainer {
+            SelectWidgetsView()
+        } header: {
+            Text("Select Widgets")
+                .font(.headline)
+                .fontWeight(.semibold)
+                .foregroundColor(.primary)
+            Spacer()
+            
+        }
+    }
+    
 }
