@@ -78,7 +78,7 @@ struct TopNotchView: View {
     
     // MARK: - Right Widget
     private var rightWidgets: some View {
-        ZStack(alignment: .leading) {
+        ZStack(alignment: .trailing) {
             if isHovering {
                 playPause
             } else {

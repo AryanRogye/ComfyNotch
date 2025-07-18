@@ -33,14 +33,52 @@ struct ComfySettingsContainer<Content: View, Header: View>: View {
             .frame(maxWidth: .infinity)
             .padding(10)
             .background(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(Color.white.opacity(0.03))
+                // Multi-layer background for depth
+                ZStack {
+                    // Base material
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(.ultraThinMaterial)
+                    
+                    // Subtle border
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.1),
+                                    Color.clear
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 0.5
+                        )
+                    
+                    // Top highlight for glass effect
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.05),
+                                    Color.clear
+                                ],
+                                startPoint: .top,
+                                endPoint: .center
+                            )
+                        )
+                }
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.black.opacity(0.05), lineWidth: 1)
+            .shadow(
+                color: Color.black.opacity(0.3),
+                radius: 8,
+                x: 0,
+                y: 2
             )
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .shadow(
+                color: Color.black.opacity(0.1),
+                radius: 2,
+                x: 0,
+                y: 1
+            )
         }
     }
 }

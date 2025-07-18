@@ -140,7 +140,8 @@ class CompactWidgetsStore: PanelManager, ObservableObject {
         /// Defining The Music Layout
         static let music: ([() -> Widget], [() -> Widget]) = (
             [{ CompactAlbumWidget() }],
-            [{ MovingDotsView() }]
+//            [{ MovingDotsView() }]
+            [{ FancyMovingBars() }]
         )
         
         /// Defining the Open Layout
@@ -197,15 +198,19 @@ class CompactWidgetsStore: PanelManager, ObservableObject {
             self.hideWidget(named: "QuickAccessWidget")
             self.hideWidget(named: "AlbumWidget")
             self.hideWidget(named: "MovingDotsWidget")
+            self.hideWidget(named: "MovingBars")
             self.hideWidget(named: "Settings")
         case .music:
             self.hideWidget(named: "Settings")
             self.hideWidget(named: "QuickAccessWidget")
             self.showWidget(named: "AlbumWidget")
             self.showWidget(named: "MovingDotsWidget")
+            self.showWidget(named: "MovingBars")
         case .expanded:
             self.hideWidget(named: "AlbumWidget")
             self.hideWidget(named: "MovingDotsWidget")
+            self.hideWidget(named: "MovingBars")
+
             self.showWidget(named: "Settings")
             self.showWidget(named: "QuickAccessWidget")
         }

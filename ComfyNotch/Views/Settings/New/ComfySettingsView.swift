@@ -193,7 +193,21 @@ struct SettingsView: View {
                     }
                 }
                 .navigationSplitViewStyle(.prominentDetail)
+                
+                VStack {
+                    Spacer()
+                    
+                    Button("Exit ComfyNotch", role: .destructive) {
+                        closeWindow()
+                    }
+                    .keyboardShortcut("q", modifiers: [.command])
+                    .buttonStyle(.bordered)
+                    .controlSize(.regular)
+                    .padding(.bottom, 20)
+                }
             }
+            .navigationSplitViewColumnWidth(min: 145, ideal: 145, max: 145)
+            
         } detail: {
             ZStack {
                 
@@ -202,7 +216,7 @@ struct SettingsView: View {
                 
                 Color.black.opacity(0.2)
                     .ignoresSafeArea()
-
+                
                 // MARK: - Detail For Selected Tab
                 VStack(spacing: 8) {
                     HStack(alignment: .center, spacing: 8) {
@@ -232,7 +246,7 @@ struct SettingsView: View {
             }
         }
         .transaction { $0.animation = nil }
-        .frame(minWidth: 800, idealWidth: 800, maxWidth: 900, minHeight: 600, maxHeight: 600)
+        .frame(minWidth: 735, idealWidth: 735, maxWidth: 735, minHeight: 600, maxHeight: 600)
         .onChange(of: localTabSelection) { _, newValue in
             settings.selectedTab = newValue
         }
@@ -282,6 +296,10 @@ struct SettingsView: View {
                 .fill(tab.color)
                 .transition(.opacity)
         )
+    }
+    
+    func closeWindow() {
+        NSApp.terminate(nil)
     }
 }
 
