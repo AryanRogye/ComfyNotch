@@ -7,11 +7,21 @@
 
 import SwiftUI
 
+struct OpeningAnimationSettingsValues {
+    var openingAnimation: String = "iOS"
+}
+
 struct OpeningAnimation: View {
     
     @EnvironmentObject var settings: SettingsModel
+    
     @Binding var didChange: Bool
-    @State private var openingAnimation: String = "iOS"
+    @Binding var v : OpeningAnimationSettingsValues
+    
+    init(values: Binding<OpeningAnimationSettingsValues>, didChange: Binding<Bool> ) {
+        self._didChange = didChange
+        self._v = values
+    }
     
     private var initialOpeningAnimation: String {
         settings.openingAnimation
@@ -22,16 +32,20 @@ struct OpeningAnimation: View {
             openingAnimationPicker
         }
         .onAppear {
-            openingAnimation = initialOpeningAnimation
+            v.openingAnimation = initialOpeningAnimation
+        }
+        .onChange(of: [v.openingAnimation]) {
+            didChange =
+            v.openingAnimation != initialOpeningAnimation
         }
     }
     
     private var openingAnimationPicker: some View {
         VStack {
             HStack(spacing: 0) {
-                Picker("Pick how you want the notch to open.", selection: $openingAnimation) {
-                    Text("Spring Animation").tag("spring")
-                    Text("iOS Animation").tag("iOS")
+                Picker("Notch Opening Style", selection: $v.openingAnimation) {
+                    Text("Spring").tag("spring")
+                    Text("iOS-style").tag("iOS")
                 }
                 .pickerStyle(.menu)
                 .tint(.accentColor)

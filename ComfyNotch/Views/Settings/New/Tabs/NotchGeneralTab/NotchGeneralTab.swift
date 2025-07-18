@@ -1,5 +1,5 @@
 //
-//  ComfyGeneralView.swift
+//  NotchGeneralTab.swift
 //  ComfyNotch
 //
 //  Created by Aryan Rogye on 7/16/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ComfyGeneralView: View {
+struct NotchGeneralTab: View {
     
     @EnvironmentObject private var settings : SettingsModel
     

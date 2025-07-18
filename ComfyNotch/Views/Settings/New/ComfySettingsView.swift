@@ -94,19 +94,13 @@ struct SettingsView: View {
         @ViewBuilder
         func destination(settings: SettingsModel) -> some View {
             switch self {
-                
-                //                            case .notch:        QuickAccessSettingsView(settings: settings)
-                //                            case .general:      GeneralSettingsView(settings: settings)
-                //                            case .animations:   AnimationSettings(settings: settings)
-                //                            case .display :     DisplaySettingsView(settings: settings)
-                //                            case .updates:      UpdatesSettingsView(settings: settings)
-                
             case .widgetSettings: WidgetSettings()
-            case .notch:        NotchSettingsView()
-            case .general:      ComfyGeneralView()
+                
+            case .notch:        NotchNotchTab()
+            case .general:      NotchGeneralTab()
             case .animations:   NotchAnimationTab()
-            case .display :     DisplaySettingsView(settings: settings)
-            case .updates:      UpdatesSettingsView(settings: settings)
+            case .display :     NotchDisplayTab()
+            case .updates:      UpdatesSettingsView()
             }
         }
     }

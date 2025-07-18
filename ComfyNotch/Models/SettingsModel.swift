@@ -287,10 +287,10 @@ class SettingsModel: ObservableObject {
             defaults.set(screen.displayID, forKey: "selectedScreenID")
         }
         /// ----------------------- Animation Settings -----------------------
-        defaults.set(openingAnimation, forKey: "openingAnimation")
-        defaults.set(notchBackgroundAnimation.rawValue, forKey: "notchBackgroundAnimation")
-        defaults.set(enableMetalAnimation, forKey: "enableMetalAnimation")
-        defaults.set(constant120FPS, forKey: "constant120FPS")
+//        defaults.set(openingAnimation, forKey: "openingAnimation")
+//        defaults.set(notchBackgroundAnimation.rawValue, forKey: "notchBackgroundAnimation")
+//        defaults.set(enableMetalAnimation, forKey: "enableMetalAnimation")
+//        defaults.set(constant120FPS, forKey: "constant120FPS")
         
         /// ------------ Utils Settings -----------------------
         defaults.set(enableUtilsOption, forKey: "enableUtilsOption")
@@ -298,6 +298,7 @@ class SettingsModel: ObservableObject {
     }
     
     /// Function to save the Closed Notch Values
+    /// Called in GeneralSettings
     public func saveClosedNotchValues(values: ClosedNotchValues) {
         self.hoverTargetMode = values.hoverTargetMode
         self.notchMinFallbackHeight = CGFloat(values.fallbackHeight)
@@ -317,6 +318,8 @@ class SettingsModel: ObservableObject {
         print("Closed Notch Values Saved")
     }
     
+    /// Function to save the Open Notch Content Dimensions
+    /// Called in GeneralSettings
     public func saveOpenNotchContentDimensions(values: OpenNotchContentDimensionsValues) {
         self.quickAccessWidgetDistanceFromLeft = CGFloat(values.leftSpacing)
         self.quickAccessWidgetDistanceFromTop = CGFloat(values.topSpacing)
@@ -327,6 +330,25 @@ class SettingsModel: ObservableObject {
         defaults.set(settingsWidgetDistanceFromRight, forKey: "settingsWidgetDistanceFromRight")
     }
     
+    /// Function to save the opening animations
+    /// Called in AnimationSettings
+    public func saveOpeningAnimationValues(values: OpeningAnimationSettingsValues) {
+        self.openingAnimation = values.openingAnimation
+        
+        defaults.set(openingAnimation, forKey: "openingAnimation")
+    }
+    
+    /// Function to save the metal animations
+    /// Called in MetalAnimations
+    public func saveMetalAnimationValues(values: MetalAnimationValues) {
+        self.enableMetalAnimation = values.enableMetalAnimation
+        self.notchBackgroundAnimation = values.notchBackgroundAnimation
+        self.constant120FPS = values.constant120FPS
+        
+        defaults.set(enableMetalAnimation, forKey: "enableMetalAnimation")
+        defaults.set(notchBackgroundAnimation.rawValue, forKey: "notchBackgroundAnimation")
+        defaults.set(constant120FPS, forKey: "constant120FPS")
+    }
     
     // MARK: - Load Settings
     /// Loads the last saved settings from UserDefaults
