@@ -141,18 +141,13 @@ struct ComfyNotchView: View {
                 }
             }
         
-        
-        
-        
-        
-        
             // MARK: - Scrolling Logic
             .panGesture(direction: .down) { translation, phase in
                 guard uiManager.panelState == .closed else { return }
                 
-                let threshhold : CGFloat = notchStateManager.currentPanelState == .popInPresentation ? 420 : 250
+                let threshold : CGFloat = notchStateManager.currentPanelState == .popInPresentation ? 420 : 250
                 
-                if translation > threshhold {
+                if translation > threshold {
                     notchStateManager.currentPanelState = .home
                     uiManager.applyOpeningLayout()
                     DispatchQueue.main.async {
