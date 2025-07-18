@@ -7,14 +7,25 @@
 
 import SwiftUI
 
+struct OpenNotchContentDimensionsValues {
+    var leftSpacing: Int = 0
+    var rightSpacing: Int = 0
+    var topSpacing: Int = 0
+}
+
 struct OpenNotchContentDimensionsView: View {
     
     @EnvironmentObject var settings: SettingsModel
     @Binding var didChange: Bool
+    @Binding var v: OpenNotchContentDimensionsValues
     
-    @State private var leftSpacing: Int = 0
-    @State private var rightSpacing: Int = 0
-    @State private var topSpacing: Int = 0
+    init(
+        values: Binding<OpenNotchContentDimensionsValues>,
+        didChange: Binding<Bool>
+    ) {
+        self._didChange = didChange
+        self._v = values
+    }
     
     /// Initial Values
     private var leftSpacingInitialValue: Int {
@@ -34,14 +45,15 @@ struct OpenNotchContentDimensionsView: View {
             dimensionSettings
         }
         .onAppear {
-            leftSpacing = Int(settings.quickAccessWidgetDistanceFromLeft)
-            rightSpacing = Int(settings.settingsWidgetDistanceFromRight)
-            topSpacing = Int(settings.quickAccessWidgetDistanceFromTop)
+            v.leftSpacing = Int(settings.quickAccessWidgetDistanceFromLeft)
+            v.rightSpacing = Int(settings.settingsWidgetDistanceFromRight)
+            v.topSpacing = Int(settings.quickAccessWidgetDistanceFromTop)
         }
-        .onChange(of: [leftSpacing, rightSpacing, topSpacing]) {
-            didChange = leftSpacing != leftSpacingInitialValue ||
-            rightSpacing != rightSpacingInitialValue ||
-            topSpacing != topSpacingInitialValue
+        .onChange(of: [v.leftSpacing, v.rightSpacing, v.topSpacing]) {
+            didChange =
+            v.leftSpacing != leftSpacingInitialValue
+            || v.rightSpacing != rightSpacingInitialValue
+            || v.topSpacing != topSpacingInitialValue
         }
     }
     
@@ -60,13 +72,13 @@ struct OpenNotchContentDimensionsView: View {
                 /// Showing Of Top Padding Settings
                 Rectangle()
                     .fill(Color.red.opacity(0.5))
-                    .frame(width: 2, height: CGFloat(topSpacing))
+                    .frame(width: 2, height: CGFloat(v.topSpacing))
                 HStack(spacing: 0) {
                     
                     /// Showing Of Left Padding Settings
                     Rectangle()
                         .fill(Color.red.opacity(0.5))
-                        .frame(width: CGFloat(leftSpacing), height: 2)
+                        .frame(width: CGFloat(v.leftSpacing), height: 2)
                     
                     
                     /// Both Padding top is set because thats how it is in the notch
@@ -89,7 +101,7 @@ struct OpenNotchContentDimensionsView: View {
                     /// Showing Of Right Padding Settings
                     Rectangle()
                         .fill(Color.blue.opacity(0.5))
-                        .frame(width: CGFloat(rightSpacing), height: 2)
+                        .frame(width: CGFloat(v.rightSpacing), height: 2)
                 }
                 
                 Spacer()
@@ -110,19 +122,19 @@ struct OpenNotchContentDimensionsView: View {
     private var dimensionSettings: some View {
         VStack(alignment: .leading) {
             ComfySlider(
-                value: $leftSpacing,
+                value: $v.leftSpacing,
                 in: 0...100,
                 label: "Left Spacing"
             )
             
             ComfySlider(
-                value: $rightSpacing,
+                value: $v.rightSpacing,
                 in: 0...100,
                 label: "Right Spacing"
             )
             
             ComfySlider(
-                value: $topSpacing,
+                value: $v.topSpacing,
                 in: 0...100,
                 label: "Top Spacing"
             )

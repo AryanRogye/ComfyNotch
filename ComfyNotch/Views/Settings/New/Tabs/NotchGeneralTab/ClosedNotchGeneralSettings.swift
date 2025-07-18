@@ -7,16 +7,31 @@
 
 import SwiftUI
 
+struct ClosedNotchValues {
+    var hoverTargetMode : HoverTarget = .none
+    var fallbackHeight: Int = 0
+    var hudEnabled: Bool = false
+    var oneFingerAction: TouchAction = .none
+    var twoFingerAction: TouchAction = .none
+}
+
 struct ClosedNotchGeneralSettings: View {
     
     @EnvironmentObject var settings: SettingsModel
-    @Binding var didChange: Bool
     
-    @State private var hoverTargetMode : HoverTarget = .none
-    @State private var fallbackHeight: Int = 0
-    @State private var hudEnabled: Bool = false
-    @State private var oneFingerAction: TouchAction = .none
-    @State private var twoFingerAction: TouchAction = .none
+    @Binding var didChange: Bool
+    @Binding var v: ClosedNotchValues
+    
+    init(values: Binding<ClosedNotchValues>, didChange: Binding<Bool> ) {
+        self._didChange = didChange
+        self._v = values
+    }
+    
+//    @State private var hoverTargetMode : HoverTarget = .none
+//    @State private var fallbackHeight: Int = 0
+//    @State private var hudEnabled: Bool = false
+//    @State private var oneFingerAction: TouchAction = .none
+//    @State private var twoFingerAction: TouchAction = .none
     
     // MARK: - Initial Values
     private var hoverTargetModeInitialValue: HoverTarget {
@@ -57,25 +72,26 @@ struct ClosedNotchGeneralSettings: View {
             touchSettings
         }
         .onAppear {
-            hoverTargetMode = settings.hoverTargetMode
-            fallbackHeight = Int(settings.notchMinFallbackHeight)
-            hudEnabled = settings.enableNotchHUD
-            oneFingerAction = settings.oneFingerAction
-            twoFingerAction = settings.twoFingerAction
+            v.hoverTargetMode = settings.hoverTargetMode
+            v.fallbackHeight = Int(settings.notchMinFallbackHeight)
+            v.hudEnabled = settings.enableNotchHUD
+            v.oneFingerAction = settings.oneFingerAction
+            v.twoFingerAction = settings.twoFingerAction
         }
-        .onChange(of: hoverTargetMode)  { checkDidChange() }
-        .onChange(of: fallbackHeight)   { checkDidChange() }
-        .onChange(of: hudEnabled)       { checkDidChange() }
-        .onChange(of: oneFingerAction)  { checkDidChange() }
-        .onChange(of: twoFingerAction)  { checkDidChange() }
+        .onChange(of: v.hoverTargetMode)  { checkDidChange() }
+        .onChange(of: v.fallbackHeight)   { checkDidChange() }
+        .onChange(of: v.hudEnabled)       { checkDidChange() }
+        .onChange(of: v.oneFingerAction)  { checkDidChange() }
+        .onChange(of: v.twoFingerAction)  { checkDidChange() }
     }
     
     private func checkDidChange() {
-        didChange = hoverTargetMode != hoverTargetModeInitialValue
-        || fallbackHeight != fallbackHeightInitialValue
-        || hudEnabled != hudEnabledInitialValue
-        || oneFingerAction != oneFingerActionInitialValue
-        || twoFingerAction != twoFingerActionInitialValue
+        didChange =
+           v.hoverTargetMode != hoverTargetModeInitialValue
+        || v.fallbackHeight != fallbackHeightInitialValue
+        || v.hudEnabled != hudEnabledInitialValue
+        || v.oneFingerAction != oneFingerActionInitialValue
+        || v.twoFingerAction != twoFingerActionInitialValue
     }
     
     // MARK: - Notch Shape Closed
@@ -104,6 +120,7 @@ struct ClosedNotchGeneralSettings: View {
             .background(
                 ComfyNotchShape(topRadius: 8, bottomRadius: 14)
                     .fill(Color.black)
+                    .allowsHitTesting(false)
             )
             /// this is cuz notch is 38 and image is 40, we push it up
             .padding(.top, -2)
@@ -114,7 +131,7 @@ struct ClosedNotchGeneralSettings: View {
     private var fallbackHeightSettings: some View {
         VStack(alignment: .leading) {
             ComfySlider(
-                value: $fallbackHeight,
+                value: $v.fallbackHeight,
                 in: settings.notchHeightMin...settings.notchHeightMax,
                 label: "Notch Height Fallback"
             )
@@ -141,7 +158,7 @@ struct ClosedNotchGeneralSettings: View {
                 
                 Spacer()
                 
-                Picker("Hover Target", selection: $hoverTargetMode) {
+                Picker("Hover Target", selection: $v.hoverTargetMode) {
                     ForEach(HoverTarget.allCases) { mode in
                         Text(mode.displayName).tag(mode)
                     }
@@ -163,7 +180,7 @@ struct ClosedNotchGeneralSettings: View {
                 
                 Spacer()
                 
-                Toggle("", isOn: $hudEnabled)
+                Toggle("", isOn: $v.hudEnabled)
                     .toggleStyle(.switch)
                     .labelsHidden()
             }
@@ -197,14 +214,14 @@ struct ClosedNotchGeneralSettings: View {
     private var touchSettings: some View {
         VStack(alignment: .leading) {
             HStack {
-                Picker("One Finger Action", selection: $oneFingerAction) {
+                Picker("One Finger Action", selection: $v.oneFingerAction) {
                     ForEach(TouchAction.allCases, id: \.self) { action in
                         Text(action.displayName)
                             .tag(action)
                     }
                 }
                 
-                Picker("Two Finger Action", selection: $twoFingerAction) {
+                Picker("Two Finger Action", selection: $v.twoFingerAction) {
                     ForEach(TouchAction.allCases, id: \.self) { action in
                         Text(action.displayName)
                             .tag(action)

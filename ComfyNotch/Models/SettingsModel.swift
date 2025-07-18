@@ -125,7 +125,7 @@ class SettingsModel: ObservableObject {
     /// let the user turn it off
     @Published var enableUtilsOption: Bool = false
     @Published var enableClipboardListener: Bool = false
-
+    
     
     /// REQUIRED FOR UPDATING
     lazy var updaterController: SPUStandardUpdaterController = {
@@ -227,19 +227,24 @@ class SettingsModel: ObservableObject {
         /// ----------------------- Notch Settings -------------------------------------
         defaults.set(showDividerBetweenWidgets, forKey: "showDividerBetweenWidgets")
         
-        defaults.set(hoverTargetMode.rawValue, forKey: "hoverTargetMode")
         
         if nowPlayingScrollSpeed > 0 {
             defaults.set(nowPlayingScrollSpeed, forKey: "nowPlayingScrollSpeed")
         } else {
             defaults.set(40, forKey: "nowPlayingScrollSpeed")
         }
-        defaults.set(enableNotchHUD, forKey: "enableNotchHUD")
         
-        if notchMinFallbackHeight <= 0 {
-            notchMinFallbackHeight = 40
-        }
-        defaults.set(notchMinFallbackHeight, forKey: "notchMinFallbackHeight")
+        /// REMOVED CUZ MOVED DOWN
+        //  defaults.set(hoverTargetMode.rawValue, forKey: "hoverTargetMode")
+        
+        //  defaults.set(enableNotchHUD, forKey: "enableNotchHUD")
+        
+        //        if notchMinFallbackHeight <= 0 {
+        //            notchMinFallbackHeight = 40
+        //        }
+        
+        //        defaults.set(notchMinFallbackHeight, forKey: "notchMinFallbackHeight")
+        
         
         /// Make sure that the maxWidth is always > 500 the rest is up to the user to break, maybe add a limit of like 1000
         if notchMaxWidth < setNotchMinWidth {
@@ -251,12 +256,12 @@ class SettingsModel: ObservableObject {
         
         defaults.set(notchMaxWidth, forKey: "notchMaxWidth")
         
-        defaults.set(quickAccessWidgetDistanceFromLeft, forKey: "quickAccessWidgetDistanceFromLeft")
-        defaults.set(quickAccessWidgetDistanceFromTop, forKey: "quickAccessWidgetDistanceFromTop")
-        defaults.set(settingsWidgetDistanceFromRight, forKey: "settingsWidgetDistanceFromRight")
+//        defaults.set(quickAccessWidgetDistanceFromLeft, forKey: "quickAccessWidgetDistanceFromLeft")
+//        defaults.set(quickAccessWidgetDistanceFromTop, forKey: "quickAccessWidgetDistanceFromTop")
+//        defaults.set(settingsWidgetDistanceFromRight, forKey: "settingsWidgetDistanceFromRight")
         
-        defaults.set(oneFingerAction.rawValue, forKey: "oneFingerAction")
-        defaults.set(twoFingerAction.rawValue, forKey: "twoFingerAction")
+        //        defaults.set(oneFingerAction.rawValue, forKey: "oneFingerAction")
+        //        defaults.set(twoFingerAction.rawValue, forKey: "twoFingerAction")
         defaults.set(notchScrollThreshold, forKey: "notchScrollThreshold")
         
         /// ----------------------- Music Player Settings -----------------------
@@ -291,6 +296,37 @@ class SettingsModel: ObservableObject {
         defaults.set(enableUtilsOption, forKey: "enableUtilsOption")
         defaults.set(enableClipboardListener, forKey: "enableClipboardListener")
     }
+    
+    /// Function to save the Closed Notch Values
+    public func saveClosedNotchValues(values: ClosedNotchValues) {
+        self.hoverTargetMode = values.hoverTargetMode
+        self.notchMinFallbackHeight = CGFloat(values.fallbackHeight)
+        self.enableNotchHUD = values.hudEnabled
+        self.oneFingerAction = values.oneFingerAction
+        self.twoFingerAction = values.twoFingerAction
+        
+        /// Constraints
+        if self.notchMinFallbackHeight <= 0 { self.notchMinFallbackHeight = 40 }
+        
+        defaults.set(hoverTargetMode.rawValue, forKey: "hoverTargetMode")
+        defaults.set(notchMinFallbackHeight, forKey: "notchMinFallbackHeight")
+        defaults.set(enableNotchHUD, forKey: "enableNotchHUD")
+        defaults.set(oneFingerAction.rawValue, forKey: "oneFingerAction")
+        defaults.set(twoFingerAction.rawValue, forKey: "twoFingerAction")
+        
+        print("Closed Notch Values Saved")
+    }
+    
+    public func saveOpenNotchContentDimensions(values: OpenNotchContentDimensionsValues) {
+        self.quickAccessWidgetDistanceFromLeft = CGFloat(values.leftSpacing)
+        self.quickAccessWidgetDistanceFromTop = CGFloat(values.topSpacing)
+        self.settingsWidgetDistanceFromRight = CGFloat(values.rightSpacing)
+        
+        defaults.set(quickAccessWidgetDistanceFromLeft, forKey: "quickAccessWidgetDistanceFromLeft")
+        defaults.set(quickAccessWidgetDistanceFromTop, forKey: "quickAccessWidgetDistanceFromTop")
+        defaults.set(settingsWidgetDistanceFromRight, forKey: "settingsWidgetDistanceFromRight")
+    }
+    
     
     // MARK: - Load Settings
     /// Loads the last saved settings from UserDefaults

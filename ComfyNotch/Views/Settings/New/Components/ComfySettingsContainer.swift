@@ -26,6 +26,7 @@ struct ComfySettingsContainer<Content: View, Header: View>: View {
             }
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.bottom, 3)
+            .zIndex(1)
 
             HStack(alignment: .top, spacing: 0) {
                 content()

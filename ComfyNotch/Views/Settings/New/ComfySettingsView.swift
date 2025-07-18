@@ -104,7 +104,7 @@ struct SettingsView: View {
             case .widgetSettings: WidgetSettings()
             case .notch:        NotchSettingsView()
             case .general:      ComfyGeneralView()
-            case .animations:   AnimationSettings(settings: settings)
+            case .animations:   NotchAnimationTab()
             case .display :     DisplaySettingsView(settings: settings)
             case .updates:      UpdatesSettingsView(settings: settings)
             }
