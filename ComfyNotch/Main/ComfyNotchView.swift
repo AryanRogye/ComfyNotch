@@ -11,6 +11,7 @@ enum NotchViewState {
     case popInPresentation
 }
 
+@MainActor
 class NotchStateManager: ObservableObject {
     
     static let shared = NotchStateManager()

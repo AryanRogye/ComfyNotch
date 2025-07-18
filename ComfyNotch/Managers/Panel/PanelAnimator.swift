@@ -126,8 +126,10 @@ final class PanelAnimator {
                 isHovering = false
                 hoverTimer?.invalidate()
                 hoverTimer = nil
-                NotchStateManager.shared.currentPanelState = .home
-                NotchStateManager.shared.currentPopInPresentationState = .none
+                DispatchQueue.main.async {
+                    NotchStateManager.shared.currentPanelState = .home
+                    NotchStateManager.shared.currentPopInPresentationState = .none
+                }
                 ScrollHandler.shared.peekClose()
             }
         }

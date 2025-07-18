@@ -127,9 +127,14 @@ final class HoverHandler: ObservableObject {
                     hoverTimer = nil
                     hoverResetTimer?.invalidate()
                     
-                    target.currentPanelState = .home
+                    DispatchQueue.main.async {
+                        target.currentPanelState = .home
+                    }
                     self.scaleHoverOverLeftItems = false
-                    target.currentPopInPresentationState = .none
+                    
+                    DispatchQueue.main.async {
+                        target.currentPopInPresentationState = .none
+                    }
                     ScrollHandler.shared.peekClose()
                     
                     self.scheduleHoverReset()

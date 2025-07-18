@@ -333,10 +333,12 @@ class ScrollHandler {
         guard let panel = UIManager.shared.smallPanel, !isSnapping else { return }
         guard let screen = DisplayManager.shared.selectedScreen else { return }
         
-        NotchStateManager.shared.currentPanelState = .home
-        isSnapping = true
-        NotchStateManager.shared.isExpanded = false
-        NotchStateManager.shared.bottomSectionHeight = 0
+        DispatchQueue.main.async {
+            NotchStateManager.shared.currentPanelState = .home
+            self.isSnapping = true
+            NotchStateManager.shared.isExpanded = false
+            NotchStateManager.shared.bottomSectionHeight = 0
+        }
         
         let startYOffset = UIManager.shared.startPanelYOffset
         let finalWidth = minPanelWidth
@@ -445,10 +447,13 @@ class ScrollHandler {
     private func updateState(for height: CGFloat) {
         let open = (height >= maxPanelHeight)
         
-        NotchStateManager.shared.isExpanded = open
-        NotchStateManager.shared.bottomSectionHeight = open
-        ? (height - minPanelHeight)
-        : 0
+        DispatchQueue.main.async {
+            
+            NotchStateManager.shared.isExpanded = open
+            NotchStateManager.shared.bottomSectionHeight = open
+            ? (height - self.minPanelHeight)
+            : 0
+        }
         
         // MARK: - Open Logic
         if open {

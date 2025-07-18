@@ -97,7 +97,9 @@ final class BrightnessWatcher: ObservableObject {
     // Separated execution logic
     private func executeNotchOpen() {
         // Set loading state if needed (optional)
-        notchStateManager.isLoadingPopInPresenter = true
+        DispatchQueue.main.async {
+            self.notchStateManager.isLoadingPopInPresenter = true
+        }
         
         // Open immediately
         openNotch()

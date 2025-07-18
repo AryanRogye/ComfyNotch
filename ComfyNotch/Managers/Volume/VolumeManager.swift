@@ -262,7 +262,9 @@ final class VolumeManager: ObservableObject {
         debounceWorkItem?.cancel()
 
         // Show loading instantly
-        notchStateManager.isLoadingPopInPresenter = true
+        DispatchQueue.main.async {
+            self.notchStateManager.isLoadingPopInPresenter = true
+        }
 
         // Open notch immediately
         openNotch()

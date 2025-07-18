@@ -47,7 +47,9 @@ class PopInPresenter_HUD_Coordinator: ObservableObject {
         if force || currentOwner != .none {
             isPresented = false
             currentOwner = .none
-            NotchStateManager.shared.currentPopInPresentationState = .none
+            DispatchQueue.main.async {
+                NotchStateManager.shared.currentPopInPresentationState = .none
+            }
             ScrollHandler.shared.peekClose()
         }
     }
