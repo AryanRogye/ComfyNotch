@@ -25,14 +25,28 @@ struct WidgetSettings: View {
     
     var body: some View {
         ScrollViewReader { proxy in
-            ComfyScrollView {
-                musicPlayerSettings
-                    .id(WidgetType.musicPlayer)
-                
-                cameraSettings
-                    .id(WidgetType.camera)
-                
+            ScrollView {
+                VStack(spacing: 12) {
+                    
+                    musicPlayerSettings
+                        .padding(.vertical)
+                        .id(WidgetType.musicPlayer)
+                    
+                    cameraSettings
+                        .padding(.vertical)
+                        .id(WidgetType.camera)
+                    
+                    aiSettings
+                        .padding(.vertical)
+                        .id(WidgetType.aiChat)
+                }
+                .padding()
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
             }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .background(Color.clear)
             .onReceive(widgetSettingsManager.$targetWidgetToScrollTo) { target in
                 if let target = target {
                     withAnimation {
@@ -49,43 +63,37 @@ struct WidgetSettings: View {
             MusicPlayerSettings()
         } header: {
             Text("Music Player Widget Settings")
+                .font(.headline)
+                .fontWeight(.semibold)
+                .foregroundColor(.primary)
+
+            Spacer()
         }
     }
     
     private var cameraSettings: some View {
         ComfySettingsContainer {
-            
+            CameraSettings()
         } header: {
             Text("Camera Widget Settings")
+                .font(.headline)
+                .fontWeight(.semibold)
+                .foregroundColor(.primary)
+
+            Spacer()
         }
     }
     
-//    private var widgetSettings: some View {
-//        VStack(alignment: .leading, spacing: 16) {
-//            if settings.selectedWidgets.contains(where: { $0.contains("Widget") }) {
-//                ComfySection(title: "Widget Settings", isSub: true) {
-//                    
-//                    if settings.selectedWidgets.contains("AIChatWidget") {
-//                        aiSettings
-//                    }
-//                    
-//                    if settings.selectedWidgets.contains("MusicPlayerWidget") {
-//                        musicPlayerSettings
-//                    }
-//                    
-//                    if settings.selectedWidgets.contains("CameraWidget") {
-//                        cameraSettingsSection
-//                    }
-//                    
-//                    if settings.selectedWidgets.contains(where: {
-//                        $0.contains("AIChatWidget") || $0.contains("MusicPlayerWidget") || $0.contains("CameraWidget")
-//                    }) {
-//                        comfyDivider
-//                    }
-//                    
-//                }
-//            }
-//        }
-//    }
+    private var aiSettings: some View {
+        ComfySettingsContainer {
+            AISettings()
+        } header: {
+            Text("AI Widget Settings")
+                .font(.headline)
+                .fontWeight(.semibold)
+                .foregroundColor(.primary)
 
+            Spacer()
+        }
+    }
 }

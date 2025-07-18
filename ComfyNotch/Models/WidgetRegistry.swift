@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-enum WidgetType: String , CaseIterable {
+enum WidgetType: String , CaseIterable, Hashable {
     case musicPlayer = "MusicPlayerWidget"
     case time = "TimeWidget"
     case notes = "NotesWidget"
