@@ -20,14 +20,18 @@ struct AnimatedBar: View {
         self.dominantColor = dominantColor
         self.shouldAnimate = shouldAnimate
     }
-    
+ 
     @ObservedObject private var notchStateManager: NotchStateManager = .shared
-    @State private var animationHeight: CGFloat = 0.3
+    
+    @State private var animationHeight: CGFloat = 0
     @State private var animationCancellable: AnyCancellable?
     
     private var animationStiffness: CGFloat = 300
     private var animationDamping: CGFloat = 15
     
+    private let minAnimationHeight: CGFloat = 0.2
+    private let maxAnimationHeight: CGFloat = 1.0
+
     private var width: CGFloat {
         return notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 3.5 : 3
     }
@@ -48,6 +52,8 @@ struct AnimatedBar: View {
             )
             .onAppear {
                 startLoopingAnimation()
+                
+                animationHeight = minAnimationHeight
             }
             .onChange(of: shouldAnimate) { _, _ in
                 startLoopingAnimation()
@@ -62,7 +68,7 @@ struct AnimatedBar: View {
         
         guard shouldAnimate else {
             withAnimation(.easeOut(duration: 0.3)) {
-                animationHeight = 0.3
+                animationHeight = minAnimationHeight
             }
             return
         }
@@ -71,7 +77,7 @@ struct AnimatedBar: View {
             let timer = Timer.publish(every: 0.6, on: .main, in: .common).autoconnect()
             animationCancellable = timer.sink { _ in
                 withAnimation(.easeInOut(duration: 0.6)) {
-                    animationHeight = Double.random(in: 0.3...1.0)
+                    animationHeight = Double.random(in: minAnimationHeight...maxAnimationHeight)
                 }
             }
         }
@@ -112,3 +118,6 @@ struct FancyMovingBars: Widget, View {
         .animation(.easeInOut(duration: 0.3), value: music.nowPlayingInfo.isPlaying)
     }
 }
+
+
+

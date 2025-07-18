@@ -8,7 +8,6 @@
 import SwiftUI
 
 /// Fully RE-DONE Settings View for ComfyNotch
-/// NO AI COPY PASTE HERE
 
 struct NotchSettingsView: View {
     
@@ -30,7 +29,6 @@ struct NotchSettingsView: View {
                 .fontWeight(.semibold)
                 .foregroundColor(.primary)
             Spacer()
-            
         }
     }
     

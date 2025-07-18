@@ -19,6 +19,9 @@ struct CurrentWidgetsDisplayView: View {
         }
     }
     
+    // MARK: - Drag Widgets Here
+    
+    /// place to drag the widgets
     private var dragWidgetsHere: some View {
         VStack {
             HStack {
@@ -60,6 +63,7 @@ struct CurrentWidgetsDisplayView: View {
     @State private var draggingItem: String? = nil
     @State private var isDragging: Bool = false
     
+    /// this is the item that we drag
     private func draggingItem(for widget: String) -> some View {
         Text(widget)
             .font(.system(size: 12, weight: .semibold, design: .rounded))
@@ -75,16 +79,9 @@ struct CurrentWidgetsDisplayView: View {
                             .blur(radius: 1)
                     }
                     
-                    if widget == "MusicPlayerWidget" {
-                        RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            .fill(Color.purple
-                            )
-                    }
-                    else if widget == "TimeWidget" {
-                        RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            .fill(Color.blue)
-                    }
-                    
+                    /// get color from widgetRegistry
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(widget.widgetType?.color ?? Color.clear)
                 }
             )
             .overlay(
@@ -115,7 +112,7 @@ struct CurrentWidgetsDisplayView: View {
             /// Notch Shape
             VStack(spacing: 0) {
                 HStack {
-                    /// Fake Top Notch View
+                    /// TODO: ADD Fake Top Notch View
                 }
                 .frame(maxWidth: .infinity, maxHeight: 38)
                 //                .border(Color.white, width: 1)
@@ -165,38 +162,14 @@ struct CurrentWidgetsDisplayView: View {
     }
     
     private func getWidgetView(for widget: String) -> some View {
-        return switch widget {
-        case "Weather": AnyView(EmptyView())
-        case "Calendar": AnyView(EmptyView())
-        case "TimeWidget": AnyView(clockWidget)
-        case "MusicPlayerWidget": AnyView(musicPlayerWidger)
-        default: AnyView(EmptyView())
-        }
-    }
-    
-    // MARK: - Widgets
-    private var musicPlayerWidger: some View {
-        VStack {
-            Text("Music Player")
+        return VStack {
+            Text(widget.widgetType?.rawValue ?? "Unknown Widget")
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background {
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color.purple.opacity(0.8))
+                .fill(widget.widgetType?.color ?? Color.clear)
         }
         .padding(8)
     }
-    
-    private var clockWidget: some View {
-        VStack {
-            Text("Time Player")
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background {
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color.blue.opacity(0.8))
-        }
-        .padding(8)
-    }
-    
 }

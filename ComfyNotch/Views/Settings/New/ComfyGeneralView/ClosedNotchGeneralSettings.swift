@@ -95,7 +95,7 @@ struct ClosedNotchGeneralSettings: View {
                     
                     Spacer()
                     
-                    MovingDotsView()
+                    FancyMovingBars()
                 }
             }
             .padding(.horizontal, 7)

@@ -18,6 +18,7 @@ struct SettingsView: View {
     init() {}
     
     enum Tab: String, CaseIterable, Identifiable, Equatable {
+        case widgetSettings = "WidgetSettings"
         case general = "General"
         case notch = "Notch"
         case animations = "Animations"
@@ -34,11 +35,14 @@ struct SettingsView: View {
             case .animations: return "sparkles"
             case .display: return "eye"
             case .updates: return "arrow.clockwise"
+            case .widgetSettings: return "square.grid.2x2"
             }
         }
         
         var color: Color {
             switch self {
+            case .widgetSettings:
+                return Color(red: 0.8, green: 0.4, blue: 0.6) // soft pink
             case .general:
                 return Color(red: 0.45, green: 0.45, blue: 0.47) // sleek dark gray
             case .notch:
@@ -55,6 +59,8 @@ struct SettingsView: View {
         
         var width: CGFloat {
             switch self {
+            case .widgetSettings:
+                return 20
             case .general:
                 return 16
             case .notch:
@@ -69,6 +75,8 @@ struct SettingsView: View {
         }
         var height: CGFloat {
             switch self {
+            case .widgetSettings:
+                return 20
             case .general:
                 return 16
             case .notch:
@@ -93,6 +101,7 @@ struct SettingsView: View {
                 //                            case .display :     DisplaySettingsView(settings: settings)
                 //                            case .updates:      UpdatesSettingsView(settings: settings)
                 
+            case .widgetSettings: WidgetSettings()
             case .notch:        NotchSettingsView()
             case .general:      ComfyGeneralView()
             case .animations:   AnimationSettings(settings: settings)
@@ -189,7 +198,9 @@ struct SettingsView: View {
                 /// TODO: REDO
                 List(selection: $localTabSelection) {
                     ForEach(SettingsView.Tab.allCases, id: \.self) { tab in
-                        tabItem(tab)
+                        if tab.rawValue != "WidgetSettings" {
+                            tabItem(tab)
+                        }
                     }
                 }
                 .navigationSplitViewStyle(.prominentDetail)
