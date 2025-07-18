@@ -47,7 +47,7 @@ class PopInPresenter_HUD_Coordinator: ObservableObject {
         if force || currentOwner != .none {
             isPresented = false
             currentOwner = .none
-            PanelAnimationState.shared.currentPopInPresentationState = .none
+            NotchStateManager.shared.currentPopInPresentationState = .none
             ScrollHandler.shared.peekClose()
         }
     }
@@ -63,7 +63,7 @@ struct PopInPresenter_HUD: View {
     @ObservedObject private var brightnessManager: BrightnessWatcher = .shared
     @ObservedObject private var volumeManager: VolumeManager = .shared
     @ObservedObject private var musicModel: MusicPlayerWidgetModel = .shared
-    @ObservedObject var panelState: PanelAnimationState = .shared
+    @ObservedObject var notchStateManager: NotchStateManager = .shared
     
     @State private var dominantColor: Color = .blue
     

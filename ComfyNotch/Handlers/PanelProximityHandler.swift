@@ -106,8 +106,8 @@ class PanelProximityHandler: NSObject {
                     }
                     
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        PanelAnimationState.shared.isExpanded = false
-                        PanelAnimationState.shared.bottomSectionHeight = 0
+                        NotchStateManager.shared.isExpanded = false
+                        NotchStateManager.shared.bottomSectionHeight = 0
                     }
                 }
             }

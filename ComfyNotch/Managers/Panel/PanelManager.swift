@@ -13,6 +13,22 @@ struct WidgetEntry {
     var isVisible: Bool
 }
 
+enum LayoutGroup: String {
+    /// This is used during transitions and the default value when init
+    case empty = "Empty"
+    /// This is used if the user wants to show the widgets for the music while the
+    /// panel is closed
+    /// Defined in this will ALWAYS BE:
+    ///           Left  - CompactAlbumWidget
+    ///           Right - MovingDotsView
+    case music = "Music"
+    /// This is used when the panel is open,
+    /// Defined in this will ALWAYS BE:
+    ///           Left  - SettingsButtonWidget
+    ///           Right - QuickAccessWidget
+    case expanded = "Expanded"
+}
+
 /**
  * PanelManager defines the core functionality for managing widgets in a panel.
  * This protocol provides the basic operations needed to handle widget lifecycle.
@@ -53,4 +69,11 @@ protocol PanelManager {
      * Removes all widgets from the panel.
      */
     func clearWidgets()
+    
+    /**
+     * Function to apply a specific layoutGroup to the panel.
+     * This Funciton is used to set the top row layout based on the current group that is passed in.
+     * This is ONLY called by UIManager.swift
+     */
+    func applyLayout(for group: LayoutGroup)
 }

@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct UpdatesSettingsView: View {
-    @ObservedObject var settings: SettingsModel
+    
+    @EnvironmentObject var settings: SettingsModel
     
     var body: some View {
         ComfyScrollView {

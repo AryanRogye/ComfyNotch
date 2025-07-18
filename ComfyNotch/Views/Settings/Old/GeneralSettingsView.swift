@@ -231,12 +231,33 @@ struct GeneralSettingsView: View {
             }
             .padding(.horizontal)
             
-            /// Change The Distance From Left For Quick Acess Widgets
+            /// Change The Distance From Left For Quick Access Widgets
             Group {
                 ComfyLabeledStepper(
                     "Distance From Left (Top Row)",
                     value: $settings.quickAccessWidgetDistanceFromLeft,
                     in: -50...50,
+                    step: 1
+                )
+            }
+            .padding(.horizontal, 22)
+            
+            Group {
+                ComfyLabeledStepper(
+                    "Distance From Right (Top Row)",
+                    value: $settings.settingsWidgetDistanceFromRight,
+                    in: -50...50,
+                    step: 1
+                )
+            }
+            .padding(.horizontal, 22)
+
+            /// Change The Distance From The Top For Quick Access Widgets
+            Group {
+                ComfyLabeledStepper(
+                    "Distance From Top (Top Row)",
+                    value: $settings.quickAccessWidgetDistanceFromTop,
+                    in: 0...50,
                     step: 1
                 )
             }

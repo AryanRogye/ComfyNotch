@@ -147,6 +147,7 @@ struct QuickAccessSettingsView_Home: View {
                     if settings.selectedWidgets.contains("MusicPlayerWidget") {
                         musicPlayerSettings
                     }
+                    
                     // We Always Show a choose controller
                     musicControllerPicker
                     

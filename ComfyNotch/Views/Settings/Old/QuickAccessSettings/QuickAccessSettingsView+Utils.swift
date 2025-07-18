@@ -40,6 +40,9 @@ struct QuickAccessSettingsView_Utils: View {
             Toggle(isOn: $settings.enableUtilsOption) {}
                 .toggleStyle(.switch)
                 .disabled(settings.enableClipboardListener)
+                .onChange(of: settings.enableUtilsOption) {
+                    settings.saveSettings()
+                }
         }
         .shadow(color: isHoveringOverUtils ? .red : .black, radius: isHoveringOverUtils ? 3 : 0)
         .overlay(

@@ -87,17 +87,17 @@ struct PopInPresenter_Messages: View {
     private func openNotchToMessage() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
             UIManager.shared.applyOpeningLayout()
-            PanelAnimationState.shared.currentPanelState = .home
-            PanelAnimationState.shared.currentPopInPresentationState = .none
+            NotchStateManager.shared.currentPanelState = .home
+            NotchStateManager.shared.currentPopInPresentationState = .none
             ScrollHandler.shared.peekClose()
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-            PanelAnimationState.shared.isExpanded = true
+            NotchStateManager.shared.isExpanded = true
             ScrollHandler.shared.openFull()
         }
         /// WARNING: 2.3 -> onwards is the perfect delay to avoid a jittering
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.3) {
-            PanelAnimationState.shared.currentPanelState = .messages
+            NotchStateManager.shared.currentPanelState = .messages
         }
     }
 

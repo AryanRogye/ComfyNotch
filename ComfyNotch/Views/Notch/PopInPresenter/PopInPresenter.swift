@@ -17,11 +17,11 @@ enum PopInPresenterType {
 
 struct PopInPresenter: View {
     
-    @ObservedObject private var panelState = PanelAnimationState.shared
+    @ObservedObject private var notchStateManager = NotchStateManager.shared
     
     var body: some View {
         ZStack {
-            switch panelState.currentPopInPresentationState {
+            switch notchStateManager.currentPopInPresentationState {
             case .nowPlaying:
                 PopInPresenter_NowPlaying()
             case .hud:

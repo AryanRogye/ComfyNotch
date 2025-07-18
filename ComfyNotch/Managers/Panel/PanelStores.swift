@@ -8,6 +8,50 @@ import SwiftUI
  */
 class ExpandedWidgetsStore: PanelManager, ObservableObject {
     @Published var widgets: [WidgetEntry] = []
+    @Published var layoutGroup: LayoutGroup = .empty
+    internal var lastLayoutGroup: LayoutGroup?
+    
+    func applyLayout(for group: LayoutGroup) {
+        
+        guard group != lastLayoutGroup else { return }
+        lastLayoutGroup = group
+        
+        debugLog("(Expanded-Store) Layout For \(group.rawValue)")
+        
+        switch group {
+            /// This means we wanna show NOTHING
+        case .empty:
+            self.hideWidget(named: "MusicPlayerWidget")
+            self.hideWidget(named: "TimeWidget")
+            self.hideWidget(named: "NotesWidget")
+            self.hideWidget(named: "CameraWidget")
+            self.hideWidget(named: "AIChatWidget")
+            self.hideWidget(named: "EventWidget")
+            /// Music for expanded means that the notch is closed
+            /// this means we dont need to show the shit in the notch
+        case .music:
+            self.hideWidget(named: "MusicPlayerWidget")
+            self.hideWidget(named: "TimeWidget")
+            self.hideWidget(named: "NotesWidget")
+            self.hideWidget(named: "CameraWidget")
+            self.hideWidget(named: "AIChatWidget")
+            self.hideWidget(named: "EventWidget")
+            /// This means We Show All the Widgets, the showWidget
+            /// function will manage if its not found, so its ok
+        case .expanded:
+            self.showWidget(named: "MusicPlayerWidget")
+            self.showWidget(named: "TimeWidget")
+            self.showWidget(named: "NotesWidget")
+            self.showWidget(named: "CameraWidget")
+            self.showWidget(named: "AIChatWidget")
+            self.showWidget(named: "EventWidget")
+            /// At the time of making this nothing in default
+            /// but I want to add other things and it may be useful
+        default:
+            break
+        }
+
+    }
 
     /// Adds a widget to the big panel "store"
     /// -   widget: The widget to add
@@ -18,7 +62,7 @@ class ExpandedWidgetsStore: PanelManager, ObservableObject {
         // }
         widgets.append(widgetEntry)
     }
-
+    
     /// Removes a widget from the big panel "store"
     /// This should be used by anything related to the "settings"
     /// -   name: name of the widget to remove
@@ -32,25 +76,25 @@ class ExpandedWidgetsStore: PanelManager, ObservableObject {
             }
         }
     }
-
+    
     /**
-      *  Hides a widget from the big panel "store"
-      *  This is really the best way to "hide" or not show the widget
-      *  when the panel is closed
-      *  -  name: name of the widget to hide
-    ***/
+     *  Hides a widget from the big panel "store"
+     *  This is really the best way to "hide" or not show the widget
+     *  when the panel is closed
+     *  -  name: name of the widget to hide
+     ***/
     func hideWidget(named name: String) {
         if let index = widgets.firstIndex(where: { $0.widget.name == name }) {
             widgets[index].isVisible = false
         }
     }
-
+    
     /**
-      *  Shows a widget from the big panel "store"
-      *  This changes the visibility of the widget
-      *  when the panel is open
-      *  -  name: name of the widget to show
-    ***/
+     *  Shows a widget from the big panel "store"
+     *  This changes the visibility of the widget
+     *  when the panel is open
+     *  -  name: name of the widget to show
+     ***/
     func showWidget(named name: String) {
         // Show from the hidden list if it exists
         if let index = widgets.firstIndex(where: { $0.widget.name == name }) {
@@ -61,7 +105,7 @@ class ExpandedWidgetsStore: PanelManager, ObservableObject {
             )
         }
     }
-
+    
     /// Function to remove all widgets from the big panel
     func clearWidgets() {
         debugLog("🗑️ Clearing all widgets from the big panel.")
@@ -70,8 +114,9 @@ class ExpandedWidgetsStore: PanelManager, ObservableObject {
 }
 
 
+
 /**
- * CompactWidgetsStore manages the widgets displayed in the notch panel area.
+ * CompactWidgetsStore manages the widgets displayed in the notch panel area when the notch is closed and opened.
  * It handles the organization and visibility state of widgets, separating them into
  * left and right aligned sections.
  *
@@ -81,12 +126,97 @@ class ExpandedWidgetsStore: PanelManager, ObservableObject {
  * - rightWidgetsHidden: Widgets aligned to the right that are currently hidden
  * - rightWidgetsShown: Widgets aligned to the right that are currently visible
  */
+
 class CompactWidgetsStore: PanelManager, ObservableObject {
     @Published var leftWidgetsHidden: [WidgetEntry] = []
     @Published var leftWidgetsShown: [WidgetEntry] = []
     @Published var rightWidgetsHidden: [WidgetEntry] = []
     @Published var rightWidgetsShown: [WidgetEntry] = []
+    
+    @Published var layoutGroup: LayoutGroup = .empty
+    internal var lastLayoutGroup: LayoutGroup?
+    
+    public struct layoutPresets {
+        /// Defining The Music Layout
+        static let music: ([() -> Widget], [() -> Widget]) = (
+            [{ CompactAlbumWidget() }],
+//            [{ MovingDotsView() }]
+            [{ FancyMovingBars() }]
+        )
+        
+        /// Defining the Open Layout
+        static let expanded: ([() -> Widget], [() -> Widget]) = (
+            [{SettingsButtonWidget()}],
+            [{QuickAccessWidget()}]
+        )
+    }
+    
 
+    public func loadWidgets() {
+        let (leftPresets, rightPresets) = (
+            layoutPresets.music.0 + layoutPresets.expanded.0,
+            layoutPresets.music.1 + layoutPresets.expanded.1
+        )
+        
+        let allPresets = leftPresets + rightPresets
+        
+        var index = 0
+        
+        func loadNextWidget() {
+            guard index < allPresets.count else { return }
+            
+            let creator = allPresets[index]
+            index += 1
+            
+            DispatchQueue.global(qos: .utility).async {
+                let widget = creator()
+                
+                DispatchQueue.main.async {
+                    self.addWidget(widget)
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        loadNextWidget()
+                    }
+                }
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            loadNextWidget()
+        }
+    }
+    
+    func applyLayout(for group: LayoutGroup) {
+        
+        guard group != lastLayoutGroup else { return }
+        lastLayoutGroup = group
+        
+        debugLog("(Compact-Store) Layout For \(group.rawValue)")
+
+        switch group {
+        case .empty:
+            self.hideWidget(named: "QuickAccessWidget")
+            self.hideWidget(named: "AlbumWidget")
+            self.hideWidget(named: "MovingDotsWidget")
+            self.hideWidget(named: "MovingBars")
+            self.hideWidget(named: "Settings")
+        case .music:
+            self.hideWidget(named: "Settings")
+            self.hideWidget(named: "QuickAccessWidget")
+            self.showWidget(named: "AlbumWidget")
+            self.showWidget(named: "MovingDotsWidget")
+            self.showWidget(named: "MovingBars")
+        case .expanded:
+            self.hideWidget(named: "AlbumWidget")
+            self.hideWidget(named: "MovingDotsWidget")
+            self.hideWidget(named: "MovingBars")
+
+            self.showWidget(named: "Settings")
+            self.showWidget(named: "QuickAccessWidget")
+        }
+    }
+
+    
     /**
      * Adds a new widget to the appropriate hidden array based on its alignment.
      * If no alignment is specified, the widget defaults to left alignment.
@@ -95,7 +225,7 @@ class CompactWidgetsStore: PanelManager, ObservableObject {
      */
     func addWidget(_ widget: Widget) {
         let widgetEntry = WidgetEntry(widget: widget, isVisible: false)
-
+        
         if let alignment = widget.alignment {
             switch alignment {
             case .left:
@@ -107,7 +237,7 @@ class CompactWidgetsStore: PanelManager, ObservableObject {
             leftWidgetsHidden.append(widgetEntry)
         }
     }
-
+    
     /**
      * Hides a widget by moving it from the shown array to the hidden array.
      * The widget's visibility state is updated to false.
@@ -126,7 +256,7 @@ class CompactWidgetsStore: PanelManager, ObservableObject {
             rightWidgetsHidden.append(widgetEntry)
         }
     }
-
+    
     /**
      * Shows a widget by moving it from the hidden array to the shown array.
      * The widget's visibility state is updated to true.
@@ -146,7 +276,7 @@ class CompactWidgetsStore: PanelManager, ObservableObject {
             rightWidgetsShown.append(widgetEntry)
         }
     }
-
+    
     /**
      * Removes a widget from the store completely.
      * Currently not implemented.
@@ -156,12 +286,38 @@ class CompactWidgetsStore: PanelManager, ObservableObject {
     func removeWidget(named name: String) {
         // No Implementation Needed
     }
-
+    
     /**
      * Removes all widgets from the store.
      * Currently not implemented.
      */
     func clearWidgets() {
         // No Implementation Needed
+    }
+}
+
+
+/// Extension for Compact Widget Store to show the items
+extension CompactWidgetsStore {
+    var leftWidgets: some View {
+        HStack(spacing: 0) {
+            ForEach(leftWidgetsShown.indices, id: \.self) { index in
+                let widgetEntry = self.leftWidgetsShown[index]
+                if widgetEntry.isVisible {
+                    widgetEntry.widget.swiftUIView
+                }
+            }
+        }
+    }
+    
+    var rightWidgets: some View {
+        HStack(spacing: 0) {
+            ForEach(rightWidgetsShown.indices, id: \.self) { index in
+                let widgetEntry = self.rightWidgetsShown[index]
+                if widgetEntry.isVisible {
+                    widgetEntry.widget.swiftUIView
+                }
+            }
+        }
     }
 }

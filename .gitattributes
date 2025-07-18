@@ -15,3 +15,8 @@
 *.cpp   linguist-detectable=true
 *.metal linguist-detectable=true
 *.sh    linguist-detectable=true
+
+*.xcassets linguist-generated=true
+*.json linguist-generated=true
+*.svg linguist-generated=true
+*.pb.swift linguist-generated=true
