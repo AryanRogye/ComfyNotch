@@ -73,24 +73,6 @@ public struct MessageSettingsView: View {
                     .font(.subheadline)
                     .foregroundColor(.primary)
             }
-            /// TODO MOVE LOGIC TO SETTINGS
-            //                .onChange(of: settings.enableMessagesNotifications) { _, newValue in
-            //                    withAnimation(.easeInOut(duration: 0.3)) {
-            //                        if newValue {
-            //                            /// Logic When Turned On
-            //                            Task {
-            //                                MessagesManager.shared.checkFullDiskAccess()
-            //                                MessagesManager.shared.checkContactAccess()
-            //                                await MessagesManager.shared.fetchAllHandles()
-            //                                MessagesManager.shared.startPolling()
-            //                            }
-            //                        } else {
-            //                            /// Logic When Turned Off
-            //                            MessagesManager.shared.stopPolling()
-            //                        }
-            //                    }
-            //                }
-            
             .toggleStyle(.switch)
             .controlSize(.small)
             /// Suggestion

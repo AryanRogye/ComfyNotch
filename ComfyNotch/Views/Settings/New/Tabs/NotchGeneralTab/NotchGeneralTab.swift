@@ -11,7 +11,6 @@ struct NotchGeneralTab: View {
     
     @EnvironmentObject private var settings : SettingsModel
     
-    
     @State private var openSettingsChanged          : Bool = false
     @State private var closedSettingsChanged    : Bool = false
     

@@ -93,21 +93,6 @@ public struct UtilsSettingsView: View {
             
             Toggle(isOn: $v.enableClipboardListener) {}
                 .toggleStyle(.switch)
-            /// TODO MOVE LOGIC TO SETTINGS
-            //                .onChange(of: settings.enableClipboardListener) {
-            //                    settings.saveSettings()
-            //
-            //                    if settings.enableClipboardListener {
-            //                        settings.enableUtilsOption = true
-            //                        ClipboardManager.shared.start()
-            //                    } else {
-            //                        ClipboardManager.shared.stop()
-            //                    }
-            //
-            //                    if !settings.enableClipboardListener {
-            //                        settings.enableUtilsOption = false
-            //                    }
-            //                }
         }
     }
 }

@@ -2,6 +2,7 @@ import AppKit
 import Combine
 import Sparkle
 import AVKit
+import SwiftUI
 
 class SettingsModel: ObservableObject {
     static let shared = SettingsModel(userDefaults: .standard)
@@ -360,6 +361,21 @@ class SettingsModel: ObservableObject {
             messagesMessageLimit = 10
         }
         defaults.set(messagesMessageLimit, forKey: "messagesMessageLimit")
+        
+        
+        
+        if self.enableMessagesNotifications {
+            Task {
+                await MessagesManager.shared.checkFullDiskAccess()
+                await MessagesManager.shared.checkContactAccess()
+                await MessagesManager.shared.fetchAllHandles()
+                await MessagesManager.shared.startPolling()
+            }
+        } else {
+            Task {
+                await MessagesManager.shared.stopPolling()
+            }
+        }
     }
     
     
@@ -372,6 +388,15 @@ class SettingsModel: ObservableObject {
         
         defaults.set(enableUtilsOption, forKey: "enableUtilsOption")
         defaults.set(enableClipboardListener, forKey: "enableClipboardListener")
+        
+        
+        if self.enableClipboardListener {
+            self.enableUtilsOption = true
+            ClipboardManager.shared.start()
+        } else {
+            self.enableUtilsOption = false
+            ClipboardManager.shared.stop()
+        }
     }
     
     
