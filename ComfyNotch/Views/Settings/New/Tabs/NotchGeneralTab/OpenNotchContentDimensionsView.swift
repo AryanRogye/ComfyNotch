@@ -11,6 +11,7 @@ struct OpenNotchContentDimensionsValues {
     var leftSpacing: Int = 0
     var rightSpacing: Int = 0
     var topSpacing: Int = 0
+    var notchMaxWidth: Int = 0
 }
 
 struct OpenNotchContentDimensionsView: View {
@@ -37,6 +38,9 @@ struct OpenNotchContentDimensionsView: View {
     private var topSpacingInitialValue: Int {
         Int(settings.quickAccessWidgetDistanceFromTop)
     }
+    private var notchMaxWidthInitialValue: Int {
+        Int(settings.notchMaxWidth)
+    }
     
     var body: some View {
         VStack {
@@ -48,12 +52,14 @@ struct OpenNotchContentDimensionsView: View {
             v.leftSpacing = Int(settings.quickAccessWidgetDistanceFromLeft)
             v.rightSpacing = Int(settings.settingsWidgetDistanceFromRight)
             v.topSpacing = Int(settings.quickAccessWidgetDistanceFromTop)
+            v.notchMaxWidth = Int(settings.notchMaxWidth)
         }
-        .onChange(of: [v.leftSpacing, v.rightSpacing, v.topSpacing]) {
+        .onChange(of: [v.leftSpacing, v.rightSpacing, v.topSpacing, v.notchMaxWidth]) {
             didChange =
             v.leftSpacing != leftSpacingInitialValue
             || v.rightSpacing != rightSpacingInitialValue
             || v.topSpacing != topSpacingInitialValue
+            || v.notchMaxWidth != notchMaxWidthInitialValue
         }
     }
     
@@ -137,6 +143,11 @@ struct OpenNotchContentDimensionsView: View {
                 value: $v.topSpacing,
                 in: 0...100,
                 label: "Top Spacing"
+            )
+            ComfySlider(
+                value: $v.notchMaxWidth,
+                in: Int(settings.setNotchMinWidth)...Int(settings.setNotchMaxWidth),
+                label: "Notch Max Width (While Open)"
             )
         }
         .padding()

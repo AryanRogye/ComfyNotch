@@ -209,16 +209,6 @@ class SettingsModel: ObservableObject {
         } else {
             defaults.set(40, forKey: "nowPlayingScrollSpeed")
         }
-        
-        /// Make sure that the maxWidth is always > 500 the rest is up to the user to break, maybe add a limit of like 1000
-        if notchMaxWidth < setNotchMinWidth {
-            notchMaxWidth = setNotchMinWidth
-        }
-        if notchMaxWidth > setNotchMaxWidth {
-            notchMaxWidth = setNotchMaxWidth
-        }
-        
-        defaults.set(notchMaxWidth, forKey: "notchMaxWidth")
         defaults.set(notchScrollThreshold, forKey: "notchScrollThreshold")
         
         /// ----------------------- Music Player Settings -----------------------
@@ -263,10 +253,21 @@ class SettingsModel: ObservableObject {
         self.quickAccessWidgetDistanceFromLeft = CGFloat(values.leftSpacing)
         self.quickAccessWidgetDistanceFromTop = CGFloat(values.topSpacing)
         self.settingsWidgetDistanceFromRight = CGFloat(values.rightSpacing)
+        self.notchMaxWidth = CGFloat(values.notchMaxWidth)
         
         defaults.set(quickAccessWidgetDistanceFromLeft, forKey: "quickAccessWidgetDistanceFromLeft")
         defaults.set(quickAccessWidgetDistanceFromTop, forKey: "quickAccessWidgetDistanceFromTop")
         defaults.set(settingsWidgetDistanceFromRight, forKey: "settingsWidgetDistanceFromRight")
+        
+        /// Constraint The Notch Widths
+        if notchMaxWidth < setNotchMinWidth {
+            notchMaxWidth = setNotchMinWidth
+        }
+        if notchMaxWidth > setNotchMaxWidth {
+            notchMaxWidth = setNotchMaxWidth
+        }
+        
+        defaults.set(notchMaxWidth, forKey: "notchMaxWidth")
     }
     
     
