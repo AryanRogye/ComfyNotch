@@ -108,8 +108,8 @@ final class HoverHandler: ObservableObject {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                             withAnimation(.easeOut(duration: 0.2)) {
                                 if UIManager.shared.panelState != .open {
-                                    NotchStateManager.shared.currentPopInPresentationState = .nowPlaying
-                                    NotchStateManager.shared.currentPanelState = .popInPresentation
+                                    target.currentPopInPresentationState = .nowPlaying
+                                    target.currentPanelState = .popInPresentation
                                 }
                             }
                         }
