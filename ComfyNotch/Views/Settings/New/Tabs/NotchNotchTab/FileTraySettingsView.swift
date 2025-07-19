@@ -22,6 +22,8 @@ public struct FileTraySettingsView: View {
     
     @State private var tempPin: String = "1111"
     
+    @State private var hasAppeared = false
+    @State private var originalState: FileTraySettingsValues = .init()
     
     init(didChange: Binding<Bool>, values: Binding<FileTraySettingsValues>) {
         self._didChange = didChange
@@ -40,6 +42,20 @@ public struct FileTraySettingsView: View {
             v.fileTrayDefaultFolder = settings.fileTrayDefaultFolder
             v.localHostPin = settings.localHostPin
             tempPin = v.localHostPin
+            
+            originalState = FileTraySettingsValues(
+                fileTrayDefaultFolder : settings.fileTrayDefaultFolder,
+                fileTrayAllowOpenOnLocalhost: settings.fileTrayAllowOpenOnLocalhost,
+                localHostPin: settings.localHostPin,
+                fileTrayPort: settings.fileTrayPort
+            )
+            DispatchQueue.main.async {
+                hasAppeared = true
+            }
+        }
+        .onChange(of: v) { _, newValue in
+            guard hasAppeared else { return }
+            didChange = newValue != originalState
         }
     }
     
@@ -58,10 +74,11 @@ public struct FileTraySettingsView: View {
             .padding(.bottom, 8)
             
             if v.fileTrayAllowOpenOnLocalhost {
-                portPicker
-                localHostPin
+                VStack(spacing: 8) {
+                    portPicker
+                    localHostPin
+                }
             }
-            
         }
     }
     

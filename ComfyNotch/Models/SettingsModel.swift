@@ -189,33 +189,9 @@ class SettingsModel: ObservableObject {
             defaults.set(aiApiKey, forKey: "aiApiKey")
         }
         
-        /// ----------------------- FileTray Settings ------------------------------------
-        /// Save the fileTrayFolder
-        /// Set Default for the file tray folder if nothing is found
-        fileTrayDefaultFolder = FileManager.default
-            .urls(for: .documentDirectory, in: .userDomainMask)
-            .first!
-            .appendingPathComponent("ComfyNotch Files", isDirectory: true)
-        /// if we reach here, that means that the fileTray is populated no matter what so we can force it to get stored
-        if !fileTrayDefaultFolder.path.isEmpty {
-            defaults.set(fileTrayDefaultFolder.path(), forKey: "fileTrayDefaultFolder")
-        }
+        
+        /// TODO: REMOVE
         defaults.set(fileTrayPersistFiles, forKey: "fileTrayPersistFiles")
-        defaults.set(fileTrayAllowOpenOnLocalhost, forKey: "fileTrayAllowOpenOnLocalhost")
-        
-        if fileTrayPort > 0 && fileTrayPort < 65536 {
-            defaults.set(fileTrayPort, forKey: "fileTrayPort")
-        } else {
-            fileTrayPort = 8000 // Default port
-            defaults.set(fileTrayPort, forKey: "fileTrayPort")
-        }
-        
-        if localHostPin != "" {
-            defaults.set(localHostPin, forKey: "localHostPin")
-        } else {
-            localHostPin = "1111" // Default pin
-            defaults.set(localHostPin, forKey: "localHostPin")
-        }
         
         /// ----------------------- ClipBoard Settings -----------------------------------
         if clipboardManagerMaxHistory >= 0 {
@@ -234,18 +210,6 @@ class SettingsModel: ObservableObject {
             defaults.set(40, forKey: "nowPlayingScrollSpeed")
         }
         
-        /// REMOVED CUZ MOVED DOWN
-        //  defaults.set(hoverTargetMode.rawValue, forKey: "hoverTargetMode")
-        
-        //  defaults.set(enableNotchHUD, forKey: "enableNotchHUD")
-        
-        //        if notchMinFallbackHeight <= 0 {
-        //            notchMinFallbackHeight = 40
-        //        }
-        
-        //        defaults.set(notchMinFallbackHeight, forKey: "notchMinFallbackHeight")
-        
-        
         /// Make sure that the maxWidth is always > 500 the rest is up to the user to break, maybe add a limit of like 1000
         if notchMaxWidth < setNotchMinWidth {
             notchMaxWidth = setNotchMinWidth
@@ -255,13 +219,6 @@ class SettingsModel: ObservableObject {
         }
         
         defaults.set(notchMaxWidth, forKey: "notchMaxWidth")
-        
-//        defaults.set(quickAccessWidgetDistanceFromLeft, forKey: "quickAccessWidgetDistanceFromLeft")
-//        defaults.set(quickAccessWidgetDistanceFromTop, forKey: "quickAccessWidgetDistanceFromTop")
-//        defaults.set(settingsWidgetDistanceFromRight, forKey: "settingsWidgetDistanceFromRight")
-        
-        //        defaults.set(oneFingerAction.rawValue, forKey: "oneFingerAction")
-        //        defaults.set(twoFingerAction.rawValue, forKey: "twoFingerAction")
         defaults.set(notchScrollThreshold, forKey: "notchScrollThreshold")
         
         /// ----------------------- Music Player Settings -----------------------
@@ -269,34 +226,15 @@ class SettingsModel: ObservableObject {
         defaults.set(musicController.rawValue, forKey: "musicController")
         defaults.set(overridenMusicProvider.rawValue, forKey: "overridenMusicProvider")
         
-        /// ----------------------- Messages Settings -----------------------
-        defaults.set(enableMessagesNotifications, forKey: "enableMessagesNotifications")
-        if messagesHandleLimit < 10 {
-            messagesHandleLimit = 10
-        }
-        defaults.set(messagesHandleLimit, forKey: "messagesHandleLimit")
-        
-        if messagesMessageLimit < 10 {
-            messagesMessageLimit = 10
-        }
-        defaults.set(messagesMessageLimit, forKey: "messagesMessageLimit")
-        
         /// ----------------------- Display Settings -----------------------
         if let screen = selectedScreen {
             /// We Will Set the screen id
             defaults.set(screen.displayID, forKey: "selectedScreenID")
         }
-        /// ----------------------- Animation Settings -----------------------
-//        defaults.set(openingAnimation, forKey: "openingAnimation")
-//        defaults.set(notchBackgroundAnimation.rawValue, forKey: "notchBackgroundAnimation")
-//        defaults.set(enableMetalAnimation, forKey: "enableMetalAnimation")
-//        defaults.set(constant120FPS, forKey: "constant120FPS")
-        
-        /// ------------ Utils Settings -----------------------
-        defaults.set(enableUtilsOption, forKey: "enableUtilsOption")
-        defaults.set(enableClipboardListener, forKey: "enableClipboardListener")
     }
     
+    
+    // MARK: - Closed Notch Values
     /// Function to save the Closed Notch Values
     /// Called in GeneralSettings
     public func saveClosedNotchValues(values: ClosedNotchValues) {
@@ -318,6 +256,7 @@ class SettingsModel: ObservableObject {
         print("Closed Notch Values Saved")
     }
     
+    // MARK: - Open Notch Dimensions
     /// Function to save the Open Notch Content Dimensions
     /// Called in GeneralSettings
     public func saveOpenNotchContentDimensions(values: OpenNotchContentDimensionsValues) {
@@ -330,6 +269,8 @@ class SettingsModel: ObservableObject {
         defaults.set(settingsWidgetDistanceFromRight, forKey: "settingsWidgetDistanceFromRight")
     }
     
+    
+    // MARK: - Opening Animation
     /// Function to save the opening animations
     /// Called in AnimationSettings
     public func saveOpeningAnimationValues(values: OpeningAnimationSettingsValues) {
@@ -338,6 +279,7 @@ class SettingsModel: ObservableObject {
         defaults.set(openingAnimation, forKey: "openingAnimation")
     }
     
+    // MARK: - Metal Animations
     /// Function to save the metal animations
     /// Called in MetalAnimations
     public func saveMetalAnimationValues(values: MetalAnimationValues) {
@@ -349,6 +291,94 @@ class SettingsModel: ObservableObject {
         defaults.set(notchBackgroundAnimation.rawValue, forKey: "notchBackgroundAnimation")
         defaults.set(constant120FPS, forKey: "constant120FPS")
     }
+    
+    
+    // MARK: - FileTray Settings
+    /// Function to save the FileTray Settings
+    /// Called in NotchNotchSettings with the fileTray
+    public func saveFileTrayValues(values: FileTraySettingsValues) {
+        //        var fileTrayDefaultFolder : URL? = nil
+        //        var fileTrayAllowOpenOnLocalhost: Bool = false
+        //        var localHostPin: String = "1111"
+        //        var fileTrayPort: Int = 8080
+        guard let folder = values.fileTrayDefaultFolder else {
+            print("⚠️ Invalid file tray default folder, not saving.")
+            return
+        }
+        
+        self.fileTrayDefaultFolder = folder
+        self.fileTrayAllowOpenOnLocalhost = values.fileTrayAllowOpenOnLocalhost
+        self.localHostPin = values.localHostPin
+        self.fileTrayPort = values.fileTrayPort
+        
+        /// Fix This
+        //        fileTrayDefaultFolder = FileManager.default
+        //            .urls(for: .documentDirectory, in: .userDomainMask)
+        //            .first!
+        //            .appendingPathComponent("ComfyNotch Files", isDirectory: true)
+        //        /// if we reach here, that means that the fileTray is populated no matter what so we can force it to get stored
+        //        if !fileTrayDefaultFolder.path.isEmpty {
+        //            defaults.set(fileTrayDefaultFolder.path(), forKey: "fileTrayDefaultFolder")
+        //        }
+        
+        defaults.set(fileTrayAllowOpenOnLocalhost, forKey: "fileTrayAllowOpenOnLocalhost")
+        
+        /// Save Pin
+        if localHostPin != "" {
+            defaults.set(localHostPin, forKey: "localHostPin")
+        } else {
+            localHostPin = "1111" // Default pin
+            defaults.set(localHostPin, forKey: "localHostPin")
+        }
+        
+        /// Save Port
+        if fileTrayPort > 0 && fileTrayPort < 65536 {
+            defaults.set(fileTrayPort, forKey: "fileTrayPort")
+        } else {
+            fileTrayPort = 8000 // Default port
+            defaults.set(fileTrayPort, forKey: "fileTrayPort")
+        }
+    }
+    
+    // MARK: - Messages Settings
+    /// Function to save the Messages Settings
+    /// Called in NotchNotchSettings with the Messages
+    public func saveMessagesValues(values: MessagesSettingsValues) {
+        self.enableMessagesNotifications = values.enableMessagesNotifications
+        self.messagesHandleLimit = values.messagesHandleLimit
+        self.messagesMessageLimit = values.messagesMessageLimit
+        
+        /// Messages Settings
+        defaults.set(enableMessagesNotifications, forKey: "enableMessagesNotifications")
+        if messagesHandleLimit < 10 {
+            messagesHandleLimit = 10
+        }
+        defaults.set(messagesHandleLimit, forKey: "messagesHandleLimit")
+        
+        if messagesMessageLimit < 10 {
+            messagesMessageLimit = 10
+        }
+        defaults.set(messagesMessageLimit, forKey: "messagesMessageLimit")
+    }
+    
+    
+    // MARK: - Utils Settings
+    /// Function to save the Utils Settings
+    /// Called in NotchNotchSettings with the Utils
+    public func saveUtilsValues(values: UtilsSettingsValues) {
+        self.enableUtilsOption = values.enableUtilsOption
+        self.enableClipboardListener = values.enableClipboardListener
+        
+        defaults.set(enableUtilsOption, forKey: "enableUtilsOption")
+        defaults.set(enableClipboardListener, forKey: "enableClipboardListener")
+    }
+    
+    
+    
+    
+    
+    
+    
     
     // MARK: - Load Settings
     /// Loads the last saved settings from UserDefaults
