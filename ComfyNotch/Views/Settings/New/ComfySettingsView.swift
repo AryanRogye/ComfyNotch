@@ -100,7 +100,7 @@ struct SettingsView: View {
             case .general:      NotchGeneralTab()
             case .animations:   NotchAnimationTab()
             case .display :     NotchDisplayTab()
-            case .updates:      UpdatesSettingsView()
+            case .updates:      NotchUpdatesTab()
             }
         }
     }

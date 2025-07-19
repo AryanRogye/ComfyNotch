@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ModifierPickerItem: View {
+struct ModifierPickerItemm: View {
     @State var shortcutName: String
     @Binding var selectedModifiers: Set<ModifierKey>
     @Binding var key: String?
@@ -113,5 +113,5 @@ struct ModifierPickerItem: View {
 }
 
 #Preview {
-    ModifierPickerItem(name: "Test", selected: .constant([.command]), key: .constant("t"))
+    ModifierPickerItemm(name: "Test", selected: .constant([.command]), key: .constant("t"))
 }

@@ -45,7 +45,7 @@ public struct Style {
     var valueColor: Color
 }
 
-public struct ComfyLabeledStepper<T: Comparable & Numeric>: View {
+public struct ComfyLabeledStepperr<T: Comparable & Numeric>: View {
     
     public init(
         _ title: String,

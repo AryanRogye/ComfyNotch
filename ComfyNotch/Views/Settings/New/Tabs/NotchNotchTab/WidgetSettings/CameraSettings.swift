@@ -43,11 +43,11 @@ struct CameraSettings: View {
                 .toggleStyle(.switch)
             
             if settings.enableCameraOverlay {
-                ComfyLabeledStepper(
-                    "Overlay Timer",
+                ComfySlider(
                     value: $settings.cameraOverlayTimer,
                     in: 5...120,
-                    step: 1
+                    step: 1,
+                    label: "Overlay Timer"
                 )
                 .transition(.opacity)
                 .onChange(of: settings.cameraOverlayTimer) {

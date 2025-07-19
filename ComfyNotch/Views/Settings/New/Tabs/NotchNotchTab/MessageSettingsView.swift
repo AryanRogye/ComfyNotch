@@ -92,19 +92,19 @@ public struct MessageSettingsView: View {
             if v.enableMessagesNotifications {
                 Group {
                     /// TODO:  show that this is for getting the "last amount" of users
-                    ComfyLabeledStepper(
-                        "Most Recent Message Limit",
+                    ComfySlider(
                         value: $v.messagesHandleLimit,
                         in: 10...100,
-                        step: 1
+                        step: 1,
+                        label: "Most Recent User Limit"
                     )
                     
                     /// Actual last message content
-                    ComfyLabeledStepper(
-                        "Control Message Limit",
+                    ComfySlider(
                         value: $v.messagesMessageLimit,
                         in: 10...100,
-                        step: 1
+                        step: 1,
+                        label: "Control Message Limit"
                     )
                 }
                 .padding(.horizontal)

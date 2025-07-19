@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ComfySection<Content: View>: View {
+struct ComfySectionn<Content: View>: View {
     
     var title: String
     var systemImage: String? = nil

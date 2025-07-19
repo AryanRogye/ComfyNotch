@@ -1,11 +1,11 @@
 import SwiftUI
 
-struct ShortcutRows: View {
+struct ShortcutRowss: View {
     @ObservedObject var shortcutHandler = ShortcutHandler.shared
 
     var body: some View {
         ForEach($shortcutHandler.userShortcuts) { $shortcut in
-            ModifierPickerItem(
+            ModifierPickerItemm(
                 name: shortcut.name,
                 selected: $shortcut.modifiers,
                 key: $shortcut.key

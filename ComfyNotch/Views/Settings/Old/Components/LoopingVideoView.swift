@@ -8,7 +8,7 @@
 import SwiftUI
 import AVKit
 
-struct LoopingVideoView: View {
+struct LoopingVideoVieww: View {
     let url: URL
 
     @State private var player: AVQueuePlayer?

@@ -1,9 +1,5 @@
 import SwiftUI
 
-class TopNotchViewManager: ObservableObject {
-    
-}
-
 struct TopNotchView: View {
     
     @EnvironmentObject var widgetStore: CompactWidgetsStore

@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct InformationCircle: View {
+struct InformationCirclee: View {
     
     private var clickedText: String
     @State private var isClicked: Bool = false
