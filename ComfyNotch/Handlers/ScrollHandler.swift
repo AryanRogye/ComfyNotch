@@ -38,7 +38,7 @@ class ScrollHandler {
         
         if UIManager.shared.panelState == .closed {
             let newWidth: CGFloat = self.getNotchWidth()
-            print("Using New Width: \(newWidth)")
+            debugLog("Using New Width: \(newWidth)")
             
             /// first hide the items inside it
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -428,13 +428,9 @@ class ScrollHandler {
         let desiredFrame = NSRect(x: centerX, y: y, width: finalWidth, height: minPanelHeight)
         
         // Optional: Tolerance for micro pixel diff
-        //        if !panel.frame.equalTo(desiredFrame) {
-        //            panel.setFrame(desiredFrame, display: true)
-        //        }
-        
-        panel.orderOut(nil)
-        panel.setFrame(desiredFrame, display: true)
-        panel.orderFront(nil)
+        if !panel.frame.equalTo(desiredFrame) {
+            panel.setFrame(desiredFrame, display: true)
+        }
         
 //        print("Set Values")
 //        print("Min Height: \(minPanelHeight)")

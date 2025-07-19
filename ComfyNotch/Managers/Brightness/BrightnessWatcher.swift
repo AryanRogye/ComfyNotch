@@ -111,8 +111,8 @@ final class BrightnessWatcher: ObservableObject {
             
             PopInPresenter_HUD_Coordinator.shared.presentIfAllowed(for: .brightness) {
                 withAnimation(.easeOut(duration: 0.2)) {
-                    NotchStateManager.shared.currentPopInPresentationState = .hud
-                    NotchStateManager.shared.currentPanelState = .popInPresentation
+                    self.notchStateManager.currentPopInPresentationState = .hud
+                    self.notchStateManager.currentPanelState = .popInPresentation
                 }
                 self.notchStateManager.isLoadingPopInPresenter = false
             }
