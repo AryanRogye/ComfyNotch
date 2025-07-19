@@ -54,21 +54,19 @@ class SettingsModel: ObservableObject {
     let setNotchMinWidth: CGFloat = 350
     let setNotchMaxWidth: CGFloat = 1000
     
-    /*
-     NOTE: this is is very important because this will be what
-     the notch will be set to when it is closed, if this is
-     <= 0 this is a BIG ISSUE
-     this is cuz in `Managers/UIManager.swift` we use this:
-     
-     let notchHeight = getNotchHeight()
-     
-     let panelRect = NSRect(
-     x: (screenFrame.width - startPanelWidth) / 2,
-     y: screenFrame.height - notchHeight - startPanelYOffset,
-     width: startPanelWidth,
-     height: notchHeight
-     )
-     */
+    // NOTE: this is is very important because this will be what
+    // the notch will be set to when it is closed, if this is
+    // <= 0 this is a BIG ISSUE
+    // this is cuz in `Managers/UIManager.swift` we use this:
+    // 
+    // let notchHeight = getNotchHeight()
+    // 
+    // let panelRect = NSRect(
+    // x: (screenFrame.width - startPanelWidth) / 2,
+    // y: screenFrame.height - notchHeight - startPanelYOffset,
+    // width: startPanelWidth,
+    // height: notchHeight
+    // )
     @Published var notchMinFallbackHeight: CGFloat = 40
     /// Min and Max Values for the fallback Height
     let notchHeightMin : Int = 35
@@ -120,7 +118,7 @@ class SettingsModel: ObservableObject {
     @Published var currentMessageAudioFile: String = ""
     
     /// ---------- Utils Settings ----------
-    /// Set to false at the start, will change if the user wants to
+    /// Set to false at the start, will change if the user wants to enable or disable this feature.
     /// The thing is that if the user turns this off we have to verify that the
     /// clipboard are off, or else just dont
     /// let the user turn it off

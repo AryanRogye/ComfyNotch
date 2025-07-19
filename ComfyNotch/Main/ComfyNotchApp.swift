@@ -28,13 +28,14 @@ struct ComfyNotchApp: App {
             .windowResizability(.contentSize)
             .defaultPosition(.center)
             .windowStyle(.hiddenTitleBar)
-             .defaultLaunchBehavior(.suppressed)
+            .defaultLaunchBehavior(.suppressed)
         } else {
             return Window("SettingsView", id: "SettingsView") {
                 SettingsView()
             }
             .windowResizability(.contentSize)
             .defaultPosition(.center)
+            .windowStyle(.hiddenTitleBar)
         }
     }
 }
