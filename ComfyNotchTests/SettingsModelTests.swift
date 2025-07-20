@@ -31,9 +31,9 @@ final class SettingsModelTests: XCTestCase {
         XCTAssertEqual(settings.notchMinFallbackHeight, 40)
         XCTAssertEqual(settings.cameraOverlayTimer, 20)
         XCTAssertEqual(settings.selectedWidgets, WidgetRegistry.shared.getDefaultWidgets())
-        XCTAssertEqual(settings.selectedWidgets.count, 2)
+        XCTAssertEqual(settings.selectedWidgets.count, 1)
         XCTAssertTrue(settings.enableCameraOverlay)
-        XCTAssertTrue(settings.enableClipboardListener)
+        XCTAssertTrue(!settings.enableClipboardListener)
         XCTAssertFalse(settings.enableMessagesNotifications)
     }
 }
