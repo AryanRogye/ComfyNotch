@@ -126,8 +126,10 @@ final class PanelAnimator {
                 isHovering = false
                 hoverTimer?.invalidate()
                 hoverTimer = nil
-                PanelAnimationState.shared.currentPanelState = .home
-                PanelAnimationState.shared.currentPopInPresentationState = .none
+                DispatchQueue.main.async {
+                    NotchStateManager.shared.currentPanelState = .home
+                    NotchStateManager.shared.currentPopInPresentationState = .none
+                }
                 ScrollHandler.shared.peekClose()
             }
         }
@@ -148,8 +150,8 @@ final class PanelAnimator {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
                     withAnimation(.easeOut(duration: 0.2)) {
                         if UIManager.shared.panelState != .open {
-                            PanelAnimationState.shared.currentPopInPresentationState = .nowPlaying
-                            PanelAnimationState.shared.currentPanelState = .popInPresentation
+                            NotchStateManager.shared.currentPopInPresentationState = .nowPlaying
+                            NotchStateManager.shared.currentPanelState = .popInPresentation
                         }
                     }
                 }

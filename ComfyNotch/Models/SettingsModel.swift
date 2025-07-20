@@ -2,13 +2,13 @@ import AppKit
 import Combine
 import Sparkle
 import AVKit
+import SwiftUI
 
 class SettingsModel: ObservableObject {
     static let shared = SettingsModel(userDefaults: .standard)
-
+    
     @Published var selectedTab: SettingsView.Tab = .general
     @Published var selectedNotchTab: Int = 0
-    
     
     @Published var isFirstLaunch: Bool = true
     @Published var hasFirstWindowBeenOpenOnce = false
@@ -43,29 +43,30 @@ class SettingsModel: ObservableObject {
     
     /// ----------- Notch Settings -----------
     @Published var showDividerBetweenWidgets: Bool = false
-    @Published var hoverTargetMode: HoverTarget = .album
+    @Published var hoverTargetMode: HoverTarget = .none
     @Published var nowPlayingScrollSpeed: Int = 40
     @Published var enableNotchHUD: Bool = false
-    /// Controlling the width of the notch
-    @Published var notchMaxWidth: CGFloat = 710
-    let setNotchMinWidth: CGFloat = 500
+    
+    /// Controlling the width of the notch, My Refular Used to be 700 but changed to 450
+    /// cuz lots of users suggested that it was too wide, looked like a iPhone
+    @Published var notchMaxWidth: CGFloat = 450
+    // WARNING: Should NOT BE UNDER 320
+    let setNotchMinWidth: CGFloat = 350
     let setNotchMaxWidth: CGFloat = 1000
     
-    /*
-     NOTE: this is is very important because this will be what
-     the notch will be set to when it is closed, if this is
-     <= 0 this is a BIG ISSUE
-     this is cuz in `Managers/UIManager.swift` we use this:
-     
-     let notchHeight = getNotchHeight()
-     
-     let panelRect = NSRect(
-        x: (screenFrame.width - startPanelWidth) / 2,
-        y: screenFrame.height - notchHeight - startPanelYOffset,
-        width: startPanelWidth,
-        height: notchHeight
-     )
-     */
+    // NOTE: this is is very important because this will be what
+    // the notch will be set to when it is closed, if this is
+    // <= 0 this is a BIG ISSUE
+    // this is cuz in `Managers/UIManager.swift` we use this:
+    // 
+    // let notchHeight = getNotchHeight()
+    // 
+    // let panelRect = NSRect(
+    // x: (screenFrame.width - startPanelWidth) / 2,
+    // y: screenFrame.height - notchHeight - startPanelYOffset,
+    // width: startPanelWidth,
+    // height: notchHeight
+    // )
     @Published var notchMinFallbackHeight: CGFloat = 40
     /// Min and Max Values for the fallback Height
     let notchHeightMin : Int = 35
@@ -76,8 +77,9 @@ class SettingsModel: ObservableObject {
         notchMinFallbackHeight = 40
     }
     
-    
     @Published var quickAccessWidgetDistanceFromLeft: CGFloat = 18
+    @Published var quickAccessWidgetDistanceFromTop: CGFloat = 4
+    @Published var settingsWidgetDistanceFromRight: CGFloat = 18
     @Published var oneFingerAction: TouchAction = .none
     @Published var twoFingerAction: TouchAction = .none
     @Published var notchScrollThreshold: CGFloat = 50
@@ -96,6 +98,15 @@ class SettingsModel: ObservableObject {
     @Published var cameraOverlayTimer: Int = 20
     @Published var cameraQualitySelection: AVCaptureSession.Preset = .high
     
+    
+    /// ---------- Display Settings ----------
+    @Published var selectedScreen: NSScreen! = NSScreen.main!
+    /// ---------- Animation Settings ----------
+    @Published var openingAnimation: String = "iOS"
+    @Published var notchBackgroundAnimation: ShaderOption = .ambientGradient
+    @Published var enableMetalAnimation: Bool = true
+    @Published var constant120FPS: Bool = false
+    
     /// ---------- Messages Settings ----------
     /// This is required to be false on start cuz theres no way
     /// to prompt or make the user silence "Messages" Notifications,
@@ -106,22 +117,16 @@ class SettingsModel: ObservableObject {
     @Published var messagesMessageLimit: Int = 20
     @Published var currentMessageAudioFile: String = ""
     
-    /// ---------- Display Settings ----------
-    @Published var selectedScreen: NSScreen! = NSScreen.main!
-    /// ---------- Animation Settings ----------
-    @Published var openingAnimation: String = "iOS"
-    @Published var notchBackgroundAnimation: ShaderOption = .ambientGradient
-    @Published var enableMetalAnimation: Bool = true
-    @Published var constant120FPS: Bool = false
-    
     /// ---------- Utils Settings ----------
-    /// Set to true at the start, will change if the user wants tp
+    /// Set to false at the start, will change if the user wants to enable or disable this feature.
     /// The thing is that if the user turns this off we have to verify that the
-    /// clipboard and the bluetooth listeners are off, or else just dont
-    /// let the userr turn it off
-    @Published var enableUtilsOption: Bool = true
-    @Published var enableClipboardListener: Bool = true
+    /// clipboard are off, or else just dont
+    /// let the user turn it off
+    @Published var enableUtilsOption: Bool = false
+    @Published var enableClipboardListener: Bool = false
     
+    
+    /// REQUIRED FOR UPDATING
     lazy var updaterController: SPUStandardUpdaterController = {
         return SPUStandardUpdaterController(
             startingUpdater: true,
@@ -183,33 +188,9 @@ class SettingsModel: ObservableObject {
             defaults.set(aiApiKey, forKey: "aiApiKey")
         }
         
-        /// ----------------------- FileTray Settings ------------------------------------
-        /// Save the fileTrayFolder
-        /// Set Default for the file tray folder if nothing is found
-        fileTrayDefaultFolder = FileManager.default
-            .urls(for: .documentDirectory, in: .userDomainMask)
-            .first!
-            .appendingPathComponent("ComfyNotch Files", isDirectory: true)
-        /// if we reach here, that means that the fileTray is populated no matter what so we can force it to get stored
-        if !fileTrayDefaultFolder.path.isEmpty {
-            defaults.set(fileTrayDefaultFolder.path(), forKey: "fileTrayDefaultFolder")
-        }
+        
+        /// TODO: REMOVE
         defaults.set(fileTrayPersistFiles, forKey: "fileTrayPersistFiles")
-        defaults.set(fileTrayAllowOpenOnLocalhost, forKey: "fileTrayAllowOpenOnLocalhost")
-        
-        if fileTrayPort > 0 && fileTrayPort < 65536 {
-            defaults.set(fileTrayPort, forKey: "fileTrayPort")
-        } else {
-            fileTrayPort = 8000 // Default port
-            defaults.set(fileTrayPort, forKey: "fileTrayPort")
-        }
-        
-        if localHostPin != "" {
-            defaults.set(localHostPin, forKey: "localHostPin")
-        } else {
-            localHostPin = "1111" // Default pin
-            defaults.set(localHostPin, forKey: "localHostPin")
-        }
         
         /// ----------------------- ClipBoard Settings -----------------------------------
         if clipboardManagerMaxHistory >= 0 {
@@ -221,21 +202,63 @@ class SettingsModel: ObservableObject {
         /// ----------------------- Notch Settings -------------------------------------
         defaults.set(showDividerBetweenWidgets, forKey: "showDividerBetweenWidgets")
         
-        defaults.set(hoverTargetMode.rawValue, forKey: "hoverTargetMode")
         
         if nowPlayingScrollSpeed > 0 {
             defaults.set(nowPlayingScrollSpeed, forKey: "nowPlayingScrollSpeed")
         } else {
             defaults.set(40, forKey: "nowPlayingScrollSpeed")
         }
-        defaults.set(enableNotchHUD, forKey: "enableNotchHUD")
+        defaults.set(notchScrollThreshold, forKey: "notchScrollThreshold")
         
-        if notchMinFallbackHeight <= 0 {
-            notchMinFallbackHeight = 40
+        /// ----------------------- Music Player Settings -----------------------
+        defaults.set(showMusicProvider, forKey: "showMusicProvider")
+        defaults.set(musicController.rawValue, forKey: "musicController")
+        defaults.set(overridenMusicProvider.rawValue, forKey: "overridenMusicProvider")
+        
+        /// ----------------------- Display Settings -----------------------
+        if let screen = selectedScreen {
+            /// We Will Set the screen id
+            defaults.set(screen.displayID, forKey: "selectedScreenID")
         }
-        defaults.set(notchMinFallbackHeight, forKey: "notchMinFallbackHeight")
+    }
+    
+    
+    // MARK: - Closed Notch Values
+    /// Function to save the Closed Notch Values
+    /// Called in GeneralSettings
+    public func saveClosedNotchValues(values: ClosedNotchValues) {
+        self.hoverTargetMode = values.hoverTargetMode
+        self.notchMinFallbackHeight = CGFloat(values.fallbackHeight)
+        self.enableNotchHUD = values.hudEnabled
+        self.oneFingerAction = values.oneFingerAction
+        self.twoFingerAction = values.twoFingerAction
         
-        /// Make sure that the maxWidth is always > 500 the rest is up to the user to break, maybe add a limit of like 1000
+        /// Constraints
+        if self.notchMinFallbackHeight <= 0 { self.notchMinFallbackHeight = 40 }
+        
+        defaults.set(hoverTargetMode.rawValue, forKey: "hoverTargetMode")
+        defaults.set(notchMinFallbackHeight, forKey: "notchMinFallbackHeight")
+        defaults.set(enableNotchHUD, forKey: "enableNotchHUD")
+        defaults.set(oneFingerAction.rawValue, forKey: "oneFingerAction")
+        defaults.set(twoFingerAction.rawValue, forKey: "twoFingerAction")
+        
+        print("Closed Notch Values Saved")
+    }
+    
+    // MARK: - Open Notch Dimensions
+    /// Function to save the Open Notch Content Dimensions
+    /// Called in GeneralSettings
+    public func saveOpenNotchContentDimensions(values: OpenNotchContentDimensionsValues) {
+        self.quickAccessWidgetDistanceFromLeft = CGFloat(values.leftSpacing)
+        self.quickAccessWidgetDistanceFromTop = CGFloat(values.topSpacing)
+        self.settingsWidgetDistanceFromRight = CGFloat(values.rightSpacing)
+        self.notchMaxWidth = CGFloat(values.notchMaxWidth)
+        
+        defaults.set(quickAccessWidgetDistanceFromLeft, forKey: "quickAccessWidgetDistanceFromLeft")
+        defaults.set(quickAccessWidgetDistanceFromTop, forKey: "quickAccessWidgetDistanceFromTop")
+        defaults.set(settingsWidgetDistanceFromRight, forKey: "settingsWidgetDistanceFromRight")
+        
+        /// Constraint The Notch Widths
         if notchMaxWidth < setNotchMinWidth {
             notchMaxWidth = setNotchMinWidth
         }
@@ -244,19 +267,88 @@ class SettingsModel: ObservableObject {
         }
         
         defaults.set(notchMaxWidth, forKey: "notchMaxWidth")
+    }
+    
+    
+    // MARK: - Opening Animation
+    /// Function to save the opening animations
+    /// Called in AnimationSettings
+    public func saveOpeningAnimationValues(values: OpeningAnimationSettingsValues) {
+        self.openingAnimation = values.openingAnimation
         
-        defaults.set(quickAccessWidgetDistanceFromLeft, forKey: "quickAccessWidgetDistanceFromLeft")
+        defaults.set(openingAnimation, forKey: "openingAnimation")
+    }
+    
+    // MARK: - Metal Animations
+    /// Function to save the metal animations
+    /// Called in MetalAnimations
+    public func saveMetalAnimationValues(values: MetalAnimationValues) {
+        self.enableMetalAnimation = values.enableMetalAnimation
+        self.notchBackgroundAnimation = values.notchBackgroundAnimation
+        self.constant120FPS = values.constant120FPS
         
-        defaults.set(oneFingerAction.rawValue, forKey: "oneFingerAction")
-        defaults.set(twoFingerAction.rawValue, forKey: "twoFingerAction")
-        defaults.set(notchScrollThreshold, forKey: "notchScrollThreshold")
+        defaults.set(enableMetalAnimation, forKey: "enableMetalAnimation")
+        defaults.set(notchBackgroundAnimation.rawValue, forKey: "notchBackgroundAnimation")
+        defaults.set(constant120FPS, forKey: "constant120FPS")
+    }
+    
+    
+    // MARK: - FileTray Settings
+    /// Function to save the FileTray Settings
+    /// Called in NotchNotchSettings with the fileTray
+    public func saveFileTrayValues(values: FileTraySettingsValues) {
+        //        var fileTrayDefaultFolder : URL? = nil
+        //        var fileTrayAllowOpenOnLocalhost: Bool = false
+        //        var localHostPin: String = "1111"
+        //        var fileTrayPort: Int = 8080
+        guard let folder = values.fileTrayDefaultFolder else {
+            print("⚠️ Invalid file tray default folder, not saving.")
+            return
+        }
         
-        /// ----------------------- Music Player Settings -----------------------
-        defaults.set(showMusicProvider, forKey: "showMusicProvider")
-        defaults.set(musicController.rawValue, forKey: "musicController")
-        defaults.set(overridenMusicProvider.rawValue, forKey: "overridenMusicProvider")
+        self.fileTrayDefaultFolder = folder
+        self.fileTrayAllowOpenOnLocalhost = values.fileTrayAllowOpenOnLocalhost
+        self.localHostPin = values.localHostPin
+        self.fileTrayPort = values.fileTrayPort
         
-        /// ----------------------- Messages Settings -----------------------
+        /// Fix This
+        //        fileTrayDefaultFolder = FileManager.default
+        //            .urls(for: .documentDirectory, in: .userDomainMask)
+        //            .first!
+        //            .appendingPathComponent("ComfyNotch Files", isDirectory: true)
+        //        /// if we reach here, that means that the fileTray is populated no matter what so we can force it to get stored
+        //        if !fileTrayDefaultFolder.path.isEmpty {
+        //            defaults.set(fileTrayDefaultFolder.path(), forKey: "fileTrayDefaultFolder")
+        //        }
+        
+        defaults.set(fileTrayAllowOpenOnLocalhost, forKey: "fileTrayAllowOpenOnLocalhost")
+        
+        /// Save Pin
+        if localHostPin != "" {
+            defaults.set(localHostPin, forKey: "localHostPin")
+        } else {
+            localHostPin = "1111" // Default pin
+            defaults.set(localHostPin, forKey: "localHostPin")
+        }
+        
+        /// Save Port
+        if fileTrayPort > 0 && fileTrayPort < 65536 {
+            defaults.set(fileTrayPort, forKey: "fileTrayPort")
+        } else {
+            fileTrayPort = 8000 // Default port
+            defaults.set(fileTrayPort, forKey: "fileTrayPort")
+        }
+    }
+    
+    // MARK: - Messages Settings
+    /// Function to save the Messages Settings
+    /// Called in NotchNotchSettings with the Messages
+    public func saveMessagesValues(values: MessagesSettingsValues) {
+        self.enableMessagesNotifications = values.enableMessagesNotifications
+        self.messagesHandleLimit = values.messagesHandleLimit
+        self.messagesMessageLimit = values.messagesMessageLimit
+        
+        /// Messages Settings
         defaults.set(enableMessagesNotifications, forKey: "enableMessagesNotifications")
         if messagesHandleLimit < 10 {
             messagesHandleLimit = 10
@@ -268,21 +360,49 @@ class SettingsModel: ObservableObject {
         }
         defaults.set(messagesMessageLimit, forKey: "messagesMessageLimit")
         
-        /// ----------------------- Display Settings -----------------------
-        if let screen = selectedScreen {
-            /// We Will Set the screen id
-            defaults.set(screen.displayID, forKey: "selectedScreenID")
-        }
-        /// ----------------------- Animation Settings -----------------------
-        defaults.set(openingAnimation, forKey: "openingAnimation")
-        defaults.set(notchBackgroundAnimation.rawValue, forKey: "notchBackgroundAnimation")
-        defaults.set(enableMetalAnimation, forKey: "enableMetalAnimation")
-        defaults.set(constant120FPS, forKey: "constant120FPS")
         
-        /// ------------ Utils Settings -----------------------
+        
+        if self.enableMessagesNotifications {
+            Task {
+                await MessagesManager.shared.checkFullDiskAccess()
+                await MessagesManager.shared.checkContactAccess()
+                await MessagesManager.shared.fetchAllHandles()
+                await MessagesManager.shared.startPolling()
+            }
+        } else {
+            Task {
+                await MessagesManager.shared.stopPolling()
+            }
+        }
+    }
+    
+    
+    // MARK: - Utils Settings
+    /// Function to save the Utils Settings
+    /// Called in NotchNotchSettings with the Utils
+    public func saveUtilsValues(values: UtilsSettingsValues) {
+        self.enableUtilsOption = values.enableUtilsOption
+        self.enableClipboardListener = values.enableClipboardListener
+        
         defaults.set(enableUtilsOption, forKey: "enableUtilsOption")
         defaults.set(enableClipboardListener, forKey: "enableClipboardListener")
+        
+        
+        if self.enableClipboardListener {
+            self.enableUtilsOption = true
+            ClipboardManager.shared.start()
+        } else {
+            self.enableUtilsOption = false
+            ClipboardManager.shared.stop()
+        }
     }
+    
+    
+    
+    
+    
+    
+    
     
     // MARK: - Load Settings
     /// Loads the last saved settings from UserDefaults
@@ -365,7 +485,7 @@ class SettingsModel: ObservableObject {
         if let hoverTarget = defaults.object(forKey: "hoverTargetMode") as? String {
             self.hoverTargetMode = HoverTarget(rawValue: hoverTarget) ?? .album
         } else {
-            self.hoverTargetMode = .album // Default to album
+            self.hoverTargetMode = .none /// default to none
         }
         
         if let nowPlayingScrollSpeed = defaults.object(forKey: "nowPlayingScrollSpeed") as? Int {
@@ -382,13 +502,25 @@ class SettingsModel: ObservableObject {
         if let notchMaxWidth = defaults.object(forKey: "notchMaxWidth") as? CGFloat {
             self.notchMaxWidth = notchMaxWidth
         } else {
-            self.notchMaxWidth = 710
+            self.notchMaxWidth = 450
         }
         /// quickAccessWidgetDistanceFromLeft Loading Logic
         if let quickAccessWidgetDistanceFromLeft = defaults.object(forKey: "quickAccessWidgetDistanceFromLeft") as? CGFloat {
             self.quickAccessWidgetDistanceFromLeft = quickAccessWidgetDistanceFromLeft
         } else {
             self.quickAccessWidgetDistanceFromLeft = 18
+        }
+        
+        if let quickAccessWidgetDistanceFromTop = defaults.object(forKey: "quickAccessWidgetDistanceFromTop") as? CGFloat {
+            self.quickAccessWidgetDistanceFromTop = quickAccessWidgetDistanceFromTop
+        } else {
+            self.quickAccessWidgetDistanceFromTop = 4
+        }
+        
+        if let settingsWidgetDistanceFromRight = defaults.object(forKey: "settingsWidgetDistanceFromRight") as? CGFloat {
+            self.settingsWidgetDistanceFromRight = settingsWidgetDistanceFromRight
+        } else {
+            self.settingsWidgetDistanceFromRight = 18
         }
         
         if let oneFingerActionRawValue = defaults.string(forKey: "oneFingerAction"),
@@ -488,13 +620,13 @@ class SettingsModel: ObservableObject {
         if let enableUtilsOption = defaults.object(forKey: "enableUtilsOption") as? Bool {
             self.enableUtilsOption = enableUtilsOption
         } else {
-            self.enableUtilsOption = true
+            self.enableUtilsOption = false
         }
         
         if let enableClipboardListener = defaults.object(forKey: "enableClipboardListener") as? Bool {
             self.enableClipboardListener = enableClipboardListener
         } else {
-            self.enableClipboardListener = true
+            self.enableClipboardListener = false
         }
     }
     

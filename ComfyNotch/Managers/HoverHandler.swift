@@ -9,6 +9,7 @@ import Combine
 import SwiftUI
 
 enum HoverTarget: String, Codable, CaseIterable, Identifiable {
+    case none
     case album
     case panel
     
@@ -18,6 +19,7 @@ enum HoverTarget: String, Codable, CaseIterable, Identifiable {
 extension HoverTarget {
     var displayName: String {
         switch self {
+        case .none: return "None"
         case .album: return "Album Image Only"
         case .panel: return "Whole Panel"
         }
@@ -81,7 +83,7 @@ final class HoverHandler: ObservableObject {
     
     /// This is set inside the Main/ComfyNotchView <- this is important that this is set if hovering should work on the
     /// album
-    public func bindHoveringOverLeft(for target: PanelAnimationState) {
+    public func bindHoveringOverLeft(for target: NotchStateManager) {
         $isHoveringOverLeft
             .sink { [weak self] hovering in
                 guard let self = self else { return }
@@ -106,8 +108,8 @@ final class HoverHandler: ObservableObject {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                             withAnimation(.easeOut(duration: 0.2)) {
                                 if UIManager.shared.panelState != .open {
-                                    PanelAnimationState.shared.currentPopInPresentationState = .nowPlaying
-                                    PanelAnimationState.shared.currentPanelState = .popInPresentation
+                                    target.currentPopInPresentationState = .nowPlaying
+                                    target.currentPanelState = .popInPresentation
                                 }
                             }
                         }
@@ -125,9 +127,14 @@ final class HoverHandler: ObservableObject {
                     hoverTimer = nil
                     hoverResetTimer?.invalidate()
                     
-                    target.currentPanelState = .home
+                    DispatchQueue.main.async {
+                        target.currentPanelState = .home
+                    }
                     self.scaleHoverOverLeftItems = false
-                    target.currentPopInPresentationState = .none
+                    
+                    DispatchQueue.main.async {
+                        target.currentPopInPresentationState = .none
+                    }
                     ScrollHandler.shared.peekClose()
                     
                     self.scheduleHoverReset()

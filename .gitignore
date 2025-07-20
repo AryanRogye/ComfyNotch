@@ -24,6 +24,7 @@ Package.resolved
 Scripts/create_dmg.sh
 Scripts/generate_appcast.sh
 ComfyNotchUpdates/
+Videos/
 Traces/
 diff.txt
 todo.md

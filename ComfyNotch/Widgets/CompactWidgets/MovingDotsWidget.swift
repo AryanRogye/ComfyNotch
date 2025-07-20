@@ -14,7 +14,7 @@ struct AnimatedDot: View {
         self.shouldAnimate = shouldAnimate
     }
     
-    @ObservedObject private var animationState: PanelAnimationState = .shared
+    @ObservedObject private var notchStateManager: NotchStateManager = .shared
     @State private var bounceOffset: CGFloat = 5
     @State private var animationCancellable: AnyCancellable?
     
@@ -22,11 +22,11 @@ struct AnimatedDot: View {
     private var animationDamping: CGFloat = 15
     
     private var size: CGFloat {
-        return animationState.hoverHandler.scaleHoverOverLeftItems ? 7 : 6
+        return notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 7 : 6
     }
     
     private var scale: CGFloat {
-        return animationState.hoverHandler.scaleHoverOverLeftItems ? 1.10 : 1
+        return notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 1.10 : 1
     }
     
     
@@ -39,7 +39,7 @@ struct AnimatedDot: View {
             .scaleEffect(scale)
             .animation(
                 .interpolatingSpring(stiffness: animationStiffness, damping: animationDamping),
-                value: animationState.hoverHandler.scaleHoverOverLeftItems
+                value: notchStateManager.hoverHandler.scaleHoverOverLeftItems
             )
             .offset(y: shouldAnimate ? bounceOffset : 0)
             .onAppear {
@@ -77,12 +77,12 @@ struct MovingDotsView: View, Widget {
     var name: String = "MovingDotsWidget"
     var alignment: WidgetAlignment? = .right
     @ObservedObject var model: MusicPlayerWidgetModel = .shared
-    @ObservedObject private var animationState: PanelAnimationState = .shared
+    @ObservedObject private var notchStateManager: NotchStateManager = .shared
     
     /// Padding of 4-2 range pushes it to the left, that way when we hover of the left side,
     /// it pops OUT to the right, making it look like its cool yk
     private var paddingTrailing: CGFloat {
-        return animationState.hoverHandler.scaleHoverOverLeftItems ? 3 : 5
+        return notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 3 : 5
     }
     
     var body: some View {

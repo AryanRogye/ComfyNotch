@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MessagesView: View {
     
-    @ObservedObject var animationState = PanelAnimationState.shared
+    @ObservedObject var notchStateManager = NotchStateManager.shared
     @ObservedObject var messagesManager = MessagesManager.shared
     
     @State var didPressUser: Bool = false
@@ -45,8 +45,8 @@ struct MessagesView: View {
         }
         .background(Color.clear)
         .animation(
-            .easeInOut(duration: animationState.isExpanded ? 2 : 0.1),
-            value: animationState.isExpanded
+            .easeInOut(duration: notchStateManager.isExpanded ? 2 : 0.1),
+            value: notchStateManager.isExpanded
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

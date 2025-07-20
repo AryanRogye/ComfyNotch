@@ -12,7 +12,7 @@ final class BrightnessWatcher: ObservableObject {
     static let shared = BrightnessWatcher()
 
     @Published var currentBrightness: Float = 0.0
-    let panelState = PanelAnimationState.shared
+    let notchStateManager = NotchStateManager.shared
     let popInPresenterCoordinator = PopInPresenter_HUD_Coordinator.shared
 
     private var previousValue: Float = 0.0
@@ -97,7 +97,9 @@ final class BrightnessWatcher: ObservableObject {
     // Separated execution logic
     private func executeNotchOpen() {
         // Set loading state if needed (optional)
-        panelState.isLoadingPopInPresenter = true
+        DispatchQueue.main.async {
+            self.notchStateManager.isLoadingPopInPresenter = true
+        }
         
         // Open immediately
         openNotch()
@@ -109,10 +111,10 @@ final class BrightnessWatcher: ObservableObject {
             
             PopInPresenter_HUD_Coordinator.shared.presentIfAllowed(for: .brightness) {
                 withAnimation(.easeOut(duration: 0.2)) {
-                    PanelAnimationState.shared.currentPopInPresentationState = .hud
-                    PanelAnimationState.shared.currentPanelState = .popInPresentation
+                    self.notchStateManager.currentPopInPresentationState = .hud
+                    self.notchStateManager.currentPanelState = .popInPresentation
                 }
-                self.panelState.isLoadingPopInPresenter = false
+                self.notchStateManager.isLoadingPopInPresenter = false
             }
         }
     }

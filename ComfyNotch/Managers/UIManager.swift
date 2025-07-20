@@ -123,47 +123,8 @@ class UIManager: ObservableObject {
         smallPanel.contentView = hostingView
         smallPanel.makeKeyAndOrderFront(nil)
         
-        self.loadWidgets()
-    }
-    
-    // MARK: - Widget Loading
-    /// NOTE: this is only called once at the start but it could be rlly weird if battery is low
-    private func loadWidgets() {
-        /// Strategy for widget loading, to avoid cpu spikes and UI Lag
-        let widgets: [(String, () -> Widget, Bool)] = [
-            ("Settings", { SettingsButtonWidget() }, false),      // Lightweight first
-            ("MovingDots", { MovingDotsView() }, false),         // Visual feedback
-            ("FileTray", { QuickAccessWidget() }, true),         // Medium weight
-            ("Album", { CompactAlbumWidget() }, true)            // Heaviest last
-        ]
         
-        var index = 0;
-        
-        func loadNextWidget() {
-            guard index < widgets.count else { return }
-            let (_, widgetCreator, isHeavy) = widgets[index]
-            index += 1
-            
-            let qos: DispatchQoS.QoSClass = isHeavy ? .background : .utility
-            let delay: TimeInterval = isHeavy ? 0.3 : 0.1
-            
-            DispatchQueue.global(qos: qos).async {
-                let widget = widgetCreator()
-                
-                DispatchQueue.main.async {
-                    self.compactWidgetStore.addWidget(widget)
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                        loadNextWidget()
-                    }
-                }
-            }
-        }
-        
-        // Start loading after UI is settled
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            loadNextWidget()
-        }
+        compactWidgetStore.loadWidgets()
     }
     
     // MARK: - Layout Management
@@ -172,17 +133,8 @@ class UIManager: ObservableObject {
     public func applyOpeningLayout() {
         DispatchQueue.main.async {
             /// Opening Layout is just hiding every possible widget
-            self.compactWidgetStore.hideWidget(named: "QuickAccessWidget")
-            self.compactWidgetStore.hideWidget(named: "AlbumWidget")
-            self.compactWidgetStore.hideWidget(named: "MovingDotsWidget")
-            self.compactWidgetStore.hideWidget(named: "Settings")
-            
-            self.expandedWidgetStore.hideWidget(named: "MusicPlayerWidget")
-            self.expandedWidgetStore.hideWidget(named: "TimeWidget")
-            self.expandedWidgetStore.hideWidget(named: "NotesWidget")
-            self.expandedWidgetStore.hideWidget(named: "CameraWidget")
-            self.expandedWidgetStore.hideWidget(named: "AIChatWidget")
-            self.expandedWidgetStore.hideWidget(named: "EventWidget")
+            self.compactWidgetStore.applyLayout(for: .empty)
+            self.expandedWidgetStore.applyLayout(for: .empty)
         }
     }
     
@@ -190,42 +142,18 @@ class UIManager: ObservableObject {
     public func applyExpandedWidgetLayout() {
         DispatchQueue.main.async {
             withAnimation(Anim.spring) {
-                /// When the notch is expanded we want the top row to show the settings widget on the right
-                /// But we wanna first hide any of the shown stuff
-                self.compactWidgetStore.hideWidget(named: "MovingDotsWidget")
-                self.compactWidgetStore.hideWidget(named: "AlbumWidget")
-                self.compactWidgetStore.showWidget(named: "Settings")
-                self.compactWidgetStore.showWidget(named: "QuickAccessWidget")
-                
-                // Then we wanna show every possible widget cuz if its not added it wont actually show
-                self.expandedWidgetStore.showWidget(named: "MusicPlayerWidget")
-                self.expandedWidgetStore.showWidget(named: "TimeWidget")
-                self.expandedWidgetStore.showWidget(named: "NotesWidget")
-                self.expandedWidgetStore.showWidget(named: "CameraWidget")
-                self.expandedWidgetStore.showWidget(named: "AIChatWidget")
-                self.expandedWidgetStore.showWidget(named: "EventWidget")
+                self.compactWidgetStore.applyLayout(for: .expanded)
+                self.expandedWidgetStore.applyLayout(for: .expanded)
             }
         }
     }
     
     /// Function called when closing and not wanting to show the top row
     public func applyCompactWidgetLayout() {
-        /// When the notch is closed we wanna show the compact album on the left, and dots on the right and hide
-        /// The Settings Widget
         DispatchQueue.main.async {
             withAnimation(Anim.spring) {
-                self.compactWidgetStore.hideWidget(named: "QuickAccessWidget")
-                self.compactWidgetStore.hideWidget(named: "Settings")
-                self.compactWidgetStore.showWidget(named: "AlbumWidget")
-                self.compactWidgetStore.showWidget(named: "MovingDotsWidget")
-                
-                /// Then we hide every possible widget
-                self.expandedWidgetStore.hideWidget(named: "MusicPlayerWidget")
-                self.expandedWidgetStore.hideWidget(named: "TimeWidget")
-                self.expandedWidgetStore.hideWidget(named: "NotesWidget")
-                self.expandedWidgetStore.hideWidget(named: "CameraWidget")
-                self.expandedWidgetStore.hideWidget(named: "AIChatWidget")
-                self.expandedWidgetStore.hideWidget(named: "EventWidget")
+                self.compactWidgetStore.applyLayout(for: .music)
+                self.expandedWidgetStore.applyLayout(for: .music)
             }
         }
     }

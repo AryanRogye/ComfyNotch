@@ -11,21 +11,31 @@ import Sparkle
 import Cocoa
 
 func debugLog(_ message: @autoclosure () -> Any) {
-    #if DEBUG
+#if DEBUG
     print(message())
-    #endif
+#endif
 }
 
 @main
 struct ComfyNotchApp: App {
-    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+        @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     var body: some Scene {
-        Window("SettingsView", id: "SettingsView") {
-            SettingsView()
+        if #available(macOS 15.0, *) {
+            return Window("SettingsView", id: "SettingsView") {
+                SettingsView()
+            }
+            .windowResizability(.contentSize)
+            .defaultPosition(.center)
+            .windowStyle(.hiddenTitleBar)
+            .defaultLaunchBehavior(.suppressed)
+        } else {
+            return Window("SettingsView", id: "SettingsView") {
+                SettingsView()
+            }
+            .windowResizability(.contentSize)
+            .defaultPosition(.center)
+            .windowStyle(.hiddenTitleBar)
         }
-        .windowResizability(.contentSize)
-        .defaultPosition(.center)
-        .windowStyle(.hiddenTitleBar)
     }
 }

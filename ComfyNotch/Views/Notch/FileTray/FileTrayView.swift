@@ -22,7 +22,7 @@ struct FileTrayView: View {
     @EnvironmentObject var fileDropManager : FileDropManager
     @EnvironmentObject var qrCodeManager: QRCodeManager
     
-    @ObservedObject var animationState = PanelAnimationState.shared
+    @ObservedObject var notchStateManager = NotchStateManager.shared
     @ObservedObject var settings = SettingsModel.shared
     
     @State var showDeleteFileAlert: Bool = false
@@ -34,7 +34,7 @@ struct FileTrayView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            if animationState.isExpanded && !fileDropManager.shouldAutoShowTray
+            if notchStateManager.isExpanded && !fileDropManager.shouldAutoShowTray
             {
                 Group {
                     if showDeleteFileAlert {
@@ -51,8 +51,8 @@ struct FileTrayView: View {
         }
         .background(Color.clear)
         .animation(
-            .easeInOut(duration: animationState.isExpanded ? 2 : 0.1),
-            value: animationState.isExpanded
+            .easeInOut(duration: notchStateManager.isExpanded ? 2 : 0.1),
+            value: notchStateManager.isExpanded
         )
         .padding(.top, 2)
     }
@@ -191,7 +191,7 @@ struct FileTrayView: View {
                             }
                             .onHover { hover in
                                 /// Safety check for the current panel
-                                if animationState.currentPanelState == .file_tray {
+                                if notchStateManager.currentPanelState == .file_tray {
                                     isHoveringOverAddedFile = hover
                                 } else {
                                     isHoveringOverAddedFile = false
@@ -352,7 +352,7 @@ struct FileTrayView: View {
     func openFile(fileURL: URL) {
         NSWorkspace.shared.open(fileURL)
         /// Close the file tray
-        animationState.currentPanelState = .home
+        notchStateManager.currentPanelState = .home
         UIManager.shared.applyOpeningLayout()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             ScrollHandler.shared.closeFull()

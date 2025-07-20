@@ -14,19 +14,20 @@ struct CompactAlbumWidget: View, Widget {
     var swiftUIView: AnyView {
         AnyView(self)
     }
-
+    
     @ObservedObject var model: MusicPlayerWidgetModel = .shared
-    @ObservedObject var panelAnimationState: PanelAnimationState = .shared
+    @ObservedObject var notchStateManager: NotchStateManager = .shared
     var scrollManager = ScrollHandler.shared
     
     private var animationStiffness: CGFloat = 300
     private var animationDamping: CGFloat = 15
     
     private var paddingLeading: CGFloat {
-        panelAnimationState.hoverHandler.scaleHoverOverLeftItems ? 2 : 4
+        notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 2 : 4
     }
     private var paddingTop: CGFloat {
-        panelAnimationState.hoverHandler.scaleHoverOverLeftItems ? 1 : 0
+        /// IF 0 it pushes it weirdly
+        notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 4 : 4
     }
     
     @State private var sizeConfig: WidgetSizeConfig = .init(width: 0, height: 0)
@@ -40,29 +41,28 @@ struct CompactAlbumWidget: View, Widget {
                         .scaledToFit()
                         .frame(width: sizeConfig.width, height: sizeConfig.height)
                         .cornerRadius(4)
-                        .padding(.top, 2)
                 } else {
                     ZStack {
                         RoundedRectangle(cornerRadius: 8)
                             .fill(Color.gray.opacity(0.2))
-                            .frame(width: 27, height: 23)
+                            .frame(width: sizeConfig.width, height: sizeConfig.height)
                         Image(systemName: "music.note")
-                            .font(.system(size: 13, weight: .medium))
+                            .font(.system(size: sizeConfig.height * 0.5 > 0 ? sizeConfig.height * 0.5 : 1, weight: .medium))
                             .foregroundColor(.white)
                     }
-                    .padding(.top, 1)
                 }
             }
         }
         .padding(.leading, paddingLeading)
         .animation(
             .interpolatingSpring(stiffness: animationStiffness, damping: animationDamping),
-            value: panelAnimationState.hoverHandler.scaleHoverOverLeftItems
+            value: notchStateManager.hoverHandler.scaleHoverOverLeftItems
         )
         .onAppear { sizeConfig = widgetSize() }
-        .onChange(of: panelAnimationState.hoverHandler.scaleHoverOverLeftItems) {
+        .onChange(of: notchStateManager.hoverHandler.scaleHoverOverLeftItems) {
             sizeConfig = widgetSize()
         }
+        .padding(.top, paddingTop)
     }
     
     private func panelButton<Label: View>(@ViewBuilder label: () -> Label) -> some View {
@@ -73,7 +73,7 @@ struct CompactAlbumWidget: View, Widget {
                     scrollManager.openFull()
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    panelAnimationState.currentPanelState = .home
+                    notchStateManager.currentPanelState = .home
                 }
             }
         }) {
@@ -83,23 +83,9 @@ struct CompactAlbumWidget: View, Widget {
     }
     
     func widgetSize() -> WidgetSizeConfig {
-        guard let screen = DisplayManager.shared.selectedScreen else {
-            return .init(width: 22, height: 25)
-        }
-        
-        let scale = screen.backingScaleFactor
-        let resolution = CGSize(width: screen.frame.width * scale,
-                                height: screen.frame.height * scale)
-        
-        let w = resolution.width
-        let isExpanded = panelAnimationState.hoverHandler.scaleHoverOverLeftItems
-        
-        if w < 2800 {
-            return isExpanded ? .init(width: 20, height: 20) : .init(width: 15, height: 14)
-        } else if w <= 3500 {
-            return isExpanded ? .init(width: 26, height: 23) : .init(width: 17, height: 17)
-        } else {
-            return isExpanded ? .init(width: 28, height: 25) : .init(width: 22, height: 23)
-        }
+        let height = UIManager.shared.getNotchHeight()
+        let w = height * 0.68
+        let h = height * 0.68
+        return .init(width: w,height: h)
     }
 }

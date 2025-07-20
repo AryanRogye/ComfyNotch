@@ -24,7 +24,7 @@ class DragOverlayView: NSView {
         // Open the panel when a file is dragged near
         DispatchQueue.main.async {
             ScrollHandler.shared.openFull()
-            PanelAnimationState.shared.isExpanded = true
+            NotchStateManager.shared.isExpanded = true
         }
 
         return .copy

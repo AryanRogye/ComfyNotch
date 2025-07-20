@@ -34,7 +34,7 @@ final class MessagesManager: ObservableObject {
     static let shared = MessagesManager()
     
     internal let settingsManager    : SettingsModel         = .shared
-    internal let panelState         : PanelAnimationState   = .shared
+    internal let notchStateManager  : NotchStateManager   = .shared
     
     @Published var allHandles: [Handle] = []
     /// Holds the current messages with the user the user wants to talk to

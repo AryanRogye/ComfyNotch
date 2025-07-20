@@ -38,13 +38,14 @@ class ScrollHandler {
         
         if UIManager.shared.panelState == .closed {
             let newWidth: CGFloat = self.getNotchWidth()
+            debugLog("Using New Width: \(newWidth)")
             
             /// first hide the items inside it
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 UIManager.shared.applyOpeningLayout()
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                PanelAnimationState.shared.currentPanelWidth = newWidth
+                NotchStateManager.shared.currentPanelWidth = newWidth
             }
             /// then we wanna reduce the panel width
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
@@ -56,7 +57,7 @@ class ScrollHandler {
                 let reducedFrame = NSRect(
                     x: newX,
                     y: panel.frame.origin.y,
-                    width: 0,
+                    width: newWidth,
                     height: panel.frame.height
                 )
                 NSAnimationContext.runAnimationGroup { ctx in
@@ -92,7 +93,7 @@ class ScrollHandler {
             }
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                PanelAnimationState.shared.currentPanelWidth = newWidth
+                NotchStateManager.shared.currentPanelWidth = newWidth
                 UIManager.shared.applyCompactWidgetLayout()
             }
         }
@@ -332,10 +333,12 @@ class ScrollHandler {
         guard let panel = UIManager.shared.smallPanel, !isSnapping else { return }
         guard let screen = DisplayManager.shared.selectedScreen else { return }
         
-        PanelAnimationState.shared.currentPanelState = .home
-        isSnapping = true
-        PanelAnimationState.shared.isExpanded = false
-        PanelAnimationState.shared.bottomSectionHeight = 0
+        DispatchQueue.main.async {
+            NotchStateManager.shared.currentPanelState = .home
+            self.isSnapping = true
+            NotchStateManager.shared.isExpanded = false
+            NotchStateManager.shared.bottomSectionHeight = 0
+        }
         
         let startYOffset = UIManager.shared.startPanelYOffset
         let finalWidth = minPanelWidth
@@ -394,45 +397,79 @@ class ScrollHandler {
         guard UIManager.shared.panelState == .closed else { return }
         
         let screen = DisplayManager.shared.selectedScreen!
+        let id = screen.displayID
+        
+        /// we want to look for the screen with the ID cuz the frame is not logging
+        /// that its different, I had the resolution 1800x1169 and changed to 1512x982
+        /// but the frame was still logging 1800x1169
+        
+        guard let screen = NSScreen.screens.first(where: {
+            $0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID == id
+        }) else {
+            debugLog("❌ Could not find screen with displayID \(String(describing: id))")
+            return
+        }
+        
+        DispatchQueue.main.async {
+            DisplayManager.shared.selectedScreen = screen
+        }
+        
+        minPanelHeight = UIManager.shared.getNotchHeight()
+        /// DEBUG LOG, this is DEBUG DEBUG working
+//        debugLog("Screen Frame: \(screen.frame)")
+//        debugLog("Screen Visible Frame: \(screen.visibleFrame)")
+//        debugLog("Panel Screen Origin: \(panel.screen?.frame.origin ?? .zero)")
+        
         let startYOffset = UIManager.shared.startPanelYOffset
         
         let finalWidth = minPanelWidth
-        let finalHeight = minPanelHeight
         let centerX = (screen.frame.width - finalWidth) / 2
-        let y = screen.frame.height - finalHeight - startYOffset
-        let desiredFrame = NSRect(x: centerX, y: y, width: finalWidth, height: finalHeight)
+        let y = screen.frame.height - minPanelHeight - startYOffset
+        let desiredFrame = NSRect(x: centerX, y: y, width: finalWidth, height: minPanelHeight)
         
         // Optional: Tolerance for micro pixel diff
         if !panel.frame.equalTo(desiredFrame) {
             panel.setFrame(desiredFrame, display: true)
         }
+        
+//        print("Set Values")
+//        print("Min Height: \(minPanelHeight)")
+//        print("Min Width: \(minPanelWidth)")
+//        print("Panel Frame: \(panel.frame)")
+//        print("Desired Frame: \(desiredFrame)")
     }
     
     // MARK: – Internals
     private func updateState(for height: CGFloat) {
         let open = (height >= maxPanelHeight)
         
-        PanelAnimationState.shared.isExpanded = open
-        PanelAnimationState.shared.bottomSectionHeight = open
-        ? (height - minPanelHeight)
-        : 0
+        DispatchQueue.main.async {
+            
+            NotchStateManager.shared.isExpanded = open
+            NotchStateManager.shared.bottomSectionHeight = open
+            ? (height - self.minPanelHeight)
+            : 0
+        }
         
         // MARK: - Open Logic
         if open {
             UIManager.shared.panelState = .open
-            debugLog("Opening")
+            /// DEBUG DEBUG LOGS
+            //            debugLog("Opening")
             UIManager.shared.applyExpandedWidgetLayout()
         }
         // MARK: - Close Logic
         else if height <= minPanelHeight {
             UIManager.shared.panelState = .closed
-            debugLog("Closed")
+            /// DEBUG DEBUG LOGS
+            //            debugLog("Closed")
             UIManager.shared.applyCompactWidgetLayout()
         }
-        // MARK: - Partial Logic 
+        // MARK: - Partial Logic
         else {
             UIManager.shared.panelState = .partiallyOpen
-            debugLog("Applying Partial")
+            /// DEBUG DEBUG LOGS
+            //            debugLog("Applying Partial")
             UIManager.shared.applyOpeningLayout()
         }
     }
@@ -453,7 +490,7 @@ class ScrollHandler {
         }
         
         // Default if we can't determine it
-        return 180
+        return 230
     }
     
     // TODO: PLS PLS PLS LOOK AT THIS TO USE

@@ -11,9 +11,10 @@ enum NotchViewState {
     case popInPresentation
 }
 
-class PanelAnimationState: ObservableObject {
+@MainActor
+class NotchStateManager: ObservableObject {
     
-    static let shared = PanelAnimationState()
+    static let shared = NotchStateManager()
     
     @Published var isExpanded: Bool = false
     @Published var bottomSectionHeight: CGFloat = 0
@@ -26,7 +27,7 @@ class PanelAnimationState: ObservableObject {
     @Published var isLoadingPopInPresenter = false
     
     let hoverHandler = HoverHandler()
-
+    
     init() {
         hoverHandler.bindHoveringOverLeft(for: self)
     }
@@ -41,9 +42,12 @@ struct ComfyNotchView: View {
     @StateObject private var qrCodeManager = QRCodeManager()
     @StateObject private var notchClickManager = NotchClickManager()
     
-    @ObservedObject private var animationState = PanelAnimationState.shared
+    @ObservedObject private var notchStateManager = NotchStateManager.shared
     @ObservedObject private var uiManager      = UIManager.shared
     @ObservedObject private var settings       = SettingsModel.shared
+    
+    @State private var didTriggerLeftSwipe = false
+    @State private var didTriggerRightSwipe = false
     
     init() {
     }
@@ -52,24 +56,23 @@ struct ComfyNotchView: View {
     var body: some View {
         notch
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-        /// MODIFIERS
+            /// MODIFIERS
         
-        /// This manager was added in to make sure that the popInPresentation is playing
-        /// when we open it, it doesnt bug out
+            /// This manager was added in to make sure that the popInPresentation is playing
+            /// when we open it, it doesnt bug out
             .onChange(of: uiManager.panelState) { _, newState in
                 if newState == .open {
-                    if animationState.currentPanelState == .popInPresentation {
-                        animationState.currentPanelState = .home
+                    if notchStateManager.currentPanelState == .popInPresentation {
+                        notchStateManager.currentPanelState = .home
                     }
                 }
             }
-        
             /// This is to show the file tray area when dropped
             .onChange(of: fileDropManager.isDroppingFiles) { _, hovering in
                 if hovering && uiManager.panelState == .closed {
                     fileDropManager.shouldAutoShowTray = true
                     /// Set the page of the notch to be the home
-                    animationState.currentPanelState = .home
+                    notchStateManager.currentPanelState = .home
                     /// Fade Out the Contents
                     uiManager.applyOpeningLayout()
                     
@@ -85,8 +88,8 @@ struct ComfyNotchView: View {
                     
                     /// Change View to File Tray
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-                        animationState.currentPanelState = .file_tray
-                        animationState.isExpanded = true
+                        notchStateManager.currentPanelState = .file_tray
+                        notchStateManager.isExpanded = true
                     }
                     /// This will help with snapping on the filetray view
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
@@ -94,14 +97,59 @@ struct ComfyNotchView: View {
                     }
                 }
             }
-        // MARK: - Scrolling Logic
+        
+            // MARK: - Swiping Left and Right
+            .panGesture(direction: .right) { translation, phase in
+                guard uiManager.panelState == .closed else { return }
+                
+                let threshold: CGFloat = 200.0
+                
+                switch phase {
+                case .changed:
+                    if translation > threshold/2 {
+                        NSHapticFeedbackManager.defaultPerformer.perform(.levelChange, performanceTime: .now)
+                    }
+                    if translation > threshold, !didTriggerRightSwipe {
+                        NSHapticFeedbackManager.defaultPerformer.perform(.levelChange, performanceTime: .now)
+                        AudioManager.shared.playNextTrack()
+                        didTriggerRightSwipe = true
+                    }
+                case .ended, .cancelled:
+                    didTriggerRightSwipe = false
+                default:
+                    break
+                }
+            }
+            .panGesture(direction: .left) { translation, phase in
+                guard uiManager.panelState == .closed else { return }
+                
+                let threshold: CGFloat = 200.0
+                
+                switch phase {
+                case .changed:
+                    if translation > threshold/2 {
+                        NSHapticFeedbackManager.defaultPerformer.perform(.levelChange, performanceTime: .now)
+                    }
+                    if translation > threshold, !didTriggerLeftSwipe {
+                        NSHapticFeedbackManager.defaultPerformer.perform(.levelChange, performanceTime: .now)
+                        AudioManager.shared.playPreviousTrack()
+                        didTriggerLeftSwipe = true
+                    }
+                case .ended, .cancelled:
+                    didTriggerLeftSwipe = false
+                default:
+                    break
+                }
+            }
+        
+            // MARK: - Scrolling Logic
             .panGesture(direction: .down) { translation, phase in
                 guard uiManager.panelState == .closed else { return }
                 
-                let threshhold : CGFloat = animationState.currentPanelState == .popInPresentation ? 120 : 50
-                if translation > threshhold {
-                    // debugLog("Called Down With Threshold \(translation)")
-                    animationState.currentPanelState = .home
+                let threshold : CGFloat = notchStateManager.currentPanelState == .popInPresentation ? 420 : 250
+                
+                if translation > threshold {
+                    notchStateManager.currentPanelState = .home
                     uiManager.applyOpeningLayout()
                     DispatchQueue.main.async {
                         CATransaction.flush()
@@ -122,11 +170,9 @@ struct ComfyNotchView: View {
                 
                 // Early return for states that shouldn't handle pan up
                 let restrictedStates: Set<NotchViewState> = [.file_tray, .utils, .popInPresentation, .messages]
-                if restrictedStates.contains(animationState.currentPanelState) {
+                if restrictedStates.contains(notchStateManager.currentPanelState) {
                     return
                 }
-                
-//                print("translation \(translation)")
                 switch phase {
                 case .ended:
                     if translation > settings.notchScrollThreshold {
@@ -146,6 +192,8 @@ struct ComfyNotchView: View {
                     break
                 }
             }
+        
+            
             .onAppear {
                 qrCodeManager.assignFileDropManager(fileDropManager)
                 notchClickManager.setOpenWindow(openWindow)
@@ -165,16 +213,9 @@ struct ComfyNotchView: View {
                 TopNotchView()
                     .environmentObject(widgetStore)
                 
-                if animationState.isExpanded || animationState.currentPanelState == .popInPresentation {
-                    /// see QuickAccessWidget.swift file to see how it works
-                    //                    if settings.isFirstLaunch {
-                    //                        Onboarding()
-                    //                            .padding(.horizontal, 4)
-                    //                    } else {
+                if notchStateManager.isExpanded || notchStateManager.currentPanelState == .popInPresentation {
                     expandedView
                         .padding(.horizontal, 4)
-                    //                    }
-                    
                 }
                 
                 Spacer()
@@ -207,26 +248,26 @@ struct ComfyNotchView: View {
     /// if conditionals because I saw CPU lower a TON with it
     @ViewBuilder
     private var expandedView: some View {
-        if animationState.currentPanelState == .home {
+        if notchStateManager.currentPanelState == .home {
             HomeNotchView()
                 .environmentObject(bigWidgetStore)
         }
         
-        if animationState.currentPanelState == .file_tray {
+        if notchStateManager.currentPanelState == .file_tray {
             FileTrayView()
                 .environmentObject(fileDropManager)
                 .environmentObject(qrCodeManager)
         }
         
-        if animationState.currentPanelState == .messages {
+        if notchStateManager.currentPanelState == .messages {
             MessagesView()
         }
         
-        if animationState.currentPanelState == .utils {
+        if notchStateManager.currentPanelState == .utils {
             UtilsView()
         }
         
-        if animationState.currentPanelState == .popInPresentation {
+        if notchStateManager.currentPanelState == .popInPresentation {
             PopInPresenter()
         }
     }
@@ -262,8 +303,8 @@ struct ComfyNotchView: View {
     
     bigWidgetStore.addWidget(musicPlayer)
     
-    PanelAnimationState.shared.currentPanelState = .file_tray
-    PanelAnimationState.shared.isExpanded = true
+    NotchStateManager.shared.currentPanelState = .file_tray
+    NotchStateManager.shared.isExpanded = true
     
     UIManager.shared.panelState = .open
     

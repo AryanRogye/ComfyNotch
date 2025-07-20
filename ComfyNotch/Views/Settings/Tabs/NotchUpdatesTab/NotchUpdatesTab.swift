@@ -1,14 +1,15 @@
 //
-//  UpdatesSettingsView.swift
+//  NotchUpdatesTab.swift
 //  ComfyNotch
 //
-//  Created by Aryan Rogye on 5/24/25.
+//  Created by Aryan Rogye on 7/19/25.
 //
 
 import SwiftUI
 
-struct UpdatesSettingsView: View {
-    @ObservedObject var settings: SettingsModel
+struct NotchUpdatesTab: View {
+    
+    @EnvironmentObject var settings: SettingsModel
     
     var body: some View {
         ComfyScrollView {

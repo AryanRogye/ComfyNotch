@@ -28,7 +28,7 @@ enum TouchAction: String, CaseIterable, Codable {
 final class NotchClickManager: ObservableObject {
     
     private var eventMonitors: [Any] = []
-    private let animationState : PanelAnimationState = .shared
+    private let notchStateManager : NotchStateManager = .shared
     private let uiManager : UIManager = .shared
     private let settings: SettingsModel = .shared
     
@@ -42,8 +42,8 @@ final class NotchClickManager: ObservableObject {
         
         let leftClickMonitor = NSEvent.addLocalMonitorForEvents(matching: .leftMouseDown) { event in
             if self.uiManager.panelState == .closed {
-                if !self.animationState.hoverHandler.isHoveringOverLeft &&
-                    !self.animationState.hoverHandler.isHoveringOverPlayPause &&
+                if !self.notchStateManager.hoverHandler.isHoveringOverLeft &&
+                    !self.notchStateManager.hoverHandler.isHoveringOverPlayPause &&
                     self.settings.isSettingsWindowOpen == false
                 {
                     self.handleFingerAction(for: self.settings.oneFingerAction)
@@ -88,14 +88,14 @@ final class NotchClickManager: ObservableObject {
     private func openFileTray() {
         ScrollHandler.shared.openFull()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-            self.animationState.currentPanelState = .file_tray
+            self.notchStateManager.currentPanelState = .file_tray
         }
     }
     
     private func openUtils() {
         ScrollHandler.shared.openFull()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-            self.animationState.currentPanelState = .utils
+            self.notchStateManager.currentPanelState = .utils
         }
     }
     
