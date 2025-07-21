@@ -42,17 +42,22 @@ struct SettingsView: View {
         var color: Color {
             switch self {
             case .widgetSettings:
-                return Color(red: 0.8, green: 0.4, blue: 0.6) // soft pink
+                // feels right as a playful secondary panel
+                return Color(nsColor: .systemPink)
             case .general:
-                return Color(red: 0.45, green: 0.45, blue: 0.47) // sleek dark gray
+                // grey gear like System Settings → General
+                return Color(nsColor: .systemGray)
             case .notch:
                 return .black
             case .animations:
-                return Color(red: 0.2, green: 0.6, blue: 1.0) // electric blue
+                // classic macOS accent
+                return Color(nsColor: .systemBlue)
             case .display:
-                return Color(red: 1.0, green: 0.6, blue: 0.0) // bright orange
+                // HIG pairs displays with orange (think “Night Shift”)
+                return Color(nsColor: .systemOrange)
             case .updates:
-                return Color(red: 0.2, green: 0.78, blue: 0.35) // fresh green
+                // green = go / success
+                return Color(nsColor: .systemGreen)
             }
         }
         
@@ -263,11 +268,13 @@ struct SettingsView: View {
     
     // MARK: - Helpers
     private func tabItem(_ tab: SettingsView.Tab) -> some View {
-        return HStack(spacing: 8) {
-            image(for: tab)
+        Label {
             Text(tab.label)
                 .font(.body)
                 .foregroundColor(.primary)
+                .padding(.leading, 8)
+        } icon: {
+            image(for: tab)
         }
         .padding(.vertical, 4)
         .contentShape(Rectangle()) // makes the whole row clickable
@@ -288,7 +295,6 @@ struct SettingsView: View {
                     .frame(width: tab.width, height: tab.height)
             } else {
                 Image(systemName: tab.icon)
-                    .font(.system(size: 14, weight: .semibold))
                     .symbolRenderingMode(.hierarchical)
                     .foregroundColor(.secondary)
                     .frame(width: tab.width, height: tab.height)

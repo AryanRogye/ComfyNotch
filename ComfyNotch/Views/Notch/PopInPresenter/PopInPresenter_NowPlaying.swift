@@ -35,65 +35,32 @@ struct PopInPresenter_NowPlaying: View {
     }
     
     var body: some View {
-        ZStack {
-            VStack {
-                Divider()
-                // Use a single GeometryReader to get container width
-                GeometryReader { geo in
-                    let text = "\(musicModel.nowPlayingInfo.trackName) by \(musicModel.nowPlayingInfo.artistName)"
-                    
-                    Text(text)
-                        .font(.system(size: 16, weight: .medium, design: .rounded))
-                        .foregroundStyle(Color(nsColor: musicModel.nowPlayingInfo.dominantColor))
-                        .fixedSize(horizontal: true, vertical: false)
-                        .measureSize { size in
-                            // Only update width if it changed significantly
-                            if abs(textWidth - size.width) > 1 {
-                                textWidth = size.width
-                            }
-                            if containerWidth == 0 {
-                                containerWidth = geo.size.width
-                            }
-                        }
-                        .offset(x: animate ? -textWidth - 50 : containerWidth)
-                        .onChange(of: textWidth) {
-                            handleTextWidthChange()
-                        }
-                }
-            }
-            .frame(height: 40)
-            .clipped()
-            .padding(.horizontal, 20)
-//            .background(Color.black.opacity(0.8))
-            .cornerRadius(10)
-        }
-    }
-    
-    func handleTextWidthChange() {
-        if !animate && textWidth > 0 && containerWidth > 0 {
-            withAnimation(.linear(duration: Double(textWidth) / Double(nowPlayingScrollSpeed)).repeatForever(autoreverses: false)) {
-                animate = true
+        VStack(spacing: 0) {
+            Spacer()
+            HStack(alignment: .bottom) {
+                Image(systemName: "music.note")
+                    .resizable()
+                    .frame(width: 10, height: 14)
+                    .foregroundStyle(.primary.opacity(0.6))
+                
+                Text(musicModel.nowPlayingInfo.trackName)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.primary.opacity(0.7))
+
+                Image(systemName: "music.microphone")
+                    .resizable()
+                    .frame(width: 10, height: 14)
+                    .foregroundStyle(.primary.opacity(0.6))
+                
+                Text(musicModel.nowPlayingInfo.artistName)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.primary.opacity(0.7))
             }
         }
-    }
-}
-
-// Helper view modifier to measure view size
-struct SizePreferenceKey: PreferenceKey {
-    static var defaultValue: CGSize = .zero
-    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
-        value = nextValue()
-    }
-}
-
-extension View {
-    func measureSize(perform action: @escaping (CGSize) -> Void) -> some View {
-        self.background(
-            GeometryReader { geo in
-                Color.clear
-                    .preference(key: SizePreferenceKey.self, value: geo.size)
-            }
-        )
-        .onPreferenceChange(SizePreferenceKey.self, perform: action)
+        .frame(maxHeight: 35)
+        .clipped()
+        .padding(.horizontal, 20)
+        .background(Color.black.opacity(0.8))
+        .cornerRadius(10)
     }
 }

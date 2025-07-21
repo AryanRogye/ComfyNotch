@@ -87,6 +87,10 @@ class PanelProximityHandler: NSObject {
             height: panelFrame.height + (padding * 2)
         )
         
+//        if (UIManager.shared.panelState == .closed && panel.frame.contains(mouseLocation)) {
+//            print("IN THERE")
+//        }
+        
         /// Don't open the panel with proximity, only allow closing
         if (UIManager.shared.panelState == .open
             && !paddedFrame.contains(mouseLocation)) {

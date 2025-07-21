@@ -107,14 +107,19 @@ final class HoverHandler: ObservableObject {
                         /// the notch would get a invalid geometry, this avoids that alltogether
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                             withAnimation(.easeOut(duration: 0.2)) {
+                                /// Check again
+                                if !self.isHoveringOverLeft {
+                                    ScrollHandler.shared.peekClose()
+                                    return
+                                }
                                 if UIManager.shared.panelState != .open {
                                     target.currentPopInPresentationState = .nowPlaying
                                     target.currentPanelState = .popInPresentation
                                 }
                             }
                         }
-                        /// Let the notch peek open just a tiny bit
-                        ScrollHandler.shared.peekOpen()
+                        /// Let the notch peek open just a tiny bit, 35
+                        ScrollHandler.shared.peekOpen(withHeight: 35)
                         /// this will let the items on the left and right scale a tiny bit
                         self.scaleHoverOverLeftItems = true
                     }

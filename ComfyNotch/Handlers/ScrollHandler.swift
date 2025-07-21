@@ -106,7 +106,7 @@ class ScrollHandler : ObservableObject {
     private var isAnimating = false
     
     // MARK: - Peeking Open for the PopInPresenter
-    func peekOpen() {
+    func peekOpen(withHeight: CGFloat? = nil) {
         guard let _ = DisplayManager.shared.selectedScreen else { return }
         guard let panel = UIManager.shared.smallPanel,
               !isPeeking,
@@ -117,7 +117,7 @@ class ScrollHandler : ObservableObject {
         isAnimating = true
         
         let currentTopY = panel.frame.maxY
-        let peekHeight: CGFloat = minPanelHeight + 50
+        let peekHeight: CGFloat = minPanelHeight + (withHeight ?? 50)
         let peekY = currentTopY - peekHeight
         
         let normalHeight = minPanelHeight

@@ -14,21 +14,23 @@ struct CompactAlbumWidget: View, Widget {
     var swiftUIView: AnyView {
         AnyView(self)
     }
-    
+
     @ObservedObject var model: MusicPlayerWidgetModel = .shared
     @ObservedObject var notchStateManager: NotchStateManager = .shared
     var scrollManager = ScrollHandler.shared
-    
+
     private var animationStiffness: CGFloat = 300
     private var animationDamping: CGFloat = 15
-    
+
     private var paddingLeading: CGFloat {
-        notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 2 : 4
+        notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 5 : 4
     }
     private var paddingTop: CGFloat {
         /// IF 0 it pushes it weirdly
         notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 3 : 3
     }
+    
+    @State private var scale: CGFloat = 1.0
     
     @State private var sizeConfig: WidgetSizeConfig = .init(width: 0, height: 0)
     
@@ -39,6 +41,7 @@ struct CompactAlbumWidget: View, Widget {
                     Image(nsImage: artwork)
                         .resizable()
                         .scaledToFit()
+                        .scaleEffect(scale)
                         .frame(width: sizeConfig.width, height: sizeConfig.height)
                         .cornerRadius(4)
                 } else {
@@ -61,6 +64,11 @@ struct CompactAlbumWidget: View, Widget {
         .onAppear { sizeConfig = widgetSize() }
         .onChange(of: notchStateManager.hoverHandler.scaleHoverOverLeftItems) {
             sizeConfig = widgetSize()
+        }
+        .onChange(of: notchStateManager.hoverHandler.scaleHoverOverLeftItems) { _, value in
+            withAnimation(.interpolatingSpring(stiffness: 180, damping: 20)) {
+                scale = value ? 1.3 : 1.0
+            }
         }
         .padding(.top, paddingTop)
     }
@@ -86,6 +94,7 @@ struct CompactAlbumWidget: View, Widget {
         let height = UIManager.shared.getNotchHeight()
         let w = height * 0.68
         let h = height * 0.68
+
         return .init(width: w,height: h)
     }
 }

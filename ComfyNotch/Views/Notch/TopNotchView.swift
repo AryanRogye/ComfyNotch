@@ -63,11 +63,15 @@ struct TopNotchView: View {
             widgetStore.leftWidgets
         }
         .onHover { hover in
-            if settings.hoverTargetMode != .album { return }
-            if notchStateManager.bottomSectionHeight == 0 {
-                notchStateManager.hoverHandler.isHoveringOverLeft = hover
-            } else {
-                notchStateManager.hoverHandler.isHoveringOverLeft = false
+            notchStateManager.hoverHandler.isHoveringOverLeft =
+            hover &&
+            MusicPlayerWidgetModel.shared.nowPlayingInfo.isPlaying &&
+            settings.hoverTargetMode == .album &&
+            notchStateManager.bottomSectionHeight == 0
+        }
+        .onChange(of: notchStateManager.hoverHandler.isHoveringOverLeft) { _, newValue in
+            if newValue {
+                NSHapticFeedbackManager.defaultPerformer.perform(.generic, performanceTime: .now)
             }
         }
     }
