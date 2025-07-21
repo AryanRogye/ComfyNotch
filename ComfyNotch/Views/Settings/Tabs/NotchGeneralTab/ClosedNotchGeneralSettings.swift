@@ -28,32 +28,6 @@ struct ClosedNotchGeneralSettings: View {
         self._v = values
     }
     
-//    @State private var hoverTargetMode : HoverTarget = .none
-//    @State private var fallbackHeight: Int = 0
-//    @State private var hudEnabled: Bool = false
-//    @State private var oneFingerAction: TouchAction = .none
-//    @State private var twoFingerAction: TouchAction = .none
-    
-    // MARK: - Initial Values
-    private var hoverTargetModeInitialValue: HoverTarget {
-        settings.hoverTargetMode
-    }
-    private var fallbackHeightInitialValue: Int {
-        Int(settings.notchMinFallbackHeight)
-    }
-    private var hudEnabledInitialValue: Bool {
-        settings.enableNotchHUD
-    }
-    private var oneFingerActionInitialValue: TouchAction {
-        settings.oneFingerAction
-    }
-    private var twoFingerActionInitialValue: TouchAction {
-        settings.twoFingerAction
-    }
-    private var notchMinWidthInitialValue: Int {
-        Int(settings.notchMinWidth)
-    }
-    
     var body: some View {
         VStack {
             
@@ -90,6 +64,7 @@ struct ClosedNotchGeneralSettings: View {
             v.hudEnabled = settings.enableNotchHUD
             v.oneFingerAction = settings.oneFingerAction
             v.twoFingerAction = settings.twoFingerAction
+            v.notchMinWidth = Int(settings.notchMinWidth)
         }
         .onChange(of: v.hoverTargetMode)  { checkDidChange() }
         .onChange(of: v.fallbackHeight)   { checkDidChange() }
@@ -101,12 +76,12 @@ struct ClosedNotchGeneralSettings: View {
     
     private func checkDidChange() {
         didChange =
-           v.hoverTargetMode != hoverTargetModeInitialValue
-        || v.fallbackHeight != fallbackHeightInitialValue
-        || v.hudEnabled != hudEnabledInitialValue
-        || v.oneFingerAction != oneFingerActionInitialValue
-        || v.twoFingerAction != twoFingerActionInitialValue
-        || v.notchMinWidth   != notchMinWidthInitialValue
+           v.hoverTargetMode != settings.hoverTargetMode
+        || v.fallbackHeight  != Int(settings.notchMinFallbackHeight)
+        || v.hudEnabled      != settings.enableNotchHUD
+        || v.oneFingerAction != settings.oneFingerAction
+        || v.twoFingerAction != settings.twoFingerAction
+        || v.notchMinWidth   != Int(settings.notchMinWidth)
     }
     
     // MARK: - Notch Shape Closed

@@ -65,9 +65,9 @@ struct SettingsView: View {
             case .notch:
                 return 21
             case .animations:
-                return 16
-            case .display:
                 return 14
+            case .display:
+                return 10
             case .updates:
                 return 14
             }
@@ -81,9 +81,9 @@ struct SettingsView: View {
             case .notch:
                 return 20
             case .animations:
-                return 16
+                return 14
             case .display:
-                return 10
+                return 6
             case .updates:
                 return 15
             }
