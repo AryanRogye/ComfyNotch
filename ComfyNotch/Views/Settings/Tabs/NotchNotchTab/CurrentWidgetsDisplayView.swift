@@ -67,6 +67,8 @@ struct CurrentWidgetsDisplayView: View {
     private func draggingItem(for widget: String) -> some View {
         Text(widget)
             .font(.system(size: 12, weight: .semibold, design: .rounded))
+            .minimumScaleFactor(0.5)
+            .lineLimit(1)
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -164,6 +166,8 @@ struct CurrentWidgetsDisplayView: View {
     private func getWidgetView(for widget: String) -> some View {
         return VStack {
             Text(widget.widgetType?.rawValue ?? "Unknown Widget")
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background {

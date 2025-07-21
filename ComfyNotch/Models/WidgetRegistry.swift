@@ -49,6 +49,23 @@ enum WidgetType: String , CaseIterable, Hashable {
             return Color.red
         }
     }
+    
+    var image: Image {
+        switch self {
+        case .musicPlayer:
+            return Image(systemName: "music.note.list")
+        case .time:
+            return Image(systemName: "sunrise.fill")
+        case .notes:
+            return Image(systemName: "pencil")
+        case .camera:
+            return Image(systemName: "camera")
+        case .aiChat:
+            return Image(systemName: "bubble.left.and.bubble.right")
+        case .event:
+            return Image(systemName: "calendar")
+        }
+    }
 }
 
 extension String {
