@@ -33,7 +33,6 @@ class SettingsModel: ObservableObject {
         .appendingPathComponent("ComfyNotch Files", isDirectory: true)
     
     /// ----------- FileTray Settings ----------
-    @Published var fileTrayPersistFiles : Bool = false
     @Published var useCustomSaveFolder : Bool = false
     
     /// qr options
@@ -189,8 +188,6 @@ class SettingsModel: ObservableObject {
         }
         
         
-        /// TODO: REMOVE
-        defaults.set(fileTrayPersistFiles, forKey: "fileTrayPersistFiles")
         
         /// ----------------------- ClipBoard Settings -----------------------------------
         if clipboardManagerMaxHistory >= 0 {
@@ -307,20 +304,43 @@ class SettingsModel: ObservableObject {
         self.fileTrayPort = values.fileTrayPort
         
         /// Add Back Old FileTray Values
-        func populateOldFiletrayValues(newFolder: URL, with oldFolder: URL) {
+        func populateOldFiletrayValues(newFolder: URL, with oldFolder: URL?) {
             let fm = FileManager.default
             
-            guard newFolder != oldFolder else { return } // No-op if paths match
+            guard let oldFolder = oldFolder else {
+                debugLog("ℹ️ No old folder to migrate from")
+                return
+            }
+            
+            guard newFolder.standardized != oldFolder.standardized else {
+                debugLog("ℹ️ New and old folders are the same, skipping migration")
+                return
+            }
+            
+            guard newFolder != oldFolder else {
+                debugLog("ℹ️ New and old folders are the same, skipping migration")
+                return
+            }
+            
+            // Check if old folder exists
+            var isDir: ObjCBool = false
+            guard fm.fileExists(atPath: oldFolder.path, isDirectory: &isDir), isDir.boolValue else {
+                debugLog("ℹ️ Old folder doesn't exist or isn't a directory: \(oldFolder.path)")
+                return
+            }
             
             do {
                 let items = try fm.contentsOfDirectory(at: oldFolder, includingPropertiesForKeys: nil)
+                debugLog("📁 Found \(items.count) items to migrate from \(oldFolder.path)")
                 
                 for file in items {
                     let dest = newFolder.appendingPathComponent(file.lastPathComponent)
                     
-                    // Avoid overwriting existing files
                     if !fm.fileExists(atPath: dest.path) {
                         try fm.copyItem(at: file, to: dest)
+                        debugLog("✅ Migrated: \(file.lastPathComponent)")
+                    } else {
+                        debugLog("⏭️ Skipped existing file: \(file.lastPathComponent)")
                     }
                 }
             } catch {
@@ -330,24 +350,25 @@ class SettingsModel: ObservableObject {
         
         /// SAVING OF FILE LOGIC
         if let url = values.fileTrayDefaultFolder {
-            // Validate folder
             let fm = FileManager.default
             var isDir: ObjCBool = false
             
+            // Get the old folder from UserDefaults, not from the property
+            let oldFolderPath = defaults.string(forKey: "fileTrayDefaultFolder")
+            let oldFolder = oldFolderPath.map { URL(fileURLWithPath: $0) }
+            
             if fm.fileExists(atPath: url.path, isDirectory: &isDir), isDir.boolValue {
-                // ✅ Folder exists — use it
+                populateOldFiletrayValues(newFolder: url, with: oldFolder)
                 defaults.set(url.path, forKey: "fileTrayDefaultFolder")
-                populateOldFiletrayValues(newFolder: url,with: fileTrayDefaultFolder)
                 fileTrayDefaultFolder = url
             } else {
-                // ❗️Try to create it
                 do {
                     try fm.createDirectory(at: url, withIntermediateDirectories: true)
+                    populateOldFiletrayValues(newFolder: url, with: oldFolder)
                     defaults.set(url.path, forKey: "fileTrayDefaultFolder")
-                    populateOldFiletrayValues(newFolder: url,with: fileTrayDefaultFolder)
                     fileTrayDefaultFolder = url
                 } catch {
-                    print("❌ Couldn't use provided folder: \(error)")
+                    print("❌ Couldn't create directory at \(url.path): \(error)")
                 }
             }
         }
@@ -483,9 +504,6 @@ class SettingsModel: ObservableObject {
         /// ----------------------- FileTray Settings ------------------------------------
         if let fileTrayDefaultFolder = defaults.string(forKey: "fileTrayDefaultFolder") {
             self.fileTrayDefaultFolder = URL(fileURLWithPath: fileTrayDefaultFolder)
-        }
-        if let fileTrayPersistFiles = defaults.object(forKey: "fileTrayPersistFiles") as? Bool {
-            self.fileTrayPersistFiles = fileTrayPersistFiles
         }
         
         if let fileTrayAllowOpenOnLocalhost = defaults.object(forKey: "fileTrayAllowOpenOnLocalhost") as? Bool {

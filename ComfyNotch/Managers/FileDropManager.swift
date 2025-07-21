@@ -68,8 +68,7 @@ final class FileDropManager: ObservableObject {
                     
                     Task.detached(priority: .utility) {
                         try? png.write(to: tmpURL)   // fast, one write
-                        /// Keep await even if we dont need it, it adds just a little delay needed
-                        await self.processFile(at: tmpURL,
+                        self.processFile(at: tmpURL,
                                                copyIfNeeded: false,
                                                sessionDir: folder)
                     }
@@ -108,20 +107,25 @@ final class FileDropManager: ObservableObject {
             
             let prefixedFileName = "Dropped-\(url.lastPathComponent)"
             let destURL = saveFolder.appendingPathComponent(prefixedFileName)
-            let sourceURL = copyIfNeeded ? url : url // ← future-proof
-            try? FileManager.default.copyItem(at: sourceURL, to: destURL)
-            
-            //            DroppedFileTracker.shared.registerFile(size: size,
-            //                                                   hash: hash,
-            //                                                   url: destURL)
-            
-            // 3. Tell SwiftUI
-            await MainActor.run {
-                self.droppedFile = destURL
-                if let info = DroppedFileTracker.shared.extractFileInfo(from: destURL) {
-                    self.droppedFileInfo = info
+            if copyIfNeeded {
+                try? FileManager.default.copyItem(at: url, to: destURL)
+                
+                await MainActor.run {
+                    self.droppedFile = destURL
+                    if let info = DroppedFileTracker.shared.extractFileInfo(from: destURL) {
+                        self.droppedFileInfo = info
+                    }
+                    self.droppedFiles.insert(destURL, at: 0)
                 }
-                self.droppedFiles.insert(destURL, at: 0)
+                
+            } else {
+                await MainActor.run {
+                    self.droppedFile = url
+                    if let info = DroppedFileTracker.shared.extractFileInfo(from: url) {
+                        self.droppedFileInfo = info
+                    }
+                    self.droppedFiles.insert(url, at: 0)
+                }
             }
         }
     }
