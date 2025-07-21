@@ -1,7 +1,7 @@
 import AppKit
 import Combine
 
-class ScrollHandler {
+class ScrollHandler : ObservableObject {
     static let shared = ScrollHandler()
     
     private let settings: SettingsModel = .shared
@@ -9,7 +9,10 @@ class ScrollHandler {
     // MARK: – Configuration
     var minPanelHeight: CGFloat = UIManager.shared.getNotchHeight()
     var maxPanelHeight: CGFloat = 150
-    var minPanelWidth: CGFloat = 320
+    
+    var minPanelWidth: CGFloat {
+        settings.notchMinWidth
+    }
     
     var maxPanelWidth: CGFloat {
         settings.notchMaxWidth
@@ -28,6 +31,7 @@ class ScrollHandler {
     private var cachedNormalFrame: NSRect?
     
     private init() {}
+    
     // MARK: – Public API
     
     
@@ -415,6 +419,7 @@ class ScrollHandler {
         }
         
         minPanelHeight = UIManager.shared.getNotchHeight()
+        
         /// DEBUG LOG, this is DEBUG DEBUG working
 //        debugLog("Screen Frame: \(screen.frame)")
 //        debugLog("Screen Visible Frame: \(screen.visibleFrame)")

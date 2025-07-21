@@ -146,7 +146,7 @@ struct OpenNotchContentDimensionsView: View {
             )
             ComfySlider(
                 value: $v.notchMaxWidth,
-                in: Int(settings.setNotchMinWidth)...Int(settings.setNotchMaxWidth),
+                in: Int(settings.MIN_NOTCH_MAX_WIDTH)...Int(settings.MAX_NOTCH_MAX_WIDTH),
                 label: "Notch Max Width (While Open)"
             )
         }

@@ -33,7 +33,7 @@ struct AnimatedBar: View {
     private let maxAnimationHeight: CGFloat = 1.0
 
     private var width: CGFloat {
-        return notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 3.5 : 3
+        return notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 3.0 : 2.5
     }
     
     private var scale: CGFloat {
@@ -74,7 +74,7 @@ struct AnimatedBar: View {
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-            let timer = Timer.publish(every: 0.6, on: .main, in: .common).autoconnect()
+            let timer = Timer.publish(every: 0.4, on: .main, in: .common).autoconnect()
             animationCancellable = timer.sink { _ in
                 withAnimation(.easeInOut(duration: 0.6)) {
                     animationHeight = Double.random(in: minAnimationHeight...maxAnimationHeight)
@@ -95,7 +95,7 @@ struct FancyMovingBars: Widget, View {
     /// Padding of 4-2 range pushes it to the left, that way when we hover of the left side,
     /// it pops OUT to the right, making it look like its cool yk
     private var paddingTrailing: CGFloat {
-        return notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 3 : 5
+        return notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 5 : 7
     }
     
     var swiftUIView: AnyView {
@@ -113,11 +113,8 @@ struct FancyMovingBars: Widget, View {
             }
         }
         .padding(.trailing, paddingTrailing)
-        .padding(.top, 2)
+        .padding(.top, 4)
         // Optionally add an explicit animation for the change in animation state:
         .animation(.easeInOut(duration: 0.3), value: music.nowPlayingInfo.isPlaying)
     }
 }
-
-
-

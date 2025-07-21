@@ -49,10 +49,16 @@ class SettingsModel: ObservableObject {
     /// Controlling the width of the notch, My Refular Used to be 700 but changed to 450
     /// cuz lots of users suggested that it was too wide, looked like a iPhone
     @Published var notchMaxWidth: CGFloat = 450
-    // WARNING: Should NOT BE UNDER 320
-    let setNotchMinWidth: CGFloat = 350
-    let setNotchMaxWidth: CGFloat = 1000
     
+    // WARNING: Should NOT BE UNDER 320
+    let MIN_NOTCH_MAX_WIDTH : CGFloat = 350
+    let MAX_NOTCH_MAX_WIDTH : CGFloat = 1000
+    
+    @Published var notchMinWidth: CGFloat = 290
+    
+    let MIN_NOTCH_MIN_WIDTH : CGFloat = 290
+    let MAX_NOTCH_MIN_WIDTH : CGFloat = 2000
+
     // NOTE: this is is very important because this will be what
     // the notch will be set to when it is closed, if this is
     // <= 0 this is a BIG ISSUE
@@ -224,6 +230,8 @@ class SettingsModel: ObservableObject {
     /// Function to save the Closed Notch Values
     /// Called in GeneralSettings
     public func saveClosedNotchValues(values: ClosedNotchValues) {
+        
+        self.notchMinWidth = CGFloat(values.notchMinWidth)
         self.hoverTargetMode = values.hoverTargetMode
         self.notchMinFallbackHeight = CGFloat(values.fallbackHeight)
         self.enableNotchHUD = values.hudEnabled
@@ -232,7 +240,15 @@ class SettingsModel: ObservableObject {
         
         /// Constraints
         if self.notchMinFallbackHeight <= 0 { self.notchMinFallbackHeight = 40 }
-        
+            /// Constraint The Notch Widths
+        if notchMinWidth < MIN_NOTCH_MIN_WIDTH {
+            notchMinWidth = MIN_NOTCH_MIN_WIDTH
+        }
+        if notchMinWidth > MAX_NOTCH_MIN_WIDTH {
+            notchMinWidth = MAX_NOTCH_MIN_WIDTH
+        }
+
+        defaults.set(notchMinWidth, forKey: "notchMinWidth")
         defaults.set(hoverTargetMode.rawValue, forKey: "hoverTargetMode")
         defaults.set(notchMinFallbackHeight, forKey: "notchMinFallbackHeight")
         defaults.set(enableNotchHUD, forKey: "enableNotchHUD")
@@ -256,11 +272,11 @@ class SettingsModel: ObservableObject {
         defaults.set(settingsWidgetDistanceFromRight, forKey: "settingsWidgetDistanceFromRight")
         
         /// Constraint The Notch Widths
-        if notchMaxWidth < setNotchMinWidth {
-            notchMaxWidth = setNotchMinWidth
+        if notchMaxWidth < MIN_NOTCH_MAX_WIDTH {
+            notchMaxWidth = MIN_NOTCH_MAX_WIDTH
         }
-        if notchMaxWidth > setNotchMaxWidth {
-            notchMaxWidth = setNotchMaxWidth
+        if notchMaxWidth > MAX_NOTCH_MAX_WIDTH {
+            notchMaxWidth = MAX_NOTCH_MAX_WIDTH
         }
         
         defaults.set(notchMaxWidth, forKey: "notchMaxWidth")
@@ -559,6 +575,13 @@ class SettingsModel: ObservableObject {
         } else {
             self.notchMaxWidth = 450
         }
+        
+        if let notchMinWidth = defaults.object(forKey: "notchMinWidth") as? CGFloat {
+            self.notchMinWidth = notchMinWidth
+        } else {
+            self.notchMinWidth = 290
+        }
+        
         /// quickAccessWidgetDistanceFromLeft Loading Logic
         if let quickAccessWidgetDistanceFromLeft = defaults.object(forKey: "quickAccessWidgetDistanceFromLeft") as? CGFloat {
             self.quickAccessWidgetDistanceFromLeft = quickAccessWidgetDistanceFromLeft

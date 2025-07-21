@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ClosedNotchValues {
+    var notchMinWidth: Int = 290
     var hoverTargetMode : HoverTarget = .none
     var fallbackHeight: Int = 0
     var hudEnabled: Bool = false
@@ -49,11 +50,23 @@ struct ClosedNotchGeneralSettings: View {
     private var twoFingerActionInitialValue: TouchAction {
         settings.twoFingerAction
     }
+    private var notchMinWidthInitialValue: Int {
+        Int(settings.notchMinWidth)
+    }
     
     var body: some View {
         VStack {
+            
             notchShapeClosed
             
+            Divider()
+                .padding()
+            
+            panelMinWidthSettings
+            
+            Divider()
+                .padding()
+
             fallbackHeightSettings
             
             Divider()
@@ -83,6 +96,7 @@ struct ClosedNotchGeneralSettings: View {
         .onChange(of: v.hudEnabled)       { checkDidChange() }
         .onChange(of: v.oneFingerAction)  { checkDidChange() }
         .onChange(of: v.twoFingerAction)  { checkDidChange() }
+        .onChange(of: v.notchMinWidth)    { checkDidChange() }
     }
     
     private func checkDidChange() {
@@ -92,6 +106,7 @@ struct ClosedNotchGeneralSettings: View {
         || v.hudEnabled != hudEnabledInitialValue
         || v.oneFingerAction != oneFingerActionInitialValue
         || v.twoFingerAction != twoFingerActionInitialValue
+        || v.notchMinWidth   != notchMinWidthInitialValue
     }
     
     // MARK: - Notch Shape Closed
@@ -125,6 +140,18 @@ struct ClosedNotchGeneralSettings: View {
             /// this is cuz notch is 38 and image is 40, we push it up
             .padding(.top, -2)
         }
+    }
+    
+    // MARK: - Notch Min Panel Width
+    private var panelMinWidthSettings: some View {
+        VStack(alignment: .leading) {
+            ComfySlider(
+                value: $v.notchMinWidth,
+                in: Int(settings.MIN_NOTCH_MIN_WIDTH)...Int(settings.MAX_NOTCH_MIN_WIDTH),
+                label: "Notch Width When Closed"
+            )
+        }
+        .padding()
     }
     
     // MARK: - Fallback Height Settings

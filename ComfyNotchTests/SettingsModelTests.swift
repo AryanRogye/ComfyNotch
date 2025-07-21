@@ -54,7 +54,27 @@ final class SettingsModelTests: XCTestCase {
     
     // MARK: - Test saveClosedNotchValues
     func _testSaveClosedNotch() {
-        let values = ClosedNotchValues(
+        var values = ClosedNotchValues(
+            notchMinWidth       : 270,
+            hoverTargetMode     : .album,
+            fallbackHeight      : 35,
+            hudEnabled          : true,
+            oneFingerAction     : .openSettings,
+            twoFingerAction     : .openFileTray
+        )
+        
+        settings.saveClosedNotchValues(values: values)
+        settings.loadSettings()
+        
+        XCTAssertEqual(settings.notchMinWidth, settings.MIN_NOTCH_MIN_WIDTH)
+        XCTAssertEqual(settings.hoverTargetMode, .album)
+        XCTAssertEqual(settings.notchMinFallbackHeight, 35)
+        XCTAssertEqual(settings.enableNotchHUD, true)
+        XCTAssertEqual(settings.oneFingerAction.rawValue, TouchAction.openSettings.rawValue)
+        XCTAssertEqual(settings.twoFingerAction.rawValue, TouchAction.openFileTray.rawValue)
+        
+        values = ClosedNotchValues(
+            notchMinWidth       : Int(settings.MAX_NOTCH_MIN_WIDTH + 2.0),
             hoverTargetMode     : .album,
             fallbackHeight      : 35,
             hudEnabled          : true,
@@ -64,11 +84,20 @@ final class SettingsModelTests: XCTestCase {
         
         settings.saveClosedNotchValues(values: values)
         
-        XCTAssertEqual(settings.hoverTargetMode, .album)
-        XCTAssertEqual(settings.notchMinFallbackHeight, 35)
-        XCTAssertEqual(settings.enableNotchHUD, true)
-        XCTAssertEqual(settings.oneFingerAction.rawValue, TouchAction.openSettings.rawValue)
-        XCTAssertEqual(settings.twoFingerAction.rawValue, TouchAction.openFileTray.rawValue)
+        XCTAssertEqual(settings.notchMinWidth, settings.MAX_NOTCH_MIN_WIDTH)
+        
+        
+        values = ClosedNotchValues(
+            notchMinWidth       : 295,
+            hoverTargetMode     : .album,
+            fallbackHeight      : 35,
+            hudEnabled          : true,
+            oneFingerAction     : .openSettings,
+            twoFingerAction     : .openFileTray
+        )
+        
+        settings.saveClosedNotchValues(values: values)
+        XCTAssertEqual(settings.notchMinWidth, 295)
     }
     
     // MARK: - Test Save OpenNotchContentDimensions

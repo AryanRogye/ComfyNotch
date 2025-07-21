@@ -46,7 +46,6 @@ struct SettingsView: View {
             case .general:
                 return Color(red: 0.45, green: 0.45, blue: 0.47) // sleek dark gray
             case .notch:
-                //                return Color(red: 0.93, green: 0.84, blue: 0.68) // #EED7AD
                 return .black
             case .animations:
                 return Color(red: 0.2, green: 0.6, blue: 1.0) // electric blue
@@ -68,7 +67,7 @@ struct SettingsView: View {
             case .animations:
                 return 16
             case .display:
-                return 16
+                return 14
             case .updates:
                 return 14
             }
@@ -84,7 +83,7 @@ struct SettingsView: View {
             case .animations:
                 return 16
             case .display:
-                return 12
+                return 10
             case .updates:
                 return 15
             }
