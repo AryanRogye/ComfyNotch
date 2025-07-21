@@ -60,7 +60,7 @@ struct ClosedNotchGeneralSettings: View {
             notchShapeClosed
             
             Divider()
-                .padding()
+                .padding([.vertical, .top])
             
             panelMinWidthSettings
             
@@ -151,7 +151,7 @@ struct ClosedNotchGeneralSettings: View {
                 label: "Notch Width When Closed"
             )
         }
-        .padding()
+        .padding(.horizontal)
     }
     
     // MARK: - Fallback Height Settings
@@ -172,7 +172,7 @@ struct ClosedNotchGeneralSettings: View {
             .frame(alignment: .center)
             .padding(.top, 2)
         }
-        .padding([.horizontal, .top])
+        .padding(.horizontal)
     }
     
     // MARK: - Hover Settings

@@ -27,7 +27,7 @@ struct CompactAlbumWidget: View, Widget {
     }
     private var paddingTop: CGFloat {
         /// IF 0 it pushes it weirdly
-        notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 4 : 4
+        notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 3 : 3
     }
     
     @State private var sizeConfig: WidgetSizeConfig = .init(width: 0, height: 0)

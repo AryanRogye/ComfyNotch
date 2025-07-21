@@ -54,9 +54,9 @@ class SettingsModel: ObservableObject {
     let MIN_NOTCH_MAX_WIDTH : CGFloat = 350
     let MAX_NOTCH_MAX_WIDTH : CGFloat = 1000
     
-    @Published var notchMinWidth: CGFloat = 290
+    @Published var notchMinWidth: CGFloat = 270
     
-    let MIN_NOTCH_MIN_WIDTH : CGFloat = 290
+    let MIN_NOTCH_MIN_WIDTH : CGFloat = 270
     let MAX_NOTCH_MIN_WIDTH : CGFloat = 2000
 
     // NOTE: this is is very important because this will be what

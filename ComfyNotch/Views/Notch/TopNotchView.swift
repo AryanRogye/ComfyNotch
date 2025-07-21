@@ -103,7 +103,7 @@ struct TopNotchView: View {
     
     // MARK: - Play Pause Button
     private var playPauseFont: CGFloat = 14
-    private var playPauseTrailing: CGFloat = 16
+    private var playPauseTrailing: CGFloat = 8
     private var playPauseTop: CGFloat = 4
     
     private var playPause: some View {
