@@ -35,6 +35,8 @@ public struct FileTraySettingsView: View {
         VStack {
             saveToFolder()
             
+            Divider().padding(.vertical, 8)
+            
             allowToOpenOnLocalhost
         }
         .onAppear {
@@ -74,8 +76,12 @@ public struct FileTraySettingsView: View {
             .padding(.bottom, 8)
             
             if v.fileTrayAllowOpenOnLocalhost {
+                
+                Divider().padding(.vertical, 8)
+                
                 VStack(spacing: 8) {
                     portPicker
+                    Divider().padding(.vertical, 8)
                     localHostPin
                 }
             }

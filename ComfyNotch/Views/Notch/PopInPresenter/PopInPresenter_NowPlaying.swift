@@ -45,6 +45,8 @@ struct PopInPresenter_NowPlaying: View {
                 
                 Text(musicModel.nowPlayingInfo.trackName)
                     .font(.subheadline.weight(.semibold))
+                    .minimumScaleFactor(0.5)
+                    .lineLimit(1)
                     .foregroundStyle(.primary.opacity(0.7))
 
                 Image(systemName: "music.microphone")
@@ -54,8 +56,11 @@ struct PopInPresenter_NowPlaying: View {
                 
                 Text(musicModel.nowPlayingInfo.artistName)
                     .font(.subheadline.weight(.semibold))
+                    .minimumScaleFactor(0.5)
+                    .lineLimit(1)
                     .foregroundStyle(.primary.opacity(0.7))
             }
+            .padding(.vertical, 4)
         }
         .frame(maxHeight: 35)
         .clipped()

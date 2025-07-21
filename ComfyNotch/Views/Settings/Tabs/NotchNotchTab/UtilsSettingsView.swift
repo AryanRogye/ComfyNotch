@@ -31,7 +31,10 @@ public struct UtilsSettingsView: View {
     public var body: some View {
         VStack {
             enableUtilsOption
+                .padding(.top, 8)
+            Divider().padding(.vertical, 8)
             enableClipboardListener
+                .padding(.bottom, 8)
         }
     }
     

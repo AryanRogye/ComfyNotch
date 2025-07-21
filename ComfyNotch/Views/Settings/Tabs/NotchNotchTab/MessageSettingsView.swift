@@ -75,6 +75,7 @@ public struct MessageSettingsView: View {
             }
             .toggleStyle(.switch)
             .controlSize(.small)
+            .padding(.vertical, 8)
             /// Suggestion
             Button(action: {
                 /// Open Notifications Settings
@@ -88,9 +89,12 @@ public struct MessageSettingsView: View {
                 .foregroundColor(.secondary)
             }
             .buttonStyle(.plain)
+            .padding(.top, 4)
             
+            Divider().padding(.vertical, 8)
+
             if v.enableMessagesNotifications {
-                Group {
+                VStack {
                     /// TODO:  show that this is for getting the "last amount" of users
                     ComfySlider(
                         value: $v.messagesHandleLimit,
@@ -98,6 +102,9 @@ public struct MessageSettingsView: View {
                         step: 1,
                         label: "Most Recent User Limit"
                     )
+                    .padding(.horizontal)
+
+                    Divider().padding(.vertical, 8)
                     
                     /// Actual last message content
                     ComfySlider(
@@ -106,8 +113,8 @@ public struct MessageSettingsView: View {
                         step: 1,
                         label: "Control Message Limit"
                     )
+                    .padding(.horizontal)
                 }
-                .padding(.horizontal)
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }

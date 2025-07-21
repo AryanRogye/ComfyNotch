@@ -1,6 +1,7 @@
 import AppKit
 import SwiftUI
 
+public typealias GivenWidgetSpace = (w: CGFloat, h: CGFloat)
 /**
  * `ExpandedWidgetsStore` is a class that manages a collection of widgets for a "big panel" UI component.
  * It provides functionality to add, remove, show, hide, and clear widgets, while maintaining their visibility state.
@@ -51,6 +52,19 @@ class ExpandedWidgetsStore: PanelManager, ObservableObject {
             break
         }
 
+    }
+    
+    public func determineWidthAndHeight() -> GivenWidgetSpace {
+        /// Settings Model Has the Full Width
+        let fullWidth = SettingsModel.shared.notchMaxWidth
+        let numberOfWidgets = SettingsModel.shared.selectedWidgets.count
+        
+        /// Now In This we can determine the width because it will be fullWidth / numberOfWidgets
+        /// 10 Padding
+        let w = fullWidth / CGFloat(numberOfWidgets) - 30
+        let h = ScrollHandler.shared.maxPanelHeight - 15
+        
+        return (w: w, h: h)
     }
 
     /// Adds a widget to the big panel "store"

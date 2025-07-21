@@ -192,8 +192,6 @@ struct ComfyNotchView: View {
                     break
                 }
             }
-        
-            
             .onAppear {
                 qrCodeManager.assignFileDropManager(fileDropManager)
                 notchClickManager.setOpenWindow(openWindow)
@@ -213,12 +211,13 @@ struct ComfyNotchView: View {
                 TopNotchView()
                     .environmentObject(widgetStore)
                 
+                Spacer()
+                
                 if notchStateManager.isExpanded || notchStateManager.currentPanelState == .popInPresentation {
                     expandedView
                         .padding(.horizontal, 4)
                 }
                 
-                Spacer()
             }
             .frame(maxWidth: .infinity, alignment: .top)
             /// This is for the metal background to normalize to its set color

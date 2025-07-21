@@ -8,7 +8,7 @@ struct MusicControlButton: ButtonStyle {
     let size: CGFloat
     let tintColor: NSColor
     
-    init(size: CGFloat = 35, tint: NSColor = .white) {
+    init(size: CGFloat = 32, tint: NSColor = .white) {
         self.size = size
         self.tintColor = tint
     }
@@ -33,9 +33,8 @@ struct MusicControlButton: ButtonStyle {
         var body: some View {
             ZStack {
                 if isHovering {
-                    // Background circle with glassmorphism
                     RoundedRectangle(cornerRadius: 10)
-//                    Circle()
+                    //                    Circle()
                         .fill(
                             LinearGradient(
                                 colors: [
@@ -48,7 +47,7 @@ struct MusicControlButton: ButtonStyle {
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
-//                            Circle()
+                            //                            Circle()
                                 .stroke(tintColor.opacity(0.25), lineWidth: 1)
                         )
                         .scaleEffect(isPressed ? 0.95 : (isHovering ? 1.05 : 1.0))
@@ -73,6 +72,9 @@ struct MusicControlButton: ButtonStyle {
     }
 }
 
+
+
+
 struct MusicPlayerWidget: View, Widget {
     var name: String = "MusicPlayerWidget"
     var imageWidth: CGFloat = 120
@@ -90,11 +92,14 @@ struct MusicPlayerWidget: View, Widget {
     private let controlButtonSize: CGFloat = 40
     private let smallControlButtonSize: CGFloat = 32
     
+    @State private var givenSpace : GivenWidgetSpace = (w: 0, h: 0)
+    
     // MARK: - Body
     var body: some View {
         HStack(spacing: 10) {
             // MARK: - Album View
             renderAlbumCover()
+                .padding(.bottom)
             
             // MARK: - Song Information and Controls
             VStack(alignment: .leading) {
@@ -107,20 +112,21 @@ struct MusicPlayerWidget: View, Widget {
                 /// Button
                 renderSongMusicControls()
             }
-            .padding(.top, cardPadding/2)
             .padding(.leading, cardPadding/3)
+            .padding(.bottom)
             
             
             Spacer()
         }
         // MARK: - Card Styling
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: givenSpace.w, maxHeight: givenSpace.h)
         .animation(.easeInOut(duration: 0.3), value: cardHover)
         .onHover { hovering in
             cardHover = hovering
         }
         .onAppear {
             isVisible = true
+            givenSpace = UIManager.shared.expandedWidgetStore.determineWidthAndHeight()
         }
         .onDisappear {
             isVisible = false
@@ -247,7 +253,7 @@ struct MusicPlayerWidget: View, Widget {
                     .foregroundColor(.white)
             }
             .buttonStyle(MusicControlButton(tint: model.nowPlayingInfo.dominantColor)) // Apply custom style
-
+            
             Button(action: {
                 AudioManager.shared.togglePlayPause()
             }) {
@@ -259,7 +265,7 @@ struct MusicPlayerWidget: View, Widget {
                     .foregroundColor(.white)
             }
             .buttonStyle(MusicControlButton(tint: model.nowPlayingInfo.dominantColor)) // Apply custom style
-
+            
             Button(action: {
                 AudioManager.shared.playNextTrack()
             }) {
@@ -321,11 +327,11 @@ struct MusicPlayerWidget: View, Widget {
                     renderProviderIcon
                 }
             }
-            .padding(.leading, cardPadding)
-            .padding(.top, cardPadding/2)
+            .padding(.leading, cardPadding/3)
         }
     }
     
+    @State private var isHovering = false
     private var renderProviderIcon: some View {
         Group {
             if settings.musicController == .mediaRemote {
@@ -346,6 +352,11 @@ struct MusicPlayerWidget: View, Widget {
             }
         }
         .offset(x: 8, y: 8)
+        .scaleEffect(isHovering ? 1.1 : 1.0)
+        .animation(.easeInOut(duration: 0.15), value: isHovering)
+        .onHover { hovering in
+            isHovering = hovering
+        }
     }
     
     @ViewBuilder

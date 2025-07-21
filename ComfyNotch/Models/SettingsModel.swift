@@ -58,14 +58,14 @@ class SettingsModel: ObservableObject {
     
     let MIN_NOTCH_MIN_WIDTH : CGFloat = 270
     let MAX_NOTCH_MIN_WIDTH : CGFloat = 2000
-
+    
     // NOTE: this is is very important because this will be what
     // the notch will be set to when it is closed, if this is
     // <= 0 this is a BIG ISSUE
     // this is cuz in `Managers/UIManager.swift` we use this:
-    // 
+    //
     // let notchHeight = getNotchHeight()
-    // 
+    //
     // let panelRect = NSRect(
     // x: (screenFrame.width - startPanelWidth) / 2,
     // y: screenFrame.height - notchHeight - startPanelYOffset,
@@ -240,14 +240,14 @@ class SettingsModel: ObservableObject {
         
         /// Constraints
         if self.notchMinFallbackHeight <= 0 { self.notchMinFallbackHeight = 40 }
-            /// Constraint The Notch Widths
+        /// Constraint The Notch Widths
         if notchMinWidth < MIN_NOTCH_MIN_WIDTH {
             notchMinWidth = MIN_NOTCH_MIN_WIDTH
         }
         if notchMinWidth > MAX_NOTCH_MIN_WIDTH {
             notchMinWidth = MAX_NOTCH_MIN_WIDTH
         }
-
+        
         defaults.set(notchMinWidth, forKey: "notchMinWidth")
         defaults.set(hoverTargetMode.rawValue, forKey: "hoverTargetMode")
         defaults.set(notchMinFallbackHeight, forKey: "notchMinFallbackHeight")
@@ -727,6 +727,20 @@ class SettingsModel: ObservableObject {
         
         debugLog("Updating selected widgets with: \(widgetName), isSelected: \(isSelected)")
         
+        var limit = 2
+        // LIMIT 3 Widgets Only
+        if self.notchMaxWidth < 500 {
+            limit = 1
+        } else if self.notchMaxWidth < 600 {
+            limit = 2
+        } else if self.notchMaxWidth < 750 {
+            limit = 3
+        } else {
+            limit = 4
+        }
+        
+        print("Notch Min Width: \(notchMaxWidth) - Limit: \(limit)")
+        
         // Starting With Remove Logic so we can clear out any old widgets
         
         if !isSelected {
@@ -742,6 +756,7 @@ class SettingsModel: ObservableObject {
         
         // Add Logic
         if isSelected {
+            if selectedWidgets.count == limit { return }
             if !selectedWidgets.contains(widgetName) {
                 selectedWidgets.append(widgetName)
                 if let widget = WidgetRegistry.shared.getWidget(named: widgetName) {
@@ -754,12 +769,8 @@ class SettingsModel: ObservableObject {
         saveSettings()
         debugLog("NEW Saved Settings: \(selectedWidgets)")
         
-        // Refresh the UI only if the panel is open
-        if UIManager.shared.panelState == .open {
-            refreshUI()
-        } else {
-            debugLog("Panel is not open, not refreshing UI")
-        }
+        /// Refresh UI
+        refreshUI()
     }
     
     // MARK: - UI Update Logic
