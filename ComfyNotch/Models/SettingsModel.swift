@@ -297,29 +297,62 @@ class SettingsModel: ObservableObject {
     /// Function to save the FileTray Settings
     /// Called in NotchNotchSettings with the fileTray
     public func saveFileTrayValues(values: FileTraySettingsValues) {
-        //        var fileTrayDefaultFolder : URL? = nil
-        //        var fileTrayAllowOpenOnLocalhost: Bool = false
-        //        var localHostPin: String = "1111"
-        //        var fileTrayPort: Int = 8080
         guard let folder = values.fileTrayDefaultFolder else {
             print("⚠️ Invalid file tray default folder, not saving.")
             return
         }
         
-        self.fileTrayDefaultFolder = folder
         self.fileTrayAllowOpenOnLocalhost = values.fileTrayAllowOpenOnLocalhost
         self.localHostPin = values.localHostPin
         self.fileTrayPort = values.fileTrayPort
         
-        /// Fix This
-        //        fileTrayDefaultFolder = FileManager.default
-        //            .urls(for: .documentDirectory, in: .userDomainMask)
-        //            .first!
-        //            .appendingPathComponent("ComfyNotch Files", isDirectory: true)
-        //        /// if we reach here, that means that the fileTray is populated no matter what so we can force it to get stored
-        //        if !fileTrayDefaultFolder.path.isEmpty {
-        //            defaults.set(fileTrayDefaultFolder.path(), forKey: "fileTrayDefaultFolder")
-        //        }
+        /// Add Back Old FileTray Values
+        func populateOldFiletrayValues(newFolder: URL, with oldFolder: URL) {
+            let fm = FileManager.default
+            
+            guard newFolder != oldFolder else { return } // No-op if paths match
+            
+            do {
+                let items = try fm.contentsOfDirectory(at: oldFolder, includingPropertiesForKeys: nil)
+                
+                for file in items {
+                    let dest = newFolder.appendingPathComponent(file.lastPathComponent)
+                    
+                    // Avoid overwriting existing files
+                    if !fm.fileExists(atPath: dest.path) {
+                        try fm.copyItem(at: file, to: dest)
+                    }
+                }
+            } catch {
+                print("⚠️ Failed to migrate old file tray contents: \(error)")
+            }
+        }
+        
+        /// SAVING OF FILE LOGIC
+        if let url = values.fileTrayDefaultFolder {
+            // Validate folder
+            let fm = FileManager.default
+            var isDir: ObjCBool = false
+            
+            if fm.fileExists(atPath: url.path, isDirectory: &isDir), isDir.boolValue {
+                // ✅ Folder exists — use it
+                defaults.set(url.path, forKey: "fileTrayDefaultFolder")
+                populateOldFiletrayValues(newFolder: url,with: fileTrayDefaultFolder)
+                fileTrayDefaultFolder = url
+            } else {
+                // ❗️Try to create it
+                do {
+                    try fm.createDirectory(at: url, withIntermediateDirectories: true)
+                    defaults.set(url.path, forKey: "fileTrayDefaultFolder")
+                    populateOldFiletrayValues(newFolder: url,with: fileTrayDefaultFolder)
+                    fileTrayDefaultFolder = url
+                } catch {
+                    print("❌ Couldn't use provided folder: \(error)")
+                }
+            }
+        }
+        /// ALLOWING OF SKIPPING FILES
+        
         
         defaults.set(fileTrayAllowOpenOnLocalhost, forKey: "fileTrayAllowOpenOnLocalhost")
         
@@ -361,17 +394,21 @@ class SettingsModel: ObservableObject {
         defaults.set(messagesMessageLimit, forKey: "messagesMessageLimit")
         
         
+        /// Dont Want Running in Tests
+        guard NSClassFromString("XCTest") == nil else { return }
         
-        if self.enableMessagesNotifications {
-            Task {
-                await MessagesManager.shared.checkFullDiskAccess()
-                await MessagesManager.shared.checkContactAccess()
-                await MessagesManager.shared.fetchAllHandles()
-                await MessagesManager.shared.startPolling()
-            }
-        } else {
-            Task {
-                await MessagesManager.shared.stopPolling()
+        if NSClassFromString("XCTest") != nil {
+            if self.enableMessagesNotifications {
+                Task {
+                    await MessagesManager.shared.checkFullDiskAccess()
+                    await MessagesManager.shared.checkContactAccess()
+                    await MessagesManager.shared.fetchAllHandles()
+                    await MessagesManager.shared.startPolling()
+                }
+            } else {
+                Task {
+                    await MessagesManager.shared.stopPolling()
+                }
             }
         }
     }

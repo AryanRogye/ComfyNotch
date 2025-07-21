@@ -34,9 +34,11 @@ final class FileDropManager: ObservableObject {
     func handleDrop(providers: [NSItemProvider]) -> Bool {
         
         let fm = FileManager.default
-        let sessionDir = fm.temporaryDirectory.appendingPathComponent("FileDropperSession-\(UUID().uuidString)", isDirectory: true)
-        try? fm.createDirectory(at: sessionDir, withIntermediateDirectories: true)
+        let folder = settings.fileTrayDefaultFolder
         
+        /// Ensure the Directory Exists
+        try? fm.createDirectory(at: folder, withIntermediateDirectories: true)
+
         for provider in providers {
             
             /// ---------- Finder files ----------
@@ -48,7 +50,7 @@ final class FileDropManager: ObservableObject {
                     
                     self.processFile(at: srcURL,
                                      copyIfNeeded: !inPlace,
-                                     sessionDir: sessionDir)
+                                     sessionDir: folder)
                     
                 }
                 
@@ -61,7 +63,7 @@ final class FileDropManager: ObservableObject {
                           let png  = rep.representation(using: .png, properties: [:])
                     else { return }
                     
-                    let tmpURL = sessionDir.appendingPathComponent(
+                    let tmpURL = folder.appendingPathComponent(
                         "DroppedImage-\(UUID()).png")
                     
                     Task.detached(priority: .utility) {
@@ -69,7 +71,7 @@ final class FileDropManager: ObservableObject {
                         /// Keep await even if we dont need it, it adds just a little delay needed
                         await self.processFile(at: tmpURL,
                                                copyIfNeeded: false,
-                                               sessionDir: sessionDir)
+                                               sessionDir: folder)
                     }
                 }
             }

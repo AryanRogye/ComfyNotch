@@ -489,6 +489,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ComfyNotch/Config/ComfyNotch.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -516,6 +517,7 @@
 				OTHER_LDFLAGS = "\"-undefined dynamic_lookup\"";
 				PRODUCT_BUNDLE_IDENTIFIER = app.aryanrogye.ComfyNotch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "ComfyNotch/Managers/ComfyNotch-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -530,6 +532,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ComfyNotch/Config/ComfyNotch.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -557,6 +560,7 @@
 				OTHER_LDFLAGS = "\"-undefined dynamic_lookup\"";
 				PRODUCT_BUNDLE_IDENTIFIER = app.aryanrogye.ComfyNotch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "ComfyNotch/Managers/ComfyNotch-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
