@@ -313,7 +313,7 @@ class SettingsModel: ObservableObject {
     /// Function to save the FileTray Settings
     /// Called in NotchNotchSettings with the fileTray
     public func saveFileTrayValues(values: FileTraySettingsValues) {
-        guard let folder = values.fileTrayDefaultFolder else {
+        guard let _ = values.fileTrayDefaultFolder else {
             print("⚠️ Invalid file tray default folder, not saving.")
             return
         }
@@ -475,7 +475,7 @@ class SettingsModel: ObservableObject {
     }
     
     /// Quick Access Widget simple/Dynamic
-    public func saveQuickAcessSimpleDynamic(values: TopNotchCustomizationSettingsValues) {
+    public func saveQuickAcessSimpleDynamic(values: QuickAccessStyleValues) {
         self.quickAccessWidgetSimpleDynamic = values.quickAccessWidgetSimpleDynamic
         
         defaults.set(quickAccessWidgetSimpleDynamic.rawValue, forKey: "quickAccessWidgetSimpleDynamic")

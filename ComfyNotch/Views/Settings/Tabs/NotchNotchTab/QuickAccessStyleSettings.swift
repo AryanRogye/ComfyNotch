@@ -7,15 +7,15 @@
 
 import SwiftUI
 
-struct TopNotchCustomizationSettingsValues {
+struct QuickAccessStyleValues {
     var quickAccessWidgetSimpleDynamic: QuickAccessType = .dynamic
 }
 
-struct TopNotchCustomization: View {
+struct QuickAccessStyleSettings: View {
     
     @EnvironmentObject var settings: SettingsModel
     @Binding var didChange: Bool
-    @Binding var values: TopNotchCustomizationSettingsValues
+    @Binding var values: QuickAccessStyleValues
     
     var body: some View {
         VStack {
@@ -34,7 +34,7 @@ struct TopNotchCustomization: View {
     private var topNotchDifferences: some View {
         VStack {
             HStack {
-                Text("Pick a Top Notch Style")
+                Text("Pick a Top Control Style")
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.primary)
                 Spacer()
@@ -45,75 +45,62 @@ struct TopNotchCustomization: View {
             
             HStack {
                 /// Option 1
-                VStack {
-                    Button(action: {}) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(values.quickAccessWidgetSimpleDynamic == QuickAccessType.dynamic
-                                    ? Color.gray.opacity(0.4)
-                                    : Color.gray.opacity(0.2)
-                                )
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(Color.black.opacity(0.4), lineWidth: 2)
-                                )
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(Color.gray.opacity(0.2))
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 12)
-                                                .stroke(Color.black.opacity(0.4), lineWidth: 2)
-                                        )
-                                )
-                            Option1()
-                                .frame(width: 26, height: 26)
-                        }
-                    }
-                    .buttonStyle(.plain)
-                    
-                    Text("Dynamic")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(.primary)
-                        .padding(.top, 2)
+                notchStyleButton(
+                    type: .dynamic,
+                    label: "Dynamic",
+                    isSelected: values.quickAccessWidgetSimpleDynamic == .dynamic
+                ) {
+                    values.quickAccessWidgetSimpleDynamic = .dynamic
+                } content: {
+                    Option1()
+                        .frame(width: 26, height: 26)
                 }
                 
                 /// Option 2
-                VStack {
-                    Button(action: {}) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(values.quickAccessWidgetSimpleDynamic == QuickAccessType.simple
-                                      ? Color.gray.opacity(0.4)
-                                      : Color.gray.opacity(0.2)
-                                )
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(Color.black.opacity(0.4), lineWidth: 2)
-                                )
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(Color.gray.opacity(0.2))
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 12)
-                                                .stroke(Color.black.opacity(0.4), lineWidth: 2)
-                                        )
-                                )
-                            VStack {
-                                Option2()
-                                    .frame(width: 26, height: 26)
-                            }
-                        }
-                    }
-                    .buttonStyle(.plain)
-                    
-                    Text("Simple")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(.primary)
-                        .padding(.top, 2)
+                notchStyleButton(
+                    type: .simple,
+                    label: "Simple",
+                    isSelected: values.quickAccessWidgetSimpleDynamic == .simple
+                ) {
+                    values.quickAccessWidgetSimpleDynamic = .simple
+                } content: {
+                    Option2()
+                        .frame(width: 26, height: 26)
                 }
             }
             .padding(.horizontal)
             .frame(maxWidth: .infinity, alignment: .center)
+        }
+    }
+    
+    @ViewBuilder
+    func notchStyleButton<Content: View>(
+        type: QuickAccessType,
+        label: String,
+        isSelected: Bool,
+        action: @escaping () -> Void,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(spacing: 6) {
+            Button(action: action) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(isSelected ? Color.accentColor.opacity(0.15) : Color.gray.opacity(0.15))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
+                        )
+                        .shadow(color: isSelected ? Color.accentColor.opacity(0.3) : .clear, radius: isSelected ? 5 : 0)
+                    
+                    content()
+                }
+            }
+            .buttonStyle(.plain)
+            
+            Text(label)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundColor(.primary)
+                .padding(.top, 4)
         }
     }
 }

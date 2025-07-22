@@ -128,7 +128,6 @@ struct MetalAnimations: View {
             .tint(.accentColor)
             .frame(width: 250)
         }
-        .padding(.top, 10)
         .transition(.move(edge: .top).combined(with: .opacity))
         .animation(settings.enableMetalAnimation ? .interactiveSpring(duration: 0.3) : .none, value: settings.notchBackgroundAnimation)
     }
@@ -142,7 +141,6 @@ struct MetalAnimations: View {
                 .toggleStyle(.switch)
             
         }
-        .padding(.top, 10)
         .transition(.move(edge: .top).combined(with: .opacity))
         .animation(settings.enableMetalAnimation ? .interactiveSpring(duration: 0.3) : .none, value: settings.notchBackgroundAnimation)
     }

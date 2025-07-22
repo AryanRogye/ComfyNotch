@@ -38,7 +38,8 @@ struct CurrentWidgetsDisplayView: View {
                 
                 Spacer()
             }
-            .padding([.horizontal, .top])
+            .padding([.horizontal])
+            .padding(.top, 8)
             
             Divider()
                 .padding(.vertical, 8)

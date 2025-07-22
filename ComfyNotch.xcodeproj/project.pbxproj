@@ -17,6 +17,7 @@
 		9B3F12342E1DE7A800B5F68B /* MediaRemoteAdapter in Frameworks */ = {isa = PBXBuildFile; productRef = 9B3F12332E1DE7A800B5F68B /* MediaRemoteAdapter */; };
 		9B3F12352E1DE7DE00B5F68B /* MediaRemoteAdapter in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 9B3F12332E1DE7A800B5F68B /* MediaRemoteAdapter */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		9B3F15152E23189500B5F68B /* ComfyCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = 9B3F15142E23189500B5F68B /* ComfyCalendar */; };
+		9BF760C52E300E420092A3BB /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 9BF760C42E300E420092A3BB /* LICENSE */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +50,7 @@
 		9B13195F2DF10A5200657438 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9B2A90052DE25AB500046186 /* CoreDisplay.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreDisplay.framework; path = ../../../../../System/Library/Frameworks/CoreDisplay.framework; sourceTree = "<group>"; };
 		9B3F1EE42E2724E400B5F68B /* ComfyNotchTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ComfyNotchTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9BF760C42E300E420092A3BB /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -156,6 +158,7 @@
 		9BC3A4592DB1D40000FFD323 = {
 			isa = PBXGroup;
 			children = (
+				9BF760C42E300E420092A3BB /* LICENSE */,
 				9B1319622DF10A5200657438 /* ComfyNotch */,
 				9B3F1EE52E2724E400B5F68B /* ComfyNotchTests */,
 				9BC3A5352DB2E77000FFD323 /* Frameworks */,
@@ -294,6 +297,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9BF760C52E300E420092A3BB /* LICENSE in Resources */,
 				9B1319642DF10A5200657438 /* Assets in Resources */,
 				9B1319652DF10A5200657438 /* Assets.xcassets in Resources */,
 			);

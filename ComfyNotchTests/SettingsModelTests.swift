@@ -27,7 +27,7 @@ final class SettingsModelTests: XCTestCase {
         settings = nil
         super.tearDown()
     }
-
+    
     func testFreshLaunchDefaults() {
         XCTAssertEqual(settings.notchMinFallbackHeight, 40)
         XCTAssertEqual(settings.cameraOverlayTimer, 20)
@@ -109,9 +109,9 @@ final class SettingsModelTests: XCTestCase {
             /// SHOULD NOT HAPPEN : SHOULD HIT 350
             notchMaxWidth   : 20
         )
-
+        
         settings.saveOpenNotchContentDimensions(values: values)
-
+        
         XCTAssertEqual(settings.quickAccessWidgetDistanceFromLeft , 20)
         XCTAssertEqual(settings.quickAccessWidgetDistanceFromTop, 20)
         XCTAssertEqual(settings.settingsWidgetDistanceFromRight, 20)
@@ -124,7 +124,7 @@ final class SettingsModelTests: XCTestCase {
             /// SHOULD NOT HAPPEN : SHOULD HIT 350
             notchMaxWidth   : 400
         )
-
+        
         settings.saveOpenNotchContentDimensions(values: values)
         
         XCTAssertEqual(settings.notchMaxWidth, CGFloat(values.notchMaxWidth))
@@ -208,6 +208,16 @@ final class SettingsModelTests: XCTestCase {
         
         XCTAssertEqual(settings.enableUtilsOption, values.enableUtilsOption)
         XCTAssertEqual(settings.enableClipboardListener, values.enableClipboardListener)
+    }
+    
+    func _testQuickAccessDynamicSimpleValues() {
+        var values = QuickAccessStyleValues(quickAccessWidgetSimpleDynamic: .simple)
+        settings.saveQuickAcessSimpleDynamic(values: values)
+        XCTAssertEqual(settings.quickAccessWidgetSimpleDynamic, values.quickAccessWidgetSimpleDynamic)
+        
+        values = QuickAccessStyleValues(quickAccessWidgetSimpleDynamic: .dynamic)
+        settings.saveQuickAcessSimpleDynamic(values: values)
+        XCTAssertEqual(settings.quickAccessWidgetSimpleDynamic, values.quickAccessWidgetSimpleDynamic)
     }
     
     func resetDefaults() {

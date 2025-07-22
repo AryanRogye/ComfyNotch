@@ -20,8 +20,8 @@ struct NotchNotchTab: View {
     @State private var fileDidChange: Bool = false
     @State private var fileTrayValues = FileTraySettingsValues()
     
-    @State private var topNotchValues = TopNotchCustomizationSettingsValues()
-    @State private var topNotchDidChange: Bool = false
+    @State private var quickAccessStyleValues = QuickAccessStyleValues()
+    @State private var quickAccessDidChange: Bool = false
     
     @State private var detailsClicked: Bool = false
     
@@ -29,7 +29,7 @@ struct NotchNotchTab: View {
         VStack {
             TabView {
                 ComfyScrollView {
-                    topNotchCustomizationSettings
+                    quickAccessStyleSettings
                     fileSettingsDisplay
                     messageSettingsDisplay
                     utilsSettingsDisplay
@@ -53,20 +53,25 @@ struct NotchNotchTab: View {
         }
     }
     
-    private var topNotchCustomizationSettings: some View {
+    private var quickAccessStyleSettings: some View {
         ComfySettingsContainer {
-            TopNotchCustomization(
-                didChange: $topNotchDidChange,
-                values: $topNotchValues
+            QuickAccessStyleSettings(
+                didChange: $quickAccessDidChange,
+                values: $quickAccessStyleValues
             )
         } header: {
-            Text("Top View Customization")
+            Text("Top Control Customization")
                 .font(.headline)
                 .fontWeight(.semibold)
                 .foregroundColor(.primary)
+            
             Spacer()
             
-            //            ComfyButton(title: "Save")
+            ComfyButton(title: "Save", $quickAccessDidChange) {
+                settings.saveQuickAcessSimpleDynamic(values: quickAccessStyleValues)
+                quickAccessDidChange = false
+            }
+            
         }
     }
     

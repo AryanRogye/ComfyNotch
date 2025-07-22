@@ -97,7 +97,7 @@ struct QuickAccessWidgetSimple: View, Widget {
     /// 8 - MOVES ALOT
     /// 7 - Moves a bit
     /// 6 - Cant rlly see unless you are looking closely
-    private var widgetSpacing : CGFloat = 5
+    private var widgetSpacing : CGFloat = 3
     
     var swiftUIView: AnyView {
         AnyView(self)
@@ -129,6 +129,7 @@ struct QuickAccessWidgetSimple: View, Widget {
         }
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .padding(.leading, settings.quickAccessWidgetDistanceFromLeft)
+        .padding(.top, settings.quickAccessWidgetDistanceFromTop)
     }
     
     // MARK: - Home Button
