@@ -31,7 +31,7 @@ struct NotchNotchTab: View {
                     utilsSettingsDisplay
                 }
                 .tabItem {
-                    Label("Notch Options", systemImage: "gearshape")
+                    Label("Notch Screen Options", systemImage: "gearshape")
                 }
                 
                 ComfyScrollView {

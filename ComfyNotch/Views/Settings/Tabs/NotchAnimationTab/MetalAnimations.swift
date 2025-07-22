@@ -81,16 +81,26 @@ struct MetalAnimations: View {
     }
     
     private var warningAboutMetal: some View {
-        HStack {
-            Text("⚠️ Warning: This feature will increase memory usage and CPU usage")
+        HStack(alignment: .center, spacing: 10) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundColor(.yellow)
+                .font(.system(size: 16, weight: .bold))
+                .padding(.top, 2)
+            
+            Text("Enabling this feature may increase memory and CPU usage.")
                 .font(.footnote)
-                .foregroundColor(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .foregroundColor(.primary)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .padding(12)
+        .frame(maxWidth: .infinity)
         .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color.yellow.opacity(0.1))
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(Color(.windowBackgroundColor))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .stroke(Color.yellow.opacity(0.18), lineWidth: 1)
+                )
         )
     }
     

@@ -20,7 +20,7 @@ struct ComfyButton: View {
     }
     
     var body: some View {
-        Button(action: {}) {
+        Button(action: action) {
             Text(title)
                 .font(.system(size: 11, weight: .semibold))
                 .padding(.horizontal, 10)
