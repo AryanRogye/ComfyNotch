@@ -42,30 +42,10 @@ struct NotchGeneralTab: View {
                     .foregroundColor(.primary)
                 Spacer()
                 
-                Button(action: {
+                ComfyButton(title: "Save", $closedSettingsChanged) {
                     settings.saveClosedNotchValues(values: closedNotchValues)
                     closedSettingsChanged = false
-                }) {
-                    Text("Save")
-                        .font(.system(size: 11, weight: .semibold))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 1)
-                        .background {
-                            closedSettingsChanged
-                            ? Color.red.opacity(0.2)
-                            : Color.green.opacity(0.1)
-                        }
-                        .foregroundColor(
-                            closedSettingsChanged
-                            ? Color.red
-                            : Color.green
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                 }
-                .contentShape(Rectangle())
-                .buttonStyle(PlainButtonStyle())
-                .controlSize(.small)
-                .disabled(!closedSettingsChanged)
             }
         }
     }
@@ -84,31 +64,10 @@ struct NotchGeneralTab: View {
                 .foregroundColor(.primary)
             Spacer()
             
-            Button(action: {
+            ComfyButton(title: "Save", $openSettingsChanged) {
                 settings.saveOpenNotchContentDimensions(values: openSettingsDimensionValues)
                 openSettingsChanged = false
-                
-            }) {
-                Text("Save")
-                    .font(.system(size: 11, weight: .semibold))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 1)
-                    .background {
-                        openSettingsChanged
-                        ? Color.red.opacity(0.2)
-                        : Color.green.opacity(0.1)
-                    }
-                    .foregroundColor(
-                        openSettingsChanged
-                        ? Color.red
-                        : Color.green
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
             }
-            .contentShape(Rectangle())
-            .buttonStyle(PlainButtonStyle())
-            .controlSize(.small)
-            .disabled(!openSettingsChanged)
         }
     }
 }

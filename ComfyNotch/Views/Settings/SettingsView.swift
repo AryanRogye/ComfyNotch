@@ -34,30 +34,35 @@ struct SettingsView: View {
             case .notch: return "notch"
             case .animations: return "sparkles"
             case .display: return "eye"
-            case .updates: return "arrow.clockwise"
+            case .updates: return "arrow.triangle.2.circlepath"
             case .widgetSettings: return "square.grid.2x2"
             }
         }
         
-        var color: Color {
+        var color: AnyShapeStyle {
             switch self {
             case .widgetSettings:
-                // feels right as a playful secondary panel
-                return Color(nsColor: .systemPink)
+                return AnyShapeStyle(Color(nsColor: .systemPink))
             case .general:
-                // grey gear like System Settings → General
-                return Color(nsColor: .systemGray)
+                return AnyShapeStyle(Color(nsColor: .systemGray))
             case .notch:
-                return .black
+                return AnyShapeStyle(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color(red: 0.62, green: 0.16, blue: 0.49),
+                            Color(red: 0.86, green: 0.25, blue: 0.21),
+                            Color(red: 1.00, green: 0.60, blue: 0.18)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
             case .animations:
-                // classic macOS accent
-                return Color(nsColor: .systemBlue)
+                return AnyShapeStyle(Color(nsColor: .systemBlue))
             case .display:
-                // HIG pairs displays with orange (think “Night Shift”)
-                return Color(nsColor: .systemOrange)
+                return AnyShapeStyle(Color(nsColor: .systemGreen.withAlphaComponent(0.7)))
             case .updates:
-                // green = go / success
-                return Color(nsColor: .systemGreen)
+                return AnyShapeStyle(Color(nsColor: .systemBlue.withAlphaComponent(0.8)))
             }
         }
         
@@ -68,7 +73,7 @@ struct SettingsView: View {
             case .general:
                 return 16
             case .notch:
-                return 21
+                return 25
             case .animations:
                 return 14
             case .display:
@@ -84,7 +89,7 @@ struct SettingsView: View {
             case .general:
                 return 16
             case .notch:
-                return 20
+                return 24
             case .animations:
                 return 14
             case .display:
@@ -230,7 +235,6 @@ struct SettingsView: View {
                 VStack(spacing: 8) {
                     HStack(alignment: .center, spacing: 8) {
                         image(for: settings.selectedTab)
-                            .font(.system(size: 20, weight: .semibold))
                             .foregroundColor(.accentColor)
                             .frame(width: 24, height: 24)
                         
@@ -272,11 +276,11 @@ struct SettingsView: View {
             Text(tab.label)
                 .font(.body)
                 .foregroundColor(.primary)
-                .padding(.leading, 8)
+                .padding(.leading, 6)
         } icon: {
             image(for: tab)
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 2)
         .contentShape(Rectangle()) // makes the whole row clickable
         .background(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
@@ -285,13 +289,14 @@ struct SettingsView: View {
         )
     }
     
+    
+    // MARK: - Image For Tab and Size of Icon
     private func image(for tab: SettingsView.Tab) -> some View {
         return Group {
             if tab.rawValue == "Notch" {
                 Image("comfypillowDesign")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .foregroundColor(.gray)
                     .frame(width: tab.width, height: tab.height)
             } else {
                 Image(systemName: tab.icon)
@@ -300,7 +305,7 @@ struct SettingsView: View {
                     .frame(width: tab.width, height: tab.height)
             }
         }
-        .frame(width: 25, height: 25)
+        .frame(width: 22, height: 22)
         .background (
             RoundedRectangle(cornerRadius: 8, style: .continuous)
                 .fill(tab.color)

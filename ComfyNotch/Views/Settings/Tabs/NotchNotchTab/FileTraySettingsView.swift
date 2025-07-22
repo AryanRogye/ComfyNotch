@@ -65,6 +65,8 @@ public struct FileTraySettingsView: View {
     private var allowToOpenOnLocalhost: some View {
         VStack {
             toggleableAllow
+                .padding(.horizontal)
+            
             
             Text("""
                 This allows you to drag in a file and get a QR code to scan with your phone. 
@@ -77,12 +79,14 @@ public struct FileTraySettingsView: View {
             
             if v.fileTrayAllowOpenOnLocalhost {
                 
-                Divider().padding(.vertical, 8)
+                Divider().padding(.bottom, 8)
                 
-                VStack(spacing: 8) {
+                VStack() {
                     portPicker
+                        .padding(.vertical, 4)
                     Divider().padding(.vertical, 8)
                     localHostPin
+                        .padding(.bottom)
                 }
             }
         }
@@ -92,7 +96,9 @@ public struct FileTraySettingsView: View {
     // MARK: - Pin Picker
     private var localHostPin: some View {
         HStack {
-            Text("Localhost PIN")
+            Text("Localhost Pin")
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(.primary)
             Spacer()
             TextField("1111", text: $tempPin)
                 .frame(width: 80)
@@ -105,6 +111,7 @@ public struct FileTraySettingsView: View {
                     }
                 }
         }
+        .padding(.horizontal)
     }
     
     private func isValidPin(_ pin: String) -> Bool {
@@ -121,12 +128,16 @@ public struct FileTraySettingsView: View {
                 .frame(width: 80)
                 .multilineTextAlignment(.trailing)
         }
+        .padding(.horizontal)
     }
     
     // MARK: - Toggle Allow to Open on Localhost
     private var toggleableAllow: some View {
         HStack {
             Text("Allow to open on localhost")
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(.primary)
+            
             Spacer()
             Toggle(isOn: $v.fileTrayAllowOpenOnLocalhost) {
                 Text("")
@@ -138,7 +149,6 @@ public struct FileTraySettingsView: View {
                 }
             }
         }
-        .padding(.vertical, 8)
     }
     
     // MARK: - Pick Default Folder
@@ -146,6 +156,9 @@ public struct FileTraySettingsView: View {
     func saveToFolder() -> some View {
         HStack {
             Text("Filetray Default Folder:")
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(.primary)
+            
             Spacer()
             HStack(spacing: 6) {
                 Image(systemName: "folder")
@@ -163,6 +176,7 @@ public struct FileTraySettingsView: View {
                 pickFolder()
             }
         }
+        .padding([.horizontal, .top])
     }
     
     func pickFolder() {

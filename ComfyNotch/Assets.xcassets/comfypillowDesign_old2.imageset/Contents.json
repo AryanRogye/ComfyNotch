@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "DroppedImage-23952E51-C0EA-4C8A-9A98-7AE1ABCF79D7 1.png",
+      "filename" : "Frame 5 (1).svg",
       "idiom" : "universal",
       "scale" : "1x"
     },
@@ -19,6 +19,6 @@
     "version" : 1
   },
   "properties" : {
-    "template-rendering-intent" : "original"
+    "template-rendering-intent" : "template"
   }
 }

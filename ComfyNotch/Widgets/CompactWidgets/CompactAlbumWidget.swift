@@ -43,14 +43,20 @@ struct CompactAlbumWidget: View, Widget {
                         .scaledToFit()
                         .scaleEffect(scale)
                         .frame(width: sizeConfig.width, height: sizeConfig.height)
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(1)
                         .cornerRadius(4)
                 } else {
                     ZStack {
                         RoundedRectangle(cornerRadius: 8)
                             .fill(Color.gray.opacity(0.2))
                             .frame(width: sizeConfig.width, height: sizeConfig.height)
+                            .minimumScaleFactor(0.5)
+                            .lineLimit(1)
                         Image(systemName: "music.note")
                             .font(.system(size: sizeConfig.height * 0.5 > 0 ? sizeConfig.height * 0.5 : 1, weight: .medium))
+                            .minimumScaleFactor(0.5)
+                            .lineLimit(1)
                             .foregroundColor(.white)
                     }
                 }
@@ -92,8 +98,8 @@ struct CompactAlbumWidget: View, Widget {
     
     func widgetSize() -> WidgetSizeConfig {
         let height = UIManager.shared.getNotchHeight()
-        let w = height * 0.68
-        let h = height * 0.68
+        let w = height * 0.65
+        let h = height * 0.65
 
         return .init(width: w,height: h)
     }

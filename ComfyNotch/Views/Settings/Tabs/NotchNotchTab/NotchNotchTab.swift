@@ -20,16 +20,32 @@ struct NotchNotchTab: View {
     @State private var fileDidChange: Bool = false
     @State private var fileTrayValues = FileTraySettingsValues()
     
+    @State private var detailsClicked: Bool = false
+    
     var body: some View {
         VStack {
-            ComfyScrollView {
-                currentWidgetsDisplay
-                selectWidgetsDisplay
+            TabView {
+                ComfyScrollView {
+                    fileSettingsDisplay
+                    messageSettingsDisplay
+                    utilsSettingsDisplay
+                }
+                .tabItem {
+                    Label("Notch Options", systemImage: "gearshape")
+                }
                 
-                fileSettingsDisplay
-                messageSettingsDisplay
-                utilsSettingsDisplay
+                ComfyScrollView {
+                    currentWidgetsDisplay
+                    selectWidgetsDisplay
+                }
+                .tabItem {
+                    Label("Widgets", systemImage: "square.grid.2x2")
+                }
+                
             }
+        }
+        .sheet(isPresented: $detailsClicked) {
+            DetailsView(detailsClicked: $detailsClicked)
         }
     }
     
@@ -45,6 +61,7 @@ struct NotchNotchTab: View {
         }
     }
     
+    
     private var selectWidgetsDisplay: some View {
         ComfySettingsContainer {
             SelectWidgetsView()
@@ -55,6 +72,14 @@ struct NotchNotchTab: View {
                 .foregroundColor(.primary)
             Spacer()
             
+            Button(action: {
+                detailsClicked = true
+            }) {
+                Text("Details...")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.primary)
+            }
+            .controlSize(.small)
         }
     }
     
@@ -72,31 +97,10 @@ struct NotchNotchTab: View {
                 .foregroundColor(.primary)
             Spacer()
             
-            Button(action: {
+            ComfyButton(title: "Save", $messageDidChange) {
                 settings.saveMessagesValues(values: messageTrayValues)
                 messageDidChange = false
-            }) {
-                Text("Save")
-                    .font(.system(size: 11, weight: .semibold))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 1)
-                    .background {
-                        messageDidChange
-                        ? Color.red.opacity(0.2)
-                        : Color.green.opacity(0.1)
-                    }
-                    .foregroundColor(
-                        messageDidChange
-                        ? Color.red
-                        : Color.green
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
             }
-            .contentShape(Rectangle())
-            .buttonStyle(PlainButtonStyle())
-            .controlSize(.small)
-            .disabled(!messageDidChange)
-            
         }
     }
     
@@ -115,31 +119,10 @@ struct NotchNotchTab: View {
                 .foregroundColor(.primary)
             Spacer()
             
-            Button(action: {
+            ComfyButton(title: "Save", $utilsDidChange) {
                 settings.saveUtilsValues(values: utilssettingsvalues)
                 utilsDidChange = false
-            }) {
-                Text("Save")
-                    .font(.system(size: 11, weight: .semibold))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 1)
-                    .background {
-                        utilsDidChange
-                        ? Color.red.opacity(0.2)
-                        : Color.green.opacity(0.1)
-                    }
-                    .foregroundColor(
-                        utilsDidChange
-                        ? Color.red
-                        : Color.green
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
             }
-            .contentShape(Rectangle())
-            .buttonStyle(PlainButtonStyle())
-            .controlSize(.small)
-            .disabled(!utilsDidChange)
-            
         }
     }
     
@@ -157,30 +140,10 @@ struct NotchNotchTab: View {
                 .foregroundColor(.primary)
             Spacer()
             
-            Button(action: {
+            ComfyButton(title: "Save", $fileDidChange) {
                 settings.saveFileTrayValues(values: fileTrayValues)
                 fileDidChange = false
-            }) {
-                Text("Save")
-                    .font(.system(size: 11, weight: .semibold))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 1)
-                    .background {
-                        fileDidChange
-                        ? Color.red.opacity(0.2)
-                        : Color.green.opacity(0.1)
-                    }
-                    .foregroundColor(
-                        fileDidChange
-                        ? Color.red
-                        : Color.green
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
             }
-            .contentShape(Rectangle())
-            .buttonStyle(PlainButtonStyle())
-            .controlSize(.small)
-            .disabled(!fileDidChange)
         }
     }
 }

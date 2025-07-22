@@ -16,14 +16,17 @@ struct MusicPlayerSettings: View {
             VStack(alignment: .leading, spacing: 12) {
                 
                 VStack(alignment: .leading, spacing: 12) {
-                    Toggle(isOn: $settings.showMusicProvider) {
-                        Text("Show Music Provider")
-                    }
+                    Toggle("Show Music Provider",isOn: $settings.showMusicProvider)
                     .toggleStyle(.switch)
                     .onChange(of: settings.showMusicProvider) {
                         settings.saveSettings()
                     }
                 }
+                .padding(.horizontal)
+                .padding(.top, 8)
+                
+                Divider()
+                    .padding(.vertical, 8)
                 
                 Picker("Music Controller", selection: $settings.musicController) {
                     ForEach(MusicController.allCases, id: \.self) { controller in
@@ -35,12 +38,19 @@ struct MusicPlayerSettings: View {
                 .onChange(of: settings.musicController) {
                     settings.saveSettings()
                 }
+                .padding(.horizontal)
+                
                 Text("⚠️ Warning – Media Remote is a third-party Swift Package feature. Performance may vary, and optimizations may be limited.")
                     .font(.footnote)
                     .foregroundColor(.secondary)
-                    .padding(.top, 4)
-                
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+
                 if settings.musicController == .mediaRemote {
+                    
+                    Divider()
+                        .padding(.vertical, 8)
+
                     Picker("Music Provider", selection: $settings.overridenMusicProvider) {
                         ForEach(MusicProvider.allCases, id: \.self) { provider in
                             Text(provider.displayName)
@@ -51,7 +61,7 @@ struct MusicPlayerSettings: View {
                     .onChange(of: settings.overridenMusicProvider) {
                         settings.saveSettings()
                     }
-                    .padding(.top, 2)
+                    .padding([.horizontal, .bottom])
                 }
             }
         }

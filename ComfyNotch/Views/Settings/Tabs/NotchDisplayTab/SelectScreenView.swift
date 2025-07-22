@@ -57,6 +57,7 @@ struct SelectScreenView: View {
                         .contentShape(RoundedRectangle(cornerRadius: 12))
                     }
                 }
+                .padding()
             }
             
             VStack(alignment: .leading, spacing: 4) {
@@ -66,7 +67,7 @@ struct SelectScreenView: View {
             .font(.footnote)
             .foregroundColor(.secondary)
             .frame(maxWidth: .infinity, alignment: .center)
-            .padding(.top, 12)
+            .padding([.bottom, .horizontal])
         }
         .padding(.horizontal)
     }

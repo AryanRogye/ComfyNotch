@@ -68,14 +68,12 @@ public struct MessageSettingsView: View {
         /// One Side Messages Controls
         VStack {
             /// Toggle for Messages Notifications
-            Toggle(isOn: $v.enableMessagesNotifications) {
-                Label("Enable Messages Notch View", systemImage: "message.fill")
-                    .font(.subheadline)
-                    .foregroundColor(.primary)
-            }
-            .toggleStyle(.switch)
-            .controlSize(.small)
-            .padding(.vertical, 8)
+            Toggle("Enable Messages Notch View",isOn: $v.enableMessagesNotifications)
+                .toggleStyle(.switch)
+                .controlSize(.small)
+                .padding([.horizontal, .top])
+            
+            
             /// Suggestion
             Button(action: {
                 /// Open Notifications Settings
@@ -89,11 +87,13 @@ public struct MessageSettingsView: View {
                 .foregroundColor(.secondary)
             }
             .buttonStyle(.plain)
-            .padding(.top, 4)
+            .padding(.vertical, 8)
             
-            Divider().padding(.vertical, 8)
 
             if v.enableMessagesNotifications {
+                
+                Divider().padding(.bottom, 8)
+
                 VStack {
                     /// TODO:  show that this is for getting the "last amount" of users
                     ComfySlider(
@@ -113,7 +113,7 @@ public struct MessageSettingsView: View {
                         step: 1,
                         label: "Control Message Limit"
                     )
-                    .padding(.horizontal)
+                    .padding([.horizontal, .bottom])
                 }
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }

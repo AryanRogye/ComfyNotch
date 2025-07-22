@@ -34,29 +34,35 @@ struct ClosedNotchGeneralSettings: View {
             notchShapeClosed
             
             Divider()
-                .padding([.vertical, .top])
+                .padding([.vertical, .top], 4)
             
             panelMinWidthSettings
+                .padding(.vertical, 4)
             
             Divider()
-                .padding()
-
+                .padding(.vertical, 4)
+            
             fallbackHeightSettings
+                .padding(.vertical, 4)
             
             Divider()
-                .padding()
+                .padding(.vertical, 4)
             
             hoverSettings
+                .padding(.vertical, 4)
             
             Divider()
-                .padding()
+                .padding(.vertical, 4)
             
             hudSettings
+                .padding(.vertical, 4)
             
             Divider()
-                .padding()
+                .padding(.vertical, 4)
             
             touchSettings
+                .padding(.vertical, 4)
+                .padding(.bottom)
         }
         .onAppear {
             v.hoverTargetMode = settings.hoverTargetMode
@@ -76,7 +82,7 @@ struct ClosedNotchGeneralSettings: View {
     
     private func checkDidChange() {
         didChange =
-           v.hoverTargetMode != settings.hoverTargetMode
+        v.hoverTargetMode != settings.hoverTargetMode
         || v.fallbackHeight  != Int(settings.notchMinFallbackHeight)
         || v.hudEnabled      != settings.enableNotchHUD
         || v.oneFingerAction != settings.oneFingerAction
@@ -232,6 +238,6 @@ struct ClosedNotchGeneralSettings: View {
             }
             
         }
-        .padding([.horizontal, .top])
+        .padding([.horizontal])
     }
 }

@@ -15,25 +15,32 @@ struct CurrentWidgetsDisplayView: View {
         VStack {
             notchShapeOpen
             
+            Divider()
+                .padding(.top, 8)
+            
             dragWidgetsHere
+                .padding([.bottom])
         }
     }
     
     // MARK: - Drag Widgets Here
     
+    
+    @State private var detailsClicked: Bool = false
+    
     /// place to drag the widgets
     private var dragWidgetsHere: some View {
         VStack {
-            HStack {
+            HStack(alignment: .center) {
                 Text("Drag Widgets Here")
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.primary)
+                
                 Spacer()
             }
             .padding([.horizontal, .top])
             
             Divider()
-                .padding([.horizontal])
                 .padding(.vertical, 8)
             
             GeometryReader { geo in
@@ -56,6 +63,7 @@ struct CurrentWidgetsDisplayView: View {
                     .shadow(radius: 8)
             )
             .animation(.interactiveSpring(response: 0.3, dampingFraction: 0.75, blendDuration: 0.3), value: settings.selectedWidgets)
+            .padding(.horizontal)
             
         }
     }

@@ -45,7 +45,8 @@ struct OpenNotchContentDimensionsView: View {
     var body: some View {
         VStack {
             notchShapeOpen
-            
+            Divider()
+                .padding(.vertical, 8)
             dimensionSettings
         }
         .onAppear {
@@ -132,25 +133,38 @@ struct OpenNotchContentDimensionsView: View {
                 in: 0...100,
                 label: "Left Spacing"
             )
+            .padding(.horizontal)
             
+            Divider()
+                .padding(.vertical, 8)
+
             ComfySlider(
                 value: $v.rightSpacing,
                 in: 0...100,
                 label: "Right Spacing"
             )
+            .padding(.horizontal)
+
+            Divider()
+                .padding(.vertical, 8)
             
             ComfySlider(
                 value: $v.topSpacing,
                 in: 0...100,
                 label: "Top Spacing"
             )
+            .padding(.horizontal)
+
+            Divider()
+                .padding(.vertical, 8)
+            
             ComfySlider(
                 value: $v.notchMaxWidth,
                 in: Int(settings.MIN_NOTCH_MAX_WIDTH)...Int(settings.MAX_NOTCH_MAX_WIDTH),
                 label: "Notch Max Width (While Open)"
             )
+            .padding([.horizontal, .bottom])
         }
-        .padding()
     }
 }
 

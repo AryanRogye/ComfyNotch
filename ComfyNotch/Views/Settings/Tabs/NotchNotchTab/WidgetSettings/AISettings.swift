@@ -24,11 +24,11 @@ struct AISettings: View {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.gray.opacity(0.1))
                 )
-                .padding()
                 .focusable(true)
                 .onChange(of: settings.aiApiKey) {
                     settings.saveSettings()
                 }
+                .padding()
             
             HStack {
                 Spacer()
@@ -37,6 +37,7 @@ struct AISettings: View {
                 }
                 .padding(.horizontal)
             }
+            .padding(.bottom)
         }
     }
     

@@ -32,7 +32,6 @@ struct ComfySettingsContainer<Content: View, Header: View>: View {
                 content()
             }
             .frame(maxWidth: .infinity)
-            .padding(10)
             .background(
                 // Multi-layer background for depth
                 ZStack {

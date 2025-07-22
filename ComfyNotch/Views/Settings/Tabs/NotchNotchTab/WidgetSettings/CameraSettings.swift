@@ -16,8 +16,11 @@ struct CameraSettings: View {
         VStack(alignment: .leading, spacing: 12) {
             Toggle("Flip Camera", isOn: $settings.isCameraFlipped)
                 .onChange(of: settings.isCameraFlipped) { settings.saveSettings() }
-                .padding(.vertical, 8)
                 .toggleStyle(.switch)
+                .padding(.top, 8)
+                .padding(.horizontal)
+            
+            Divider().padding(.vertical, 8)
             
             /// Camera Quality
             Picker("Camera Quality", selection: $settings.cameraQualitySelection) {
@@ -32,17 +35,23 @@ struct CameraSettings: View {
             .onChange(of: settings.cameraQualitySelection) {
                 settings.saveSettings()
             }
+            .padding(.horizontal)
             
+            Divider().padding(.vertical, 8)
+
             Toggle("Enable Camera Overlay", isOn: $settings.enableCameraOverlay)
                 .onChange(of: settings.enableCameraOverlay) {
                     withAnimation(.easeInOut(duration: 0.3)) {
                         settings.saveSettings()
                     }
                 }
-                .padding(.vertical, 8)
                 .toggleStyle(.switch)
+                .padding(.horizontal)
+                .padding(.bottom, 8)
             
+
             if settings.enableCameraOverlay {
+                Divider().padding(.bottom, 8)
                 ComfySlider(
                     value: $settings.cameraOverlayTimer,
                     in: 5...120,
@@ -53,6 +62,7 @@ struct CameraSettings: View {
                 .onChange(of: settings.cameraOverlayTimer) {
                     settings.saveSettings()
                 }
+                .padding([.horizontal, .bottom])
             }
         }
     }
