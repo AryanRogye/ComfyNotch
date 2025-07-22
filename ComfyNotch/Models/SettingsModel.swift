@@ -130,6 +130,9 @@ class SettingsModel: ObservableObject {
     @Published var enableUtilsOption: Bool = false
     @Published var enableClipboardListener: Bool = false
     
+    /// ---------- Quick Access Widget Settings ----------
+    @Published var quickAccessWidgetSimpleDynamic: QuickAccessType = .dynamic
+    
     
     /// REQUIRED FOR UPDATING
     lazy var updaterController: SPUStandardUpdaterController = {
@@ -461,7 +464,7 @@ class SettingsModel: ObservableObject {
         defaults.set(enableUtilsOption, forKey: "enableUtilsOption")
         defaults.set(enableClipboardListener, forKey: "enableClipboardListener")
         
-        
+        /// TODO: FIX: a bit bugged
         if self.enableClipboardListener {
             self.enableUtilsOption = true
             ClipboardManager.shared.start()
@@ -469,6 +472,13 @@ class SettingsModel: ObservableObject {
             self.enableUtilsOption = false
             ClipboardManager.shared.stop()
         }
+    }
+    
+    /// Quick Access Widget simple/Dynamic
+    public func saveQuickAcessSimpleDynamic(values: TopNotchCustomizationSettingsValues) {
+        self.quickAccessWidgetSimpleDynamic = values.quickAccessWidgetSimpleDynamic
+        
+        defaults.set(quickAccessWidgetSimpleDynamic.rawValue, forKey: "quickAccessWidgetSimpleDynamic")
     }
     
     
@@ -705,6 +715,14 @@ class SettingsModel: ObservableObject {
             self.enableClipboardListener = enableClipboardListener
         } else {
             self.enableClipboardListener = false
+        }
+        
+        /// ----------------------- Quick Access Widget Settings -----------------------
+        if let quickAccessWidgetSimpleDynamicRawValue = defaults.string(forKey: "quickAccessWidgetSimpleDynamic"),
+           let quickAccessWidgetSimpleDynamic = QuickAccessType(rawValue: quickAccessWidgetSimpleDynamicRawValue) {
+            self.quickAccessWidgetSimpleDynamic = quickAccessWidgetSimpleDynamic
+        } else {
+            self.quickAccessWidgetSimpleDynamic = .dynamic // Default to dynamic
         }
     }
     

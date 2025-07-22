@@ -20,12 +20,16 @@ struct NotchNotchTab: View {
     @State private var fileDidChange: Bool = false
     @State private var fileTrayValues = FileTraySettingsValues()
     
+    @State private var topNotchValues = TopNotchCustomizationSettingsValues()
+    @State private var topNotchDidChange: Bool = false
+    
     @State private var detailsClicked: Bool = false
     
     var body: some View {
         VStack {
             TabView {
                 ComfyScrollView {
+                    topNotchCustomizationSettings
                     fileSettingsDisplay
                     messageSettingsDisplay
                     utilsSettingsDisplay
@@ -46,6 +50,23 @@ struct NotchNotchTab: View {
         }
         .sheet(isPresented: $detailsClicked) {
             DetailsView(detailsClicked: $detailsClicked)
+        }
+    }
+    
+    private var topNotchCustomizationSettings: some View {
+        ComfySettingsContainer {
+            TopNotchCustomization(
+                didChange: $topNotchDidChange,
+                values: $topNotchValues
+            )
+        } header: {
+            Text("Top View Customization")
+                .font(.headline)
+                .fontWeight(.semibold)
+                .foregroundColor(.primary)
+            Spacer()
+            
+            //            ComfyButton(title: "Save")
         }
     }
     

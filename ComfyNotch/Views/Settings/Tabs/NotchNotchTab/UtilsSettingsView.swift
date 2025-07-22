@@ -44,10 +44,7 @@ public struct UtilsSettingsView: View {
     
     private var enableUtilsOption: some View {
         HStack {
-            Text("Enable Utils")
-            Spacer()
-            
-            Toggle(isOn: $v.enableUtilsOption) {}
+            Toggle("Enable Utils",isOn: $v.enableUtilsOption)
                 .toggleStyle(.switch)
                 .disabled(v.enableClipboardListener)
         }

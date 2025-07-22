@@ -23,6 +23,7 @@ struct SettingsView: View {
         case notch = "Notch"
         case animations = "Animations"
         case display = "Display"
+        case license = "License"
         case updates = "Updates"
         
         var id: String { rawValue }
@@ -34,6 +35,7 @@ struct SettingsView: View {
             case .notch: return "notch"
             case .animations: return "sparkles"
             case .display: return "eye"
+            case .license: return "doc.text"
             case .updates: return "arrow.triangle.2.circlepath"
             case .widgetSettings: return "square.grid.2x2"
             }
@@ -61,6 +63,8 @@ struct SettingsView: View {
                 return AnyShapeStyle(Color(nsColor: .systemBlue))
             case .display:
                 return AnyShapeStyle(Color(nsColor: .systemGreen.withAlphaComponent(0.7)))
+            case .license:
+                return AnyShapeStyle(Color(nsColor: .systemPink))
             case .updates:
                 return AnyShapeStyle(Color(nsColor: .systemBlue.withAlphaComponent(0.8)))
             }
@@ -78,6 +82,8 @@ struct SettingsView: View {
                 return 14
             case .display:
                 return 10
+            case .license:
+                return 12
             case .updates:
                 return 14
             }
@@ -94,6 +100,8 @@ struct SettingsView: View {
                 return 14
             case .display:
                 return 6
+            case .license:
+                return 12
             case .updates:
                 return 15
             }
@@ -109,6 +117,7 @@ struct SettingsView: View {
             case .general:      NotchGeneralTab()
             case .animations:   NotchAnimationTab()
             case .display :     NotchDisplayTab()
+            case .license :     NotchLicenseTab()
             case .updates:      NotchUpdatesTab()
             }
         }
@@ -197,16 +206,9 @@ struct SettingsView: View {
                 Color.black.opacity(0.2)
                     .ignoresSafeArea()
                 
-                /// Sidebar for Settings to click
-                /// TODO: REDO
-                List(selection: $localTabSelection) {
-                    ForEach(SettingsView.Tab.allCases, id: \.self) { tab in
-                        if tab.rawValue != "WidgetSettings" {
-                            tabItem(tab)
-                        }
-                    }
-                }
-                .navigationSplitViewStyle(.prominentDetail)
+                
+                sidebar
+                
                 
                 VStack {
                     Spacer()
@@ -268,6 +270,27 @@ struct SettingsView: View {
                 localTabSelection = newValue
             }
         }
+    }
+    
+    private var sidebar: some View {
+        /// Sidebar for Settings to click
+        /// TODO: REDO
+        List(selection: $localTabSelection) {
+            // Section for general tabs
+            ForEach(SettingsView.Tab.allCases.filter { $0 != .widgetSettings && $0 != .updates && $0 != .license }, id: \.self) { tab in
+                tabItem(tab)
+                    .tag(tab)
+            }
+            
+            // Section for "updates"
+            Section("ComfyNotch") {
+                ForEach(SettingsView.Tab.allCases.filter { $0 == .updates || $0 == .license }, id: \.self) { tab in
+                    tabItem(tab)
+                        .tag(tab)
+                }
+            }
+        }
+        .listStyle(SidebarListStyle())
     }
     
     // MARK: - Helpers

@@ -32,7 +32,8 @@ struct ClosedNotchGeneralSettings: View {
         VStack {
             
             notchShapeClosed
-            
+                .padding([.horizontal, .top])
+
             Divider()
                 .padding([.vertical, .top], 4)
             

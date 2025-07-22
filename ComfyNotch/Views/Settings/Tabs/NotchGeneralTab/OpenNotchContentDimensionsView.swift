@@ -45,6 +45,8 @@ struct OpenNotchContentDimensionsView: View {
     var body: some View {
         VStack {
             notchShapeOpen
+                .padding([.horizontal, .top])
+            
             Divider()
                 .padding(.vertical, 8)
             dimensionSettings
