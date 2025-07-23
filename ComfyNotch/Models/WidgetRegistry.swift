@@ -13,7 +13,6 @@ enum WidgetType: String , CaseIterable, Hashable {
     case time = "TimeWidget"
     case notes = "NotesWidget"
     case camera = "CameraWidget"
-    case aiChat = "AIChatWidget"
     case event = "EventWidget"
     
     var shortName: String {
@@ -26,8 +25,6 @@ enum WidgetType: String , CaseIterable, Hashable {
             return "Notes Widget"
         case .camera:
             return "Camera Widget"
-        case .aiChat:
-            return "AI Widget"
         case .event:
             return "Event Widget"
         }
@@ -43,8 +40,6 @@ enum WidgetType: String , CaseIterable, Hashable {
             return Color.green
         case .camera:
             return Color.yellow
-        case .aiChat:
-            return Color.orange
         case .event:
             return Color.red
         }
@@ -60,8 +55,6 @@ enum WidgetType: String , CaseIterable, Hashable {
             return Image(systemName: "pencil")
         case .camera:
             return Image(systemName: "camera")
-        case .aiChat:
-            return Image(systemName: "bubble.left.and.bubble.right")
         case .event:
             return Image(systemName: "calendar")
         }
@@ -90,7 +83,6 @@ class WidgetRegistry {
         "TimeWidget": { TimeWidget() },
         "NotesWidget": { NotesWidget() },
         "CameraWidget": { CameraWidget() },
-        "AIChatWidget": { AIChatWidget() },
         "EventWidget": { EventWidget() }
     ]
     

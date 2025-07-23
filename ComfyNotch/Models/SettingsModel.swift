@@ -17,12 +17,6 @@ class SettingsModel: ObservableObject {
     @Published var isSettingsWindowOpen: Bool = false
     @Published var openStateYOffset = CGFloat(35)
     @Published var snapOpenThreshold: CGFloat = 0.9
-    @Published var aiApiKey: String = ""
-    
-    @Published var selectedProvider: AIProvider = .openAI
-    @Published var selectedOpenAIModel: OpenAIModel = .gpt3
-    @Published var selectedAnthropicModel: AnthropicModel = .claudeV1
-    @Published var selectedGoogleModel: GoogleModel = .palm
     
     @Published var clipboardManagerMaxHistory: Int = 30
     @Published var clipboardManagerPollingIntervalMS: Int = 1000
@@ -189,15 +183,6 @@ class SettingsModel: ObservableObject {
             cameraOverlayTimer = 5
         }
         defaults.set(cameraOverlayTimer, forKey: "cameraOverlayTimer")
-        
-        /// ----------------------- API Key Settings -----------------------
-        /// For some reason the api key was getting called to save even if it was empty
-        /// So I had to add this check, prolly gonna have to check that reason out <- TODO
-        if !aiApiKey.isEmpty {
-            defaults.set(aiApiKey, forKey: "aiApiKey")
-        }
-        
-        
         
         /// ----------------------- ClipBoard Settings -----------------------------------
         if clipboardManagerMaxHistory >= 0 {
@@ -520,12 +505,6 @@ class SettingsModel: ObservableObject {
         } else {
             // Set default if nothing is saved
             self.cameraOverlayTimer = 20
-        }
-        
-        /// ----------------------- API Key Settings -----------------------
-        // Loading the last api_key the user entered
-        if let apiKey = defaults.string(forKey: "aiApiKey") {
-            self.aiApiKey = apiKey
         }
         
         /// ----------------------- FileTray Settings ------------------------------------

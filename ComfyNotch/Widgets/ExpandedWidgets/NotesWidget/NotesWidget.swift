@@ -63,7 +63,6 @@ struct NotesWidget: View, Widget {
             .environmentObject(model)
         }
         .frame(width: givenSpace.w, height: givenSpace.h)
-        .border(.red, width: 1)
         .onAppear {
             givenSpace = UIManager.shared.expandedWidgetStore.determineWidthAndHeight()
         }

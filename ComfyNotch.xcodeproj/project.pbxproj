@@ -82,11 +82,6 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		9B131A212DF10A5600657438 /* Api */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Api;
-			sourceTree = "<group>";
-		};
 		9B131A452DF10A5600657438 /* Managers */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Managers;
@@ -154,7 +149,6 @@
 			children = (
 				9B5027962E107EC1001EBE77 /* Main */,
 				9B13195E2DF10A5200657438 /* Assets */,
-				9B131A212DF10A5600657438 /* Api */,
 				9B131A612DF10A5600657438 /* Config */,
 				9B131A782DF10A5600657438 /* Extensions */,
 				9B131A692DF10A5600657438 /* Handlers */,
@@ -231,7 +225,6 @@
 				9B1319CC2DF10A5600657438 /* Widgets */,
 				9B1319DB2DF10A5600657438 /* Shapes */,
 				9B131A022DF10A5600657438 /* Views */,
-				9B131A212DF10A5600657438 /* Api */,
 				9B131A452DF10A5600657438 /* Managers */,
 				9B131A692DF10A5600657438 /* Handlers */,
 				9B131A782DF10A5600657438 /* Extensions */,

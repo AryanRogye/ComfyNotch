@@ -26,7 +26,6 @@ class ExpandedWidgetsStore: PanelManager, ObservableObject {
             self.hideWidget(named: "TimeWidget")
             self.hideWidget(named: "NotesWidget")
             self.hideWidget(named: "CameraWidget")
-            self.hideWidget(named: "AIChatWidget")
             self.hideWidget(named: "EventWidget")
             /// Music for expanded means that the notch is closed
             /// this means we dont need to show the shit in the notch
@@ -35,7 +34,6 @@ class ExpandedWidgetsStore: PanelManager, ObservableObject {
             self.hideWidget(named: "TimeWidget")
             self.hideWidget(named: "NotesWidget")
             self.hideWidget(named: "CameraWidget")
-            self.hideWidget(named: "AIChatWidget")
             self.hideWidget(named: "EventWidget")
             /// This means We Show All the Widgets, the showWidget
             /// function will manage if its not found, so its ok
@@ -44,7 +42,6 @@ class ExpandedWidgetsStore: PanelManager, ObservableObject {
             self.showWidget(named: "TimeWidget")
             self.showWidget(named: "NotesWidget")
             self.showWidget(named: "CameraWidget")
-            self.showWidget(named: "AIChatWidget")
             self.showWidget(named: "EventWidget")
             /// At the time of making this nothing in default
             /// but I want to add other things and it may be useful

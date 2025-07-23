@@ -35,10 +35,6 @@ struct WidgetSettings: View {
                     cameraSettings
                         .padding(.vertical)
                         .id(WidgetType.camera)
-                    
-                    aiSettings
-                        .padding(.vertical)
-                        .id(WidgetType.aiChat)
                 }
                 .padding()
                 .listRowInsets(EdgeInsets())
@@ -76,19 +72,6 @@ struct WidgetSettings: View {
             CameraSettings()
         } header: {
             Text("Camera Widget Settings")
-                .font(.headline)
-                .fontWeight(.semibold)
-                .foregroundColor(.primary)
-
-            Spacer()
-        }
-    }
-    
-    private var aiSettings: some View {
-        ComfySettingsContainer {
-            AISettings()
-        } header: {
-            Text("AI Widget Settings")
                 .font(.headline)
                 .fontWeight(.semibold)
                 .foregroundColor(.primary)

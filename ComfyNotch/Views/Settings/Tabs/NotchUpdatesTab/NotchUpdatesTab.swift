@@ -96,7 +96,7 @@ struct NotchUpdatesTab: View {
                     .padding(.leading)
                 }
                 
-                Text("Turns your MacBook’s notch into a customizable HUD with widgets, AI chat, music, brightness, volume controls, and more ⚡ Built for macOS 14+ with Swift.")
+                Text("Turns your MacBook’s notch into a customizable HUD with widgets, music, brightness, volume controls, and more ⚡ Built for macOS 14+ with Swift.")
                     .minimumScaleFactor(0.5)
                     .lineLimit(3)
                     .font(.subheadline)
