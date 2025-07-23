@@ -115,7 +115,7 @@ final class SettingsModelTests: XCTestCase {
         XCTAssertEqual(settings.quickAccessWidgetDistanceFromLeft , 20)
         XCTAssertEqual(settings.quickAccessWidgetDistanceFromTop, 20)
         XCTAssertEqual(settings.settingsWidgetDistanceFromRight, 20)
-        XCTAssertEqual(settings.notchMaxWidth, 350)
+        XCTAssertEqual(settings.notchMaxWidth, settings.MIN_NOTCH_MAX_WIDTH)
         
         values = OpenNotchContentDimensionsValues(
             leftSpacing     : 20,
