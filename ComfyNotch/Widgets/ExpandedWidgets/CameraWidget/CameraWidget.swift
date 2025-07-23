@@ -6,6 +6,9 @@ import Combine
 struct CameraWidget: View, Widget {
     
     var name: String = "CameraWidget"
+    var swiftUIView: AnyView {
+        AnyView(self)
+    }
     
     @ObservedObject private var model = CameraWidgetModel.shared
     @ObservedObject private var settings = SettingsModel.shared
@@ -15,11 +18,13 @@ struct CameraWidget: View, Widget {
     @State var sessionStarted = false
     @State private var overlayTimer: DispatchWorkItem?
     
+    @State private var givenSpace : GivenWidgetSpace = (w: 0, h: 0)
+    
     var body: some View {
         ZStack {
             /// Camera Is ALWAYS Shown
             CameraPreviewView(session: model.session, flipCamera: model.flipCamera, zoom: model.zoomScale)
-                .frame(maxWidth: .infinity, minHeight: 120)
+                .frame(maxWidth: givenSpace.w, minHeight: givenSpace.h)
                 .cornerRadius(10)
                 .clipped()
                 .onAppear {
@@ -45,82 +50,141 @@ struct CameraWidget: View, Widget {
                 }
             
             /// Always Show Users Camera Settings
-            HStack {
-                Spacer()
-                /// We Add A Zoom here
-                VStack {
-                    Button(action: { model.zoomIn() } ) {
-                        Image(systemName: "plus")
-                            .resizable()
-                            .frame(width: 15, height: 15)
-                    }
-                    .buttonStyle(.plain)
-                    
-                    Button(action: { model.zoomOut() } ) {
-                        Image(systemName: "minus")
-                            .resizable()
-                            .frame(width: 15, height: 5)
-                    }
-                    .buttonStyle(.plain)
-                    
-                    Spacer()
-                }
-                .padding([.top, .trailing], 3)
-            }
+            //            cameraControls
             
             /// Overlay if enabled in settings
             if settings.enableCameraOverlay, showOverlay {
-                ZStack {
-                    Color.black.opacity(0.6)
-                        .blur(radius: 6)
-                        .cornerRadius(10)
-                    
-                    VStack(spacing: 8) {
-                        Image(systemName: "camera.viewfinder")
-                            .font(.system(size: 30, weight: .light))
-                            .foregroundColor(.white)
-                        
-                        Text("Tap to dismiss overlay")
-                            .font(.headline)
-                            .foregroundColor(.white.opacity(0.9))
-                    }
-                }
-                .frame(maxWidth: .infinity, minHeight: 120)
-                .onTapGesture {
-                    guard !sessionStarted else { return }
-                    sessionStarted = true
-                    model.startSession()
-                    showOverlay = false
-                    
-                    if settings.enableCameraOverlay && settings.cameraOverlayTimer > 0 {
-                        // CRITICAL: Cancel existing timer before creating new one
-                        overlayTimer?.cancel()
-                        overlayTimer = nil
-                        
-                        let workItem = DispatchWorkItem {
-                            DispatchQueue.main.async {
-                                self.showOverlay = true
-                                self.sessionStarted = false
-                                self.model.stopSession()
-                            }
-                        }
-                        overlayTimer = workItem
-                        DispatchQueue.main.asyncAfter(deadline: .now() + Double(settings.cameraOverlayTimer), execute: workItem)
-                    }
-                }
-                .transition(.opacity)
-                .animation(.easeInOut(duration: 0.25), value: showOverlay)
+                overlay
             }
+        }
+        .frame(width: givenSpace.w, height: givenSpace.h)
+        .onAppear {
+            givenSpace = UIManager.shared.expandedWidgetStore.determineWidthAndHeight()
         }
         // CRITICAL: Store notification observer and clean it up
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ReloadWidgets"))) { _ in
             model.updateFlipState()
         }
-        .frame(minWidth: 100)
     }
     
-    var swiftUIView: AnyView {
-        AnyView(self)
+    private var cameraControls: some View {
+        HStack {
+            Spacer()
+            /// We Add A Zoom here
+            VStack {
+                Button(action: { model.zoomIn() } ) {
+                    Image(systemName: "plus")
+                        .resizable()
+                        .frame(width: 15, height: 15)
+                }
+                .buttonStyle(.plain)
+                
+                Button(action: { model.zoomOut() } ) {
+                    Image(systemName: "minus")
+                        .resizable()
+                        .frame(width: 15, height: 5)
+                }
+                .buttonStyle(.plain)
+                
+                Spacer()
+            }
+            .padding([.top, .trailing], 3)
+        }
+    }
+    
+    private var overlay: some View {
+        Button(action: startSession) {
+            ZStack {
+                // Border
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.white.opacity(0.001))
+                
+                VStack(spacing: 8) {
+                    Image(systemName: "web.camera")
+                        .foregroundStyle(.gray)
+                        .font(.system(size: givenSpace.w / 9))
+                    Text("Mirror")
+                        .font(.caption2)
+                        .foregroundColor(.gray)
+                }
+                .padding()
+                .padding(.horizontal, 32)
+            }
+            .frame(width: givenSpace.w / 2, height: givenSpace.h / 1.5)
+        }
+        .buttonStyle(.plain)
+        .contentShape(RoundedRectangle(cornerRadius: 20))
+        .transition(.opacity)
+        .animation(.easeInOut(duration: 0.25), value: showOverlay)
+    }
+    
+    private func startSession() {
+        guard !sessionStarted else { return }
+        sessionStarted = true
+        model.startSession()
+        showOverlay = false
+        
+        if settings.enableCameraOverlay && settings.cameraOverlayTimer > 0 {
+            // CRITICAL: Cancel existing timer before creating new one
+            overlayTimer?.cancel()
+            overlayTimer = nil
+            
+            let workItem = DispatchWorkItem {
+                DispatchQueue.main.async {
+                    self.showOverlay = true
+                    self.sessionStarted = false
+                    self.model.stopSession()
+                }
+            }
+            overlayTimer = workItem
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(settings.cameraOverlayTimer), execute: workItem)
+        }
+    }
+    
+    private var overlay1: some View {
+        ZStack {
+            Color.black.opacity(0.6)
+                .blur(radius: 6)
+                .cornerRadius(10)
+            
+            VStack(spacing: 8) {
+                Image(systemName: "camera.viewfinder")
+                    .font(.system(size: 30, weight: .light))
+                    .foregroundColor(.white)
+                
+                Text("Tap to dismiss overlay")
+                    .font(.headline)
+                    .foregroundColor(.white.opacity(0.9))
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: 120)
+        .onTapGesture {
+            guard !sessionStarted else { return }
+            sessionStarted = true
+            model.startSession()
+            showOverlay = false
+            
+            if settings.enableCameraOverlay && settings.cameraOverlayTimer > 0 {
+                // CRITICAL: Cancel existing timer before creating new one
+                overlayTimer?.cancel()
+                overlayTimer = nil
+                
+                let workItem = DispatchWorkItem {
+                    DispatchQueue.main.async {
+                        self.showOverlay = true
+                        self.sessionStarted = false
+                        self.model.stopSession()
+                    }
+                }
+                overlayTimer = workItem
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double(settings.cameraOverlayTimer), execute: workItem)
+            }
+        }
+        .transition(.opacity)
+        .animation(.easeInOut(duration: 0.25), value: showOverlay)
     }
 }
 

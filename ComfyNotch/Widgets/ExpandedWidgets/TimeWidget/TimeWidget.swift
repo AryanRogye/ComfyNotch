@@ -12,14 +12,13 @@ struct TimeWidget: View, Widget {
             Text(model.currentTime)
                 .font(.system(size: 14, weight: .bold))
                 .foregroundColor(.white)
-                .padding(.leading, 10)
                 .onAppear(perform: startTimer)
-                .padding(.bottom)
         }
         .frame(width: givenSpace.w, height: givenSpace.h)
         .onAppear {
             givenSpace = UIManager.shared.expandedWidgetStore.determineWidthAndHeight()
         }
+
     }
     
     private static func getCurrentTime() -> String {

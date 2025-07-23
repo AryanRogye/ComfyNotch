@@ -53,9 +53,22 @@
 		9BF760C42E300E420092A3BB /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		9B9D95A12E309D5F00E0B70C /* Exceptions for "Widgets" folder in "ComfyNotch" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ExpandedWidgets/NotesWidget/Untitled.swift,
+			);
+			target = 9BC3A4612DB1D40000FFD323 /* ComfyNotch */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		9B1319CC2DF10A5600657438 /* Widgets */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				9B9D95A12E309D5F00E0B70C /* Exceptions for "Widgets" folder in "ComfyNotch" target */,
+			);
 			path = Widgets;
 			sourceTree = "<group>";
 		};

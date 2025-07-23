@@ -90,6 +90,7 @@ class SettingsModel: ObservableObject {
     @Published var notchScrollThreshold: CGFloat = 50
     
     /// ---------- Music Player Settings ----------
+    @Published var musicPlayerStyle : MusicPlayerWidgetStyle = .native
     @Published var showMusicProvider: Bool = true
     @Published var musicController: MusicController = .mediaRemote
     @Published var overridenMusicProvider: MusicProvider = .none

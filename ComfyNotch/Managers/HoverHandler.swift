@@ -118,6 +118,8 @@ final class HoverHandler: ObservableObject {
                                 }
                             }
                         }
+                        NSHapticFeedbackManager.defaultPerformer.perform(.generic, performanceTime: .now)
+
                         /// Let the notch peek open just a tiny bit, 35
                         ScrollHandler.shared.peekOpen(withHeight: 35)
                         /// this will let the items on the left and right scale a tiny bit

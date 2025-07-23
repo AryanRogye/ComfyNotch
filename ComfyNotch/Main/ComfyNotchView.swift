@@ -52,14 +52,16 @@ struct ComfyNotchView: View {
     init() {
     }
     
+    let restrictedStates: Set<NotchViewState> = [.file_tray, .utils, .popInPresentation, .messages]
+
     // MARK: - Main Body
     var body: some View {
         notch
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            /// MODIFIERS
+        /// MODIFIERS
         
-            /// This manager was added in to make sure that the popInPresentation is playing
-            /// when we open it, it doesnt bug out
+        /// This manager was added in to make sure that the popInPresentation is playing
+        /// when we open it, it doesnt bug out
             .onChange(of: uiManager.panelState) { _, newState in
                 if newState == .open {
                     if notchStateManager.currentPanelState == .popInPresentation {
@@ -67,7 +69,7 @@ struct ComfyNotchView: View {
                     }
                 }
             }
-            /// This is to show the file tray area when dropped
+        /// This is to show the file tray area when dropped
             .onChange(of: fileDropManager.isDroppingFiles) { _, hovering in
                 if hovering && uiManager.panelState == .closed {
                     fileDropManager.shouldAutoShowTray = true
@@ -98,7 +100,7 @@ struct ComfyNotchView: View {
                 }
             }
         
-            // MARK: - Swiping Left and Right
+        // MARK: - Swiping Left and Right
             .panGesture(direction: .right) { translation, phase in
                 guard uiManager.panelState == .closed else { return }
                 
@@ -142,7 +144,7 @@ struct ComfyNotchView: View {
                 }
             }
         
-            // MARK: - Scrolling Logic
+        // MARK: - Scrolling Logic
             .panGesture(direction: .down) { translation, phase in
                 guard uiManager.panelState == .closed else { return }
                 
@@ -161,21 +163,23 @@ struct ComfyNotchView: View {
             }
             .panGesture(direction: .up) { translation, phase in
                 guard uiManager.panelState == .open else { return }
-                
-                /// TODO: idk what this is look into it pls
-                if WidgetHoverState.shared.isHoveringOverEventWidget {
-                    debugLog("Ignoring scroll — hovering EventWidget")
-                    return
-                }
-                
                 // Early return for states that shouldn't handle pan up
-                let restrictedStates: Set<NotchViewState> = [.file_tray, .utils, .popInPresentation, .messages]
+                
+                var threshold : CGFloat = settings.notchScrollThreshold
+                
                 if restrictedStates.contains(notchStateManager.currentPanelState) {
-                    return
+                    threshold = 3000
                 }
+                
+                if WidgetHoverState.shared.isHoveringOverEventWidget {
+                    threshold = 3000
+                    print("Translation: \(translation)")
+                    print("\(translation > threshold) - \(threshold)")
+                }
+                
                 switch phase {
-                case .ended:
-                    if translation > settings.notchScrollThreshold {
+                default:
+                    if translation > threshold {
                         if settings.enableMetalAnimation {
                             MetalAnimationState.shared.stopAnimatingBlur()
                         }
@@ -184,12 +188,11 @@ struct ComfyNotchView: View {
                         /// actually do something because the CATransaction
                         /// Force commits of pending layout changes
                         DispatchQueue.main.async {
+                            print("Called")
                             CATransaction.flush()
                             ScrollHandler.shared.closeFull()
                         }
                     }
-                default:
-                    break
                 }
             }
             .onAppear {
@@ -234,7 +237,7 @@ struct ComfyNotchView: View {
             .mask(
                 ComfyNotchShape(
                     topRadius: 8,
-                    bottomRadius: 14
+                    bottomRadius: 20
                 )
             )
             .onDrop(of: [UTType.fileURL.identifier, UTType.image.identifier], isTargeted: $fileDropManager.isDroppingFiles) { providers in
@@ -250,6 +253,7 @@ struct ComfyNotchView: View {
         if notchStateManager.currentPanelState == .home {
             HomeNotchView()
                 .environmentObject(bigWidgetStore)
+                .padding(.horizontal, 8)
         }
         
         if notchStateManager.currentPanelState == .file_tray {

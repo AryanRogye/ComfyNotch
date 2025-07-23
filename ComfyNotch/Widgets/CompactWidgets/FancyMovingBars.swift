@@ -90,10 +90,12 @@ struct AnimatedBar: View {
 // The parent view that shows animated bars.
 // When isPlaying is true, it shows animated bars; otherwise, static bars.
 struct FancyMovingBars: Widget, View {
+    
     var name: String = "MovingBars"
     var alignment: WidgetAlignment? = .right
     @ObservedObject private var music: MusicPlayerWidgetModel = .shared
     @ObservedObject private var notchStateManager: NotchStateManager = .shared
+    var applyNoPadding: Bool = false
     
     /// Padding of 4-2 range pushes it to the left, that way when we hover of the left side,
     /// it pops OUT to the right, making it look like its cool yk
@@ -115,8 +117,8 @@ struct FancyMovingBars: Widget, View {
                 )
             }
         }
-        .padding(.trailing, paddingTrailing)
-        .padding(.top, 4)
+        .padding(.trailing, applyNoPadding ? 0 : paddingTrailing)
+        .padding(.top, applyNoPadding ? 0 : 4)
         // Optionally add an explicit animation for the change in animation state:
         .animation(.easeInOut(duration: 0.3), value: music.nowPlayingInfo.isPlaying)
     }

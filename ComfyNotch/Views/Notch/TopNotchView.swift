@@ -69,11 +69,6 @@ struct TopNotchView: View {
             settings.hoverTargetMode == .album &&
             notchStateManager.bottomSectionHeight == 0
         }
-        .onChange(of: notchStateManager.hoverHandler.isHoveringOverLeft) { _, newValue in
-            if newValue {
-                NSHapticFeedbackManager.defaultPerformer.perform(.generic, performanceTime: .now)
-            }
-        }
     }
     
     // MARK: - Right Widget

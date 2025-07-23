@@ -61,7 +61,7 @@ class ExpandedWidgetsStore: PanelManager, ObservableObject {
         
         /// Now In This we can determine the width because it will be fullWidth / numberOfWidgets
         /// 10 Padding
-        let w = fullWidth / CGFloat(numberOfWidgets) - 30
+        let w = fullWidth / CGFloat(numberOfWidgets) - 15
         let h = ScrollHandler.shared.maxPanelHeight - 15
         
         return (w: w, h: h)
