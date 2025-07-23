@@ -1,5 +1,3 @@
-# .github/workflows/run-tests.yml
-
 name: Run ComfyNotch Tests
 
 on:
@@ -9,18 +7,23 @@ on:
 
 jobs:
   test:
-    runs-on: macos-15
+    runs-on: macos-14
+
     steps:
       - uses: actions/checkout@v3
 
       - name: Set up Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.2'  # change this if you're on something else
+          xcode-version: '16.2'
 
-      - name: Build & Test
+      - name: Run tests
         run: |
           xcodebuild test \
             -scheme ComfyNotch \
+            -project ComfyNotch.xcodeproj \
             -destination 'platform=macOS' \
-            -enableCodeCoverage YES
+            -enableCodeCoverage YES \
+            -UseModernBuildSystem=YES \
+            -skipPackagePluginValidation \
+            OTHER_SWIFT_FLAGS="-Xfrontend -disable-module-interface-generation"
