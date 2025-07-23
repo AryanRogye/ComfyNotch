@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    runs-on: macos-13  # or macos-14 if you're targeting newer Swift stuff
+    runs-on: macos-14
 
     steps:
       - uses: actions/checkout@v3
