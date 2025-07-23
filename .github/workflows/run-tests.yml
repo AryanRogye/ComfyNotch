@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    runs-on: macos-14
+    runs-on: macos-13  # or macos-14 if you're targeting newer Swift stuff
 
     steps:
       - uses: actions/checkout@v3
@@ -17,7 +17,10 @@ jobs:
         with:
           xcode-version: '16.2'
 
-      - name: Run tests
+      - name: Clean DerivedData (just in case)
+        run: rm -rf ~/Library/Developer/Xcode/DerivedData
+
+      - name: Run Tests
         run: |
           xcodebuild test \
             -scheme ComfyNotch \
@@ -25,5 +28,4 @@ jobs:
             -destination 'platform=macOS' \
             -enableCodeCoverage YES \
             -UseModernBuildSystem=YES \
-            -skipPackagePluginValidation \
-            OTHER_SWIFT_FLAGS="-Xfrontend -disable-module-interface-generation"
+            -skipPackagePluginValidation
