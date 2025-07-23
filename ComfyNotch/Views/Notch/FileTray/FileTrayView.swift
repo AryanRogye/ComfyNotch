@@ -44,21 +44,23 @@ struct FileTrayView: View {
                     else {
                         /// Main View
                         fileTray
+                            .padding(.bottom, 8)
                     }
                 }
-                .transition(.opacity) // 👈 adds fade in/out
+                .transition(.opacity)
             }
         }
-        .background(Color.clear)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .animation(
             .easeInOut(duration: notchStateManager.isExpanded ? 2 : 0.1),
             value: notchStateManager.isExpanded
         )
-        .padding(.top, 2)
     }
     
     private var fileTray: some View {
         HStack {
+            VStack {
+            }
             //                            /// Add File Look
             Group {
                 if hasStartedQRScanning {
@@ -204,7 +206,7 @@ struct FileTrayView: View {
                             showDroppedFileDescription(for: dropped)
                             
                             closeButton
- 
+                            
                         }
                     }
                 }
@@ -439,6 +441,15 @@ struct FileTrayView: View {
     @ViewBuilder
     func showTimeStamp(fileURL: URL) -> some View {
         Text(fileDropManager.getFormattedTimestamp(for: fileURL))
+            .foregroundColor(.secondary)
+            .minimumScaleFactor(0.5)
+            .lineLimit(1)
+            .padding(.vertical, 2)
+            .padding(.horizontal, 4)
+            .background(
+                RoundedRectangle(cornerRadius: 5)
+                    .fill(Color.black.opacity(0.3))
+            )
     }
     
     @ViewBuilder

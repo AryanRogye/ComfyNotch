@@ -75,6 +75,8 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         /// Start the panels
         UIManager.shared.start()
         
+//        ConnectivityManager()
+        
         // Proximity Handler for the Big Panel
         self.panelProximityHandler = PanelProximityHandler()
         

@@ -8,7 +8,7 @@ class ScrollHandler : ObservableObject {
     
     // MARK: – Configuration
     var minPanelHeight: CGFloat = UIManager.shared.getNotchHeight()
-    var maxPanelHeight: CGFloat = 115
+    var maxPanelHeight: CGFloat = 110
     
     var minPanelWidth: CGFloat {
         settings.notchMinWidth
@@ -18,7 +18,7 @@ class ScrollHandler : ObservableObject {
         settings.notchMaxWidth
     }
     
-    private let maxPullDistance = 115
+    private let maxPullDistance = 110
     /// Fine‑tune this multiplier to taste
     private let scrollSensitivity: CGFloat = 0.3
     private var panAccumulated: CGFloat = 0

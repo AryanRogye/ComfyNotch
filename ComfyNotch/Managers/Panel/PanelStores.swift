@@ -48,7 +48,7 @@ class ExpandedWidgetsStore: PanelManager, ObservableObject {
         default:
             break
         }
-
+        
     }
     
     public func determineWidthAndHeight() -> GivenWidgetSpace {
@@ -58,12 +58,14 @@ class ExpandedWidgetsStore: PanelManager, ObservableObject {
         
         /// Now In This we can determine the width because it will be fullWidth / numberOfWidgets
         /// 10 Padding
-        let w = fullWidth / CGFloat(numberOfWidgets) - 15
-        let h = ScrollHandler.shared.maxPanelHeight - 15
+        let w = fullWidth / CGFloat(numberOfWidgets) - 30
+        
+        print("Determined Width: \(w)")
+        let h = ScrollHandler.shared.maxPanelHeight - 20
         
         return (w: w, h: h)
     }
-
+    
     /// Adds a widget to the big panel "store"
     /// -   widget: The widget to add
     func addWidget(_ widget: Widget) {
@@ -151,7 +153,7 @@ class CompactWidgetsStore: PanelManager, ObservableObject {
         /// Defining The Music Layout
         static let music: ([() -> Widget], [() -> Widget]) = (
             [{ CompactAlbumWidget() }],
-//            [{ MovingDotsView() }]
+            //            [{ MovingDotsView() }]
             [{ FancyMovingBars() }]
         )
         
@@ -162,7 +164,7 @@ class CompactWidgetsStore: PanelManager, ObservableObject {
         )
     }
     
-
+    
     public func loadWidgets() {
         let (leftPresets, rightPresets) = (
             layoutPresets.music.0 + layoutPresets.expanded.0,
@@ -203,7 +205,7 @@ class CompactWidgetsStore: PanelManager, ObservableObject {
         lastLayoutGroup = group
         
         debugLog("(Compact-Store) Layout For \(group.rawValue)")
-
+        
         switch group {
         case .empty:
             self.hideWidget(named: "QuickAccessWidget")
@@ -221,12 +223,12 @@ class CompactWidgetsStore: PanelManager, ObservableObject {
             self.hideWidget(named: "AlbumWidget")
             self.hideWidget(named: "MovingDotsWidget")
             self.hideWidget(named: "MovingBars")
-
+            
             self.showWidget(named: "Settings")
             self.showWidget(named: "QuickAccessWidget")
         }
     }
-
+    
     
     /**
      * Adds a new widget to the appropriate hidden array based on its alignment.

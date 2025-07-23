@@ -188,7 +188,6 @@ struct ComfyNotchView: View {
                         /// actually do something because the CATransaction
                         /// Force commits of pending layout changes
                         DispatchQueue.main.async {
-                            print("Called")
                             CATransaction.flush()
                             ScrollHandler.shared.closeFull()
                         }
@@ -260,6 +259,7 @@ struct ComfyNotchView: View {
             FileTrayView()
                 .environmentObject(fileDropManager)
                 .environmentObject(qrCodeManager)
+                .padding(.horizontal, 8)
         }
         
         if notchStateManager.currentPanelState == .messages {
@@ -317,5 +317,5 @@ struct ComfyNotchView: View {
             .environmentObject(widgetStore)
             .environmentObject(bigWidgetStore)
     }
-    .frame(width: 350, height: 180)
+    .frame(width: 270, height: 180)
 }

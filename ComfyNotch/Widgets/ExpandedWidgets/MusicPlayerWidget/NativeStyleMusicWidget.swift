@@ -14,30 +14,39 @@ struct NativeStyleMusicWidget: View {
     @ObservedObject private var model = MusicPlayerWidgetModel.shared
     @ObservedObject private var settings = SettingsModel.shared
     
-    private let albumSize: CGFloat = 45
-    private let iconWidth: CGFloat = 16
-    private let iconHeight: CGFloat = 16
+    private let albumSize: CGFloat = 40
+    
+    private let iconWidth: CGFloat = 14
+    private let iconHeight: CGFloat = 15
+    private let iconPadding: CGFloat = 30
     private var cardPadding: CGFloat = 8
     
+    @State private var cachedArtwork: NSImage?
+    @State private var flipRotation: Double = 0
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
             if isVisible {
-                /// 3 Sections Top Middle Bottom
+                // 3 Sections Top Middle Bottom
                 HStack(alignment: .center) {
                     VStack(alignment: .leading) {
                         renderAlbumCover()
                     }
                     
-                    renderSongInformation()
+                    VStack {
+                        renderSongInformation()
+                        Spacer()
+                    }
                     
                     Spacer()
                     
                     VStack(alignment: .trailing) {
-                        FancyMovingBars()
+                        FancyMovingBars(applyNoPadding: true)
                     }
                 }
-                .frame(maxWidth: .infinity)
                 .padding(.horizontal)
+                .padding(.top, 6)
+                .frame(maxWidth: .infinity)
                 
                 HStack {
                     renderCurrentSongPosition()
@@ -51,36 +60,96 @@ struct NativeStyleMusicWidget: View {
             }
         }
         .frame(width: givenSpace.w, height: givenSpace.h)
-        .border(Color.red)
+//        .border(Color.red)
         .onAppear {
             isVisible = true
             givenSpace = UIManager.shared.expandedWidgetStore.determineWidthAndHeight()
         }
+        .onChange(of: model.nowPlayingInfo.artworkImage) { _, newArtwork in
+            print("Calleddddddddd")
+            handleArtworkFlip(newArtwork: newArtwork)           // Standard smooth flip
+            // handleArtworkFlipFast(newArtwork: newArtwork)       // Quick flip
+            // handleArtworkFlipBouncy(newArtwork: newArtwork)     // Spring bounce
+            // handleArtworkFlipContinuous(newArtwork: newArtwork) // Smooth continuous
+            // handleArtworkFlipVertical(newArtwork: newArtwork)   // Vertical flip
+        }
     }
     
-    // MARK: - Album Cover
+    // MARK: - Album Cover with Flip Animation
     @ViewBuilder
     func renderAlbumCover() -> some View {
         if isVisible {
             ZStack(alignment: .leading) {
-                if let artwork = model.nowPlayingInfo.artworkImage {
-                    Image(nsImage: artwork)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: albumSize, height: albumSize)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                        )
-                        .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
-                } else {
-                    placeholderAlbumCover
+                ZStack {
+                    // Front side (old/cached image) - visible at 0°
+                    if let cachedArtwork = cachedArtwork {
+                        Image(nsImage: cachedArtwork)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: albumSize, height: albumSize)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                            )
+                            .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
+                            .opacity(abs(flipRotation.truncatingRemainder(dividingBy: 360)) > 90 && abs(flipRotation.truncatingRemainder(dividingBy: 360)) < 270 ? 0 : 1)
+                    } else {
+                        placeholderAlbumCover
+                            .opacity(abs(flipRotation.truncatingRemainder(dividingBy: 360)) > 90 && abs(flipRotation.truncatingRemainder(dividingBy: 360)) < 270 ? 0 : 1)
+                    }
+                    
+                    // Back side (new image) - visible at 180°
+                    if let artwork = model.nowPlayingInfo.artworkImage {
+                        Image(nsImage: artwork)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: albumSize, height: albumSize)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                            )
+                            .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
+                            .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0)) // Flip the back side
+                            .opacity(abs(flipRotation.truncatingRemainder(dividingBy: 360)) > 90 && abs(flipRotation.truncatingRemainder(dividingBy: 360)) < 270 ? 1 : 0)
+                    }
                 }
+                .rotation3DEffect(
+                    .degrees(flipRotation),
+                    axis: (x: 0, y: 1, z: 0)
+                )
+                
                 if settings.showMusicProvider {
-                    //                    renderProviderIcon
+                    // renderProviderIcon
                 }
             }
+            .onChange(of: model.nowPlayingInfo.artworkImage) { _, newArtwork in
+                handleArtworkFlip(newArtwork: newArtwork)
+            }
+            .onAppear {
+                // Cache the initial artwork
+                cachedArtwork = model.nowPlayingInfo.artworkImage
+            }
+        }
+    }
+    
+    // MARK: - Handle 180° Flip with Two-Sided Card
+    private func handleArtworkFlip(newArtwork: NSImage?) {
+        // Only flip if artwork actually changed
+        guard cachedArtwork != newArtwork else { return }
+        
+        // Start the 180° flip (0° to 180°)
+        withAnimation(.easeInOut(duration: 0.6)) {
+            flipRotation = 180
+        }
+        
+        // After flip completes, reset for next flip and update cache
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            // Reset rotation back to 0° without animation
+            flipRotation = 0
+            // The new image becomes the cached "front" for next flip
+            cachedArtwork = newArtwork
         }
     }
     
@@ -125,7 +194,7 @@ struct NativeStyleMusicWidget: View {
                     .frame(width: iconWidth, height: iconHeight)
                     .foregroundColor(.white)
             }
-            .buttonStyle(MusicControlButton(size: 35, tint: model.nowPlayingInfo.dominantColor)) // Apply custom style
+            .buttonStyle(MusicControlButton(size: iconPadding, tint: model.nowPlayingInfo.dominantColor)) // Apply custom style
             
             Button(action: {
                 AudioManager.shared.togglePlayPause()
@@ -137,7 +206,7 @@ struct NativeStyleMusicWidget: View {
                 .frame(width: iconWidth, height: iconHeight)
                 .foregroundColor(.white)
             }
-            .buttonStyle(MusicControlButton(size: 35, tint: model.nowPlayingInfo.dominantColor)) // Apply custom style
+            .buttonStyle(MusicControlButton(size: iconPadding, tint: model.nowPlayingInfo.dominantColor)) // Apply custom style
             
             Button(action: {
                 AudioManager.shared.playNextTrack()
@@ -149,14 +218,14 @@ struct NativeStyleMusicWidget: View {
                     .frame(width: iconWidth, height: iconHeight)
                     .foregroundColor(.white)
             }
-            .buttonStyle(MusicControlButton(size: 35, tint: model.nowPlayingInfo.dominantColor)) // Apply custom style
+            .buttonStyle(MusicControlButton(size: iconPadding, tint: model.nowPlayingInfo.dominantColor)) // Apply custom style
         }
     }
     
     // MARK: - Song Information
     @ViewBuilder
     func renderSongInformation() -> some View {
-        HStack(alignment: .center) {
+        HStack(alignment: .top) {
             VStack(alignment: .leading) {
                 // Song title with better typography
                 Text(model.nowPlayingInfo.trackName)
@@ -203,10 +272,10 @@ struct NativeStyleMusicWidget: View {
                                 .shadow(color: Color(nsColor: model.nowPlayingInfo.dominantColor).opacity(0.5), radius: 4, x: 0, y: 2)
                             
                             // Thumb
-                            Circle()
-                                .fill(Color(nsColor: model.nowPlayingInfo.dominantColor))
-                                .frame(width: 12, height: 12)
-                                .offset(x: max(CGFloat(effectivePosition / max(model.nowPlayingInfo.durationSeconds, 1)) * geometry.size.width - 6, -6))
+//                            Circle()
+//                                .fill(Color(nsColor: model.nowPlayingInfo.dominantColor))
+//                                .frame(width: 12, height: 12)
+//                                .offset(x: max(CGFloat(effectivePosition / max(model.nowPlayingInfo.durationSeconds, 1)) * geometry.size.width - 6, -6))
                             
                         }
                         .gesture(
@@ -248,6 +317,7 @@ struct NativeStyleMusicWidget: View {
             EmptyView()
         }
     }    // Helper function to format seconds as "MM:SS"
+    
     private func formatDuration(_ seconds: Double) -> String {
         let minutes = Int(seconds) / 60
         let remainingSeconds = Int(seconds) % 60
@@ -255,7 +325,7 @@ struct NativeStyleMusicWidget: View {
     }
     
     private func checkPositionUpdate(targetPosition: Double, attempts: Int) {
-        let maxAttempts = 10
+        let maxAttempts = 15
         let checkInterval = 0.5
         
         if attempts >= maxAttempts {

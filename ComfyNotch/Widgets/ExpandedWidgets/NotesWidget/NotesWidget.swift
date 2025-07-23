@@ -64,7 +64,11 @@ struct NotesWidget: View, Widget {
         }
         .frame(width: givenSpace.w, height: givenSpace.h)
         .onAppear {
+            givenSpace = GivenWidgetSpace(w: 0, h: 0)
             givenSpace = UIManager.shared.expandedWidgetStore.determineWidthAndHeight()
+        }
+        .onChange(of: [givenSpace.w, givenSpace.h]) { _, newValue in
+            print("w: \(newValue[0]), h: \(newValue[1])")
         }
         
         .onHover { hovering in
