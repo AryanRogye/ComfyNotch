@@ -115,7 +115,9 @@ struct ClosedNotchGeneralSettings: View {
             .frame(width: 320, height: 38)
             // MARK: - Actual Notch Shape
             .background(
-                ComfyNotchShape(topRadius: 8, bottomRadius: 14)
+                ComfyNotchShape(
+                    topRadius: 8, bottomRadius: 14
+                )
                     .fill(Color.black)
                     .allowsHitTesting(false)
             )

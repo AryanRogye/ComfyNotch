@@ -119,7 +119,9 @@ struct OpenNotchContentDimensionsView: View {
             .frame(width: 400, height: 140)
             // MARK: - Actual Notch Shape
             .background(
-                ComfyNotchShape(topRadius: 8, bottomRadius: 14)
+                ComfyNotchShape(
+                    topRadius: 8, bottomRadius: 14
+                )
                     .fill(Color.black)
             )
             /// this is cuz notch is 140 and image is 150, we push it up

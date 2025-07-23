@@ -236,7 +236,7 @@ struct ComfyNotchView: View {
             .mask(
                 ComfyNotchShape(
                     topRadius: 8,
-                    bottomRadius: 20
+                    bottomRadius: 13
                 )
             )
             .onDrop(of: [UTType.fileURL.identifier, UTType.image.identifier], isTargeted: $fileDropManager.isDroppingFiles) { providers in

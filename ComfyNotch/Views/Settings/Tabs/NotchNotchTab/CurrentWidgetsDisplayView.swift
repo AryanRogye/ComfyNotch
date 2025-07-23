@@ -135,7 +135,9 @@ struct CurrentWidgetsDisplayView: View {
             .frame(width: 400, height: 150)
             // MARK: - Actual Notch Shape
             .background(
-                ComfyNotchShape(topRadius: 8, bottomRadius: 14)
+                ComfyNotchShape(
+                    topRadius: 8, bottomRadius: 14
+                )
                     .fill(Color.black)
             )
             /// this is cuz notch is 150 and image is 150, we push it up
