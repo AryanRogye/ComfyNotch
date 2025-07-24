@@ -77,7 +77,7 @@ struct QuickAccessWidgetDynamic: View, Widget {
                         .tag(seg.state)
                 }
                 .buttonStyle(.plain)
-                .controlSize(.large)
+                .controlSize(.small)
             }
         }
         .frame(height: height)              // ← tighten up the height

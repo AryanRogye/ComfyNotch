@@ -21,7 +21,7 @@ struct SettingsButtonWidget: View, Widget {
                 .foregroundColor(Color(nsColor: musicModel.nowPlayingInfo.dominantColor))
         }
         .buttonStyle(.plain)
-        .controlSize(.extraLarge)
+        .controlSize(.small)
         .padding(.trailing, settings.settingsWidgetDistanceFromRight)
         .padding(.top, settings.quickAccessWidgetDistanceFromTop)
     }
