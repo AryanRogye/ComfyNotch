@@ -20,6 +20,7 @@ struct NativeStyleMusicWidget: View {
     private let iconHeight: CGFloat = 15
     private let iconPadding: CGFloat = 30
     private var cardPadding: CGFloat = 8
+    private let flipDuration: Double = 0.3
     
     @State private var cachedArtwork: NSImage?
     @State private var flipRotation: Double = 0
@@ -87,9 +88,9 @@ struct NativeStyleMusicWidget: View {
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .frame(width: albumSize, height: albumSize)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                             .overlay(
-                                RoundedRectangle(cornerRadius: 12)
+                                RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color.white.opacity(0.1), lineWidth: 1)
                             )
                             .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
@@ -105,9 +106,9 @@ struct NativeStyleMusicWidget: View {
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .frame(width: albumSize, height: albumSize)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                             .overlay(
-                                RoundedRectangle(cornerRadius: 12)
+                                RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color.white.opacity(0.1), lineWidth: 1)
                             )
                             .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
@@ -140,12 +141,12 @@ struct NativeStyleMusicWidget: View {
         guard cachedArtwork != newArtwork else { return }
         
         // Start the 180° flip (0° to 180°)
-        withAnimation(.easeInOut(duration: 0.6)) {
+        withAnimation(.easeInOut(duration: flipDuration)) {
             flipRotation = 180
         }
         
         // After flip completes, reset for next flip and update cache
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + flipDuration) {
             // Reset rotation back to 0° without animation
             flipRotation = 0
             // The new image becomes the cached "front" for next flip

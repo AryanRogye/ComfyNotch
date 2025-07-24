@@ -18,7 +18,7 @@ func debugLog(_ message: @autoclosure () -> Any) {
 
 @main
 struct ComfyNotchApp: App {
-        @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     var body: some Scene {
         if #available(macOS 15.0, *) {
