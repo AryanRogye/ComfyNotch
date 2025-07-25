@@ -23,11 +23,10 @@ struct CompactAlbumWidget: View, Widget {
     private var animationDamping: CGFloat = 15
 
     private var paddingLeading: CGFloat {
-        notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 5 : 4
+        (notchStateManager.hoverHandler.scaleHoverOverLeftItems || notchStateManager.hoverHandler.isHoveringOverNotch) ? 5 : 4
     }
     private var paddingTop: CGFloat {
-        /// IF 0 it pushes it weirdly
-        notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 3 : 3
+        (notchStateManager.hoverHandler.scaleHoverOverLeftItems || notchStateManager.hoverHandler.isHoveringOverNotch) ? 3 : 3
     }
     
     @State private var scale: CGFloat = 1.0
@@ -65,15 +64,17 @@ struct CompactAlbumWidget: View, Widget {
         .padding(.leading, paddingLeading)
         .animation(
             .interpolatingSpring(stiffness: animationStiffness, damping: animationDamping),
-            value: notchStateManager.hoverHandler.scaleHoverOverLeftItems
+            value: (notchStateManager.hoverHandler.scaleHoverOverLeftItems || notchStateManager.hoverHandler.isHoveringOverNotch)
         )
         .onAppear { sizeConfig = widgetSize() }
-        .onChange(of: notchStateManager.hoverHandler.scaleHoverOverLeftItems) {
+        .onChange(of: [notchStateManager.hoverHandler.scaleHoverOverLeftItems, notchStateManager.hoverHandler.isHoveringOverNotch]) {
+            print("Changed")
             sizeConfig = widgetSize()
         }
-        .onChange(of: notchStateManager.hoverHandler.scaleHoverOverLeftItems) { _, value in
+        .onChange(of: [notchStateManager.hoverHandler.scaleHoverOverLeftItems, notchStateManager.hoverHandler.isHoveringOverNotch]) { _, value in
+            print("Changed")
             withAnimation(.interpolatingSpring(stiffness: 180, damping: 20)) {
-                scale = value ? 1.3 : 1.0
+                scale = value[0] || value[1] ? 1.3 : 1.0
             }
         }
         .padding(.top, paddingTop)

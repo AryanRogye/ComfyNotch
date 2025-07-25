@@ -51,8 +51,8 @@ extension ScrollHandler {
                 UIManager.shared.smallPanel,
               !isOpeningFull else { return }
         
+        self.hover(false)
         isOpeningFull = true
-        
         let current = panel.frame
         let trueH   = minPanelHeight + CGFloat(maxPullDistance)
         let finalW  = maxPanelWidth

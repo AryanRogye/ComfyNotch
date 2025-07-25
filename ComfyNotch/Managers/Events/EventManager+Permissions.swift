@@ -1,0 +1,128 @@
+//
+//  EventManager+Permissions.swift
+//  ComfyNotch
+//
+//  Created by Aryan Rogye on 7/25/25.
+//
+
+import EventKit
+import Foundation
+import AppKit
+
+extension EventManager {
+    
+    func requestPermissions() {
+        clearKeyForPermissions()
+        requestPermissionEventsIfNeededOnce { _ in }
+    }
+    
+    // MARK: - Request Permissions if Needed
+    func requestPermissionEventsIfNeededOnce(completion: @escaping (Bool) -> Void) {
+        
+        let alreadyRequested = UserDefaults.standard.bool(forKey: eventKitPermissionsRequestedKey)
+        
+        // Already prompted before — don’t ask again
+        if alreadyRequested {
+            completion(true)
+            return
+        }
+        
+        // Mark as requested
+        UserDefaults.standard.set(true, forKey: eventKitPermissionsRequestedKey)
+        
+        NSApp.setActivationPolicy(.regular)
+        NSApp.activate(ignoringOtherApps: true)
+        
+        let group = DispatchGroup()
+        var calendarGranted = false
+        var reminderGranted = false
+        
+        /// Check Calendar Status First
+        let eventStatus = EKEventStore.authorizationStatus(for: .event)
+        
+        switch eventStatus {
+        case .fullAccess:
+            calendarGranted = true
+        case .denied, .restricted, .notDetermined, .writeOnly:
+            group.enter()
+            requestAccessToCalendar { granted in
+                self.isCalendarsPermissionsGranted = granted
+                calendarGranted = granted
+                group.leave()
+            }
+        @unknown default:
+            group.enter()
+            requestAccessToCalendar { granted in
+                self.isCalendarsPermissionsGranted = granted
+                calendarGranted = granted
+                group.leave()
+            }
+        }
+        
+        /// Check Reminder Status Next
+        let reminderStatus = EKEventStore.authorizationStatus(for: .reminder)
+        switch reminderStatus {
+        case .fullAccess, .authorized:
+            reminderGranted = true
+        case .notDetermined, .restricted, .denied, .writeOnly:
+            group.enter()
+            requestAccessToReminders { granted in
+                self.isRemindersPermissionsGranted = granted
+                reminderGranted = granted
+                group.leave()
+            }
+
+        @unknown default:
+            group.enter()
+            requestAccessToReminders { granted in
+                self.isRemindersPermissionsGranted = granted
+                reminderGranted = granted
+                group.leave()
+            }
+
+        }
+        
+        group.notify(queue: .main) {
+            NSApp.setActivationPolicy(.accessory)
+            
+            /// Update
+            self.isCalendarsPermissionsGranted = calendarGranted
+            self.isRemindersPermissionsGranted = reminderGranted
+            
+            /// Let The App Continue Onwards
+            completion(true)
+        }
+    }
+    
+    // MARK: - Clear Key For Permissions
+    private func clearKeyForPermissions() {
+        UserDefaults.standard.removeObject(forKey: eventKitPermissionsRequestedKey)
+    }
+    
+    // MARK: - Request Access To Calendar
+    public func requestAccessToCalendar(completion: @escaping (Bool) -> Void) {
+        store.requestFullAccessToEvents { granted, error in
+            if let error = error {
+                debugLog("Error requesting access to calendar: \(error.localizedDescription)")
+                completion(false)
+                return
+            }
+            completion(granted)
+        }
+    }
+    
+    // MARK: - Request Access To Reminders
+    internal func requestAccessToReminders(completion: @escaping (Bool) -> Void) {
+        store.requestFullAccessToReminders { granted, error in
+            
+            if let error = error {
+                debugLog("Error requesting access to reminders: \(error.localizedDescription)")
+                completion(false)
+                return
+            }
+            
+            completion(granted)
+        }
+    }
+}
+
