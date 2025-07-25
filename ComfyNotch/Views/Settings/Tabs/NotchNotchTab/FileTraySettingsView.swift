@@ -67,14 +67,19 @@ public struct FileTraySettingsView: View {
             toggleableAllow
                 .padding(.horizontal)
             
-            
             Text("""
                 This allows you to drag in a file and get a QR code to scan with your phone. 
                 Note: This is not encrypted and anyone on the same network can access your files, 
                 there is a pin that you must enter to allow access to the file. But that is all.
                 """)
+            .frame(height: 50)
             .font(.footnote)
             .foregroundColor(.secondary)
+            .multilineTextAlignment(.leading)
+            .lineLimit(nil)
+            .textSelection(.enabled) // optional
+            .layoutPriority(1)
+            .padding(.horizontal)
             .padding(.bottom, 8)
             
             if v.fileTrayAllowOpenOnLocalhost {
@@ -90,6 +95,7 @@ public struct FileTraySettingsView: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity)
     }
     
     

@@ -58,10 +58,12 @@ struct NativeStyleMusicWidget: View {
                     renderSongMusicControls()
                 }
                 .frame(maxWidth: .infinity)
+                
+                Spacer()
             }
         }
         .frame(width: givenSpace.w, height: givenSpace.h)
-//        .border(Color.red)
+        //        .border(Color.red)
         .onAppear {
             isVisible = true
             givenSpace = UIManager.shared.expandedWidgetStore.determineWidthAndHeight()
@@ -69,10 +71,6 @@ struct NativeStyleMusicWidget: View {
         .onChange(of: model.nowPlayingInfo.artworkImage) { _, newArtwork in
             print("Calleddddddddd")
             handleArtworkFlip(newArtwork: newArtwork)           // Standard smooth flip
-            // handleArtworkFlipFast(newArtwork: newArtwork)       // Quick flip
-            // handleArtworkFlipBouncy(newArtwork: newArtwork)     // Spring bounce
-            // handleArtworkFlipContinuous(newArtwork: newArtwork) // Smooth continuous
-            // handleArtworkFlipVertical(newArtwork: newArtwork)   // Vertical flip
         }
     }
     
@@ -88,9 +86,9 @@ struct NativeStyleMusicWidget: View {
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .frame(width: albumSize, height: albumSize)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
                             .overlay(
-                                RoundedRectangle(cornerRadius: 10)
+                                RoundedRectangle(cornerRadius: 6)
                                     .stroke(Color.white.opacity(0.1), lineWidth: 1)
                             )
                             .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
@@ -108,7 +106,7 @@ struct NativeStyleMusicWidget: View {
                             .frame(width: albumSize, height: albumSize)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                             .overlay(
-                                RoundedRectangle(cornerRadius: 10)
+                                RoundedRectangle(cornerRadius: 6)
                                     .stroke(Color.white.opacity(0.1), lineWidth: 1)
                             )
                             .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
@@ -157,7 +155,7 @@ struct NativeStyleMusicWidget: View {
     // MARK: - Placeholder Album Cover
     private var placeholderAlbumCover: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 6)
                 .fill(
                     LinearGradient(
                         colors: [
@@ -169,12 +167,12 @@ struct NativeStyleMusicWidget: View {
                     )
                 )
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: 6)
                         .stroke(Color.white.opacity(0.1), lineWidth: 1)
                 )
             
             Image(systemName: "music.note")
-                .font(.system(size: 32, weight: .light))
+                .font(.system(size: 24, weight: .light))
                 .foregroundColor(.white.opacity(0.5))
         }
         .frame(width: albumSize, height: albumSize)

@@ -111,22 +111,14 @@ struct MetalAnimations: View {
     
     private var notchBackgroundShader: some View {
         HStack {
-            Text("Notch Background Animation")
-                .font(.system(size: 13, weight: .medium))
-                .foregroundColor(.primary)
-            
-            Spacer()
-            
-            Picker("", selection: $v.notchBackgroundAnimation) {
+            Picker("Notch Background Animation", selection: $v.notchBackgroundAnimation) {
                 ForEach(ShaderOption.allCases, id: \.self) { option in
                     Text(option.displayName)
                         .tag(option)
                 }
             }
-            .labelsHidden()
             .pickerStyle(.menu)
             .tint(.accentColor)
-            .frame(width: 250)
         }
         .transition(.move(edge: .top).combined(with: .opacity))
         .animation(settings.enableMetalAnimation ? .interactiveSpring(duration: 0.3) : .none, value: settings.notchBackgroundAnimation)

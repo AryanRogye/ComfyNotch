@@ -20,9 +20,7 @@ struct HomeNotchView: View {
                                 HStack(spacing: 0) {
                                     widgetEntry.widget.swiftUIView
                                         .frame(maxWidth: .infinity)
-                                        .padding(.bottom, 10)
 
-                                    
                                     if settingsModel.showDividerBetweenWidgets,
                                        let lastVisibleIndex,
                                        index < lastVisibleIndex {

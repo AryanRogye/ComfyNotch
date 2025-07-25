@@ -70,7 +70,6 @@ public struct MessageSettingsView: View {
             /// Toggle for Messages Notifications
             Toggle("Enable Messages Notch View",isOn: $v.enableMessagesNotifications)
                 .toggleStyle(.switch)
-                .controlSize(.small)
                 .padding([.horizontal, .top])
             
             

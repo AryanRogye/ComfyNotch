@@ -53,7 +53,6 @@ struct QuickAccessStyleSettings: View {
                     values.quickAccessWidgetSimpleDynamic = .dynamic
                 } content: {
                     Option1()
-                        .frame(width: 26, height: 26)
                 }
                 
                 /// Option 2
@@ -65,7 +64,6 @@ struct QuickAccessStyleSettings: View {
                     values.quickAccessWidgetSimpleDynamic = .simple
                 } content: {
                     Option2()
-                        .frame(width: 26, height: 26)
                 }
             }
             .padding(.horizontal)
@@ -81,7 +79,7 @@ struct QuickAccessStyleSettings: View {
         action: @escaping () -> Void,
         @ViewBuilder content: () -> Content
     ) -> some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 8) {
             Button(action: action) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 12)
@@ -93,6 +91,8 @@ struct QuickAccessStyleSettings: View {
                         .shadow(color: isSelected ? Color.accentColor.opacity(0.3) : .clear, radius: isSelected ? 5 : 0)
                     
                     content()
+                        .padding(8) // uniform padding inside the box
+                        .padding(.vertical, 12)
                 }
             }
             .buttonStyle(.plain)
@@ -100,7 +100,6 @@ struct QuickAccessStyleSettings: View {
             Text(label)
                 .font(.system(size: 11, weight: .medium))
                 .foregroundColor(.primary)
-                .padding(.top, 4)
         }
     }
 }

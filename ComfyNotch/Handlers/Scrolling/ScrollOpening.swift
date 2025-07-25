@@ -169,7 +169,7 @@ extension ScrollHandler {
                     self.isOpeningFull = false
                     self.updateState(for: trueH)
                     UIManager.shared.panelState = .open
-                    self.verifyAndCorrectFrame(panel: panel, expectedFrame: trueFrame, expectedHeight: trueH)
+//                    self.verifyAndCorrectFrame(panel: panel, expectedFrame: trueFrame, expectedHeight: trueH)
                 })
             })
         }
@@ -206,7 +206,7 @@ extension ScrollHandler {
                     self.isOpeningFull = false
                     self.updateState(for: trueH)
                     UIManager.shared.panelState = .open
-                    self.verifyAndCorrectFrame(panel: panel, expectedFrame: trueFrame, expectedHeight: trueH)
+//                    self.verifyAndCorrectFrame(panel: panel, expectedFrame: trueFrame, expectedHeight: trueH)
                 })
             })
         }
