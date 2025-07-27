@@ -68,12 +68,13 @@ class AudioManager: ObservableObject {
     private func fallbackNowPlaying() {
         if mediaRemoteMusicController.isAvailable() {
             mediaRemoteMusicController.getNowPlayingInfo { success in
-                if success {
-                    self.lastUsedProvider = .mediaRemote
-                } else {
+                guard success else {
                     self.lastUsedProvider = .spotify_music
                     self.appleScriptMusicController.getNowPlayingInfo { _ in }
+                    return
                 }
+                
+                self.lastUsedProvider = .mediaRemote
             }
         } else {
             DispatchQueue.global(qos: .utility).async {
