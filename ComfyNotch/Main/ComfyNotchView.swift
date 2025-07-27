@@ -171,7 +171,7 @@ struct ComfyNotchView: View {
                     threshold = 3000
                 }
                 
-                if WidgetHoverState.shared.isHoveringOverEventWidget {
+                if WidgetHoverState.shared.isHovering {
                     threshold = 3000
                     print("Translation: \(translation)")
                     print("\(translation > threshold) - \(threshold)")

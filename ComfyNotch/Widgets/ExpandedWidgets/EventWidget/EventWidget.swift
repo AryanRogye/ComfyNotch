@@ -9,26 +9,20 @@ import SwiftUI
 import ComfyCalendar
 import AppKit
 
-final class WidgetHoverState: ObservableObject {
-    static let shared = WidgetHoverState()
-    @Published var isHoveringOverEventWidget: Bool = false
-}
-
 struct EventWidget: View, Widget {
     var name: String = "EventWidget"
     var swiftUIView: AnyView {
         AnyView(self)
     }
 
-    @ObservedObject private var model : EventManager = .shared
-    @ObservedObject private var hoverState = WidgetHoverState.shared
+    @ObservedObject private var eventManager : EventManager = .shared
+    @StateObject private var viewModel = EventWidgetViewModel()
     
-    @State private var selectedScope: CalendarScope = .day
     @State private var givenSpace : GivenWidgetSpace = (w: 0, h: 0)
     
     var body: some View {
         HStack {
-            if model.isCalendarsPermissionsGranted && model.isRemindersPermissionsGranted {
+            if eventManager.isCalendarsPermissionsGranted && eventManager.isRemindersPermissionsGranted {
                 eventView
             } else {
                 permissionsView
@@ -36,8 +30,8 @@ struct EventWidget: View, Widget {
         }
         .frame(width: givenSpace.w, height: givenSpace.h)
         .onAppear {
-            model.fetchUserReminders()
-            model.fetchUserCalendars()
+            eventManager.fetchUserReminders()
+            eventManager.fetchUserCalendars()
         }
         /// Determine Width and Height of the given space for this Widget
         .onAppear {
@@ -45,23 +39,33 @@ struct EventWidget: View, Widget {
         }
         /// This will Let Scrolling be at a threshold
         .onHover { hovering in
-            hoverState.isHoveringOverEventWidget = hovering
+            WidgetHoverState.shared.isHovering = hovering
         }
     }
     
     // MARK: - Event View
     private var eventView: some View {
         HStack {
+            UserEventView()
             Spacer()
             
             VStack(alignment: .trailing) {
-                CalendarScopePicker(selectedScope: $selectedScope)
+                CalendarScopePicker()
             }
         }
+        .environmentObject(viewModel)
     }
     
     // MARK: - Permissions View
     private var permissionsView: some View {
-        
+        HStack(alignment: .center) {
+            VStack {
+                Text("Permissions Not Granted")
+                
+                Button(action: eventManager.requestPermissions) {
+                    Text("Request Permissions")
+                }
+            }
+        }
     }
 }

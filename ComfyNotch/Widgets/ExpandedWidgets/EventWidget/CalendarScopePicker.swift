@@ -13,48 +13,70 @@ enum CalendarScope: String, CaseIterable {
 }
 
 struct CalendarScopePicker: View {
-    
-    @Binding var selectedScope: CalendarScope
+    @EnvironmentObject var viewModel : EventWidgetViewModel
     
     @State private var isHovering: Bool = false
     @State private var hoverValue: CalendarScope? = nil
     
-    init(selectedScope: Binding<CalendarScope>) {
-        _selectedScope = selectedScope
-    }
-
     var body: some View {
         VStack {
-            ForEach(CalendarScope.allCases, id: \.self) { value in
+            scopePicker
+            
+            Spacer()
+            
+            /// Button to show and hide the month, this is triggered from the DayView
+            if viewModel.isHidingMonth {
                 Button(action: {
-                    selectedScope = value
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        viewModel.isHidingMonth = false
+                    }
                 }) {
-                    Text(value.rawValue)
-                        .font(.system(size: 12, weight: .regular, design: .default))
-                        .foregroundStyle(.white)
-                        .frame(width: 16, height: 16)
-                        .background {
-                            Circle()
-                                .fill(
-                                    selectedScope == value
-                                    ? Color.blue
-                                    : Color.gray
-                                )
-                        }
-                        .animation(
-                            .easeInOut(duration: 0.2),
-                            value: selectedScope
-                        )
-                        .scaleEffect(hoverValue == value ? 1.1 : 1)
+                    VStack {
+                        Text("Show")
+                            .font(.system(size: 9, weight: .regular, design: .default))
+                            .minimumScaleFactor(0.5)
+                            .lineLimit(1)
+                            .multilineTextAlignment(.leading)
+                            .padding(.horizontal, 6)
+                    }
+                    .fixedSize()
                 }
-                .buttonStyle(.plain)
-                .onHover {
-                    isHovering = $0
-                    hoverValue = $0 ? value : nil
-                }
+                .controlSize(.mini)
+                .rotationEffect(.degrees(-90))
             }
             Spacer()
         }
         .frame(maxWidth: 20,maxHeight: .infinity)
+    }
+    
+    private var scopePicker: some View {
+        ForEach(CalendarScope.allCases, id: \.self) { value in
+            Button(action: {
+                viewModel.selectedScope = value
+            }) {
+                Text(value.rawValue)
+                    .font(.system(size: 12, weight: .regular, design: .default))
+                    .foregroundStyle(.white)
+                    .frame(width: 16, height: 16)
+                    .background {
+                        Circle()
+                            .fill(
+                                viewModel.selectedScope == value
+                                ? Color.blue
+                                : Color.gray
+                            )
+                    }
+                    .animation(
+                        .easeInOut(duration: 0.2),
+                        value: viewModel.selectedScope
+                    )
+                    .scaleEffect(hoverValue == value ? 1.1 : 1)
+            }
+            .buttonStyle(.plain)
+            .onHover {
+                isHovering = $0
+                hoverValue = $0 ? value : nil
+            }
+        }
     }
 }

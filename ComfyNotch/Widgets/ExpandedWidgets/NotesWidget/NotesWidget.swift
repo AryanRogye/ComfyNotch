@@ -72,7 +72,7 @@ struct NotesWidget: View, Widget {
         }
         
         .onHover { hovering in
-            hoverState.isHoveringOverEventWidget = hovering
+            hoverState.isHovering = hovering
         }
     }
     

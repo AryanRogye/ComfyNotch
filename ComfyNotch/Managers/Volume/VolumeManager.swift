@@ -87,7 +87,6 @@ final class VolumeManager: ObservableObject {
     
     @Published var currentVolume: Float = 0
     
-    let notchStateManager = NotchStateManager.shared
     let popInPresenterCoordinator = PopInPresenter_HUD_Coordinator.shared
     
     init() {}
@@ -263,7 +262,7 @@ final class VolumeManager: ObservableObject {
 
         // Show loading instantly
         DispatchQueue.main.async {
-            self.notchStateManager.isLoadingPopInPresenter = true
+            NotchStateManager.shared.isLoadingPopInPresenter = true
         }
 
         // Open notch immediately
@@ -271,14 +270,14 @@ final class VolumeManager: ObservableObject {
 
         // Present the HUD slightly later
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
-            guard let self = self else { return }
+            guard self != nil else { return }
 
             PopInPresenter_HUD_Coordinator.shared.presentIfAllowed(for: .volume) {
                 withAnimation(.easeOut(duration: 0.2)) {
-                    self.notchStateManager.currentPopInPresentationState = .hud
-                    self.notchStateManager.currentPanelState = .popInPresentation
+                    NotchStateManager.shared.currentPopInPresentationState = .hud
+                    NotchStateManager.shared.currentPanelState = .popInPresentation
                 }
-                self.notchStateManager.isLoadingPopInPresenter = false
+                NotchStateManager.shared.isLoadingPopInPresenter = false
             }
         }
     }

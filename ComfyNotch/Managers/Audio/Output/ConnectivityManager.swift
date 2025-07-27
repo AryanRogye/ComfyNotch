@@ -83,16 +83,19 @@ final class ConnectivityManager: ObservableObject {
             if streamCount == 0 { continue }
             
             // Get device name
-            var name: CFString = "" as CFString
-            var nameSize = UInt32(MemoryLayout<CFString>.size)
+            var nameBuffer = [UInt8](repeating: 0, count: 256)
+            var nameSize = UInt32(nameBuffer.count)
             var nameAddress = AudioObjectPropertyAddress(
                 mSelector: kAudioObjectPropertyName,
                 mScope: kAudioObjectPropertyScopeGlobal,
                 mElement: kAudioObjectPropertyElementMain
             )
-            let status = AudioObjectGetPropertyData(deviceID, &nameAddress, 0, nil, &nameSize, &name)
+            let status = nameBuffer.withUnsafeMutableBytes { ptr in
+                AudioObjectGetPropertyData(deviceID, &nameAddress, 0, nil, &nameSize, ptr.baseAddress!)
+            }
             if status == noErr {
-                audioDevices.append(AudioDevice(id: deviceID, name: name as String))
+                let name = String(bytes: nameBuffer.prefix(Int(nameSize)), encoding: .utf8) ?? "Unknown"
+                audioDevices.append(AudioDevice(id: deviceID, name: name))
             }
         }
         

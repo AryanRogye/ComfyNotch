@@ -23,6 +23,10 @@ extension EventManager {
         
         // Already prompted before — don’t ask again
         if alreadyRequested {
+            
+            self.isCalendarsPermissionsGranted = true
+            self.isRemindersPermissionsGranted = true
+            
             completion(true)
             return
         }
