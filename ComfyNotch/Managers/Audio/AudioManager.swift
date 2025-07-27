@@ -35,6 +35,8 @@ class AudioManager: ObservableObject {
     /// Optional callback invoked when nowPlayingInfo is updated
     var onNowPlayingInfoUpdated: (() -> Void)?
     
+    private(set) var lastUsedProvider: MusicController = .spotify_music
+    
     /**
      * Initializes the AudioManager and starts periodic media info updates.
      * Use the shared instance; direct initialization is private.
@@ -55,6 +57,7 @@ class AudioManager: ObservableObject {
         } else if settings.musicController == .spotify_music {
             DispatchQueue.global(qos: .utility).async {
                 self.appleScriptMusicController.getNowPlayingInfo { _ in }
+                self.lastUsedProvider = .spotify_music
             }
         } else {
             /// if neither works then we use this
@@ -65,12 +68,17 @@ class AudioManager: ObservableObject {
     private func fallbackNowPlaying() {
         if mediaRemoteMusicController.isAvailable() {
             mediaRemoteMusicController.getNowPlayingInfo { success in
-                if !success {
+                guard success else {
+                    self.lastUsedProvider = .spotify_music
                     self.appleScriptMusicController.getNowPlayingInfo { _ in }
+                    return
                 }
+                
+                self.lastUsedProvider = .mediaRemote
             }
         } else {
             DispatchQueue.global(qos: .utility).async {
+                self.lastUsedProvider = .spotify_music
                 self.appleScriptMusicController.getNowPlayingInfo { _ in }
             }
         }
@@ -103,21 +111,34 @@ class AudioManager: ObservableObject {
      * Checks which provider is active before sending the command.
      */
     func playPreviousTrack() {
-        appleScriptMusicController.playPreviousTrack()
+        
+        if self.lastUsedProvider == .mediaRemote {
+            mediaRemoteMusicController.playPreviousTrack()
+        } else {
+            appleScriptMusicController.playPreviousTrack()
+        }
     }
 
     /**
      * Skips to the next track in the current provider.
      */
     func playNextTrack() {
-        appleScriptMusicController.playNextTrack()
+        if self.lastUsedProvider == .mediaRemote {
+            mediaRemoteMusicController.playNextTrack()
+        } else {
+            appleScriptMusicController.playNextTrack()
+        }
     }
 
     /**
      * Toggles play/pause state for the current provider.
      */
     func togglePlayPause() {
-        appleScriptMusicController.togglePlayPause()
+        if self.lastUsedProvider == .mediaRemote {
+            mediaRemoteMusicController.togglePlayPause()
+        } else {
+            appleScriptMusicController.togglePlayPause()
+        }
     }
 
     /**
@@ -125,7 +146,11 @@ class AudioManager: ObservableObject {
      * @param time The position (in seconds) to seek to.
      */
     func playAtTime(to time: Double) {
-        appleScriptMusicController.playAtTime(to: time)
+        if self.lastUsedProvider == .mediaRemote {
+            mediaRemoteMusicController.playAtTime(to: time)
+        } else {
+            appleScriptMusicController.playAtTime(to: time)
+        }
     }
 
     /**
