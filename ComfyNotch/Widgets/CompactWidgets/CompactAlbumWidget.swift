@@ -68,11 +68,9 @@ struct CompactAlbumWidget: View, Widget {
         )
         .onAppear { sizeConfig = widgetSize() }
         .onChange(of: [notchStateManager.hoverHandler.scaleHoverOverLeftItems, notchStateManager.hoverHandler.isHoveringOverNotch]) {
-            print("Changed")
             sizeConfig = widgetSize()
         }
         .onChange(of: [notchStateManager.hoverHandler.scaleHoverOverLeftItems, notchStateManager.hoverHandler.isHoveringOverNotch]) { _, value in
-            print("Changed")
             withAnimation(.interpolatingSpring(stiffness: 180, damping: 20)) {
                 scale = value[0] || value[1] ? 1.3 : 1.0
             }

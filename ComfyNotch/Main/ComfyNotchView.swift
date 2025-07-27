@@ -173,8 +173,6 @@ struct ComfyNotchView: View {
                 
                 if WidgetHoverState.shared.isHovering {
                     threshold = 3000
-                    print("Translation: \(translation)")
-                    print("\(translation > threshold) - \(threshold)")
                 }
                 
                 switch phase {
