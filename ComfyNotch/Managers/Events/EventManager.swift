@@ -16,50 +16,72 @@ class EventManager: ObservableObject {
     
     @Published var store = EKEventStore()
     
-    @Published var calendars: [EKCalendar] = []
-    @Published var reminders: [EKReminder] = []
-    
     internal var eventKitPermissionsRequestedKey: String { "eventKitPermissionsAlreadyRequested" }
 
     @Published public var isRemindersPermissionsGranted : Bool = false
     @Published public var isCalendarsPermissionsGranted : Bool = false
+    
+    @Published var reminders : [EKCalendar] = []
+    @Published var events    : [EKCalendar]    = []
+    
+    let calendar = Calendar.current
 
     /// -- Mark: public API's
     public func fetchUserReminders() {
-        if self.isRemindersPermissionsGranted {
-            let predicate: NSPredicate? = self.store.predicateForReminders(in: nil);
-            if let aPredicate = predicate {
-                self.store.fetchReminders(matching: aPredicate) { reminders in
-                    DispatchQueue.main.async { [weak self] in
-                        if let reminders = reminders {
-                            self?.reminders = reminders
-                        }
-                    }
-                }
-            }
-        }
+        guard self.isRemindersPermissionsGranted else { return }
+        self.reminders = self.store.calendars(for: .reminder)
     }
     
     public func fetchUserCalendars() {
-        if self.isCalendarsPermissionsGranted {
-            debugLog("Request Access to Calendar Granted")
-            DispatchQueue.main.async { [weak self] in
-                self?.calendars = self?.store.calendars(for: .event) ?? []
-            }
-        } else {
-            
-        }
+        guard self.isCalendarsPermissionsGranted else { return }
+        self.events = self.store.calendars(for: .event)
     }
     
-    public func removeUserReminders(for reminder: EKReminder) {
-        DispatchQueue.main.async { [weak self] in
-            do {
-                try self?.store.remove(reminder, commit: true)
-                self?.reminders.removeAll(where: { $0.calendarItemIdentifier == reminder.calendarItemIdentifier })
-                debugLog("Removed Reminder \(reminder.title ?? "No Title")")
-            } catch {
-                debugLog("There was an error removing the reminder")
+    /// Function to return the reminders for the given date
+    public func getReminders(for date: Date) async -> [EKReminder] {
+        guard self.isRemindersPermissionsGranted else { return [] }
+        
+        let startOfDay = calendar.startOfDay(for: date)
+        
+        let predicate = store.predicateForReminders(in: reminders)
+        
+        let fetched = await withCheckedContinuation { cont in
+            store.fetchReminders(matching: predicate) { result in
+                cont.resume(returning: result ?? [])
             }
         }
-    }    
+        
+        // Filter by due date
+        let filtered = fetched.filter { reminder in
+            /// Hide completed maybe impliment soon
+            //            guard !reminder.isCompleted else { return false }
+            /// Return overdue items, maybe impliment soon
+            //             return dueDate <= date
+            
+            guard let dueDate = reminder.dueDateComponents?.date else { return false }
+            return calendar.isDate(dueDate, inSameDayAs: date)
+        }
+        
+        return filtered
+    }
+    
+    /// Function to get the events for the current date
+    public func getEvents(for date: Date) -> [EKEvent] {
+        guard self.isCalendarsPermissionsGranted else { return [] }
+        
+        let startOfDay = calendar.startOfDay(for: date)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        
+        for event in events {
+            print(event.title)
+        }
+        
+        let predicate = store.predicateForEvents(
+            withStart: startOfDay,
+            end: endOfDay,
+            calendars: events)
+        
+        let results = store.events(matching: predicate)
+        return results
+    }
 }

@@ -18,7 +18,7 @@ extension EventManager {
     
     // MARK: - Request Permissions if Needed
     func requestPermissionEventsIfNeededOnce(completion: @escaping (Bool) -> Void) {
-        
+        clearKeyForPermissions()
         let alreadyRequested = UserDefaults.standard.bool(forKey: eventKitPermissionsRequestedKey)
         
         // Already prompted before — don’t ask again

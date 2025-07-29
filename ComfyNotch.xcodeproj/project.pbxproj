@@ -519,6 +519,7 @@
 				INFOPLIST_KEY_NSAppleEventsUsageDescription = "we use this to observe system notifications and media playback";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "we use this to help you connect to your bluetooth devices faster";
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses the camera for widget-related features.";
+				INFOPLIST_KEY_NSContactsUsageDescription = "ComfyNotch needs access to your contacts to show names in Messages.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -563,6 +564,7 @@
 				INFOPLIST_KEY_NSAppleEventsUsageDescription = "we use this to observe system notifications and media playback";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "we use this to help you connect to your bluetooth devices faster";
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses the camera for widget-related features.";
+				INFOPLIST_KEY_NSContactsUsageDescription = "ComfyNotch needs access to your contacts to show names in Messages.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
