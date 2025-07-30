@@ -133,7 +133,7 @@ struct DayView: View {
                 HStack {
                     ForEach(Array(visibleDateRange.enumerated()), id: \.offset) { index, date in
                         dayView(for: date)
-                            .id(index)
+                            .id(date)
                     }
                 }
             }
