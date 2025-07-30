@@ -72,10 +72,6 @@ class EventManager: ObservableObject {
         let startOfDay = calendar.startOfDay(for: date)
         let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
         
-        for event in events {
-            print(event.title)
-        }
-        
         let predicate = store.predicateForEvents(
             withStart: startOfDay,
             end: endOfDay,

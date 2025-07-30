@@ -20,6 +20,8 @@ struct MonthView: View {
             ) {
 //                ForEach(viewModel)
             }
+            
+            Spacer()
         }
     }
     

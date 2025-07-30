@@ -11,6 +11,7 @@ import EventKit
 final class EventWidgetViewModel: ObservableObject {
     @Published var currentDate = Date()
     @Published var selectedScope: CalendarScope = .day
+    @Published var dayViewState : DayViewState = .home
     
     @Published var isHidingMonth: Bool = false
     @Published var reminders : [EKReminder] = []
@@ -37,7 +38,6 @@ final class EventWidgetViewModel: ObservableObject {
     
     @MainActor
     public func syncRemindersAndEvents() async{
-        print("Synced")
         self.eventWidgetManager.fetchUserReminders()
         self.eventWidgetManager.fetchUserCalendars()
         

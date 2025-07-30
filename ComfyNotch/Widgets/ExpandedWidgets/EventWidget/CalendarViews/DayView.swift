@@ -7,6 +7,12 @@
 
 import SwiftUI
 
+enum DayViewState {
+    case home
+    case addReminders
+    case addEvent
+}
+
 struct DayView: View {
     
     @EnvironmentObject var viewModel: EventWidgetViewModel
@@ -21,6 +27,25 @@ struct DayView: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            switch viewModel.dayViewState {
+            case .home:
+                homeView
+            case .addReminders:
+                AddReminderView()
+            case .addEvent:
+                AddEventView()
+            }
+        }
+        .onAppear {
+            Task {
+                await viewModel.syncRemindersAndEvents()
+            }
+        }
+    }
+    
+    // MARK: - Home View Stuff
+    private var homeView: some View {
+        VStack(spacing: 0) {
             topMonthRow
             
             Divider()
@@ -34,13 +59,11 @@ struct DayView: View {
             
             Spacer()
         }
-        .onAppear {
-            Task {
-                await viewModel.syncRemindersAndEvents()
-            }
-        }
+        
     }
     
+    // MARK: - Info View
+    // this is where the reminders and the events are shown
     private var infoView: some View {
         ScrollView(.vertical, showsIndicators: false) {
             remindersView
@@ -58,9 +81,14 @@ struct DayView: View {
                 
                 Spacer()
                 
-                Image(systemName: "plus")
-                    .resizable()
-                    .frame(width: 10, height: 10)
+                Button(action: {
+                    viewModel.dayViewState = .addReminders
+                }) {
+                    Image(systemName: "plus")
+                        .resizable()
+                        .frame(width: 10, height: 10)
+                }
+                .buttonStyle(.plain)
             }
             .frame(maxWidth: .infinity)
             
@@ -82,9 +110,14 @@ struct DayView: View {
                 
                 Spacer()
                 
-                Image(systemName: "plus")
-                    .resizable()
-                    .frame(width: 10, height: 10)
+                Button(action: {
+                    viewModel.dayViewState = .addEvent
+                }) {
+                    Image(systemName: "plus")
+                        .resizable()
+                        .frame(width: 10, height: 10)
+                }
+                .buttonStyle(.plain)
             }
             .frame(maxWidth: .infinity)
             
@@ -94,6 +127,7 @@ struct DayView: View {
         }
     }
     
+    // MARK: - Top Month Row
     private var topMonthRow: some View {
         VStack(spacing: 0) {
             if !viewModel.isHidingMonth {
@@ -127,6 +161,7 @@ struct DayView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
     }
     
+    // MARK: - Picker View
     private var pickerView: some View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal, showsIndicators: false) {
@@ -169,5 +204,5 @@ struct DayView: View {
                 .foregroundColor(viewModel.isToday(date) ? .blue : .white)
         }
         .buttonStyle(.plain)
-    }
+    }    
 }

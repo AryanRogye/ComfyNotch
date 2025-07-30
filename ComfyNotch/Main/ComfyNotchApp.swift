@@ -10,7 +10,14 @@ import AppKit
 import Sparkle
 import Cocoa
 
-func debugLog(_ message: @autoclosure () -> Any) {
+
+func debugLog(_ message: @autoclosure () -> Any, from : String? = nil) {
+    if let from = from {
+        /// Handling Debug Logs From PanelStore
+        if from == "PanelStore" {
+            return
+        }
+    }
 #if DEBUG
     print(message())
 #endif
