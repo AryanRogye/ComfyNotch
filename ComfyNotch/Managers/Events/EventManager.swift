@@ -41,7 +41,7 @@ class EventManager: ObservableObject {
     public func getReminders(for date: Date) async -> [EKReminder] {
         guard self.isRemindersPermissionsGranted else { return [] }
         
-        let startOfDay = calendar.startOfDay(for: date)
+//        let startOfDay = calendar.startOfDay(for: date)
         
         let predicate = store.predicateForReminders(in: reminders)
         

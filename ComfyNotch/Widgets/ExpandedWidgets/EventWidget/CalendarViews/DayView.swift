@@ -12,10 +12,10 @@ struct DayView: View {
     @EnvironmentObject var viewModel: EventWidgetViewModel
     @State private var scrollTarget: Int = 30
     
-    private var dateRange: [Date] {
+    private var visibleDateRange: [Date] {
         let calendar = Calendar.current
-        return (-30...30).compactMap {
-            calendar.date(byAdding: .day, value: $0, to: Date())
+        return (-15...15).compactMap {
+            calendar.date(byAdding: .day, value: $0, to: viewModel.currentDate)
         }
     }
     
@@ -42,7 +42,7 @@ struct DayView: View {
     }
     
     private var infoView: some View {
-        ScrollView() {
+        ScrollView(.vertical, showsIndicators: false) {
             remindersView
             eventsView
         }
@@ -65,7 +65,10 @@ struct DayView: View {
             .frame(maxWidth: .infinity)
             
             ForEach(viewModel.reminders, id: \.self) { reminder in
-                Text(reminder.title)
+                HStack {
+                    Spacer()
+                    Text(reminder.title)
+                }
             }
         }
     }
@@ -128,7 +131,7 @@ struct DayView: View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    ForEach(Array(dateRange.enumerated()), id: \.offset) { index, date in
+                    ForEach(Array(visibleDateRange.enumerated()), id: \.offset) { index, date in
                         dayView(for: date)
                             .id(index)
                     }
@@ -136,11 +139,12 @@ struct DayView: View {
             }
             .onAppear {
                 DispatchQueue.main.async {
-                    if let index = dateRange.firstIndex(where: {
-                        Calendar.current.isDate($0, inSameDayAs: viewModel.currentDate)
-                    }) {
-                        proxy.scrollTo(index, anchor: .center)
-                    }
+                    proxy.scrollTo(viewModel.currentDate, anchor: .center)
+                }
+            }
+            .onChange(of: viewModel.currentDate) { _, newDate in
+                withAnimation {
+                    proxy.scrollTo(newDate, anchor: .center)
                 }
             }
         }
@@ -149,6 +153,9 @@ struct DayView: View {
     private func dayView(for date: Date) -> some View {
         return Button(action: {
             viewModel.currentDate = date
+            Task {
+                await viewModel.syncRemindersAndEvents()
+            }
         }) {
             Text(viewModel.formattedDay(date))
                 .font(.system(
