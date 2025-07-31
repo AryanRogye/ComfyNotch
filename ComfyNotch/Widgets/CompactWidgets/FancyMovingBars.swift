@@ -20,7 +20,7 @@ struct AnimatedBar: View {
         self.dominantColor = dominantColor
         self.shouldAnimate = shouldAnimate
     }
- 
+    
     @ObservedObject private var notchStateManager: NotchStateManager = .shared
     
     @State private var animationHeight: CGFloat = 0
@@ -34,13 +34,13 @@ struct AnimatedBar: View {
     }
     
     private let maxAnimationHeight: CGFloat = 0.3
-
+    
     private var width: CGFloat {
-        return (notchStateManager.hoverHandler.scaleHoverOverLeftItems || notchStateManager.hoverHandler.isHoveringOverNotch) ? 3.0 : 2.5
+        return notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 3.0 : 2.5
     }
     
     private var scale: CGFloat {
-        return (notchStateManager.hoverHandler.scaleHoverOverLeftItems || notchStateManager.hoverHandler.isHoveringOverNotch) ? 1.10 : 1
+        return notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 1.10 : 1
     }
     
     var body: some View {
@@ -51,7 +51,7 @@ struct AnimatedBar: View {
             .scaleEffect(scale)
             .animation(
                 .interpolatingSpring(stiffness: animationStiffness, damping: animationDamping),
-                value: (notchStateManager.hoverHandler.scaleHoverOverLeftItems || notchStateManager.hoverHandler.isHoveringOverNotch)
+                value: notchStateManager.hoverHandler.scaleHoverOverLeftItems
             )
             .onAppear {
                 startLoopingAnimation()
@@ -100,7 +100,7 @@ struct FancyMovingBars: Widget, View {
     /// Padding of 4-2 range pushes it to the left, that way when we hover of the left side,
     /// it pops OUT to the right, making it look like its cool yk
     private var paddingTrailing: CGFloat {
-        return (notchStateManager.hoverHandler.scaleHoverOverLeftItems || notchStateManager.hoverHandler.isHoveringOverNotch) ? 6 : 8
+        return notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 6 : 8
     }
     
     var swiftUIView: AnyView {

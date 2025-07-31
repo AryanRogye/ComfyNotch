@@ -85,13 +85,13 @@ struct AddEventView: View {
     
     // MARK: - Start Date
     private var startDateView: some View {
-        HStack {
+        VStack {
             Text("Start Date")
-            Spacer()
+            Divider()
             DatePicker(
                 "",
                 selection: $startDate,
-                displayedComponents: [.date]
+                displayedComponents: [.date, .hourAndMinute]
             )
             .controlSize(.small)
         }
@@ -99,13 +99,13 @@ struct AddEventView: View {
     
     // MARK: - End Date
     private var endDateView: some View {
-        HStack {
+        VStack {
             Text("End Date")
-            Spacer()
+            Divider()
             DatePicker(
                 "",
                 selection: $endDate,
-                displayedComponents: [.date]
+                displayedComponents: [.date, .hourAndMinute]
             )
             .controlSize(.small)
         }

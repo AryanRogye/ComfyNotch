@@ -20,6 +20,8 @@ final class EventWidgetViewModel: ObservableObject {
     let eventWidgetManager = EventManager.shared
     
     // MARK: - Date Stuff
+    
+    /// function to verify if the given date is the selected "currentDate" in internal
     public func isToday(_ date: Date) -> Bool {
         Calendar.current.isDate(date, inSameDayAs: currentDate)
     }
@@ -90,16 +92,33 @@ final class EventWidgetViewModel: ObservableObject {
                            title: String,
                            calendarName: String,
                            completion: @escaping (String?) -> Void) {
-        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         
+        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+
         guard !trimmedTitle.isEmpty else {
             completion("Title is required.")
             return
         }
-        
+
         if trimmedTitle.count > 100 {
             completion("Title is too long.")
             return
+        }
+
+        self.eventWidgetManager.createEvent(title: title, startDate: startDate, endDate: endDate, calendarName: calendarName) {  result in 
+            DispatchQueue.main.async {
+                switch result {
+                case .success(_): 
+                    Task { await self.syncRemindersAndEvents() }
+                    self.dayViewState = .home
+                    completion(nil)
+                case .failure(let failure):
+                    DispatchQueue.main.async {
+                        completion(failure.localizedDescription)
+                        return
+                    }
+                }
+            }
         }
     }
 }
