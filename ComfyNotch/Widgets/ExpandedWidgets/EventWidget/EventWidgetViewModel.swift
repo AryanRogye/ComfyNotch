@@ -46,4 +46,31 @@ final class EventWidgetViewModel: ObservableObject {
         self.events = eventWidgetManager.getEvents(for: currentDate)
         self.reminders = await eventWidgetManager.getReminders(for: currentDate)
     }
+    
+    public func saveReminder(for date: Date, title: String, completion: @escaping (String?) -> Void) {
+        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        guard !trimmedTitle.isEmpty else {
+            completion("Title is required.")
+            return
+        }
+        
+        if trimmedTitle.count > 100 {
+            completion("Title is too long.")
+            return
+        }
+        
+        self.eventWidgetManager.createReminder(title: trimmedTitle, date: date) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let success):
+                    Task { await self.syncRemindersAndEvents() }
+                    self.dayViewState = .home
+                case .failure(let failure):
+                    completion(failure.localizedDescription)
+                    return
+                }
+            }
+        }
+    }
 }

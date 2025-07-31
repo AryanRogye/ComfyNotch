@@ -15,18 +15,24 @@ extension EventManager {
         clearKeyForPermissions()
         requestPermissionEventsIfNeededOnce { _ in }
     }
-    
+
     // MARK: - Request Permissions if Needed
+    
+    /// function is marked with completion because there are cases when we wanna run certain things ONLY once this is ran
+    /// regardless of it passing/failing
     func requestPermissionEventsIfNeededOnce(completion: @escaping (Bool) -> Void) {
-        clearKeyForPermissions()
         let alreadyRequested = UserDefaults.standard.bool(forKey: eventKitPermissionsRequestedKey)
         
+        let eventStatus = EKEventStore.authorizationStatus(for: .event)
+        let reminderStatus = EKEventStore.authorizationStatus(for: .reminder)
+        
+        let hasEventAccess = eventStatus == .fullAccess
+        let hasReminderAccess = reminderStatus == .fullAccess || reminderStatus == .authorized
+
         // Already prompted before — don’t ask again
-        if alreadyRequested {
-            
-            self.isCalendarsPermissionsGranted = true
-            self.isRemindersPermissionsGranted = true
-            
+        if alreadyRequested && hasEventAccess && hasReminderAccess {
+            isCalendarsPermissionsGranted = true
+            isRemindersPermissionsGranted = true
             completion(true)
             return
         }
@@ -38,23 +44,11 @@ extension EventManager {
         NSApp.activate(ignoringOtherApps: true)
         
         let group = DispatchGroup()
-        var calendarGranted = false
-        var reminderGranted = false
+        var calendarGranted = hasEventAccess
+        var reminderGranted = hasReminderAccess
         
         /// Check Calendar Status First
-        let eventStatus = EKEventStore.authorizationStatus(for: .event)
-        
-        switch eventStatus {
-        case .fullAccess:
-            calendarGranted = true
-        case .denied, .restricted, .notDetermined, .writeOnly:
-            group.enter()
-            requestAccessToCalendar { granted in
-                self.isCalendarsPermissionsGranted = granted
-                calendarGranted = granted
-                group.leave()
-            }
-        @unknown default:
+        if !hasEventAccess {
             group.enter()
             requestAccessToCalendar { granted in
                 self.isCalendarsPermissionsGranted = granted
@@ -64,26 +58,13 @@ extension EventManager {
         }
         
         /// Check Reminder Status Next
-        let reminderStatus = EKEventStore.authorizationStatus(for: .reminder)
-        switch reminderStatus {
-        case .fullAccess, .authorized:
-            reminderGranted = true
-        case .notDetermined, .restricted, .denied, .writeOnly:
+        if !hasReminderAccess {
             group.enter()
             requestAccessToReminders { granted in
                 self.isRemindersPermissionsGranted = granted
                 reminderGranted = granted
                 group.leave()
             }
-
-        @unknown default:
-            group.enter()
-            requestAccessToReminders { granted in
-                self.isRemindersPermissionsGranted = granted
-                reminderGranted = granted
-                group.leave()
-            }
-
         }
         
         group.notify(queue: .main) {

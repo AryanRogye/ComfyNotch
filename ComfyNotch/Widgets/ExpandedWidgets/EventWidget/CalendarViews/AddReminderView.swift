@@ -15,25 +15,51 @@ struct AddReminderView: View {
     /// Most Likely The Day Will be Today, if Not then we can have the user change it
     @State var dateSelected : Date = Date()
     
+    @State private var showReminderError: Bool = false
+    @State private var reminderError : String? = nil
+    
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             GoBackHome {
-                TextField("Reminder Title", text: $reminderTitle)
+                TextField("Title", text: $reminderTitle)
                     .textFieldStyle(.roundedBorder)
             }
             
-            HStack {
+            HStack(alignment: .top) {
                 /// Date Picker Here
-                DatePicker("", selection: $dateSelected, displayedComponents: [.date])
+                DatePicker("Date", selection: $dateSelected, displayedComponents: [.date])
                     .labelsHidden()
-                    .controlSize(.small)
+                    .controlSize(.regular)
+                Spacer()
             }
+            .padding(.top, 4)
             
-            Spacer()
+            HStack(alignment: .bottom) {
+                Button(action: {
+                    viewModel.saveReminder(for: dateSelected, title: reminderTitle) { errorMsg in
+                        if let err = errorMsg {
+                            showReminderError = true
+                            reminderError = err
+                        }
+                    }
+                }) {
+                    Text("Save")
+                }
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .onAppear {
             dateSelected = viewModel.currentDate
+        }
+        .alert(isPresented: $showReminderError) {
+            Alert(
+                title: Text("Error"),
+                message: Text(reminderError ?? ""),
+                dismissButton: .default(Text("OK"), action: {
+                    showReminderError = false
+                    reminderError = nil
+                })
+            )
         }
     }
 }

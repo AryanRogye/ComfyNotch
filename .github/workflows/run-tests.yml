@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    runs-on: macos-14
+    runs-on: macos-15
 
     steps:
       - uses: actions/checkout@v3
@@ -15,7 +15,10 @@ jobs:
       - name: Set up Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.2'
+          xcode-version: '16.4'
+
+      - name: Confirm Xcode Version
+        run: xcodebuild -version
 
       - name: Clean DerivedData (just in case)
         run: rm -rf ~/Library/Developer/Xcode/DerivedData
@@ -23,9 +26,9 @@ jobs:
       - name: Run Tests
         run: |
           xcodebuild test \
-            -scheme ComfyNotch \
-            -project ComfyNotch.xcodeproj \
-            -destination 'platform=macOS' \
-            -enableCodeCoverage YES \
-            -UseModernBuildSystem=YES \
-            -skipPackagePluginValidation
+          -scheme ComfyNotch \
+          -project ComfyNotch.xcodeproj \
+          -destination 'platform=macOS' \
+          -enableCodeCoverage YES \
+          -useModernBuildSystem=YES \
+          -skipPackagePluginValidation
