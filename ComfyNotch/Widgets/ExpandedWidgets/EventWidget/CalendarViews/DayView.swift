@@ -67,6 +67,7 @@ struct DayView: View {
     private var infoView: some View {
         ScrollView(.vertical, showsIndicators: false) {
             remindersView
+                .padding(.top, 8)
             eventsView
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -74,27 +75,15 @@ struct DayView: View {
     
     private var remindersView: some View {
         VStack(spacing: 0) {
-            HStack {
-                Text("Reminders: ")
-                    .font(.caption)
-                    .frame(alignment: .leading)
-                
-                Spacer()
-                
-                Button(action: {
-                    viewModel.dayViewState = .addReminders
-                }) {
-                    Image(systemName: "plus")
-                        .resizable()
-                        .frame(width: 10, height: 10)
-                }
-                .buttonStyle(.plain)
+            addButton("Reminders: ") {
+                viewModel.dayViewState = .addReminders
             }
-            .frame(maxWidth: .infinity)
+            
+            Divider()
+                .padding(.vertical, 4)
             
             ForEach(viewModel.reminders, id: \.self) { reminder in
                 HStack {
-                    Spacer()
                     Text(reminder.title)
                 }
             }
@@ -103,24 +92,13 @@ struct DayView: View {
     
     private var eventsView: some View {
         VStack(spacing: 0) {
-            HStack {
-                Text("Events: ")
-                    .font(.caption)
-                    .frame(alignment: .leading)
-                
-                Spacer()
-                
-                Button(action: {
-                    viewModel.dayViewState = .addEvent
-                }) {
-                    Image(systemName: "plus")
-                        .resizable()
-                        .frame(width: 10, height: 10)
-                }
-                .buttonStyle(.plain)
+            addButton("Events: "){
+                viewModel.dayViewState = .addEvent
             }
-            .frame(maxWidth: .infinity)
             
+            Divider()
+                .padding(.vertical, 4)
+
             ForEach(viewModel.events, id: \.self) { event in
                 Text(event.title)
             }
@@ -204,5 +182,23 @@ struct DayView: View {
                 .foregroundColor(viewModel.isToday(date) ? .blue : .white)
         }
         .buttonStyle(.plain)
-    }    
+    }
+    
+    private func addButton(_ title: String, action: @escaping () -> Void) -> some View {
+        return HStack {
+            Text(title)
+                .font(.caption)
+                .frame(alignment: .leading)
+            
+            Spacer()
+            
+            Button(action: action) {
+                Image(systemName: "plus")
+                    .resizable()
+                    .frame(width: 10, height: 10)
+            }
+            .buttonStyle(.plain)
+        }
+        .frame(maxWidth: .infinity)
+    }
 }

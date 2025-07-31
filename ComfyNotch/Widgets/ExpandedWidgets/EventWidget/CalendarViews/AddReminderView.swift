@@ -20,32 +20,20 @@ struct AddReminderView: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            /// Go Back and title
             GoBackHome {
                 TextField("Title", text: $reminderTitle)
                     .textFieldStyle(.roundedBorder)
             }
             
-            HStack(alignment: .top) {
-                /// Date Picker Here
-                DatePicker("Date", selection: $dateSelected, displayedComponents: [.date])
-                    .labelsHidden()
-                    .controlSize(.regular)
-                Spacer()
-            }
-            .padding(.top, 4)
+            /// Date Picker
+            datePicker
+                .padding(.top, 4)
             
-            HStack(alignment: .bottom) {
-                Button(action: {
-                    viewModel.saveReminder(for: dateSelected, title: reminderTitle) { errorMsg in
-                        if let err = errorMsg {
-                            showReminderError = true
-                            reminderError = err
-                        }
-                    }
-                }) {
-                    Text("Save")
-                }
-            }
+            Spacer()
+            
+            /// Save Button
+            saveButton
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .onAppear {
@@ -60,6 +48,31 @@ struct AddReminderView: View {
                     reminderError = nil
                 })
             )
+        }
+    }
+    
+    private var saveButton: some View {
+        HStack(alignment: .bottom) {
+            Button(action: {
+                viewModel.saveReminder(for: dateSelected, title: reminderTitle) { errorMsg in
+                    if let err = errorMsg {
+                        showReminderError = true
+                        reminderError = err
+                    }
+                }
+            }) {
+                Text("Save")
+            }
+            .controlSize(.small)
+        }
+    }
+    
+    private var datePicker: some View {
+        HStack(alignment: .top) {
+            DatePicker("Date", selection: $dateSelected, displayedComponents: [.date])
+                .labelsHidden()
+                .controlSize(.regular)
+            Spacer()
         }
     }
 }

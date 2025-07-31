@@ -727,14 +727,17 @@ class SettingsModel: ObservableObject {
         
         var limit = 2
         // LIMIT 3 Widgets Only
-        if self.notchMaxWidth < 500 {
+        if self.notchMaxWidth < 440 {
             limit = 1
-        } else if self.notchMaxWidth < 600 {
+        } else if self.notchMaxWidth < 520 {
             limit = 2
-        } else if self.notchMaxWidth < 750 {
+        } else if self.notchMaxWidth < 600 {
             limit = 3
-        } else {
+        } else if self.notchMaxWidth < 700 {
             limit = 4
+        } else {
+            /// Simulates no limit
+            limit = 20
         }
         
         print("Notch Min Width: \(notchMaxWidth) - Limit: \(limit)")

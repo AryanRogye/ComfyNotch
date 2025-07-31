@@ -17,7 +17,7 @@ struct GoBackHome<Content: View>: View {
     }
     
     var body: some View {
-        HStack(alignment: .top) {
+        HStack(alignment: .center) {
             
             if let content = content {
                 content()

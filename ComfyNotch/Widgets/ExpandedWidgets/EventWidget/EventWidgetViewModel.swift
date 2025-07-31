@@ -19,10 +19,10 @@ final class EventWidgetViewModel: ObservableObject {
     
     let eventWidgetManager = EventManager.shared
     
+    // MARK: - Date Stuff
     public func isToday(_ date: Date) -> Bool {
         Calendar.current.isDate(date, inSameDayAs: currentDate)
     }
-    
     
     public func formattedMonth(_ date: Date) -> String {
         let formatter = DateFormatter()
@@ -47,6 +47,7 @@ final class EventWidgetViewModel: ObservableObject {
         self.reminders = await eventWidgetManager.getReminders(for: currentDate)
     }
     
+    // MARK: - Reminders
     public func saveReminder(for date: Date, title: String, completion: @escaping (String?) -> Void) {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         
@@ -63,7 +64,7 @@ final class EventWidgetViewModel: ObservableObject {
         self.eventWidgetManager.createReminder(title: trimmedTitle, date: date) { result in
             DispatchQueue.main.async {
                 switch result {
-                case .success(let success):
+                case .success(_):
                     Task { await self.syncRemindersAndEvents() }
                     self.dayViewState = .home
                 case .failure(let failure):
@@ -71,6 +72,34 @@ final class EventWidgetViewModel: ObservableObject {
                     return
                 }
             }
+        }
+    }
+    
+    // MARK: - Events
+    public func getUserCalendarNames() -> [String] {
+        Task { @MainActor in
+            await syncRemindersAndEvents()
+        }
+        
+        return eventWidgetManager.events.map { $0.title }
+    }
+    
+    // Saving Logic for the events
+    public func saveEvent(startDate: Date,
+                           endDate: Date,
+                           title: String,
+                           calendarName: String,
+                           completion: @escaping (String?) -> Void) {
+        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        guard !trimmedTitle.isEmpty else {
+            completion("Title is required.")
+            return
+        }
+        
+        if trimmedTitle.count > 100 {
+            completion("Title is too long.")
+            return
         }
     }
 }
