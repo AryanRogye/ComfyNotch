@@ -33,6 +33,7 @@ struct MonthView: View {
                     ForEach(days, id: \.self) { date in
                         Button(action: {
                             viewModel.currentDate = date
+                            viewModel.selectedScope = .day
                         }) {
                             Text("\(Calendar.current.component(.day, from: date))")
                                 .font(.caption)
