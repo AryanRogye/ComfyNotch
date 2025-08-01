@@ -10,15 +10,43 @@ import SwiftUI
 struct MonthView: View {
     
     @EnvironmentObject var viewModel: EventWidgetViewModel
+    
+
 
     var body: some View {
         VStack {
             topMonthRow
             
-            LazyVGrid (
-                columns: Array(repeating: GridItem(.fixed(20), spacing: 10), count: 7),
-            ) {
-//                ForEach(viewModel)
+            let days = viewModel.daysInMonth(for: viewModel.currentDate)
+            let offset = viewModel.startDayOffset(for: viewModel.currentDate)
+            
+            ScrollView(.vertical, showsIndicators: false) {
+                LazyVGrid (
+                    columns: Array(repeating: GridItem(.fixed(15), spacing: 5), count: 7),
+                ) {
+                    ForEach(0..<offset, id: \.self) { _ in
+                        Text("") // just blank
+                            .frame(width: 10, height: 10)
+                    }
+                    
+                    // Show actual days
+                    ForEach(days, id: \.self) { date in
+                        Button(action: {
+                            viewModel.currentDate = date
+                        }) {
+                            Text("\(Calendar.current.component(.day, from: date))")
+                                .font(.caption)
+                                .minimumScaleFactor(0.5)
+                                .lineLimit(1)
+                                .frame(width: 10, height: 10)
+                                .background(
+                                    Circle()
+                                        .fill(viewModel.isToday(date) ? Color.blue : Color.clear)
+                                )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
             }
             
             Spacer()

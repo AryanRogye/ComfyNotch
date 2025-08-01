@@ -38,6 +38,33 @@ final class EventWidgetViewModel: ObservableObject {
         return formatter.string(from: date)
     }
     
+    /// Function to get days in a month
+    func daysInMonth(for date: Date) -> [Date] {
+        let calendar = Calendar.current
+        guard let monthInterval = calendar.dateInterval(of: .month, for: date) else { return [] }
+        
+        let start = monthInterval.start
+        let range = calendar.range(of: .day, in: .month, for: date)!
+        
+        var days: [Date] = []
+        
+        for day in range {
+            if let dayDate = calendar.date(byAdding: .day, value: day - 1, to: start) {
+                days.append(dayDate)
+            }
+        }
+        
+        return days
+    }
+    
+    func startDayOffset(for date: Date) -> Int {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year, .month], from: date)
+        let firstOfMonth = calendar.date(from: components)!
+        let weekday = calendar.component(.weekday, from: firstOfMonth)
+        return weekday - calendar.firstWeekday // usually 1 (Sunday)
+    }
+    
     @MainActor
     public func syncRemindersAndEvents() async{
         self.eventWidgetManager.fetchUserReminders()
@@ -113,10 +140,8 @@ final class EventWidgetViewModel: ObservableObject {
                     self.dayViewState = .home
                     completion(nil)
                 case .failure(let failure):
-                    DispatchQueue.main.async {
-                        completion(failure.localizedDescription)
-                        return
-                    }
+                    completion(failure.localizedDescription)
+                    return
                 }
             }
         }

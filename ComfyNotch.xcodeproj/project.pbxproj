@@ -9,14 +9,12 @@
 /* Begin PBXBuildFile section */
 		9B1319642DF10A5200657438 /* Assets in Resources */ = {isa = PBXBuildFile; fileRef = 9B13195E2DF10A5200657438 /* Assets */; };
 		9B1319652DF10A5200657438 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9B13195F2DF10A5200657438 /* Assets.xcassets */; };
-		9B288A852DC722BF00E5DB18 /* ComfyCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = 9B288A842DC722BF00E5DB18 /* ComfyCalendar */; };
 		9B2A90062DE25AB500046186 /* CoreDisplay.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B2A90052DE25AB500046186 /* CoreDisplay.framework */; };
 		9B3F12282E1DE64300B5F68B /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 9B3F12272E1DE64300B5F68B /* Sparkle */; };
 		9B3F122B2E1DE67700B5F68B /* SVGView in Frameworks */ = {isa = PBXBuildFile; productRef = 9B3F122A2E1DE67700B5F68B /* SVGView */; };
 		9B3F12312E1DE6DB00B5F68B /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = 9B3F12302E1DE6DB00B5F68B /* SQLite */; };
 		9B3F12342E1DE7A800B5F68B /* MediaRemoteAdapter in Frameworks */ = {isa = PBXBuildFile; productRef = 9B3F12332E1DE7A800B5F68B /* MediaRemoteAdapter */; };
 		9B3F12352E1DE7DE00B5F68B /* MediaRemoteAdapter in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 9B3F12332E1DE7A800B5F68B /* MediaRemoteAdapter */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		9B3F15152E23189500B5F68B /* ComfyCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = 9B3F15142E23189500B5F68B /* ComfyCalendar */; };
 		9BF760C52E300E420092A3BB /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 9BF760C42E300E420092A3BB /* LICENSE */; };
 /* End PBXBuildFile section */
 
@@ -135,9 +133,7 @@
 				9B3F12342E1DE7A800B5F68B /* MediaRemoteAdapter in Frameworks */,
 				9B3F12282E1DE64300B5F68B /* Sparkle in Frameworks */,
 				9B2A90062DE25AB500046186 /* CoreDisplay.framework in Frameworks */,
-				9B3F15152E23189500B5F68B /* ComfyCalendar in Frameworks */,
 				9B3F122B2E1DE67700B5F68B /* SVGView in Frameworks */,
-				9B288A852DC722BF00E5DB18 /* ComfyCalendar in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -233,12 +229,10 @@
 			);
 			name = ComfyNotch;
 			packageProductDependencies = (
-				9B288A842DC722BF00E5DB18 /* ComfyCalendar */,
 				9B3F12272E1DE64300B5F68B /* Sparkle */,
 				9B3F122A2E1DE67700B5F68B /* SVGView */,
 				9B3F12302E1DE6DB00B5F68B /* SQLite */,
 				9B3F12332E1DE7A800B5F68B /* MediaRemoteAdapter */,
-				9B3F15142E23189500B5F68B /* ComfyCalendar */,
 			);
 			productName = ComfyNotch;
 			productReference = 9B1316742DF10A2800657438 /* ComfyNotch.app */;
@@ -278,7 +272,6 @@
 				9B3F12292E1DE67700B5F68B /* XCRemoteSwiftPackageReference "SVGView" */,
 				9B3F122F2E1DE6DB00B5F68B /* XCRemoteSwiftPackageReference "SQLite" */,
 				9B3F12322E1DE7A800B5F68B /* XCRemoteSwiftPackageReference "mediaremote-adapter" */,
-				9B3F15132E23189500B5F68B /* XCLocalSwiftPackageReference "ComfyCalendar" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9BC3A4592DB1D40000FFD323;
@@ -615,13 +608,6 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		9B3F15132E23189500B5F68B /* XCLocalSwiftPackageReference "ComfyCalendar" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ComfyCalendar;
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCRemoteSwiftPackageReference section */
 		9B3F12262E1DE64300B5F68B /* XCRemoteSwiftPackageReference "Sparkle" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -658,10 +644,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		9B288A842DC722BF00E5DB18 /* ComfyCalendar */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = ComfyCalendar;
-		};
 		9B3F12272E1DE64300B5F68B /* Sparkle */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 9B3F12262E1DE64300B5F68B /* XCRemoteSwiftPackageReference "Sparkle" */;
@@ -681,10 +663,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9B3F12322E1DE7A800B5F68B /* XCRemoteSwiftPackageReference "mediaremote-adapter" */;
 			productName = MediaRemoteAdapter;
-		};
-		9B3F15142E23189500B5F68B /* ComfyCalendar */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = ComfyCalendar;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

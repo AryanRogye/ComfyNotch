@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import ComfyCalendar
 import AppKit
 
 struct EventWidget: View, Widget {

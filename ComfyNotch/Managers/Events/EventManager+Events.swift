@@ -1,5 +1,5 @@
 //
-//  EventManager+Reminders.swift
+//  EventManager+Events.swift
 //  ComfyNotch
 //
 //  Created by Aryan Rogye on 7/30/25.
