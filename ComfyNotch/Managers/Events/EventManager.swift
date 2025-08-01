@@ -9,20 +9,16 @@ import Foundation
 import EventKit
 import AppKit
 
-
-class EventManager: ObservableObject {
-    
-    static let shared = EventManager()
-    
-    @Published var store = EKEventStore()
+class EventManager {
+    var store = EKEventStore()
     
     internal var eventKitPermissionsRequestedKey: String { "eventKitPermissionsAlreadyRequested" }
 
-    @Published public var isRemindersPermissionsGranted : Bool = false
-    @Published public var isCalendarsPermissionsGranted : Bool = false
+    private(set) var isRemindersPermissionsGranted : Bool = false
+    private(set) var isCalendarsPermissionsGranted : Bool = false
     
-    @Published var reminders : [EKCalendar] = []
-    @Published var events    : [EKCalendar]    = []
+    var reminders : [EKCalendar] = []
+    var events    : [EKCalendar]    = []
     
     let calendar = Calendar.current
 
@@ -35,6 +31,14 @@ class EventManager: ObservableObject {
     public func fetchUserCalendars() {
         guard self.isCalendarsPermissionsGranted else { return }
         self.events = self.store.calendars(for: .event)
+    }
+    
+    internal func setCalendarPermissions(to val: Bool) {
+        isCalendarsPermissionsGranted = val
+    }
+    
+    internal func setRemindersPermissions(to val: Bool) {
+        isRemindersPermissionsGranted = val
     }
     
     // MARK: - Reminders

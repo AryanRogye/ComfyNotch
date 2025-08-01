@@ -14,27 +14,21 @@ struct EventWidget: View, Widget {
         AnyView(self)
     }
 
-    @ObservedObject private var eventManager : EventManager = .shared
     @StateObject private var viewModel = EventWidgetViewModel()
-    
     @State private var givenSpace : GivenWidgetSpace = (w: 0, h: 0)
     
     var body: some View {
         HStack {
-            if eventManager.isCalendarsPermissionsGranted && eventManager.isRemindersPermissionsGranted {
+            if viewModel.isCalendarsPermissionsGranted && viewModel.isRemindersPermissionsGranted {
                 eventView
             } else {
                 permissionsView
             }
         }
         .frame(width: givenSpace.w, height: givenSpace.h)
-        .onAppear {
-            eventManager.fetchUserReminders()
-            eventManager.fetchUserCalendars()
-        }
         /// Determine Width and Height of the given space for this Widget
         .onAppear {
-            EventManager.shared.requestPermissionEventsIfNeededOnce { _ in }
+            viewModel.eventWidgetManager.requestPermissionEventsIfNeededOnce { _ in }
             givenSpace = UIManager.shared.expandedWidgetStore.determineWidthAndHeight()
         }
         /// This will Let Scrolling be at a threshold
@@ -62,7 +56,7 @@ struct EventWidget: View, Widget {
             VStack {
                 Text("Permissions Not Granted")
                 
-                Button(action: eventManager.requestPermissions) {
+                Button(action: viewModel.eventWidgetManager.requestPermissions) {
                     Text("Request Permissions")
                 }
             }

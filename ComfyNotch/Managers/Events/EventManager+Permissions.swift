@@ -31,8 +31,8 @@ extension EventManager {
 
         // Already prompted before — don’t ask again
         if alreadyRequested && hasEventAccess && hasReminderAccess {
-            isCalendarsPermissionsGranted = true
-            isRemindersPermissionsGranted = true
+            setCalendarPermissions(to: true)
+            setRemindersPermissions(to: true)
             completion(true)
             return
         }
@@ -51,7 +51,7 @@ extension EventManager {
         if !hasEventAccess {
             group.enter()
             requestAccessToCalendar { granted in
-                self.isCalendarsPermissionsGranted = granted
+                self.setCalendarPermissions(to: granted)
                 calendarGranted = granted
                 group.leave()
             }
@@ -61,7 +61,7 @@ extension EventManager {
         if !hasReminderAccess {
             group.enter()
             requestAccessToReminders { granted in
-                self.isRemindersPermissionsGranted = granted
+                self.setRemindersPermissions(to: granted)
                 reminderGranted = granted
                 group.leave()
             }
@@ -71,8 +71,8 @@ extension EventManager {
             NSApp.setActivationPolicy(.accessory)
             
             /// Update
-            self.isCalendarsPermissionsGranted = calendarGranted
-            self.isRemindersPermissionsGranted = reminderGranted
+            self.setCalendarPermissions(to: calendarGranted)
+            self.setRemindersPermissions(to: reminderGranted)
             
             /// Let The App Continue Onwards
             completion(true)

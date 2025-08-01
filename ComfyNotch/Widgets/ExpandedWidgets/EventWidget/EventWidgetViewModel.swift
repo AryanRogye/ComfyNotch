@@ -9,6 +9,7 @@ import Foundation
 import EventKit
 
 final class EventWidgetViewModel: ObservableObject {
+    
     @Published var currentDate = Date()
     @Published var selectedScope: CalendarScope = .day
     @Published var dayViewState : DayViewState = .home
@@ -17,10 +18,18 @@ final class EventWidgetViewModel: ObservableObject {
     @Published var reminders : [EKReminder] = []
     @Published var events    : [EKEvent]    = []
     
-    let eventWidgetManager = EventManager.shared
+    let eventWidgetManager = EventManager()
+    
+    // MARK: - Permission Getters
+    var isCalendarsPermissionsGranted: Bool {
+        eventWidgetManager.isCalendarsPermissionsGranted
+    }
+    
+    var isRemindersPermissionsGranted: Bool {
+        eventWidgetManager.isRemindersPermissionsGranted
+    }
     
     // MARK: - Date Stuff
-    
     /// function to verify if the given date is the selected "currentDate" in internal
     public func isToday(_ date: Date) -> Bool {
         Calendar.current.isDate(date, inSameDayAs: currentDate)
