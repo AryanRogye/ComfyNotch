@@ -20,8 +20,5 @@ struct UserEventView: View {
                 MonthView()
             }
         }
-        .onAppear {
-            /// First Determine What Day it is
-        }
     }
 }

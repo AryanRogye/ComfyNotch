@@ -16,7 +16,6 @@ enum DayViewState {
 struct DayView: View {
     
     @EnvironmentObject var viewModel: EventWidgetViewModel
-    @State private var scrollTarget: Int = 30
     
     private var visibleDateRange: [Date] {
         let calendar = Calendar.current
