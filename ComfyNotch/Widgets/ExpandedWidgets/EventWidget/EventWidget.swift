@@ -33,7 +33,7 @@ struct EventWidget: View, Widget {
         }
         /// This will Let Scrolling be at a threshold
         .onHover { hovering in
-            WidgetHoverState.shared.isHovering = hovering
+            WidgetHoverState.shared.isHoveringOverEvents = hovering
         }
     }
     

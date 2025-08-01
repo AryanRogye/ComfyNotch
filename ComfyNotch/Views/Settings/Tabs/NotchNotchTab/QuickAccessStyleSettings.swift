@@ -45,22 +45,14 @@ struct QuickAccessStyleSettings: View {
             
             HStack {
                 /// Option 1
-                notchStyleButton(
-                    type: .dynamic,
-                    label: "Dynamic",
-                    isSelected: values.quickAccessWidgetSimpleDynamic == .dynamic
-                ) {
+                ComfyPickerElement(isSelected: values.quickAccessWidgetSimpleDynamic == .dynamic, label: "Dynamic") {
                     values.quickAccessWidgetSimpleDynamic = .dynamic
                 } content: {
                     Option1()
                 }
                 
                 /// Option 2
-                notchStyleButton(
-                    type: .simple,
-                    label: "Simple",
-                    isSelected: values.quickAccessWidgetSimpleDynamic == .simple
-                ) {
+                ComfyPickerElement(isSelected: values.quickAccessWidgetSimpleDynamic == .simple, label: "Simple") {
                     values.quickAccessWidgetSimpleDynamic = .simple
                 } content: {
                     Option2()

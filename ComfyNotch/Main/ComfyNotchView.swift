@@ -174,6 +174,9 @@ struct ComfyNotchView: View {
                 if WidgetHoverState.shared.isHovering {
                     threshold = 3000
                 }
+                if WidgetHoverState.shared.isHoveringOverEvents {
+                    threshold = settings.eventWidgetScrollUpThreshold
+                }
                 
                 switch phase {
                 default:

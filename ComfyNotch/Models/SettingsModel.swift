@@ -83,12 +83,14 @@ class SettingsModel: ObservableObject {
     @Published var twoFingerAction: TouchAction = .none
     @Published var notchScrollThreshold: CGFloat = 50
     
+    // MARK: - Music Setting Values
     /// ---------- Music Player Settings ----------
     @Published var musicPlayerStyle : MusicPlayerWidgetStyle = .native
     @Published var showMusicProvider: Bool = true
     @Published var musicController: MusicController = .mediaRemote
     @Published var overridenMusicProvider: MusicProvider = .none
     
+    // MARK: - Camera Setting Values
     /// ---------- Camera Settings ----------
     @Published var isCameraFlipped: Bool = false
     /// Suggest Users to enable this for better memory management
@@ -98,6 +100,13 @@ class SettingsModel: ObservableObject {
     @Published var cameraOverlayTimer: Int = 20
     @Published var cameraQualitySelection: AVCaptureSession.Preset = .high
     
+    // MARK: - Event Widget Values
+    /// ---------- Event Widget Settings ----------
+    let DEFAULT_EVENT_WIDGET_SCROLL_UP_THRESHOLD : CGFloat = 3000.0
+    let MIN_EVENT_WIDGET_SCROLL_UP_THRESHOLD     : CGFloat = 1000.0
+    let MAX_EVENT_WIDGET_SCROLL_UP_THRESHOLD     : CGFloat = 5000.0
+    @Published var eventWidgetScrollUpThreshold  : CGFloat = 3000.0
+
     
     /// ---------- Display Settings ----------
     @Published var selectedScreen: NSScreen! = NSScreen.main!
@@ -160,6 +169,8 @@ class SettingsModel: ObservableObject {
             .store(in: &cancellables)
     }
     
+    // MARK: - Updates
+    
     func checkForUpdates() {
         updaterController.updater.checkForUpdates()
     }
@@ -168,8 +179,351 @@ class SettingsModel: ObservableObject {
         updaterController.updater.checkForUpdatesInBackground()
     }
     
-    // MARK: - Save Settings
+    // MARK: - Load Settings
+    /// Loads the last saved settings from UserDefaults
+    func loadSettings() {
+        // Load fallback notch height with validation
+        if let notchMinFallbackHeight = defaults.object(forKey: "notchMinFallbackHeight") as? Double {
+            self.notchMinFallbackHeight = CGFloat(notchMinFallbackHeight > 0 ? notchMinFallbackHeight : 40)
+        } else {
+            self.notchMinFallbackHeight = CGFloat(40)
+        }
+        
+        // Loading the last state for the settings window
+        if let loadedWidgets = defaults.object(forKey: "selectedWidgets") as? [String] {
+            self.selectedWidgets = loadedWidgets
+        } else {
+            // Set default if nothing is saved
+            self.selectedWidgets = WidgetRegistry.shared.getDefaultWidgets()
+        }
+        
+        /// ----------------------- Camera Settings -----------------------
+        // Loading the last state for camera flip
+        if defaults.object(forKey: "isCameraFlipped") != nil {
+            self.isCameraFlipped = defaults.bool(forKey: "isCameraFlipped")
+        }
+        if defaults.object(forKey: "enableCameraOverlay") != nil {
+            self.enableCameraOverlay = defaults.bool(forKey: "enableCameraOverlay")
+        }
+        if let cameraOverlayTimer = defaults.object(forKey: "cameraOverlayTimer") as? Int {
+            self.cameraOverlayTimer = cameraOverlayTimer
+        } else {
+            // Set default if nothing is saved
+            self.cameraOverlayTimer = 20
+        }
+        
+        /// ----------------------- FileTray Settings ------------------------------------
+        if let fileTrayDefaultFolder = defaults.string(forKey: "fileTrayDefaultFolder") {
+            self.fileTrayDefaultFolder = URL(fileURLWithPath: fileTrayDefaultFolder)
+        }
+        
+        if let fileTrayAllowOpenOnLocalhost = defaults.object(forKey: "fileTrayAllowOpenOnLocalhost") as? Bool {
+            self.fileTrayAllowOpenOnLocalhost = fileTrayAllowOpenOnLocalhost
+        } else {
+            self.fileTrayAllowOpenOnLocalhost = false
+        }
+        
+        if let fileTrayPort = defaults.object(forKey: "fileTrayPort") as? Int {
+            self.fileTrayPort = fileTrayPort
+        } else {
+            self.fileTrayPort = 8000 // Default port
+        }
+        
+        if let localHostPin = defaults.string(forKey: "localHostPin") {
+            self.localHostPin = localHostPin
+        } else {
+            self.localHostPin = "1111" // Default pin
+        }
+        
+        /// ----------------------- ClipBoard Settings -----------------------------------
+        if let clipboardManagerMaxHistory = defaults.object(forKey: "clipboardManagerMaxHistory") as? Int {
+            self.clipboardManagerMaxHistory = clipboardManagerMaxHistory
+        }
+        /// Load in the clipboardManagerPollingIntervalMS
+        if let clipboardManagerPollingIntervalMS = defaults.object(forKey: "clipboardManagerPollingIntervalMS") as? Int {
+            self.clipboardManagerPollingIntervalMS = clipboardManagerPollingIntervalMS
+        }
+        if let showDividerBetweenWidgets = defaults.object(forKey: "showDividerBetweenWidgets") as? Bool {
+            self.showDividerBetweenWidgets = showDividerBetweenWidgets
+        }
+        
+        /// ----------------------- Notch Scroll Settings -----------------------
+        if let hoverTarget = defaults.object(forKey: "hoverTargetMode") as? String {
+            self.hoverTargetMode = HoverTarget(rawValue: hoverTarget) ?? .album
+        } else {
+            self.hoverTargetMode = .none /// default to none
+        }
+        
+        if let nowPlayingScrollSpeed = defaults.object(forKey: "nowPlayingScrollSpeed") as? Int {
+            self.nowPlayingScrollSpeed = nowPlayingScrollSpeed
+        } else {
+            self.nowPlayingScrollSpeed = 40
+        }
+        if let enableNotchHUD = defaults.object(forKey: "enableNotchHUD") as? Bool {
+            self.enableNotchHUD = enableNotchHUD
+        } else {
+            self.enableNotchHUD = false
+        }
+        
+        if let notchMaxWidth = defaults.object(forKey: "notchMaxWidth") as? CGFloat {
+            self.notchMaxWidth = notchMaxWidth
+        } else {
+            self.notchMaxWidth = 450
+        }
+        
+        if let notchMinWidth = defaults.object(forKey: "notchMinWidth") as? CGFloat {
+            self.notchMinWidth = notchMinWidth
+        } else {
+            self.notchMinWidth = 290
+        }
+        
+        /// quickAccessWidgetDistanceFromLeft Loading Logic
+        if let quickAccessWidgetDistanceFromLeft = defaults.object(forKey: "quickAccessWidgetDistanceFromLeft") as? CGFloat {
+            self.quickAccessWidgetDistanceFromLeft = quickAccessWidgetDistanceFromLeft
+        } else {
+            self.quickAccessWidgetDistanceFromLeft = 18
+        }
+        
+        if let quickAccessWidgetDistanceFromTop = defaults.object(forKey: "quickAccessWidgetDistanceFromTop") as? CGFloat {
+            self.quickAccessWidgetDistanceFromTop = quickAccessWidgetDistanceFromTop
+        } else {
+            self.quickAccessWidgetDistanceFromTop = 4
+        }
+        
+        if let settingsWidgetDistanceFromRight = defaults.object(forKey: "settingsWidgetDistanceFromRight") as? CGFloat {
+            self.settingsWidgetDistanceFromRight = settingsWidgetDistanceFromRight
+        } else {
+            self.settingsWidgetDistanceFromRight = 18
+        }
+        
+        if let oneFingerActionRawValue = defaults.string(forKey: "oneFingerAction"),
+           let oneFingerAction = TouchAction(rawValue: oneFingerActionRawValue) {
+            self.oneFingerAction = oneFingerAction
+        } else {
+            self.oneFingerAction = .none
+        }
+        
+        if let twoFingerActionRawValue = defaults.string(forKey: "twoFingerAction"),
+           let twoFingerAction = TouchAction(rawValue: twoFingerActionRawValue) {
+            self.twoFingerAction = twoFingerAction
+        } else {
+            self.twoFingerAction = .none
+        }
+        
+        if let notchScrollThreshold = defaults.object(forKey: "notchScrollThreshold") as? CGFloat {
+            self.notchScrollThreshold = notchScrollThreshold
+        } else {
+            self.notchScrollThreshold = 50 // Default threshold
+        }
+        
+        /// ----------------------- Music Player Settings -----------------------
+        if let showMusicProvider = defaults.object(forKey: "showMusicProvider") as? Bool {
+            self.showMusicProvider = showMusicProvider
+        } else {
+            self.showMusicProvider = true
+        }
+        
+        if let musicControllerRawValue = defaults.string(forKey: "musicController"),
+           let musicController = MusicController(rawValue: musicControllerRawValue) {
+            self.musicController = musicController
+        } else {
+            self.musicController = .mediaRemote
+        }
+        
+        if let overridenMusicProviderRawValue = defaults.string(forKey: "overridenMusicProvider"),
+           let overridenMusicProvider = MusicProvider(rawValue: overridenMusicProviderRawValue) {
+            self.overridenMusicProvider = overridenMusicProvider
+        } else {
+            self.overridenMusicProvider = .none
+        }
+        
+        /// ----------------------- Event Widget Settings -----------------------
+        if let eventWidgetScrollUpThreshold = defaults.object(forKey: "eventWidgetScrollUpThreshold") as? CGFloat {
+            self.eventWidgetScrollUpThreshold = eventWidgetScrollUpThreshold
+        } else {
+            self.eventWidgetScrollUpThreshold = DEFAULT_EVENT_WIDGET_SCROLL_UP_THRESHOLD
+        }
+        
+        /// ----------------------- Messages Settings -----------------------
+        if let enableMessagesNotifications = defaults.object(forKey: "enableMessagesNotifications") as? Bool {
+            self.enableMessagesNotifications = enableMessagesNotifications
+        } else {
+            self.enableMessagesNotifications = false
+        }
+        
+        if let messagesHandleLimit = defaults.object(forKey: "messagesHandleLimit") as? Int {
+            self.messagesHandleLimit = messagesHandleLimit
+        } else {
+            self.messagesHandleLimit = 30
+        }
+        
+        if let messagesMessageLimit = defaults.object(forKey: "messagesMessageLimit") as? Int {
+            self.messagesMessageLimit = messagesMessageLimit
+        } else {
+            self.messagesMessageLimit = 20
+        }
+        
+        /// ----------------------- Display Settings -----------------------
+        if let screen = defaults.object(forKey: "selectedScreenID") as? CGDirectDisplayID {
+            self.selectedScreen = NSScreen.screens.first(where: { $0.displayID == screen }) ?? NSScreen.main
+        } else {
+            self.selectedScreen = NSScreen.main
+        }
+        
+        /// ----------------------- Animation Settings -----------------------
+        if let openingAnimation = defaults.string(forKey: "openingAnimation") {
+            self.openingAnimation = openingAnimation
+        } else {
+            self.openingAnimation = "iOS" // Default animation
+        }
+        
+        if let name = defaults.string(forKey: "notchBackgroundAnimation"),
+           let option = ShaderOption(rawValue: name) {
+            self.notchBackgroundAnimation = option
+        } else {
+            self.notchBackgroundAnimation = .ambientGradient
+        }
+        
+        if let enableMetalAnimation = defaults.object(forKey: "enableMetalAnimation") as? Bool {
+            self.enableMetalAnimation = enableMetalAnimation
+        } else {
+            self.enableMetalAnimation = true // Default to true
+        }
+        
+        if let constant120FPS = defaults.object(forKey: "constant120FPS") as? Bool {
+            self.constant120FPS = constant120FPS
+        } else {
+            self.constant120FPS = false // Default to false
+        }
+        
+        /// ----------------------- Utils Settings -----------------------
+        if let enableUtilsOption = defaults.object(forKey: "enableUtilsOption") as? Bool {
+            self.enableUtilsOption = enableUtilsOption
+        } else {
+            self.enableUtilsOption = false
+        }
+        
+        if let enableClipboardListener = defaults.object(forKey: "enableClipboardListener") as? Bool {
+            self.enableClipboardListener = enableClipboardListener
+        } else {
+            self.enableClipboardListener = false
+        }
+        
+        /// ----------------------- Quick Access Widget Settings -----------------------
+        if let quickAccessWidgetSimpleDynamicRawValue = defaults.string(forKey: "quickAccessWidgetSimpleDynamic"),
+           let quickAccessWidgetSimpleDynamic = QuickAccessType(rawValue: quickAccessWidgetSimpleDynamicRawValue) {
+            self.quickAccessWidgetSimpleDynamic = quickAccessWidgetSimpleDynamic
+        } else {
+            self.quickAccessWidgetSimpleDynamic = .dynamic // Default to dynamic
+        }
+    }
     
+    public func saveSettingsForDisplay(for screen: NSScreen) {
+        self.selectedScreen = screen
+        
+        // Save the display ID of the selected screen
+        if let displayID = screen.displayID {
+            defaults.set(displayID, forKey: "selectedScreenID")
+        }
+    }
+    
+    // MARK: - Widget Update Logic
+    
+    /// Updates `selectedWidgets` and triggers a reload notification immediately
+    /// This was a design choice to keep it in the settings page, this is becuase
+    /// the settings is what manages and loads in the widgets at runtime and while
+    /// the application is running
+    func updateSelectedWidgets(with widgetName: String, isSelected: Bool) {
+        
+        debugLog("Updating selected widgets with: \(widgetName), isSelected: \(isSelected)")
+        
+        var limit = 2
+        // LIMIT 3 Widgets Only
+        if self.notchMaxWidth < 440 {
+            limit = 1
+        } else if self.notchMaxWidth < 520 {
+            limit = 2
+        } else if self.notchMaxWidth < 600 {
+            limit = 3
+        } else if self.notchMaxWidth < 700 {
+            limit = 4
+        } else {
+            /// Simulates no limit
+            limit = 20
+        }
+        
+        print("Notch Min Width: \(notchMaxWidth) - Limit: \(limit)")
+        
+        // Starting With Remove Logic so we can clear out any old widgets
+        
+        if !isSelected {
+            if selectedWidgets.contains(widgetName) {
+                selectedWidgets.removeAll { $0 == widgetName }
+                UIManager.shared.expandedWidgetStore.removeWidget(named: widgetName)
+                debugLog("Removed widget: \(widgetName)")
+            } else {
+                debugLog("Widget \(widgetName) not found in selected widgets")
+                exit(0)
+            }
+        }
+        
+        // Add Logic
+        if isSelected {
+            if selectedWidgets.count == limit { return }
+            if !selectedWidgets.contains(widgetName) {
+                selectedWidgets.append(widgetName)
+                if let widget = WidgetRegistry.shared.getWidget(named: widgetName) {
+                    UIManager.shared.addWidgetToBigPanel(widget)
+                    debugLog("Added widget: \(widgetName)")
+                }
+            }
+        }
+        
+        saveSettings()
+        debugLog("NEW Saved Settings: \(selectedWidgets)")
+        
+        /// Refresh UI
+        refreshUI()
+    }
+    
+    // MARK: - UI Update Logic
+    
+    func refreshUI() {
+        if UIManager.shared.panelState == .open {
+            AudioManager.shared.startMediaTimer()
+            UIManager.shared.smallPanel.contentView?.needsLayout = true
+            UIManager.shared.smallPanel.contentView?.layoutSubtreeIfNeeded()
+            
+            DispatchQueue.main.async {
+                UIManager.shared.smallPanel.contentView?.needsDisplay = true
+                UIManager.shared.applyExpandedWidgetLayout()
+            }
+        }
+    }
+    
+    func removeAndAddBackCurrentWidgets() {
+        debugLog("🔄 Rebuilding widgets in the panel based on the updated order.")
+        
+        // Clear all currently displayed widgets
+        UIManager.shared.expandedWidgetStore.clearWidgets()
+        
+        // Iterate over the updated selectedWidgets list
+        for widgetName in selectedWidgets {
+            if let widget = WidgetRegistry.shared.getWidget(named: widgetName) {
+                UIManager.shared.addWidgetToBigPanel(widget)
+            } else {
+                debugLog("⚠️ Widget \(widgetName) not found in WidgetRegistry.")
+            }
+        }
+        
+        // Finally, refresh the UI
+        refreshUI()
+    }
+}
+
+
+// MARK: - Save Logic
+extension SettingsModel {
     /// Saves the current settings to UserDefaults
     func saveSettings() {
         
@@ -468,343 +822,14 @@ class SettingsModel: ObservableObject {
     }
     
     
-    
-    
-    
-    
-    
-    
-    // MARK: - Load Settings
-    /// Loads the last saved settings from UserDefaults
-    func loadSettings() {
-        // Load fallback notch height with validation
-        if let notchMinFallbackHeight = defaults.object(forKey: "notchMinFallbackHeight") as? Double {
-            self.notchMinFallbackHeight = CGFloat(notchMinFallbackHeight > 0 ? notchMinFallbackHeight : 40)
-        } else {
-            self.notchMinFallbackHeight = CGFloat(40)
+    // MARK: - Events Section
+    public func saveEventsValues(values: EventWidgetSettingsValues) {
+        if values.eventWidgetScrollUpThreshold >= Int(MIN_EVENT_WIDGET_SCROLL_UP_THRESHOLD)
+           && values.eventWidgetScrollUpThreshold <= Int(MAX_EVENT_WIDGET_SCROLL_UP_THRESHOLD)
+        {
+            self.eventWidgetScrollUpThreshold = CGFloat(values.eventWidgetScrollUpThreshold)
         }
-        
-        // Loading the last state for the settings window
-        if let loadedWidgets = defaults.object(forKey: "selectedWidgets") as? [String] {
-            self.selectedWidgets = loadedWidgets
-        } else {
-            // Set default if nothing is saved
-            self.selectedWidgets = WidgetRegistry.shared.getDefaultWidgets()
-        }
-        
-        /// ----------------------- Camera Settings -----------------------
-        // Loading the last state for camera flip
-        if defaults.object(forKey: "isCameraFlipped") != nil {
-            self.isCameraFlipped = defaults.bool(forKey: "isCameraFlipped")
-        }
-        if defaults.object(forKey: "enableCameraOverlay") != nil {
-            self.enableCameraOverlay = defaults.bool(forKey: "enableCameraOverlay")
-        }
-        if let cameraOverlayTimer = defaults.object(forKey: "cameraOverlayTimer") as? Int {
-            self.cameraOverlayTimer = cameraOverlayTimer
-        } else {
-            // Set default if nothing is saved
-            self.cameraOverlayTimer = 20
-        }
-        
-        /// ----------------------- FileTray Settings ------------------------------------
-        if let fileTrayDefaultFolder = defaults.string(forKey: "fileTrayDefaultFolder") {
-            self.fileTrayDefaultFolder = URL(fileURLWithPath: fileTrayDefaultFolder)
-        }
-        
-        if let fileTrayAllowOpenOnLocalhost = defaults.object(forKey: "fileTrayAllowOpenOnLocalhost") as? Bool {
-            self.fileTrayAllowOpenOnLocalhost = fileTrayAllowOpenOnLocalhost
-        } else {
-            self.fileTrayAllowOpenOnLocalhost = false
-        }
-        
-        if let fileTrayPort = defaults.object(forKey: "fileTrayPort") as? Int {
-            self.fileTrayPort = fileTrayPort
-        } else {
-            self.fileTrayPort = 8000 // Default port
-        }
-        
-        if let localHostPin = defaults.string(forKey: "localHostPin") {
-            self.localHostPin = localHostPin
-        } else {
-            self.localHostPin = "1111" // Default pin
-        }
-        
-        /// ----------------------- ClipBoard Settings -----------------------------------
-        if let clipboardManagerMaxHistory = defaults.object(forKey: "clipboardManagerMaxHistory") as? Int {
-            self.clipboardManagerMaxHistory = clipboardManagerMaxHistory
-        }
-        /// Load in the clipboardManagerPollingIntervalMS
-        if let clipboardManagerPollingIntervalMS = defaults.object(forKey: "clipboardManagerPollingIntervalMS") as? Int {
-            self.clipboardManagerPollingIntervalMS = clipboardManagerPollingIntervalMS
-        }
-        if let showDividerBetweenWidgets = defaults.object(forKey: "showDividerBetweenWidgets") as? Bool {
-            self.showDividerBetweenWidgets = showDividerBetweenWidgets
-        }
-        
-        /// ----------------------- Notch Scroll Settings -----------------------
-        if let hoverTarget = defaults.object(forKey: "hoverTargetMode") as? String {
-            self.hoverTargetMode = HoverTarget(rawValue: hoverTarget) ?? .album
-        } else {
-            self.hoverTargetMode = .none /// default to none
-        }
-        
-        if let nowPlayingScrollSpeed = defaults.object(forKey: "nowPlayingScrollSpeed") as? Int {
-            self.nowPlayingScrollSpeed = nowPlayingScrollSpeed
-        } else {
-            self.nowPlayingScrollSpeed = 40
-        }
-        if let enableNotchHUD = defaults.object(forKey: "enableNotchHUD") as? Bool {
-            self.enableNotchHUD = enableNotchHUD
-        } else {
-            self.enableNotchHUD = false
-        }
-        
-        if let notchMaxWidth = defaults.object(forKey: "notchMaxWidth") as? CGFloat {
-            self.notchMaxWidth = notchMaxWidth
-        } else {
-            self.notchMaxWidth = 450
-        }
-        
-        if let notchMinWidth = defaults.object(forKey: "notchMinWidth") as? CGFloat {
-            self.notchMinWidth = notchMinWidth
-        } else {
-            self.notchMinWidth = 290
-        }
-        
-        /// quickAccessWidgetDistanceFromLeft Loading Logic
-        if let quickAccessWidgetDistanceFromLeft = defaults.object(forKey: "quickAccessWidgetDistanceFromLeft") as? CGFloat {
-            self.quickAccessWidgetDistanceFromLeft = quickAccessWidgetDistanceFromLeft
-        } else {
-            self.quickAccessWidgetDistanceFromLeft = 18
-        }
-        
-        if let quickAccessWidgetDistanceFromTop = defaults.object(forKey: "quickAccessWidgetDistanceFromTop") as? CGFloat {
-            self.quickAccessWidgetDistanceFromTop = quickAccessWidgetDistanceFromTop
-        } else {
-            self.quickAccessWidgetDistanceFromTop = 4
-        }
-        
-        if let settingsWidgetDistanceFromRight = defaults.object(forKey: "settingsWidgetDistanceFromRight") as? CGFloat {
-            self.settingsWidgetDistanceFromRight = settingsWidgetDistanceFromRight
-        } else {
-            self.settingsWidgetDistanceFromRight = 18
-        }
-        
-        if let oneFingerActionRawValue = defaults.string(forKey: "oneFingerAction"),
-           let oneFingerAction = TouchAction(rawValue: oneFingerActionRawValue) {
-            self.oneFingerAction = oneFingerAction
-        } else {
-            self.oneFingerAction = .none
-        }
-        
-        if let twoFingerActionRawValue = defaults.string(forKey: "twoFingerAction"),
-           let twoFingerAction = TouchAction(rawValue: twoFingerActionRawValue) {
-            self.twoFingerAction = twoFingerAction
-        } else {
-            self.twoFingerAction = .none
-        }
-        
-        if let notchScrollThreshold = defaults.object(forKey: "notchScrollThreshold") as? CGFloat {
-            self.notchScrollThreshold = notchScrollThreshold
-        } else {
-            self.notchScrollThreshold = 50 // Default threshold
-        }
-        
-        /// ----------------------- Music Player Settings -----------------------
-        if let showMusicProvider = defaults.object(forKey: "showMusicProvider") as? Bool {
-            self.showMusicProvider = showMusicProvider
-        } else {
-            self.showMusicProvider = true
-        }
-        
-        if let musicControllerRawValue = defaults.string(forKey: "musicController"),
-           let musicController = MusicController(rawValue: musicControllerRawValue) {
-            self.musicController = musicController
-        } else {
-            self.musicController = .mediaRemote
-        }
-        
-        if let overridenMusicProviderRawValue = defaults.string(forKey: "overridenMusicProvider"),
-           let overridenMusicProvider = MusicProvider(rawValue: overridenMusicProviderRawValue) {
-            self.overridenMusicProvider = overridenMusicProvider
-        } else {
-            self.overridenMusicProvider = .none
-        }
-        
-        /// ----------------------- Messages Settings -----------------------
-        if let enableMessagesNotifications = defaults.object(forKey: "enableMessagesNotifications") as? Bool {
-            self.enableMessagesNotifications = enableMessagesNotifications
-        } else {
-            self.enableMessagesNotifications = false
-        }
-        
-        if let messagesHandleLimit = defaults.object(forKey: "messagesHandleLimit") as? Int {
-            self.messagesHandleLimit = messagesHandleLimit
-        } else {
-            self.messagesHandleLimit = 30
-        }
-        
-        if let messagesMessageLimit = defaults.object(forKey: "messagesMessageLimit") as? Int {
-            self.messagesMessageLimit = messagesMessageLimit
-        } else {
-            self.messagesMessageLimit = 20
-        }
-        
-        /// ----------------------- Display Settings -----------------------
-        if let screen = defaults.object(forKey: "selectedScreenID") as? CGDirectDisplayID {
-            self.selectedScreen = NSScreen.screens.first(where: { $0.displayID == screen }) ?? NSScreen.main
-        } else {
-            self.selectedScreen = NSScreen.main
-        }
-        
-        /// ----------------------- Animation Settings -----------------------
-        if let openingAnimation = defaults.string(forKey: "openingAnimation") {
-            self.openingAnimation = openingAnimation
-        } else {
-            self.openingAnimation = "iOS" // Default animation
-        }
-        
-        if let name = defaults.string(forKey: "notchBackgroundAnimation"),
-           let option = ShaderOption(rawValue: name) {
-            self.notchBackgroundAnimation = option
-        } else {
-            self.notchBackgroundAnimation = .ambientGradient
-        }
-        
-        if let enableMetalAnimation = defaults.object(forKey: "enableMetalAnimation") as? Bool {
-            self.enableMetalAnimation = enableMetalAnimation
-        } else {
-            self.enableMetalAnimation = true // Default to true
-        }
-        
-        if let constant120FPS = defaults.object(forKey: "constant120FPS") as? Bool {
-            self.constant120FPS = constant120FPS
-        } else {
-            self.constant120FPS = false // Default to false
-        }
-        
-        /// ----------------------- Utils Settings -----------------------
-        if let enableUtilsOption = defaults.object(forKey: "enableUtilsOption") as? Bool {
-            self.enableUtilsOption = enableUtilsOption
-        } else {
-            self.enableUtilsOption = false
-        }
-        
-        if let enableClipboardListener = defaults.object(forKey: "enableClipboardListener") as? Bool {
-            self.enableClipboardListener = enableClipboardListener
-        } else {
-            self.enableClipboardListener = false
-        }
-        
-        /// ----------------------- Quick Access Widget Settings -----------------------
-        if let quickAccessWidgetSimpleDynamicRawValue = defaults.string(forKey: "quickAccessWidgetSimpleDynamic"),
-           let quickAccessWidgetSimpleDynamic = QuickAccessType(rawValue: quickAccessWidgetSimpleDynamicRawValue) {
-            self.quickAccessWidgetSimpleDynamic = quickAccessWidgetSimpleDynamic
-        } else {
-            self.quickAccessWidgetSimpleDynamic = .dynamic // Default to dynamic
-        }
-    }
-    
-    public func saveSettingsForDisplay(for screen: NSScreen) {
-        self.selectedScreen = screen
-        
-        // Save the display ID of the selected screen
-        if let displayID = screen.displayID {
-            defaults.set(displayID, forKey: "selectedScreenID")
-        }
-    }
-    
-    // MARK: - Widget Update Logic
-    
-    /// Updates `selectedWidgets` and triggers a reload notification immediately
-    /// This was a design choice to keep it in the settings page, this is becuase
-    /// the settings is what manages and loads in the widgets at runtime and while
-    /// the application is running
-    func updateSelectedWidgets(with widgetName: String, isSelected: Bool) {
-        
-        debugLog("Updating selected widgets with: \(widgetName), isSelected: \(isSelected)")
-        
-        var limit = 2
-        // LIMIT 3 Widgets Only
-        if self.notchMaxWidth < 440 {
-            limit = 1
-        } else if self.notchMaxWidth < 520 {
-            limit = 2
-        } else if self.notchMaxWidth < 600 {
-            limit = 3
-        } else if self.notchMaxWidth < 700 {
-            limit = 4
-        } else {
-            /// Simulates no limit
-            limit = 20
-        }
-        
-        print("Notch Min Width: \(notchMaxWidth) - Limit: \(limit)")
-        
-        // Starting With Remove Logic so we can clear out any old widgets
-        
-        if !isSelected {
-            if selectedWidgets.contains(widgetName) {
-                selectedWidgets.removeAll { $0 == widgetName }
-                UIManager.shared.expandedWidgetStore.removeWidget(named: widgetName)
-                debugLog("Removed widget: \(widgetName)")
-            } else {
-                debugLog("Widget \(widgetName) not found in selected widgets")
-                exit(0)
-            }
-        }
-        
-        // Add Logic
-        if isSelected {
-            if selectedWidgets.count == limit { return }
-            if !selectedWidgets.contains(widgetName) {
-                selectedWidgets.append(widgetName)
-                if let widget = WidgetRegistry.shared.getWidget(named: widgetName) {
-                    UIManager.shared.addWidgetToBigPanel(widget)
-                    debugLog("Added widget: \(widgetName)")
-                }
-            }
-        }
-        
-        saveSettings()
-        debugLog("NEW Saved Settings: \(selectedWidgets)")
-        
-        /// Refresh UI
-        refreshUI()
-    }
-    
-    // MARK: - UI Update Logic
-    
-    func refreshUI() {
-        if UIManager.shared.panelState == .open {
-            AudioManager.shared.startMediaTimer()
-            UIManager.shared.smallPanel.contentView?.needsLayout = true
-            UIManager.shared.smallPanel.contentView?.layoutSubtreeIfNeeded()
-            
-            DispatchQueue.main.async {
-                UIManager.shared.smallPanel.contentView?.needsDisplay = true
-                UIManager.shared.applyExpandedWidgetLayout()
-            }
-        }
-    }
-    
-    func removeAndAddBackCurrentWidgets() {
-        debugLog("🔄 Rebuilding widgets in the panel based on the updated order.")
-        
-        // Clear all currently displayed widgets
-        UIManager.shared.expandedWidgetStore.clearWidgets()
-        
-        // Iterate over the updated selectedWidgets list
-        for widgetName in selectedWidgets {
-            if let widget = WidgetRegistry.shared.getWidget(named: widgetName) {
-                UIManager.shared.addWidgetToBigPanel(widget)
-            } else {
-                debugLog("⚠️ Widget \(widgetName) not found in WidgetRegistry.")
-            }
-        }
-        
-        // Finally, refresh the UI
-        refreshUI()
+        // Always persist the (possibly unchanged) current value
+        defaults.set(eventWidgetScrollUpThreshold, forKey: "eventWidgetScrollUpThreshold")
     }
 }

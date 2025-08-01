@@ -23,6 +23,9 @@ struct WidgetSettings: View {
     @EnvironmentObject var settings: SettingsModel
     @ObservedObject private var widgetSettingsManager = WidgetSettingsManager.shared
     
+    @State private var eventWidgetValues = EventWidgetSettingsValues()
+    @State private var eventValuesDidChange = false
+    
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
@@ -86,14 +89,23 @@ struct WidgetSettings: View {
     
     private var eventSettings: some View {
         ComfySettingsContainer {
-            EventWidgetSettings()
+            EventWidgetSettings(
+                didChange: $eventValuesDidChange,
+                values: $eventWidgetValues
+            )
         } header: {
-            Text("Event Widget Settings")
-                .font(.headline)
-                .fontWeight(.semibold)
-                .foregroundColor(.primary)
-            
-            Spacer()
+            HStack {
+                Text("Event Widget Settings")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary)
+                Spacer()
+                
+                ComfyButton(title: "Save", $eventValuesDidChange) {
+                    settings.saveEventsValues(values: eventWidgetValues)
+                    eventValuesDidChange = false
+                }
+            }
         }
     }
 }
