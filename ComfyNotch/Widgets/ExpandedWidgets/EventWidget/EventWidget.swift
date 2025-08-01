@@ -34,6 +34,7 @@ struct EventWidget: View, Widget {
         }
         /// Determine Width and Height of the given space for this Widget
         .onAppear {
+            EventManager.shared.requestPermissionEventsIfNeededOnce { _ in }
             givenSpace = UIManager.shared.expandedWidgetStore.determineWidthAndHeight()
         }
         /// This will Let Scrolling be at a threshold

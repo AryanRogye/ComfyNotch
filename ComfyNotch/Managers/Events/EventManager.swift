@@ -37,6 +37,7 @@ class EventManager: ObservableObject {
         self.events = self.store.calendars(for: .event)
     }
     
+    // MARK: - Reminders
     /// Function to return the reminders for the given date
     public func getReminders(for date: Date) async -> [EKReminder] {
         guard self.isRemindersPermissionsGranted else { return [] }
@@ -65,6 +66,7 @@ class EventManager: ObservableObject {
         return filtered
     }
     
+    // MARK: - Events
     /// Function to get the events for the current date
     public func getEvents(for date: Date) -> [EKEvent] {
         guard self.isCalendarsPermissionsGranted else { return [] }

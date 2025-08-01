@@ -39,10 +39,8 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         MediaKeyInterceptor.shared.requestAccessibilityIfNeeded()
         MessagesManager.shared.start()
         
-        EventManager.shared.requestPermissionEventsIfNeededOnce { granted in
-            DispatchQueue.main.async {
-                self.launchComfyNotch()
-            }
+        DispatchQueue.main.async {
+            self.launchComfyNotch()
         }
     }
     
