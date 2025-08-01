@@ -119,6 +119,7 @@ final class EventWidgetViewModel: ObservableObject {
             await syncRemindersAndEvents()
         }
         
+        /// Internally stored as events, cuz Eventkits return for .events, so stored For Events
         return eventWidgetManager.events.map { $0.title }
     }
     
@@ -141,7 +142,7 @@ final class EventWidgetViewModel: ObservableObject {
             return
         }
 
-        self.eventWidgetManager.createEvent(title: title, startDate: startDate, endDate: endDate, calendarName: calendarName) {  result in 
+        self.eventWidgetManager.createEvent(title: trimmedTitle, startDate: startDate, endDate: endDate, calendarName: calendarName) {  result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(_): 
