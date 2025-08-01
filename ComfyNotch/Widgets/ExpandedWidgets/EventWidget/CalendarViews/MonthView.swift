@@ -22,11 +22,11 @@ struct MonthView: View {
             
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVGrid (
-                    columns: Array(repeating: GridItem(.fixed(15), spacing: 5), count: 7),
+                    columns: Array(repeating: GridItem(.flexible(minimum: 24, maximum: 60), spacing: 5), count: 7)
                 ) {
                     ForEach(0..<offset, id: \.self) { _ in
                         Text("") // just blank
-                            .frame(width: 10, height: 10)
+                            .frame(maxWidth: .infinity, minHeight: 32)
                     }
                     
                     // Show actual days
@@ -36,10 +36,10 @@ struct MonthView: View {
                             viewModel.selectedScope = .day
                         }) {
                             Text("\(Calendar.current.component(.day, from: date))")
-                                .font(.caption)
+                                .font(.system(size: 14, weight: .regular, design: .monospaced))
                                 .minimumScaleFactor(0.5)
                                 .lineLimit(1)
-                                .frame(width: 10, height: 10)
+                                .frame(maxWidth: .infinity, minHeight: 32)
                                 .background(
                                     Circle()
                                         .fill(viewModel.isToday(date) ? Color.blue : Color.clear)
@@ -48,7 +48,9 @@ struct MonthView: View {
                         .buttonStyle(.plain)
                     }
                 }
+                
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             
             Spacer()
         }
