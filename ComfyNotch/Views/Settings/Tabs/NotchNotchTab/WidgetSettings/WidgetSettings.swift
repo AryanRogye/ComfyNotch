@@ -27,7 +27,6 @@ struct WidgetSettings: View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(spacing: 12) {
-                    
                     musicPlayerSettings
                         .padding(.vertical)
                         .id(WidgetType.musicPlayer)
@@ -35,7 +34,12 @@ struct WidgetSettings: View {
                     cameraSettings
                         .padding(.vertical)
                         .id(WidgetType.camera)
+                    
+                    eventSettings
+                        .padding(.vertical)
+                        .id(WidgetType.event)
                 }
+                .frame(maxWidth: .infinity)
                 .padding()
                 .listRowInsets(EdgeInsets())
                 .listRowBackground(Color.clear)
@@ -76,6 +80,19 @@ struct WidgetSettings: View {
                 .fontWeight(.semibold)
                 .foregroundColor(.primary)
 
+            Spacer()
+        }
+    }
+    
+    private var eventSettings: some View {
+        ComfySettingsContainer {
+            EventWidgetSettings()
+        } header: {
+            Text("Event Widget Settings")
+                .font(.headline)
+                .fontWeight(.semibold)
+                .foregroundColor(.primary)
+            
             Spacer()
         }
     }
