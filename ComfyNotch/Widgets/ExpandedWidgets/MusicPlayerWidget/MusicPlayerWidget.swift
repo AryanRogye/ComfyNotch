@@ -16,11 +16,16 @@ struct MusicPlayerWidget: View, Widget {
     @ObservedObject private var settings = SettingsModel.shared
     
     var body: some View {
-        if settings.musicPlayerStyle == .native {
-            NativeStyleMusicWidget()
-        } else {
-            ComfyNotchStyleMusicWidget()
+        ZStack {
+            if settings.musicPlayerStyle == .native {
+                NativeStyleMusicWidget()
+                    .transition(.opacity.combined(with: .scale))
+            } else {
+                ComfyNotchStyleMusicWidget()
+                    .transition(.opacity.combined(with: .scale))
+            }
         }
+        .animation(.easeInOut(duration: 0.25), value: settings.musicPlayerStyle)
     }
 }
 

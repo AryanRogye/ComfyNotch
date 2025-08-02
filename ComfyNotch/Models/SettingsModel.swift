@@ -154,6 +154,9 @@ class SettingsModel: ObservableObject {
         self.defaults = userDefaults
         loadSettings()
         
+        /// DEBUG REMOVE IN PRODUCTION
+        self.selectedTab = .widgetSettings
+        
         $isSettingsWindowOpen
             .receive(on: RunLoop.main)
             .sink { isOpen in
@@ -337,6 +340,13 @@ class SettingsModel: ObservableObject {
             self.overridenMusicProvider = .none
         }
         
+        if let musicPlayerStyleRawValue = defaults.string(forKey: "musicPlayerStyle"),
+           let musicPlayerStyle = MusicPlayerWidgetStyle(rawValue: musicPlayerStyleRawValue) {
+            self.musicPlayerStyle = musicPlayerStyle
+        } else {
+            self.musicPlayerStyle = .comfy
+        }
+
         /// ----------------------- Event Widget Settings -----------------------
         if let eventWidgetScrollUpThreshold = defaults.object(forKey: "eventWidgetScrollUpThreshold") as? CGFloat {
             self.eventWidgetScrollUpThreshold = eventWidgetScrollUpThreshold
@@ -838,8 +848,13 @@ extension SettingsModel {
         self.musicController = values.musicController
         self.overridenMusicProvider = values.overridenMusicProvider
         
+        withAnimation(.timingCurve(0.4, 0, 0.2, 1, duration: 0.25)) {
+            self.musicPlayerStyle = values.musicPlayerStyle
+        }
+        
         defaults.set(showMusicProvider, forKey: "showMusicProvider")
         defaults.set(musicController.rawValue, forKey: "musicController")
         defaults.set(overridenMusicProvider.rawValue, forKey: "overridenMusicProvider")
+        defaults.set(musicPlayerStyle.rawValue, forKey: "musicPlayerStyle")
     }
 }

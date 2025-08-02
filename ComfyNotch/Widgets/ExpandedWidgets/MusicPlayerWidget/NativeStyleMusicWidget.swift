@@ -30,6 +30,7 @@ struct NativeStyleMusicWidget: View {
             if isVisible {
                 // 3 Sections Top Middle Bottom
                 HStack(alignment: .center) {
+                    
                     VStack(alignment: .leading) {
                         renderAlbumCover()
                     }

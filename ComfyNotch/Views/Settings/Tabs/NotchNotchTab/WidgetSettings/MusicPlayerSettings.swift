@@ -47,42 +47,116 @@ struct MusicPlayerSettings: View {
             values.showMusicProvider = settings.showMusicProvider
             values.musicController = settings.musicController
             values.overridenMusicProvider = settings.overridenMusicProvider
+            values.musicPlayerStyle = settings.musicPlayerStyle
         }
         .onChange(of: values.showMusicProvider) { didValuesChange() }
         .onChange(of: values.musicController) { didValuesChange() }
         .onChange(of: values.overridenMusicProvider) { didValuesChange() }
-    }
-    
-    private var pickMusicPlayerStyles: some View {
-        HStack {
-            ComfyPickerElement(
-                isSelected: settings.musicPlayerStyle == .comfy,
-                label: "Comfy"
-            ) {
-                settings.musicPlayerStyle = .comfy
-            } content: {
-                
-            }
-            
-            ComfyPickerElement(
-                isSelected: settings.musicPlayerStyle == .native,
-                label: "Native"
-            ) {
-                settings.musicPlayerStyle = .native
-            } content: {
-                
-            }
-        }
+        .onChange(of: values.musicPlayerStyle) { didValuesChange() }
     }
     
     private func didValuesChange() {
-        let sM = values.showMusicProvider != settings.showMusicProvider
-        let mc = values.musicController != settings.musicController
+        let sM  = values.showMusicProvider      != settings.showMusicProvider
+        let mC  = values.musicController        != settings.musicController
         let oMP = values.overridenMusicProvider != settings.overridenMusicProvider
+        let mPS = values.musicPlayerStyle       != settings.musicPlayerStyle
         
-        if sM || mc || oMP {
+        if sM || mC || oMP || mPS {
             didChange = true
         }
+    }
+    
+    // MARK: - Pick Music Player Styles
+    private var pickMusicPlayerStyles: some View {
+        HStack {
+            ComfyPickerElement(
+                isSelected: values.musicPlayerStyle == .comfy,
+                label: "Comfy"
+            ) {
+                values.musicPlayerStyle = .comfy
+            } content: {
+                comfyStyle
+            }
+            
+            ComfyPickerElement(
+                isSelected: values.musicPlayerStyle == .native,
+                label: "Native"
+            ) {
+                values.musicPlayerStyle = .native
+            } content: {
+                nativeStyle
+            }
+        }
+    }
+    
+    private var comfyStyle: some View {
+        HStack(alignment: .top) {
+            
+            VStack {
+                materialAlbum()
+            }
+            .frame(alignment: .leading)
+            
+            VStack(alignment: .leading, spacing: 3) {
+                fakeLettering
+                fakeTimeline(width: 50, cornerRadius: 12)
+                fakeButtons
+            }
+            .frame(alignment: .topLeading)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private var nativeStyle: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            
+            HStack(alignment: .top, spacing: 3) {
+                VStack {
+                    materialAlbum(width: 17, height: 17, cornerRadius: 5)
+                }
+                .frame(alignment: .leading)
+                
+                VStack(alignment: .leading) {
+                    fakeLettering
+                }
+                .frame(alignment: .leading)
+                
+            }
+            
+            fakeTimeline(width: 70, cornerRadius: 12)
+            
+            /// Simulating 
+            fakeButtons
+                .padding(.leading)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+    }
+    
+    private func materialAlbum(width: CGFloat = 30, height: CGFloat = 30, cornerRadius: CGFloat = 8) -> some View {
+        fakeMaterialBar(width: width, height: height, cornerRadius: cornerRadius)
+    }
+    private var fakeLettering: some View {
+        fakeMaterialBar(width: 50, height: 8)
+    }
+    private func fakeTimeline(width: CGFloat, cornerRadius: CGFloat = 8) -> some View {
+        fakeMaterialBar(width: width, height: 5, cornerRadius: cornerRadius)
+    }
+    private var fakeButtons: some View {
+        HStack {
+            fakeMaterialBar(width: 6, height: 6)
+            fakeMaterialBar(width: 6, height: 6)
+            fakeMaterialBar(width: 6, height: 6)
+        }
+    }
+    
+    private func fakeMaterialBar(width: CGFloat, height: CGFloat, cornerRadius: CGFloat = 8) -> some View {
+        RoundedRectangle(cornerRadius: cornerRadius)
+            .fill(.ultraThickMaterial)
+            .frame(width: width, height: height)
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .stroke(.white.opacity(0.05), lineWidth: 1)
+            )
     }
 
     // MARK: - Music Provider

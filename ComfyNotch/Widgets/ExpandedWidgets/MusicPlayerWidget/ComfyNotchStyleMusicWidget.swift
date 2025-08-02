@@ -16,6 +16,9 @@ struct ComfyNotchStyleMusicWidget: View {
     @State private var isVisible: Bool = true
     @State private var cardHover = false
     
+    /// Check Preview😂 took way too long with this decision
+    var verticalAlignment: VerticalAlignment = .top
+    
     private let iconWidth: CGFloat = 14
     private let iconHeight: CGFloat = 15
     private let iconPadding: CGFloat = 30
@@ -28,7 +31,7 @@ struct ComfyNotchStyleMusicWidget: View {
     
     // MARK: - Body
     var body: some View {
-        HStack(alignment: .center, spacing: 10) {
+        HStack(alignment: verticalAlignment, spacing: 10) {
             if isVisible {
                 // MARK: - Album View
                 renderAlbumCover()
@@ -368,3 +371,24 @@ struct ComfyNotchStyleMusicWidget: View {
         }
     }
 }
+
+
+/// IDK WHY THIS CRASHES
+/// maybe OS26😂
+//#Preview {
+//    Group {
+//        VStack {
+//            Text("Center Alignment")
+//                .font(.caption)
+//            ComfyNotchStyleMusicWidget()
+//        }
+//        .frame(width: 400, height: 300)
+//        
+//        VStack {
+//            Text("Top Alignment")
+//                .font(.caption)
+//            ComfyNotchStyleMusicWidget(verticalAlignment: .top)
+//        }
+//        .frame(width: 400, height: 300)
+//    }
+//}
