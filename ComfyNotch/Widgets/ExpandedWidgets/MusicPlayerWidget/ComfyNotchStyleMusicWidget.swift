@@ -13,10 +13,12 @@ struct ComfyNotchStyleMusicWidget: View {
     @ObservedObject private var model = MusicPlayerWidgetModel.shared
     @ObservedObject private var settings = SettingsModel.shared
     
-    /// Trying thing for performance
     @State private var isVisible: Bool = true
     @State private var cardHover = false
     
+    private let iconWidth: CGFloat = 14
+    private let iconHeight: CGFloat = 15
+    private let iconPadding: CGFloat = 30
     private let cardPadding: CGFloat = 20
     private let albumSize: CGFloat = 80
     private let controlButtonSize: CGFloat = 40
@@ -26,34 +28,30 @@ struct ComfyNotchStyleMusicWidget: View {
     
     // MARK: - Body
     var body: some View {
-        HStack(spacing: 10) {
-            // MARK: - Album View
-            renderAlbumCover()
-                .padding(.bottom)
-            
-            // MARK: - Song Information and Controls
-            VStack(alignment: .leading) {
-                /// name/artist/album
-                renderSongInformation()
+        HStack(alignment: .center, spacing: 10) {
+            if isVisible {
+                // MARK: - Album View
+                renderAlbumCover()
+                    .padding(.bottom)
+                    .frame(alignment: .leading)
                 
-                /// Slider
-                renderCurrentSongPosition()
-                
-                /// Button
-                renderSongMusicControls()
+                // MARK: - Song Information and Controls
+                VStack(alignment: .leading) {
+                    /// name/artist/album
+                    renderSongInformation()
+                    
+                    /// Slider
+                    renderCurrentSongPosition()
+                    
+                    /// Button
+                    renderSongMusicControls()
+                }
+                .padding(.leading, cardPadding/3)
+                .frame(alignment: .leading)
             }
-            .padding(.leading, cardPadding/3)
-            .padding(.bottom)
-            
-            
-            Spacer()
         }
         // MARK: - Card Styling
         .frame(maxWidth: givenSpace.w, maxHeight: givenSpace.h)
-        .animation(.easeInOut(duration: 0.3), value: cardHover)
-        .onHover { hovering in
-            cardHover = hovering
-        }
         .onAppear {
             isVisible = true
             givenSpace = UIManager.shared.expandedWidgetStore.determineWidthAndHeight()
@@ -69,72 +67,65 @@ struct ComfyNotchStyleMusicWidget: View {
     @ViewBuilder
     func renderCurrentSongPosition() -> some View {
         if isVisible {
-            VStack(spacing: 6) {
-                // Progress bar
-                GeometryReader { geometry in
-                    let effectivePosition = model.isDragging ? model.manualDragPosition : model.nowPlayingInfo.positionSeconds
-                    ZStack(alignment: .leading) {
-                        // Background track
-                        Rectangle()
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(height: 6)
-                            .cornerRadius(2)
-                        
-                        // Progress bar
-                        Rectangle()
-                            .fill(Color(nsColor: model.nowPlayingInfo.dominantColor))
-                            .frame(width: max(CGFloat(effectivePosition / max(model.nowPlayingInfo.durationSeconds,1)) * geometry.size.width, 0), height: 4)
-                            .cornerRadius(2)
-                            .shadow(color: Color(nsColor: model.nowPlayingInfo.dominantColor).opacity(0.5), radius: 4, x: 0, y: 2)
-                        
-                        // Thumb
-                        Circle()
-                            .fill(Color(nsColor: model.nowPlayingInfo.dominantColor))
-                            .frame(width: 12, height: 12)
-                            .offset(x: max(CGFloat(effectivePosition / max(model.nowPlayingInfo.durationSeconds, 1)) * geometry.size.width - 6, -6))
-                        
+            HStack(alignment: .center, spacing: 4) {
+                
+                Text(formatDuration(model.nowPlayingInfo.positionSeconds))
+                    .font(.system(size: 8, weight: .medium, design: .default))
+                    .foregroundColor(.white.opacity(0.7))
+                
+                VStack(spacing: 6) {
+                    // Progress bar
+                    GeometryReader { geometry in
+                        let effectivePosition = model.isDragging ? model.manualDragPosition : model.nowPlayingInfo.positionSeconds
+                        ZStack(alignment: .leading) {
+                            // Background track
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.3))
+                                .frame(height: 6)
+                                .cornerRadius(2)
+                            
+                            // Progress bar
+                            Rectangle()
+                                .fill(Color(nsColor: model.nowPlayingInfo.dominantColor))
+                                .frame(width: max(CGFloat(effectivePosition / max(model.nowPlayingInfo.durationSeconds,1)) * geometry.size.width, 0), height: 4)
+                                .cornerRadius(2)
+                                .shadow(color: Color(nsColor: model.nowPlayingInfo.dominantColor).opacity(0.5), radius: 4, x: 0, y: 2)
+                        }
+                        .gesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { value in
+                                    // Set the dragging flag to true
+                                    model.isDragging = true
+                                    let percentage = min(max(0, value.location.x / geometry.size.width), 1)
+                                    model.manualDragPosition = Double(percentage) * model.nowPlayingInfo.durationSeconds
+                                }
+                                .onEnded { value in
+                                    let percentage = min(max(0, value.location.x / geometry.size.width), 1)
+                                    
+                                    // Convert % ➜ absolute seconds
+                                    let newTimeInSeconds = percentage * model.nowPlayingInfo.durationSeconds
+                                    
+                                    // 1. Seek the real player
+                                    AudioManager.shared.playAtTime(to: newTimeInSeconds)
+                                    
+                                    // 2. Keep the thumb where the user left it (UI won’t flash back)
+                                    model.manualDragPosition = newTimeInSeconds
+                                    
+                                    /// This is delayed because someone like me plays spotify on my tv
+                                    /// the device is seperate from the controller so updates for spotify
+                                    /// take some time to propagate.
+                                    checkPositionUpdate(targetPosition: newTimeInSeconds, attempts: 0)
+                                }
+                        )
                     }
-                    .gesture(
-                        DragGesture(minimumDistance: 0)
-                            .onChanged { value in
-                                // Set the dragging flag to true
-                                model.isDragging = true
-                                let percentage = min(max(0, value.location.x / geometry.size.width), 1)
-                                model.manualDragPosition = Double(percentage) * model.nowPlayingInfo.durationSeconds
-                            }
-                            .onEnded { value in
-                                let percentage = min(max(0, value.location.x / geometry.size.width), 1)
-                                
-                                // Convert % ➜ absolute seconds
-                                let newTimeInSeconds = percentage * model.nowPlayingInfo.durationSeconds
-                                
-                                // 1. Seek the real player
-                                AudioManager.shared.playAtTime(to: newTimeInSeconds)
-                                
-                                // 2. Keep the thumb where the user left it (UI won’t flash back)
-                                model.manualDragPosition = newTimeInSeconds
-                                
-                                /// This is delayed because someone like me plays spotify on my tv
-                                /// the device is seperate from the controller so updates for spotify
-                                /// take some time to propagate.
-                                checkPositionUpdate(targetPosition: newTimeInSeconds, attempts: 0)
-                            }
-                    )
+                    .frame(height: 12)
                 }
-                .frame(height: 12)
+                .padding(.horizontal, 8)
                 
                 // Time labels
-                HStack {
-                    Text(formatDuration(model.nowPlayingInfo.positionSeconds))
-                        .font(.system(size: 11, weight: .medium, design: .monospaced))
-                        .foregroundColor(.white.opacity(0.7))
-                    
-                    Spacer()
-                    
-                    Text(formatDuration(model.nowPlayingInfo.durationSeconds))
-                        .font(.system(size: 11, weight: .medium, design: .monospaced))
-                        .foregroundColor(.white.opacity(0.7))
-                }
+                Text(formatDuration(model.nowPlayingInfo.durationSeconds))
+                    .font(.system(size: 8, weight: .medium, design: .default))
+                    .foregroundColor(.white.opacity(0.7))
             }
         } else {
             EmptyView()
@@ -179,22 +170,22 @@ struct ComfyNotchStyleMusicWidget: View {
                 Image(systemName: "backward.fill")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 12, height: 12)
+                    .frame(width: iconWidth, height: iconHeight)
                     .foregroundColor(.white)
             }
-            .buttonStyle(MusicControlButton(tint: model.nowPlayingInfo.dominantColor)) // Apply custom style
+            .buttonStyle(MusicControlButton(size: iconPadding, tint: model.nowPlayingInfo.dominantColor)) // Apply custom style
             
             Button(action: {
                 AudioManager.shared.togglePlayPause()
             }) {
                 // Apply image-specific modifiers here
-                Image(systemName: "playpause.fill")
+                Image(systemName: model.nowPlayingInfo.isPlaying ? "pause.fill" : "play.fill")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 12, height: 12)
+                    .frame(width: iconWidth, height: iconHeight)
                     .foregroundColor(.white)
             }
-            .buttonStyle(MusicControlButton(tint: model.nowPlayingInfo.dominantColor)) // Apply custom style
+            .buttonStyle(MusicControlButton(size: iconPadding, tint: model.nowPlayingInfo.dominantColor)) // Apply custom style
             
             Button(action: {
                 AudioManager.shared.playNextTrack()
@@ -203,34 +194,33 @@ struct ComfyNotchStyleMusicWidget: View {
                 Image(systemName: "forward.fill")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 12, height: 12)
+                    .frame(width: iconWidth, height: iconHeight)
                     .foregroundColor(.white)
             }
-            .buttonStyle(MusicControlButton(tint: model.nowPlayingInfo.dominantColor)) // Apply custom style
+            .buttonStyle(MusicControlButton(size: iconPadding, tint: model.nowPlayingInfo.dominantColor)) // Apply custom style
         }
     }
-    
+
     // MARK: - Song Information
     @ViewBuilder
     func renderSongInformation() -> some View {
-        // Song title with better typography
-        Text(model.nowPlayingInfo.trackName)
-            .font(.system(size: 17, weight: .semibold, design: .rounded))
-            .foregroundColor(.white)
-            .lineLimit(1)
-            .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
-        
-        // Artist name
-        Text(model.nowPlayingInfo.artistName)
-            .font(.system(size: 11, weight: .regular, design: .rounded))
-            .foregroundColor(.white.opacity(0.8))
-            .lineLimit(1)
-        
-        // Album name
-        Text(model.nowPlayingInfo.albumName)
-            .font(.system(size: 11, weight: .light, design: .rounded))
-            .foregroundColor(.white.opacity(0.6))
-            .lineLimit(1)
+        HStack(alignment: .top) {
+            VStack(alignment: .leading) {
+                // Song title with better typography
+                Text(model.nowPlayingInfo.trackName)
+                    .font(.system(size: 13, weight: .semibold, design: .default))
+                    .foregroundColor(.white)
+                    .minimumScaleFactor(0.8)
+                    .lineLimit(1)
+                
+                // Artist name
+                Text(model.nowPlayingInfo.artistName)
+                    .font(.system(size: 11, weight: .semibold, design: .default))
+                    .foregroundColor(.gray.opacity(0.7))
+                    .minimumScaleFactor(0.5)
+                    .lineLimit(1)
+            }
+        }
     }
     
     // MARK: - Album Cover

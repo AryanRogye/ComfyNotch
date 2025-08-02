@@ -68,8 +68,7 @@ struct NativeStyleMusicWidget: View {
             givenSpace = UIManager.shared.expandedWidgetStore.determineWidthAndHeight()
         }
         .onChange(of: model.nowPlayingInfo.artworkImage) { _, newArtwork in
-            print("Calleddddddddd")
-            handleArtworkFlip(newArtwork: newArtwork)           // Standard smooth flip
+            handleArtworkFlip(newArtwork: newArtwork)
         }
     }
     
@@ -227,7 +226,7 @@ struct NativeStyleMusicWidget: View {
             VStack(alignment: .leading) {
                 // Song title with better typography
                 Text(model.nowPlayingInfo.trackName)
-                    .font(.system(size: 13, weight: .semibold, design: .default)) // try 20-22 for desktop
+                    .font(.system(size: 13, weight: .semibold, design: .default))
                     .foregroundColor(.white)
                     .minimumScaleFactor(0.8)
                     .lineLimit(1)
@@ -246,7 +245,7 @@ struct NativeStyleMusicWidget: View {
     @ViewBuilder
     func renderCurrentSongPosition() -> some View {
         if isVisible {
-            HStack(spacing: 4) {
+            HStack(alignment: .center, spacing: 4) {
                 Text(formatDuration(model.nowPlayingInfo.positionSeconds))
                     .font(.system(size: 8, weight: .medium, design: .default))
                     .foregroundColor(.white.opacity(0.7))
@@ -268,13 +267,6 @@ struct NativeStyleMusicWidget: View {
                                 .frame(width: max(CGFloat(effectivePosition / max(model.nowPlayingInfo.durationSeconds,1)) * geometry.size.width, 0), height: 4)
                                 .cornerRadius(2)
                                 .shadow(color: Color(nsColor: model.nowPlayingInfo.dominantColor).opacity(0.5), radius: 4, x: 0, y: 2)
-                            
-                            // Thumb
-//                            Circle()
-//                                .fill(Color(nsColor: model.nowPlayingInfo.dominantColor))
-//                                .frame(width: 12, height: 12)
-//                                .offset(x: max(CGFloat(effectivePosition / max(model.nowPlayingInfo.durationSeconds, 1)) * geometry.size.width - 6, -6))
-                            
                         }
                         .gesture(
                             DragGesture(minimumDistance: 0)
