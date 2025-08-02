@@ -4,34 +4,37 @@
 <dict>
     <key>CFBundleIconFile</key>
     <string>ComfyNotchIcon</string>
-    
+
     <!-- Camera Usage Description -->
     <key>NSCameraUseContinuityCameraDeviceType</key>
     <true/>
-    
+
     <!-- EventKit stuff -->
-    
+
     <key>NSCalendarsFullAccessUsageDescription</key>
     <string>we need access to your calendar for easier management</string>
+    
+    <key>NSCalendarsUsageDescription</key>
+    <string>I use this to show your events in ComfyNotch</string>
 
     <key>NSRemindersFullAccessUsageDescription</key>
     <string>we need access to your reminders for easier management</string>
-    
+
     <!-- Contacts Usage Description-->
     <key>NSContactsUsageDescription</key>
     <string>ComfyNotch needs access to your contacts to show names in Messages.</string>
-    
+
     <key>SUEnableInstallerLauncherService</key>
     <true/>
-    
+
     <key>SUFeedURL</key>
     <string>https://aryanrogye.github.io/ComfyNotch/appcast.xml</string>
-    
+
     <key>SUPublicEDKey</key>
     <string>taI+LYHIWwzdMURizdr5HG9kfibtBtqxnman2PKkZSU=</string>
-    
+
     <key>NSRequiresAquaSystemAppearance</key>
     <false/>
-    
+
 </dict>
 </plist>

@@ -14,14 +14,14 @@ struct CompactAlbumWidget: View, Widget {
     var swiftUIView: AnyView {
         AnyView(self)
     }
-
+    
     @ObservedObject var model: MusicPlayerWidgetModel = .shared
     @ObservedObject var notchStateManager: NotchStateManager = .shared
     var scrollManager = ScrollHandler.shared
-
+    
     private var animationStiffness: CGFloat = 300
     private var animationDamping: CGFloat = 15
-
+    
     private var paddingLeading: CGFloat {
         notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 5 : 4
     }
@@ -100,7 +100,7 @@ struct CompactAlbumWidget: View, Widget {
         let height = UIManager.shared.getNotchHeight()
         let w = height * 0.65
         let h = height * 0.65
-
+        
         return .init(width: w,height: h)
     }
 }

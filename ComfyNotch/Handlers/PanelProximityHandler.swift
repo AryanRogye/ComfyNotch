@@ -26,12 +26,12 @@ class PanelProximityHandler {
         guard let panel = panel else { return }
         
         let mouse = NSEvent.mouseLocation
-        let frame = panel.frame
+//        let frame = panel.frame
         let dx = mouse.x - panel.frame.midX
         let dy = mouse.y - panel.frame.midY
         let dist = sqrt(dx * dx + dy * dy)
         
-        // MARK: Hover logic (fires only on state change)
+//        // MARK: Hover logic (fires only on state change)
 //        if frame.contains(mouse) {
 //            if !isHovering {
 //                isHovering = true

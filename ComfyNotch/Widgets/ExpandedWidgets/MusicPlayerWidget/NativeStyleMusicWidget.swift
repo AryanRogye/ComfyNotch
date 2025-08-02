@@ -63,7 +63,6 @@ struct NativeStyleMusicWidget: View {
             }
         }
         .frame(width: givenSpace.w, height: givenSpace.h)
-        //        .border(Color.red)
         .onAppear {
             isVisible = true
             givenSpace = UIManager.shared.expandedWidgetStore.determineWidthAndHeight()

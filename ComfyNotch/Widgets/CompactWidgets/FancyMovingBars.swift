@@ -20,7 +20,7 @@ struct AnimatedBar: View {
         self.dominantColor = dominantColor
         self.shouldAnimate = shouldAnimate
     }
- 
+    
     @ObservedObject private var notchStateManager: NotchStateManager = .shared
     
     @State private var animationHeight: CGFloat = 0
@@ -34,7 +34,7 @@ struct AnimatedBar: View {
     }
     
     private let maxAnimationHeight: CGFloat = 0.3
-
+    
     private var width: CGFloat {
         return notchStateManager.hoverHandler.scaleHoverOverLeftItems ? 3.0 : 2.5
     }

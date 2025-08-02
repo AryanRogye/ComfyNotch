@@ -11,7 +11,7 @@ struct HomeNotchView: View {
             if notchStateManager.isExpanded {
                 /// Big Panel Widgets
                 ZStack {
-                    HStack(spacing: 2) {
+                    HStack(spacing: 0) {
                         let lastVisibleIndex = bigWidgetStore.widgets.lastIndex(where: { $0.isVisible })
 
                         ForEach(bigWidgetStore.widgets.indices, id: \.self) { index in
@@ -38,7 +38,7 @@ struct HomeNotchView: View {
         }
         .frame(maxHeight: .infinity)
         .animation(
-            .easeInOut(duration: notchStateManager.isExpanded ? 0.3 : 0.1),
+            .bouncy(duration: notchStateManager.isExpanded ? 0.3 : 0.1),
             value: notchStateManager.isExpanded
         )
     }

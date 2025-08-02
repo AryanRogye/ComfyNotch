@@ -28,6 +28,7 @@ extension HoverTarget {
 
 final class HoverHandler: ObservableObject {
     
+    @Published var isHoveringOverNotch : Bool = false
     @Published var isHoveringOverPlayPause: Bool = false
     @Published var isHoveringOverLeft: Bool = false
     @Published var scaleHoverOverLeftItems: Bool = false

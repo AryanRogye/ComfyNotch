@@ -125,7 +125,6 @@ struct OpenNotchContentDimensionsView: View {
                     .fill(Color.black)
             )
             /// this is cuz notch is 140 and image is 150, we push it up
-            .padding(.top, -10)
         }
     }
     

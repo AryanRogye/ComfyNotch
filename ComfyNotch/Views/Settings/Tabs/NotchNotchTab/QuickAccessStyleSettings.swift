@@ -45,22 +45,14 @@ struct QuickAccessStyleSettings: View {
             
             HStack {
                 /// Option 1
-                notchStyleButton(
-                    type: .dynamic,
-                    label: "Dynamic",
-                    isSelected: values.quickAccessWidgetSimpleDynamic == .dynamic
-                ) {
+                ComfyPickerElement(isSelected: values.quickAccessWidgetSimpleDynamic == .dynamic, label: "Dynamic") {
                     values.quickAccessWidgetSimpleDynamic = .dynamic
                 } content: {
                     Option1()
                 }
                 
                 /// Option 2
-                notchStyleButton(
-                    type: .simple,
-                    label: "Simple",
-                    isSelected: values.quickAccessWidgetSimpleDynamic == .simple
-                ) {
+                ComfyPickerElement(isSelected: values.quickAccessWidgetSimpleDynamic == .simple, label: "Simple") {
                     values.quickAccessWidgetSimpleDynamic = .simple
                 } content: {
                     Option2()
@@ -68,38 +60,6 @@ struct QuickAccessStyleSettings: View {
             }
             .padding(.horizontal)
             .frame(maxWidth: .infinity, alignment: .center)
-        }
-    }
-    
-    @ViewBuilder
-    func notchStyleButton<Content: View>(
-        type: QuickAccessType,
-        label: String,
-        isSelected: Bool,
-        action: @escaping () -> Void,
-        @ViewBuilder content: () -> Content
-    ) -> some View {
-        VStack(spacing: 8) {
-            Button(action: action) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(isSelected ? Color.accentColor.opacity(0.15) : Color.gray.opacity(0.15))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
-                        )
-                        .shadow(color: isSelected ? Color.accentColor.opacity(0.3) : .clear, radius: isSelected ? 5 : 0)
-                    
-                    content()
-                        .padding(8) // uniform padding inside the box
-                        .padding(.vertical, 12)
-                }
-            }
-            .buttonStyle(.plain)
-            
-            Text(label)
-                .font(.system(size: 11, weight: .medium))
-                .foregroundColor(.primary)
         }
     }
 }

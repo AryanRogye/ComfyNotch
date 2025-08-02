@@ -24,7 +24,8 @@ class ScrollHandler : ObservableObject {
     internal var isOpeningFull = false
     internal var isPeeking = false
     internal var isAnimatingPeek = false
-    internal var isHovering = false
+    @Published var isHovering = false
+    @Published var finishedHoveringIn: Bool = false
     
     private init() {}
     

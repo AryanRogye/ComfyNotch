@@ -23,11 +23,13 @@ struct WidgetSettings: View {
     @EnvironmentObject var settings: SettingsModel
     @ObservedObject private var widgetSettingsManager = WidgetSettingsManager.shared
     
+    @State private var eventWidgetValues = EventWidgetSettingsValues()
+    @State private var eventValuesDidChange = false
+    
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(spacing: 12) {
-                    
                     musicPlayerSettings
                         .padding(.vertical)
                         .id(WidgetType.musicPlayer)
@@ -35,7 +37,12 @@ struct WidgetSettings: View {
                     cameraSettings
                         .padding(.vertical)
                         .id(WidgetType.camera)
+                    
+                    eventSettings
+                        .padding(.vertical)
+                        .id(WidgetType.event)
                 }
+                .frame(maxWidth: .infinity)
                 .padding()
                 .listRowInsets(EdgeInsets())
                 .listRowBackground(Color.clear)
@@ -77,6 +84,28 @@ struct WidgetSettings: View {
                 .foregroundColor(.primary)
 
             Spacer()
+        }
+    }
+    
+    private var eventSettings: some View {
+        ComfySettingsContainer {
+            EventWidgetSettings(
+                didChange: $eventValuesDidChange,
+                values: $eventWidgetValues
+            )
+        } header: {
+            HStack {
+                Text("Event Widget Settings")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary)
+                Spacer()
+                
+                ComfyButton(title: "Save", $eventValuesDidChange) {
+                    settings.saveEventsValues(values: eventWidgetValues)
+                    eventValuesDidChange = false
+                }
+            }
         }
     }
 }

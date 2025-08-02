@@ -17,7 +17,7 @@ class ExpandedWidgetsStore: PanelManager, ObservableObject {
         guard group != lastLayoutGroup else { return }
         lastLayoutGroup = group
         
-        debugLog("(Expanded-Store) Layout For \(group.rawValue)")
+        debugLog("(Expanded-Store) Layout For \(group.rawValue)", from: "PanelStore")
         
         switch group {
             /// This means we wanna show NOTHING
@@ -59,8 +59,6 @@ class ExpandedWidgetsStore: PanelManager, ObservableObject {
         /// Now In This we can determine the width because it will be fullWidth / numberOfWidgets
         /// 10 Padding
         let w = fullWidth / CGFloat(numberOfWidgets) - 30
-        
-        print("Determined Width: \(w)")
         let h = ScrollHandler.shared.maxPanelHeight - 20
         
         return (w: w, h: h)
@@ -121,7 +119,7 @@ class ExpandedWidgetsStore: PanelManager, ObservableObject {
     
     /// Function to remove all widgets from the big panel
     func clearWidgets() {
-        debugLog("🗑️ Clearing all widgets from the big panel.")
+        debugLog("🗑️ Clearing all widgets from the big panel.", from: "PanelStore")
         widgets.removeAll()
     }
 }
@@ -204,7 +202,7 @@ class CompactWidgetsStore: PanelManager, ObservableObject {
         guard group != lastLayoutGroup else { return }
         lastLayoutGroup = group
         
-        debugLog("(Compact-Store) Layout For \(group.rawValue)")
+        debugLog("(Compact-Store) Layout For \(group.rawValue)", from: "PanelStore")
         
         switch group {
         case .empty:

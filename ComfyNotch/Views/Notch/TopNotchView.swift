@@ -65,6 +65,18 @@ struct TopNotchView: View {
         .onHover { hover in
             notchStateManager.hoverHandler.isHoveringOverLeft =
             hover &&
+            
+//            (
+//                (
+//                    !ScrollHandler.shared.isHovering &&
+//                    !ScrollHandler.shared.finishedHoveringIn
+//                ) ||
+//                (
+//                    ScrollHandler.shared.isHovering &&
+//                    ScrollHandler.shared.finishedHoveringIn
+//                )
+//            ) &&
+            
             MusicPlayerWidgetModel.shared.nowPlayingInfo.isPlaying &&
             settings.hoverTargetMode == .album &&
             notchStateManager.bottomSectionHeight == 0
