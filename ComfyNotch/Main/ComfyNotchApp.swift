@@ -6,19 +6,20 @@
 //
 
 import SwiftUI
-import AppKit
-import Sparkle
-import Cocoa
 
 
-func debugLog(_ message: @autoclosure () -> Any, from : String? = nil) {
-    if let from = from {
-        /// Handling Debug Logs From PanelStore
-        if from == "PanelStore" {
-            return
-        }
-    }
+func debugLog(_ message: @autoclosure () -> Any, from: String? = nil) {
 #if DEBUG
+    let silencedSources: Set<String> = [
+        "PanelStore"
+//        "DisplayManager"
+//        "UIManager"
+    ]
+    
+    if let from = from, silencedSources.contains(from) {
+        return
+    }
+    
     print(message())
 #endif
 }

@@ -125,6 +125,15 @@ class UIManager: ObservableObject {
         
         
         compactWidgetStore.loadWidgets()
+        
+        debugLog("""
+        📐 Initialized Panel Frame With:
+           ⤷ MinX : \(smallPanel.frame.minX)
+           ⤷ MinY : \(smallPanel.frame.minY)
+           ⤷ MaxX : \(smallPanel.frame.maxX)
+           ⤷ MaxY : \(smallPanel.frame.maxY)
+           ⤷ Width  x Height : \(smallPanel.frame.width) x \(smallPanel.frame.height)
+        """, from: "UIManager")
     }
     
     // MARK: - Layout Management

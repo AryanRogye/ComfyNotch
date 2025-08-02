@@ -30,6 +30,22 @@ final class DisplayManager: NSObject, ObservableObject {
         super.init()
         
         selectedScreen = SettingsModel.shared.selectedScreen
+        
+#if DEBUG
+        if let screen = selectedScreen {
+            let index = NSScreen.screens.firstIndex(of: screen) ?? -1
+            debugLog("""
+            🖥 Selected Screen Info:
+               ⤷ Index         : \(index)
+               ⤷ Frame         : \(screen.frame)
+               ⤷ Visible Frame : \(screen.visibleFrame)
+               ⤷ Width x Height: \(screen.frame.width) x \(screen.frame.height)
+               ⤷ Origin        : (\(screen.frame.origin.x), \(screen.frame.origin.y))
+            """, from: "DisplayManager")
+        } else {
+            debugLog("⚠️ No screen selected — selectedScreen is nil")
+        }
+#endif
     }
     
     public func start() {
