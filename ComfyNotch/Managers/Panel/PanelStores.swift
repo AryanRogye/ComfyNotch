@@ -17,7 +17,7 @@ class ExpandedWidgetsStore: PanelManager, ObservableObject {
         guard group != lastLayoutGroup else { return }
         lastLayoutGroup = group
         
-        debugLog("(Expanded-Store) Layout For \(group.rawValue)", from: "PanelStore")
+        debugLog("(Expanded-Store) Layout For \(group.rawValue)", from: .panels)
         
         switch group {
             /// This means we wanna show NOTHING
@@ -119,7 +119,7 @@ class ExpandedWidgetsStore: PanelManager, ObservableObject {
     
     /// Function to remove all widgets from the big panel
     func clearWidgets() {
-        debugLog("🗑️ Clearing all widgets from the big panel.", from: "PanelStore")
+        debugLog("🗑️ Clearing all widgets from the big panel.", from: .panels)
         widgets.removeAll()
     }
 }
@@ -202,7 +202,7 @@ class CompactWidgetsStore: PanelManager, ObservableObject {
         guard group != lastLayoutGroup else { return }
         lastLayoutGroup = group
         
-        debugLog("(Compact-Store) Layout For \(group.rawValue)", from: "PanelStore")
+        debugLog("(Compact-Store) Layout For \(group.rawValue)", from: .panels)
         
         switch group {
         case .empty:

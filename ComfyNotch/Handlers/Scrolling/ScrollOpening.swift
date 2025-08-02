@@ -25,21 +25,21 @@ extension ScrollHandler {
         if open {
             UIManager.shared.panelState = .open
             /// DEBUG DEBUG LOGS
-            //            debugLog("Opening")
+            debugLog("Opening", from: .scrollMajor)
             UIManager.shared.applyExpandedWidgetLayout()
         }
         // MARK: - Close Logic
         else if height <= minPanelHeight {
             UIManager.shared.panelState = .closed
             /// DEBUG DEBUG LOGS
-            //            debugLog("Closed")
+            debugLog("Closed", from: .scrollMajor)
             UIManager.shared.applyCompactWidgetLayout()
         }
         // MARK: - Partial Logic
         else {
             UIManager.shared.panelState = .partiallyOpen
             /// DEBUG DEBUG LOGS
-            //            debugLog("Applying Partial")
+            debugLog("Applying Partial", from: .scrollMajor)
             UIManager.shared.applyOpeningLayout()
         }
     }
@@ -133,6 +133,7 @@ extension ScrollHandler {
                     self.isOpeningFull = false
                     self.updateState(for: finalHeight)
                     UIManager.shared.panelState = .closed
+                    UIManager.shared.logPanelFrame(reason: "(Closed Full)")
                 })
             })
         }
@@ -169,7 +170,7 @@ extension ScrollHandler {
                     self.isOpeningFull = false
                     self.updateState(for: trueH)
                     UIManager.shared.panelState = .open
-//                    self.verifyAndCorrectFrame(panel: panel, expectedFrame: trueFrame, expectedHeight: trueH)
+                    UIManager.shared.logPanelFrame(reason: "(Open Full)")
                 })
             })
         }
@@ -206,7 +207,7 @@ extension ScrollHandler {
                     self.isOpeningFull = false
                     self.updateState(for: trueH)
                     UIManager.shared.panelState = .open
-//                    self.verifyAndCorrectFrame(panel: panel, expectedFrame: trueFrame, expectedHeight: trueH)
+                    UIManager.shared.logPanelFrame(reason: "(Open Full)")
                 })
             })
         }

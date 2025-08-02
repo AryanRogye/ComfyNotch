@@ -46,7 +46,7 @@ class DisplayHandler {
     @objc private func handleScreenChange() {
         // Delay restart by 5 seconds
         DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
-            debugLog("Screen Changed, Re-Aligning Notch...")
+            debugLog("Screen Changed, Re-Aligning Notch...", from: .display)
             //            self.restartApp()
             ScrollHandler.shared.re_align_notch()
         }
@@ -62,7 +62,7 @@ class DisplayHandler {
             try task.run()  // Launch the new instance of the app
             task.waitUntilExit()  // Ensures the new instance starts before killing the old one
         } catch {
-            debugLog("Failed to launch a new instance: \(error)")
+            debugLog("Failed to launch a new instance: \(error)", from: .display)
         }
 
         exit(0)  // Terminate the current instance

@@ -26,6 +26,9 @@ struct WidgetSettings: View {
     @State private var eventWidgetValues = EventWidgetSettingsValues()
     @State private var eventValuesDidChange = false
     
+    @State private var musicWidgetValues = MusicPlayerSettingsValues()
+    @State private var musicValuesDidChange = false
+    
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
@@ -63,14 +66,23 @@ struct WidgetSettings: View {
     
     private var musicPlayerSettings: some View {
         ComfySettingsContainer {
-            MusicPlayerSettings()
+            MusicPlayerSettings(
+                didChange: $musicValuesDidChange,
+                values: $musicWidgetValues
+            )
         } header: {
+            
             Text("Music Player Widget Settings")
                 .font(.headline)
                 .fontWeight(.semibold)
                 .foregroundColor(.primary)
 
             Spacer()
+            
+            ComfyButton(title: "Save", $musicValuesDidChange) {
+                settings.saveMusicWidgetValues(values: musicWidgetValues)
+                musicValuesDidChange = false
+            }
         }
     }
     

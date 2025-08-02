@@ -36,7 +36,7 @@ struct ComfyNotchStyleMusicWidget: View {
                     .frame(alignment: .leading)
                 
                 // MARK: - Song Information and Controls
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 0) {
                     /// name/artist/album
                     renderSongInformation()
                     
@@ -75,50 +75,53 @@ struct ComfyNotchStyleMusicWidget: View {
                 
                 VStack(spacing: 6) {
                     // Progress bar
-                    GeometryReader { geometry in
-                        let effectivePosition = model.isDragging ? model.manualDragPosition : model.nowPlayingInfo.positionSeconds
-                        ZStack(alignment: .leading) {
-                            // Background track
-                            Rectangle()
-                                .fill(Color.gray.opacity(0.3))
-                                .frame(height: 6)
-                                .cornerRadius(2)
-                            
-                            // Progress bar
-                            Rectangle()
-                                .fill(Color(nsColor: model.nowPlayingInfo.dominantColor))
-                                .frame(width: max(CGFloat(effectivePosition / max(model.nowPlayingInfo.durationSeconds,1)) * geometry.size.width, 0), height: 4)
-                                .cornerRadius(2)
-                                .shadow(color: Color(nsColor: model.nowPlayingInfo.dominantColor).opacity(0.5), radius: 4, x: 0, y: 2)
+                    ZStack {
+                        GeometryReader { geometry in
+                            let effectivePosition = model.isDragging ? model.manualDragPosition : model.nowPlayingInfo.positionSeconds
+                            ZStack(alignment: .leading) {
+                                // Background track
+                                Rectangle()
+                                    .fill(Color.gray.opacity(0.3))
+                                    .frame(height: 6)
+                                    .cornerRadius(2)
+                                
+                                // Progress bar
+                                Rectangle()
+                                    .fill(Color(nsColor: model.nowPlayingInfo.dominantColor))
+                                    .frame(width: max(CGFloat(effectivePosition / max(model.nowPlayingInfo.durationSeconds,1)) * geometry.size.width, 0), height: 4)
+                                    .cornerRadius(2)
+                                    .shadow(color: Color(nsColor: model.nowPlayingInfo.dominantColor).opacity(0.5), radius: 4, x: 0, y: 2)
+                            }
+                            .gesture(
+                                DragGesture(minimumDistance: 0)
+                                    .onChanged { value in
+                                        // Set the dragging flag to true
+                                        model.isDragging = true
+                                        let percentage = min(max(0, value.location.x / geometry.size.width), 1)
+                                        model.manualDragPosition = Double(percentage) * model.nowPlayingInfo.durationSeconds
+                                    }
+                                    .onEnded { value in
+                                        let percentage = min(max(0, value.location.x / geometry.size.width), 1)
+                                        
+                                        // Convert % ➜ absolute seconds
+                                        let newTimeInSeconds = percentage * model.nowPlayingInfo.durationSeconds
+                                        
+                                        // 1. Seek the real player
+                                        AudioManager.shared.playAtTime(to: newTimeInSeconds)
+                                        
+                                        // 2. Keep the thumb where the user left it (UI won’t flash back)
+                                        model.manualDragPosition = newTimeInSeconds
+                                        
+                                        /// This is delayed because someone like me plays spotify on my tv
+                                        /// the device is seperate from the controller so updates for spotify
+                                        /// take some time to propagate.
+                                        checkPositionUpdate(targetPosition: newTimeInSeconds, attempts: 0)
+                                    }
+                            )
                         }
-                        .gesture(
-                            DragGesture(minimumDistance: 0)
-                                .onChanged { value in
-                                    // Set the dragging flag to true
-                                    model.isDragging = true
-                                    let percentage = min(max(0, value.location.x / geometry.size.width), 1)
-                                    model.manualDragPosition = Double(percentage) * model.nowPlayingInfo.durationSeconds
-                                }
-                                .onEnded { value in
-                                    let percentage = min(max(0, value.location.x / geometry.size.width), 1)
-                                    
-                                    // Convert % ➜ absolute seconds
-                                    let newTimeInSeconds = percentage * model.nowPlayingInfo.durationSeconds
-                                    
-                                    // 1. Seek the real player
-                                    AudioManager.shared.playAtTime(to: newTimeInSeconds)
-                                    
-                                    // 2. Keep the thumb where the user left it (UI won’t flash back)
-                                    model.manualDragPosition = newTimeInSeconds
-                                    
-                                    /// This is delayed because someone like me plays spotify on my tv
-                                    /// the device is seperate from the controller so updates for spotify
-                                    /// take some time to propagate.
-                                    checkPositionUpdate(targetPosition: newTimeInSeconds, attempts: 0)
-                                }
-                        )
                     }
-                    .frame(height: 12)
+                    .frame(height: 6)
+                    .frame(maxHeight: .infinity, alignment: .center)
                 }
                 .padding(.horizontal, 8)
                 
@@ -130,7 +133,9 @@ struct ComfyNotchStyleMusicWidget: View {
         } else {
             EmptyView()
         }
-    }    // Helper function to format seconds as "MM:SS"
+    }
+    
+    // Helper function to format seconds as "MM:SS"
     private func formatDuration(_ seconds: Double) -> String {
         let minutes = Int(seconds) / 60
         let remainingSeconds = Int(seconds) % 60

@@ -32,7 +32,6 @@ final class MediaRemoteMusicController: NowPlayingProvider {
     }
     
     func getNowPlayingInfo(completion: @escaping (Bool) -> Void) {
-//        debugLog("MediaRemoteMusicController: getNowPlayingInfo called")
         mediaController.onTrackInfoReceived = { [weak self] trackInfo in
             DispatchQueue.main.async {
                 guard let self else { return }
@@ -42,10 +41,10 @@ final class MediaRemoteMusicController: NowPlayingProvider {
                 
                 if trackId == self.lastTrackIdentifier {
                     if now.timeIntervalSince(self.lastUpdateTime) < self.updateInterval {
-                        //                        print("Skipping update: \(now.timeIntervalSince(self.lastUpdateTime)) seconds since last update")
+                        debugLog("Skipping update: \(now.timeIntervalSince(self.lastUpdateTime)) seconds since last update", from: .mrmController)
                         return
                     }
-                    print("Track ID Matches — updating time only")
+                    debugLog("Track ID Matches — updating time only", from: .mrmController)
                 } else {
                     self.lastTrackIdentifier = trackId
                 }

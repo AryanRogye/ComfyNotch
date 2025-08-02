@@ -435,7 +435,7 @@ class SettingsModel: ObservableObject {
     /// the application is running
     func updateSelectedWidgets(with widgetName: String, isSelected: Bool) {
         
-        debugLog("Updating selected widgets with: \(widgetName), isSelected: \(isSelected)")
+        debugLog("Updating selected widgets with: \(widgetName), isSelected: \(isSelected)", from: .settings)
         
         var limit = 2
         // LIMIT 3 Widgets Only
@@ -460,9 +460,9 @@ class SettingsModel: ObservableObject {
             if selectedWidgets.contains(widgetName) {
                 selectedWidgets.removeAll { $0 == widgetName }
                 UIManager.shared.expandedWidgetStore.removeWidget(named: widgetName)
-                debugLog("Removed widget: \(widgetName)")
+                debugLog("Removed widget: \(widgetName)", from: .settings)
             } else {
-                debugLog("Widget \(widgetName) not found in selected widgets")
+                debugLog("Widget \(widgetName) not found in selected widgets", from: .settings)
                 exit(0)
             }
         }
@@ -474,13 +474,15 @@ class SettingsModel: ObservableObject {
                 selectedWidgets.append(widgetName)
                 if let widget = WidgetRegistry.shared.getWidget(named: widgetName) {
                     UIManager.shared.addWidgetToBigPanel(widget)
-                    debugLog("Added widget: \(widgetName)")
+                    debugLog("Added widget: \(widgetName)", from: .settings)
                 }
             }
         }
         
         saveSettings()
-        debugLog("NEW Saved Settings: \(selectedWidgets)")
+        debugLog("NEW Saved Settings: \(selectedWidgets)", from: .settings)
+        
+        UIManager.shared.displayCurrentBigPanelWidgets(with: "Updated Widgets")
         
         /// Refresh UI
         refreshUI()
@@ -502,7 +504,7 @@ class SettingsModel: ObservableObject {
     }
     
     func removeAndAddBackCurrentWidgets() {
-        debugLog("🔄 Rebuilding widgets in the panel based on the updated order.")
+        debugLog("🔄 Rebuilding widgets in the panel based on the updated order.", from: .settings)
         
         // Clear all currently displayed widgets
         UIManager.shared.expandedWidgetStore.clearWidgets()
@@ -512,7 +514,7 @@ class SettingsModel: ObservableObject {
             if let widget = WidgetRegistry.shared.getWidget(named: widgetName) {
                 UIManager.shared.addWidgetToBigPanel(widget)
             } else {
-                debugLog("⚠️ Widget \(widgetName) not found in WidgetRegistry.")
+                debugLog("⚠️ Widget \(widgetName) not found in WidgetRegistry.", from: .settings)
             }
         }
         
@@ -556,10 +558,7 @@ extension SettingsModel {
         }
         defaults.set(notchScrollThreshold, forKey: "notchScrollThreshold")
         
-        /// ----------------------- Music Player Settings -----------------------
-        defaults.set(showMusicProvider, forKey: "showMusicProvider")
-        defaults.set(musicController.rawValue, forKey: "musicController")
-        defaults.set(overridenMusicProvider.rawValue, forKey: "overridenMusicProvider")
+       
         
         /// ----------------------- Display Settings -----------------------
         if let screen = selectedScreen {
@@ -667,39 +666,39 @@ extension SettingsModel {
             let fm = FileManager.default
             
             guard let oldFolder = oldFolder else {
-                debugLog("ℹ️ No old folder to migrate from")
+                debugLog("ℹ️ No old folder to migrate from", from: .settings)
                 return
             }
             
             guard newFolder.standardized != oldFolder.standardized else {
-                debugLog("ℹ️ New and old folders are the same, skipping migration")
+                debugLog("ℹ️ New and old folders are the same, skipping migration", from: .settings)
                 return
             }
             
             guard newFolder != oldFolder else {
-                debugLog("ℹ️ New and old folders are the same, skipping migration")
+                debugLog("ℹ️ New and old folders are the same, skipping migration", from: .settings)
                 return
             }
             
             // Check if old folder exists
             var isDir: ObjCBool = false
             guard fm.fileExists(atPath: oldFolder.path, isDirectory: &isDir), isDir.boolValue else {
-                debugLog("ℹ️ Old folder doesn't exist or isn't a directory: \(oldFolder.path)")
+                debugLog("ℹ️ Old folder doesn't exist or isn't a directory: \(oldFolder.path)", from: .settings)
                 return
             }
             
             do {
                 let items = try fm.contentsOfDirectory(at: oldFolder, includingPropertiesForKeys: nil)
-                debugLog("📁 Found \(items.count) items to migrate from \(oldFolder.path)")
+                debugLog("📁 Found \(items.count) items to migrate from \(oldFolder.path)", from: .settings)
                 
                 for file in items {
                     let dest = newFolder.appendingPathComponent(file.lastPathComponent)
                     
                     if !fm.fileExists(atPath: dest.path) {
                         try fm.copyItem(at: file, to: dest)
-                        debugLog("✅ Migrated: \(file.lastPathComponent)")
+                        debugLog("✅ Migrated: \(file.lastPathComponent)", from: .settings)
                     } else {
-                        debugLog("⏭️ Skipped existing file: \(file.lastPathComponent)")
+                        debugLog("⏭️ Skipped existing file: \(file.lastPathComponent)", from: .settings)
                     }
                 }
             } catch {
@@ -831,5 +830,16 @@ extension SettingsModel {
         }
         // Always persist the (possibly unchanged) current value
         defaults.set(eventWidgetScrollUpThreshold, forKey: "eventWidgetScrollUpThreshold")
+    }
+    
+    // MARK: - Music Widget Section
+    public func saveMusicWidgetValues(values: MusicPlayerSettingsValues) {
+        self.showMusicProvider = values.showMusicProvider
+        self.musicController = values.musicController
+        self.overridenMusicProvider = values.overridenMusicProvider
+        
+        defaults.set(showMusicProvider, forKey: "showMusicProvider")
+        defaults.set(musicController.rawValue, forKey: "musicController")
+        defaults.set(overridenMusicProvider.rawValue, forKey: "overridenMusicProvider")
     }
 }

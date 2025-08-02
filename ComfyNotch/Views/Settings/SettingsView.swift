@@ -20,11 +20,11 @@ struct SettingsView: View {
     enum Tab: String, CaseIterable, Identifiable, Equatable {
         case general = "General"
         case notch = "Notch"
+        case widgetSettings = "Widget Settings"
         case animations = "Animations"
         case display = "Display"
         case license = "License"
         case updates = "Updates"
-        case widgetSettings = "Widget Settings"
 
         var id: String { rawValue }
         var label: String { rawValue }

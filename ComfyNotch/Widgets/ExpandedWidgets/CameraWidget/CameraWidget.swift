@@ -252,7 +252,7 @@ class CameraWidgetModel: ObservableObject {
     }
     
     deinit {
-        debugLog("[CameraWidgetModel] Deinit called")
+        debugLog("[CameraWidgetModel] Deinit called", from: .widget)
         stopSession()
         cleanupSession()
         // CRITICAL: Cancel all Combine subscriptions
@@ -283,7 +283,7 @@ class CameraWidgetModel: ObservableObject {
     
     private func setupCamera() {
         guard let device = AVCaptureDevice.default(for: .video) else {
-            debugLog("Failed to access camera.")
+            debugLog("Failed to access camera.", from: .widget)
             return
         }
         do {
@@ -294,7 +294,7 @@ class CameraWidgetModel: ObservableObject {
                 currentInput = input
             }
         } catch {
-            debugLog("Error setting up camera input: \(error)")
+            debugLog("Error setting up camera input: \(error)", from: .widget)
         }
     }
     

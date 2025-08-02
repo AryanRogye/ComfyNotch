@@ -7,23 +7,6 @@
 
 import SwiftUI
 
-
-func debugLog(_ message: @autoclosure () -> Any, from: String? = nil) {
-#if DEBUG
-    let silencedSources: Set<String> = [
-        "PanelStore",
-        "DisplayManager",
-        "UIManager"
-    ]
-    
-    if let from = from, silencedSources.contains(from) {
-        return
-    }
-    
-    print(message())
-#endif
-}
-
 @main
 struct ComfyNotchApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
@@ -46,4 +29,40 @@ struct ComfyNotchApp: App {
             .windowStyle(.hiddenTitleBar)
         }
     }
+}
+
+enum LogSource: String {
+    case panels         = "|PanelStore|"
+    case display        = "|DisplayManager|"
+    case ui             = "|UIManager|"
+    case mrmController  = "|MediaRemoteMusicController|"
+    case scroll         = "|ScrollManager|"
+    case scrollMajor    = "|ScrollManager |MAJOR|"
+    
+    /// Most Likely These Will Be Always Active
+    case settings       = "|Settings|"
+    case fileTray       = "|FileTray|"
+    /// All Widget Logic
+    case widget         = "|Widget|"
+}
+
+func debugLog(_ message: @autoclosure () -> Any, from: LogSource? = nil) {
+#if DEBUG
+    let silencedSources: Set<LogSource> = [
+        .panels,
+        .display,
+        .ui,
+        .mrmController,
+        .scrollMajor
+    ]
+    
+    if let from = from {
+        if silencedSources.contains(from) {
+            return
+        }
+        print("\(from): \(String(describing: message()))")
+        return
+    }
+    print(message())
+#endif
 }

@@ -41,5 +41,12 @@ struct ComfyButton: View {
         .buttonStyle(PlainButtonStyle())
         .controlSize(.small)
         .disabled(!changeColor)
+        .onHover { hovering in
+            if changeColor && hovering {
+                NSCursor.pointingHand.push()
+            } else {
+                NSCursor.pop()
+            }
+        }
     }
 }

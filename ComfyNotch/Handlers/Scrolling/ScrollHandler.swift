@@ -46,7 +46,7 @@ class ScrollHandler : ObservableObject {
         guard let screen = NSScreen.screens.first(where: {
             $0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID == id
         }) else {
-            debugLog("❌ Could not find screen with displayID \(String(describing: id))")
+            debugLog("❌ Could not find screen with displayID \(String(describing: id))", from: .scroll)
             return
         }
         
@@ -57,9 +57,9 @@ class ScrollHandler : ObservableObject {
         minPanelHeight = UIManager.shared.getNotchHeight()
         
         /// DEBUG LOG, this is DEBUG DEBUG working
-//        debugLog("Screen Frame: \(screen.frame)")
-//        debugLog("Screen Visible Frame: \(screen.visibleFrame)")
-//        debugLog("Panel Screen Origin: \(panel.screen?.frame.origin ?? .zero)")
+        debugLog("Screen Frame: \(screen.frame)", from: .scrollMajor)
+        debugLog("Screen Visible Frame: \(screen.visibleFrame)", from: .scrollMajor)
+        debugLog("Panel Screen Origin: \(panel.screen?.frame.origin ?? .zero)", from: .scrollMajor)
         
         let startYOffset = UIManager.shared.startPanelYOffset
         
