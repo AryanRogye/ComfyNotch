@@ -373,8 +373,14 @@ struct ComfyNotchStyleMusicWidget: View {
 }
 
 
-/// IDK WHY THIS CRASHES
-/// maybe OS26😂
+/*
+    NOTE: keep this, its commented because IDK if its cuz of this but while testing this it crashes,
+    not just crashing XCode, this crashed my system, but its rlly nice cuz u can see ceneter alignment
+    and top alignment
+ 
+    Maybe OS26 But its ok
+*/
+
 //#Preview {
 //    Group {
 //        VStack {

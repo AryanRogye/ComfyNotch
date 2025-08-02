@@ -125,7 +125,7 @@ struct MusicPlayerSettings: View {
             
             fakeTimeline(width: 70, cornerRadius: 12)
             
-            /// Simulating 
+            /// Simulating  centering, which it does with the 16
             fakeButtons
                 .padding(.leading)
         }

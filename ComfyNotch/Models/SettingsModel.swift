@@ -154,9 +154,6 @@ class SettingsModel: ObservableObject {
         self.defaults = userDefaults
         loadSettings()
         
-        /// DEBUG REMOVE IN PRODUCTION
-        self.selectedTab = .widgetSettings
-        
         $isSettingsWindowOpen
             .receive(on: RunLoop.main)
             .sink { isOpen in
