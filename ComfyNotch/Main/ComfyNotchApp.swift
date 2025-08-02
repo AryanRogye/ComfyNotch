@@ -11,9 +11,9 @@ import SwiftUI
 func debugLog(_ message: @autoclosure () -> Any, from: String? = nil) {
 #if DEBUG
     let silencedSources: Set<String> = [
-        "PanelStore"
-//        "DisplayManager"
-//        "UIManager"
+        "PanelStore",
+        "DisplayManager",
+        "UIManager"
     ]
     
     if let from = from, silencedSources.contains(from) {

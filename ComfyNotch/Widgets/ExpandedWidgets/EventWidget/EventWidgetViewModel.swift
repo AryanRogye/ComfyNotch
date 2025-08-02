@@ -148,7 +148,6 @@ final class EventWidgetViewModel: ObservableObject {
                 case .success(_): 
                     Task { await self.syncRemindersAndEvents() }
                     self.dayViewState = .home
-                    completion(nil)
                 case .failure(let failure):
                     completion(failure.localizedDescription)
                     return
