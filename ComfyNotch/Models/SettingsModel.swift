@@ -85,7 +85,7 @@ class SettingsModel: ObservableObject {
     
     // MARK: - Music Setting Values
     /// ---------- Music Player Settings ----------
-    @Published var musicPlayerStyle : MusicPlayerWidgetStyle = .native
+    @Published var musicPlayerStyle : MusicPlayerWidgetStyle = .comfy
     @Published var showMusicProvider: Bool = true
     @Published var musicController: MusicController = .mediaRemote
     @Published var overridenMusicProvider: MusicProvider = .none

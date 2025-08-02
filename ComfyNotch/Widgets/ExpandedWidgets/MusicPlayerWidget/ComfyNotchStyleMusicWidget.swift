@@ -10,9 +10,6 @@ import SVGView
 
 struct ComfyNotchStyleMusicWidget: View {
     
-    var imageWidth: CGFloat = 120
-    var imageHeight: CGFloat = 120
-    
     @ObservedObject private var model = MusicPlayerWidgetModel.shared
     @ObservedObject private var settings = SettingsModel.shared
     
@@ -21,7 +18,7 @@ struct ComfyNotchStyleMusicWidget: View {
     @State private var cardHover = false
     
     private let cardPadding: CGFloat = 20
-    private let albumSize: CGFloat = 120
+    private let albumSize: CGFloat = 80
     private let controlButtonSize: CGFloat = 40
     private let smallControlButtonSize: CGFloat = 32
     
