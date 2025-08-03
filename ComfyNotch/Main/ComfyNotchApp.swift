@@ -36,12 +36,14 @@ enum LogSource: String {
     case display        = "|DisplayManager|"
     case ui             = "|UIManager|"
     case mrmController  = "|MediaRemoteMusicController|"
+    case aSController   = "|AppleScriptController|"
     case scroll         = "|ScrollManager|"
     case scrollMajor    = "|ScrollManager |MAJOR|"
     
     /// Most Likely These Will Be Always Active
     case settings       = "|Settings|"
     case fileTray       = "|FileTray|"
+    case musicError     = "|MusicError|"
     /// All Widget Logic
     case widget         = "|Widget|"
 }
@@ -53,6 +55,7 @@ func debugLog(_ message: @autoclosure () -> Any, from: LogSource? = nil) {
         .display,
         .ui,
         .mrmController,
+        .aSController,
         .scrollMajor
     ]
     

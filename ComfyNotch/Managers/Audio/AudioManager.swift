@@ -159,32 +159,33 @@ class AudioManager: ObservableObject {
      */
     func openProvider() {
         if appleScriptMusicController.isAvailable() {
-            debugLog("Called Top Open Provded")
             let appPath = "/Applications/"
             if appleScriptMusicController.isSpotifyPlaying() {
-                debugLog("Opening Spotify")
                 if FileManager.default.fileExists(atPath: appPath + "Spotify.app") {
                     let appURL = URL(fileURLWithPath: appPath + "Spotify.app")
                     NSWorkspace.shared.openApplication(at: appURL,
                                                        configuration: NSWorkspace.OpenConfiguration(),
                                                        completionHandler: nil)
+                    UIManager.shared.applyOpeningLayout()
+                    ScrollHandler.shared.closeFull()
                     return
                 } else {
-                    debugLog("Spotify App Couldnt Be Opened")
+                    debugLog("Spotify App Couldnt Be Opened", from: .musicError)
                 }
             } else if appleScriptMusicController.isAppleMusicPlaying() {
-                debugLog("Opening Music")
                 if FileManager.default.fileExists(atPath: appPath + "Music.app") {
                     let appURL = URL(fileURLWithPath: appPath + "Music.app")
                     NSWorkspace.shared.openApplication(at: appURL,
                                                        configuration: NSWorkspace.OpenConfiguration(),
                                                        completionHandler: nil)
+                    UIManager.shared.applyOpeningLayout()
+                    ScrollHandler.shared.closeFull()
                     return
                 } else {
-                    debugLog("Music App Couldnt Be Opened")
+                    debugLog("Music App Couldnt Be Opened", from: .musicError)
                 }
             } else {
-                // No provider is currently playing
+                debugLog("No Provider Currently Playing", from: .aSController)
             }
         }
     }
