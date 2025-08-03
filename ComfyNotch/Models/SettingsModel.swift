@@ -154,6 +154,10 @@ class SettingsModel: ObservableObject {
         self.defaults = userDefaults
         loadSettings()
         
+        #if DEBUG
+        handleLaunchArgs()
+        #endif
+        
         $isSettingsWindowOpen
             .receive(on: RunLoop.main)
             .sink { isOpen in
@@ -168,6 +172,23 @@ class SettingsModel: ObservableObject {
             }
             .store(in: &cancellables)
     }
+    
+#if DEBUG
+    private func handleLaunchArgs() {
+        let args = ProcessInfo.processInfo.arguments
+        
+        if let index = args.firstIndex(of: "--uitest-selectedTab"),
+           args.count > index + 1 {
+            
+            let tabValue = args[index + 1]
+            switch tabValue {
+            case "widgetSettings"   : self.selectedTab = .widgetSettings
+            case "general"          : self.selectedTab = .general
+            default                 : break
+            }
+        }
+    }
+#endif
     
     // MARK: - Updates
     

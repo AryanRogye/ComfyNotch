@@ -90,6 +90,7 @@ struct MusicPlayerSettings: View {
             } content: {
                 comfyStyle
             }
+            .accessibilityIdentifier("ComfyStyleButton")
             
             ComfyPickerElement(
                 isSelected: values.musicPlayerStyle == .native,
@@ -99,6 +100,7 @@ struct MusicPlayerSettings: View {
             } content: {
                 nativeStyle
             }
+            .accessibilityIdentifier("NativeStyleButton")
         }
     }
     

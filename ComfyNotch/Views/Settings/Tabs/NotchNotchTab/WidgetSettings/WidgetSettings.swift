@@ -83,6 +83,7 @@ struct WidgetSettings: View {
                 settings.saveMusicWidgetValues(values: musicWidgetValues)
                 musicValuesDidChange = false
             }
+            .accessibilityIdentifier("MusicPlayerSettingsSaveButton")
         }
     }
     

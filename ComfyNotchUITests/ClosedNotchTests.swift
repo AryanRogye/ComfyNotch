@@ -7,7 +7,7 @@
 
 import XCTest
 
-final class ComfyNotchUITests: XCTestCase {
+final class ClosedNotchTests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -36,5 +36,8 @@ final class ComfyNotchUITests: XCTestCase {
         
         albumButton.click()
         XCTAssertFalse(albumButton.exists, "Album button should disappear after opening panel")
+        
+        app.buttons["gear"].firstMatch.click()
+        app.buttons["Exit ComfyNotch"].firstMatch.click()
     }
 }
