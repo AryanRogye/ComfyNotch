@@ -61,9 +61,8 @@ final class MediaRemoteMusicController: NowPlayingProvider {
                 if let artworkImage = trackInfo.payload.artwork {
                     let identifier = trackId + (artworkImage.tiffRepresentation?.hashValue.description ?? "")
                     
-                    self.nowPlayingInfo.artworkImage = artworkImage
-                    
                     if self.lastArtworkIdentifier != identifier {
+                        self.nowPlayingInfo.artworkImage = artworkImage
                         DispatchQueue.global(qos: .utility).async {
                             let color = self.getDominantColor(from: artworkImage) ?? .white
                             DispatchQueue.main.async {

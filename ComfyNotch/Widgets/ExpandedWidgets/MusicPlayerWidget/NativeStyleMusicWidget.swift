@@ -20,10 +20,15 @@ struct NativeStyleMusicWidget: View {
     private let iconHeight: CGFloat = 15
     private let iconPadding: CGFloat = 30
     private var cardPadding: CGFloat = 8
-    private let flipDuration: Double = 0.3
     
+    private let flipDuration: Double = 0.3
     @State private var cachedArtwork: NSImage?
     @State private var flipRotation: Double = 0
+    
+    private var showingBack: Bool {
+        let angle = abs(flipRotation.truncatingRemainder(dividingBy: 360))
+        return angle > 90 && angle < 270
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -81,46 +86,25 @@ struct NativeStyleMusicWidget: View {
                 ZStack {
                     // Front side (old/cached image) - visible at 0°
                     if let cachedArtwork = cachedArtwork {
-                        Image(nsImage: cachedArtwork)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: albumSize, height: albumSize)
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                            )
-                            .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
-                            .opacity(abs(flipRotation.truncatingRemainder(dividingBy: 360)) > 90 && abs(flipRotation.truncatingRemainder(dividingBy: 360)) < 270 ? 0 : 1)
-                    } else {
+                        renderImage(for: cachedArtwork)
+                            .opacity(showingBack ? 0 : 1)
+                    }
+                    else {
                         placeholderAlbumCover
-                            .opacity(abs(flipRotation.truncatingRemainder(dividingBy: 360)) > 90 && abs(flipRotation.truncatingRemainder(dividingBy: 360)) < 270 ? 0 : 1)
+                            .opacity(showingBack ? 0 : 1)
                     }
                     
                     // Back side (new image) - visible at 180°
                     if let artwork = model.nowPlayingInfo.artworkImage {
-                        Image(nsImage: artwork)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: albumSize, height: albumSize)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                            )
-                            .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
-                            .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0)) // Flip the back side
-                            .opacity(abs(flipRotation.truncatingRemainder(dividingBy: 360)) > 90 && abs(flipRotation.truncatingRemainder(dividingBy: 360)) < 270 ? 1 : 0)
+                        renderImage(for: artwork)
+                            .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                            .opacity(showingBack ? 1 : 0)
                     }
                 }
                 .rotation3DEffect(
                     .degrees(flipRotation),
                     axis: (x: 0, y: 1, z: 0)
                 )
-                
-                if settings.showMusicProvider {
-                    // renderProviderIcon
-                }
             }
             .onChange(of: model.nowPlayingInfo.artworkImage) { _, newArtwork in
                 handleArtworkFlip(newArtwork: newArtwork)
@@ -130,6 +114,19 @@ struct NativeStyleMusicWidget: View {
                 cachedArtwork = model.nowPlayingInfo.artworkImage
             }
         }
+    }
+    
+    private func renderImage(for nsImage: NSImage) -> some View {
+        return Image(nsImage: nsImage)
+            .resizable()
+            .aspectRatio(contentMode: .fill)
+            .frame(width: albumSize, height: albumSize)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .overlay(
+                RoundedRectangle(cornerRadius: 6)
+                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
     }
     
     // MARK: - Handle 180° Flip with Two-Sided Card
@@ -311,6 +308,7 @@ struct NativeStyleMusicWidget: View {
             EmptyView()
         }
     }    // Helper function to format seconds as "MM:SS"
+    
     
     private func formatDuration(_ seconds: Double) -> String {
         let minutes = Int(seconds) / 60

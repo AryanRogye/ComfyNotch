@@ -22,12 +22,12 @@ struct MusicPlayerSettings: View {
     
     var body: some View {
         VStack {
-            
             pickMusicPlayerStyles
+                .padding(.horizontal)
+                .padding(.top, 8)
             
             showMusicProvider
                 .padding(.horizontal)
-                .padding(.top, 8)
 
             Divider()
                 .padding(.vertical, 8)
@@ -41,6 +41,7 @@ struct MusicPlayerSettings: View {
                 Divider()
                     .padding(.vertical, 8)
                 musicProviderPicker
+                    .padding([.horizontal, .bottom])
             }
         }
         .onAppear {
@@ -200,6 +201,5 @@ struct MusicPlayerSettings: View {
             }
         }
         .pickerStyle(.menu)
-        .padding([.horizontal, .bottom])
     }
 }

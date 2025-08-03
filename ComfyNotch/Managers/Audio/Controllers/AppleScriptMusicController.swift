@@ -312,14 +312,13 @@ final class AppleScriptMusicController: NowPlayingProvider {
         nowPlayingInfo.trackName = trackName
         nowPlayingInfo.artistName = artistName
         nowPlayingInfo.albumName = albumName
-        nowPlayingInfo.artworkImage = artworkImage
         
         // Only update dominant color if artwork changed
         if let artworkImage = artworkImage, let imageHash = hashImage(artworkImage) {
             let currentArtworkIdentifier = "\(trackName)|\(albumName)|\(imageHash)"
             
             if lastArtworkIdentifier != currentArtworkIdentifier {
-                
+                nowPlayingInfo.artworkImage = artworkImage
                 // Process dominant color on background queue
                 DispatchQueue.global(qos: .utility).async {
                     let dominantColor = self.getDominantColor(from: artworkImage) ?? .white

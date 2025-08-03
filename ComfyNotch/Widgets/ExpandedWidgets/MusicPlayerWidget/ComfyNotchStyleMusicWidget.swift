@@ -29,6 +29,16 @@ struct ComfyNotchStyleMusicWidget: View {
     
     @State private var givenSpace : GivenWidgetSpace = (w: 0, h: 0)
     
+    private let flipDuration: Double = 0.3
+    
+    @State private var cachedArtwork: NSImage?
+    @State private var flipRotation: Double = 0
+    
+    private var isFrontSide: Bool {
+        abs(flipRotation.truncatingRemainder(dividingBy: 360)) < 90 ||
+        abs(flipRotation.truncatingRemainder(dividingBy: 360)) > 270
+    }
+    
     // MARK: - Body
     var body: some View {
         HStack(alignment: verticalAlignment, spacing: 10) {
@@ -63,6 +73,75 @@ struct ComfyNotchStyleMusicWidget: View {
             isVisible = false
             model.isDragging = false
         }
+        .onChange(of: model.nowPlayingInfo.artworkImage) { _, newArtwork in
+            self.handleArtworkFlip(newArtwork: newArtwork)
+        }
+    }
+    
+    // MARK: - Handle 180° Flip with Two-Sided Card
+    private func handleArtworkFlip(newArtwork: NSImage?) {
+        // Only flip if artwork actually changed
+        guard cachedArtwork != newArtwork else { return }
+        
+        // Start the 180° flip (0° to 180°)
+        withAnimation(.easeInOut(duration: flipDuration)) {
+            flipRotation = 180
+        }
+        
+        // After flip completes, reset for next flip and update cache
+        DispatchQueue.main.asyncAfter(deadline: .now() + flipDuration) {
+            // Reset rotation back to 0° without animation
+            flipRotation = 0
+            // The new image becomes the cached "front" for next flip
+            cachedArtwork = newArtwork
+        }
+    }
+    
+    // MARK: - Album Cover
+    @ViewBuilder
+    func renderAlbumCover() -> some View {
+        if isVisible {
+            ZStack(alignment: .bottomTrailing) {
+                ZStack {
+                    if let cachedArtwork = cachedArtwork {
+                        renderImage(for: cachedArtwork)
+                            .opacity(isFrontSide ? 1 : 0)
+                    } else {
+                        placeholderAlbumCover
+                            .opacity(isFrontSide ? 1 : 0)
+                    }
+                    
+                    // Back side (new image) - visible at 180°
+                    if let artwork = model.nowPlayingInfo.artworkImage {
+                        renderImage(for: artwork)
+                            .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                            .opacity(isFrontSide ? 0 : 1)
+                    }
+                }
+                .rotation3DEffect(.degrees(flipRotation), axis: (x: 0, y: 1, z: 0))
+
+                if settings.showMusicProvider {
+                    renderProviderIcon
+                }
+            }
+            .padding(.leading, cardPadding / 3)
+            .onAppear {
+                cachedArtwork = model.nowPlayingInfo.artworkImage
+            }
+        }
+    }
+    
+    private func renderImage(for nsImage: NSImage) -> some View {
+        return Image(nsImage: nsImage)
+            .resizable()
+            .aspectRatio(contentMode: .fill)
+            .frame(width: albumSize, height: albumSize)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
     }
     
     
@@ -228,34 +307,6 @@ struct ComfyNotchStyleMusicWidget: View {
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
             }
-        }
-    }
-    
-    // MARK: - Album Cover
-    
-    @ViewBuilder
-    func renderAlbumCover() -> some View {
-        if isVisible {
-            ZStack(alignment: .bottomTrailing) {
-                if let artwork = model.nowPlayingInfo.artworkImage {
-                    Image(nsImage: artwork)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: albumSize, height: albumSize)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                        )
-                        .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
-                } else {
-                    placeholderAlbumCover
-                }
-                if settings.showMusicProvider {
-                    renderProviderIcon
-                }
-            }
-            .padding(.leading, cardPadding/3)
         }
     }
     
