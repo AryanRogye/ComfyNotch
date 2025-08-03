@@ -94,6 +94,7 @@ struct CompactAlbumWidget: View, Widget {
             label()
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("[CompactAlbumWidget] Open FileTray")
     }
     
     func widgetSize() -> WidgetSizeConfig {

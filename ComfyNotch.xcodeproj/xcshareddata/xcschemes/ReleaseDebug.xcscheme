@@ -41,6 +41,17 @@
                ReferencedContainer = "container:ComfyNotch.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "9B8BF2C82E3F3B4200766BE9"
+               BuildableName = "ComfyNotchUITests.xctest"
+               BlueprintName = "ComfyNotchUITests"
+               ReferencedContainer = "container:ComfyNotch.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
@@ -65,12 +76,12 @@
       </BuildableProductRunnable>
       <AdditionalOptions>
          <AdditionalOption
-            key = "MallocStackLogging"
+            key = "PrefersMallocStackLoggingLite"
             value = ""
             isEnabled = "YES">
          </AdditionalOption>
          <AdditionalOption
-            key = "PrefersMallocStackLoggingLite"
+            key = "MallocStackLogging"
             value = ""
             isEnabled = "YES">
          </AdditionalOption>
