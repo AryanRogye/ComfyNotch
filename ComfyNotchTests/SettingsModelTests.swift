@@ -48,6 +48,8 @@ final class SettingsModelTests: XCTestCase {
         _testSaveFileTrayValues()
         _testSaveMessagesValues()
         _testSaveUtilsValues()
+        _testSaveEventsValues()
+        _testSaveMusicWidgetValues()
         
         resetDefaults()
     }
@@ -208,6 +210,50 @@ final class SettingsModelTests: XCTestCase {
         
         XCTAssertEqual(settings.enableUtilsOption, values.enableUtilsOption)
         XCTAssertEqual(settings.enableClipboardListener, values.enableClipboardListener)
+    }
+    
+    // MARK: - Test Save Event Widget Values
+    func _testSaveEventsValues() {
+        let validThreshold = Int(settings.MIN_EVENT_WIDGET_SCROLL_UP_THRESHOLD) + 1
+        let values = EventWidgetSettingsValues(eventWidgetScrollUpThreshold: validThreshold)
+        
+        settings.saveEventsValues(values: values)
+        
+        XCTAssertEqual(Int(settings.eventWidgetScrollUpThreshold), validThreshold)
+        XCTAssertEqual(testDefaults.float(forKey: "eventWidgetScrollUpThreshold"), Float(validThreshold))
+        
+        // Invalid (too low) threshold, should keep previous value
+        let invalidLow = Int(settings.MIN_EVENT_WIDGET_SCROLL_UP_THRESHOLD) - 10
+        let previousValue = settings.eventWidgetScrollUpThreshold
+        settings.saveEventsValues(values: EventWidgetSettingsValues(eventWidgetScrollUpThreshold: invalidLow))
+        
+        XCTAssertEqual(settings.eventWidgetScrollUpThreshold, previousValue)
+        XCTAssertEqual(testDefaults.float(forKey: "eventWidgetScrollUpThreshold"), Float(previousValue))
+    }
+    
+    // MARK: - Test Save Music Widget Values
+    func _testSaveMusicWidgetValues() {
+        let values = MusicPlayerSettingsValues(
+            showMusicProvider: true,
+            musicController: .mediaRemote,
+            overridenMusicProvider: .apple_music,
+            musicPlayerStyle: .comfy,
+            enableAlbumFlippingAnimation: true
+        )
+        
+        settings.saveMusicWidgetValues(values: values)
+        
+        XCTAssertEqual(settings.showMusicProvider, values.showMusicProvider)
+        XCTAssertEqual(settings.musicController, values.musicController)
+        XCTAssertEqual(settings.overridenMusicProvider, values.overridenMusicProvider)
+        XCTAssertEqual(settings.musicPlayerStyle, values.musicPlayerStyle)
+        XCTAssertEqual(settings.enableAlbumFlippingAnimation, values.enableAlbumFlippingAnimation)
+        
+        XCTAssertEqual(testDefaults.bool(forKey: "showMusicProvider"), values.showMusicProvider)
+        XCTAssertEqual(testDefaults.string(forKey: "musicController"), values.musicController.rawValue)
+        XCTAssertEqual(testDefaults.string(forKey: "overridenMusicProvider"), values.overridenMusicProvider.rawValue)
+        XCTAssertEqual(testDefaults.string(forKey: "musicPlayerStyle"), values.musicPlayerStyle.rawValue)
+        XCTAssertEqual(testDefaults.bool(forKey: "enableAlbumFlippingAnimation"), values.enableAlbumFlippingAnimation)
     }
     
     func _testQuickAccessDynamicSimpleValues() {

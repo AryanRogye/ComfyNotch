@@ -84,8 +84,11 @@ struct ComfyNotchStyleMusicWidget: View {
         guard cachedArtwork != newArtwork else { return }
         
         // Start the 180° flip (0° to 180°)
-        withAnimation(.easeInOut(duration: flipDuration)) {
-            flipRotation = 180
+        
+        if settings.enableAlbumFlippingAnimation {
+            withAnimation(.easeInOut(duration: flipDuration)) {
+                flipRotation = 180
+            }
         }
         
         // After flip completes, reset for next flip and update cache

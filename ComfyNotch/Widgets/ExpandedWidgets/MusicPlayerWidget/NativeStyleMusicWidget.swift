@@ -73,9 +73,6 @@ struct NativeStyleMusicWidget: View {
             isVisible = true
             givenSpace = UIManager.shared.expandedWidgetStore.determineWidthAndHeight()
         }
-        .onChange(of: model.nowPlayingInfo.artworkImage) { _, newArtwork in
-            handleArtworkFlip(newArtwork: newArtwork)
-        }
     }
     
     // MARK: - Album Cover with Flip Animation
@@ -135,8 +132,10 @@ struct NativeStyleMusicWidget: View {
         guard cachedArtwork != newArtwork else { return }
         
         // Start the 180° flip (0° to 180°)
-        withAnimation(.easeInOut(duration: flipDuration)) {
-            flipRotation = 180
+        if settings.enableAlbumFlippingAnimation {
+            withAnimation(.easeInOut(duration: flipDuration)) {
+                flipRotation = 180
+            }
         }
         
         // After flip completes, reset for next flip and update cache

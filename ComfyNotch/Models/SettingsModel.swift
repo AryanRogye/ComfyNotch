@@ -37,7 +37,6 @@ class SettingsModel: ObservableObject {
     /// ----------- Notch Settings -----------
     @Published var showDividerBetweenWidgets: Bool = false
     @Published var hoverTargetMode: HoverTarget = .none
-    @Published var nowPlayingScrollSpeed: Int = 40
     @Published var enableNotchHUD: Bool = false
     
     /// Controlling the width of the notch, My Refular Used to be 700 but changed to 450
@@ -89,7 +88,8 @@ class SettingsModel: ObservableObject {
     @Published var showMusicProvider: Bool = true
     @Published var musicController: MusicController = .mediaRemote
     @Published var overridenMusicProvider: MusicProvider = .none
-    
+    @Published var enableAlbumFlippingAnimation: Bool = true
+
     // MARK: - Camera Setting Values
     /// ---------- Camera Settings ----------
     @Published var isCameraFlipped: Bool = false
@@ -254,11 +254,6 @@ class SettingsModel: ObservableObject {
             self.hoverTargetMode = .none /// default to none
         }
         
-        if let nowPlayingScrollSpeed = defaults.object(forKey: "nowPlayingScrollSpeed") as? Int {
-            self.nowPlayingScrollSpeed = nowPlayingScrollSpeed
-        } else {
-            self.nowPlayingScrollSpeed = 40
-        }
         if let enableNotchHUD = defaults.object(forKey: "enableNotchHUD") as? Bool {
             self.enableNotchHUD = enableNotchHUD
         } else {
@@ -342,6 +337,11 @@ class SettingsModel: ObservableObject {
             self.musicPlayerStyle = musicPlayerStyle
         } else {
             self.musicPlayerStyle = .comfy
+        }
+        if let enableAlbumFlippingAnimation = defaults.object(forKey: "enableAlbumFlippingAnimation") as? Bool {
+            self.enableAlbumFlippingAnimation = enableAlbumFlippingAnimation
+        } else {
+            self.enableAlbumFlippingAnimation = true
         }
 
         /// ----------------------- Event Widget Settings -----------------------
@@ -558,14 +558,7 @@ extension SettingsModel {
         defaults.set(showDividerBetweenWidgets, forKey: "showDividerBetweenWidgets")
         
         
-        if nowPlayingScrollSpeed > 0 {
-            defaults.set(nowPlayingScrollSpeed, forKey: "nowPlayingScrollSpeed")
-        } else {
-            defaults.set(40, forKey: "nowPlayingScrollSpeed")
-        }
         defaults.set(notchScrollThreshold, forKey: "notchScrollThreshold")
-        
-       
         
         /// ----------------------- Display Settings -----------------------
         if let screen = selectedScreen {
@@ -844,6 +837,7 @@ extension SettingsModel {
         self.showMusicProvider = values.showMusicProvider
         self.musicController = values.musicController
         self.overridenMusicProvider = values.overridenMusicProvider
+        self.enableAlbumFlippingAnimation = values.enableAlbumFlippingAnimation
         
         withAnimation(.timingCurve(0.4, 0, 0.2, 1, duration: 0.25)) {
             self.musicPlayerStyle = values.musicPlayerStyle
@@ -853,5 +847,6 @@ extension SettingsModel {
         defaults.set(musicController.rawValue, forKey: "musicController")
         defaults.set(overridenMusicProvider.rawValue, forKey: "overridenMusicProvider")
         defaults.set(musicPlayerStyle.rawValue, forKey: "musicPlayerStyle")
+        defaults.set(enableAlbumFlippingAnimation, forKey: "enableAlbumFlippingAnimation")
     }
 }

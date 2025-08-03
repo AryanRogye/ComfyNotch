@@ -12,6 +12,7 @@ struct MusicPlayerSettingsValues {
     var musicController: MusicController = .spotify_music
     var overridenMusicProvider: MusicProvider = .spotify
     var musicPlayerStyle : MusicPlayerWidgetStyle = .comfy
+    var enableAlbumFlippingAnimation: Bool = true
 }
 
 struct MusicPlayerSettings: View {
@@ -24,6 +25,12 @@ struct MusicPlayerSettings: View {
         VStack {
             pickMusicPlayerStyles
                 .padding([.horizontal, .top])
+            
+            Divider()
+                .padding(.vertical, 8)
+            
+            albumFlipping
+                .padding(.horizontal)
             
             Divider()
                 .padding(.vertical, 8)
@@ -51,20 +58,23 @@ struct MusicPlayerSettings: View {
             values.musicController = settings.musicController
             values.overridenMusicProvider = settings.overridenMusicProvider
             values.musicPlayerStyle = settings.musicPlayerStyle
+            values.enableAlbumFlippingAnimation = settings.enableAlbumFlippingAnimation
         }
         .onChange(of: values.showMusicProvider) { didValuesChange() }
         .onChange(of: values.musicController) { didValuesChange() }
         .onChange(of: values.overridenMusicProvider) { didValuesChange() }
         .onChange(of: values.musicPlayerStyle) { didValuesChange() }
+        .onChange(of: values.enableAlbumFlippingAnimation) { didValuesChange() }
     }
     
     private func didValuesChange() {
-        let sM  = values.showMusicProvider      != settings.showMusicProvider
-        let mC  = values.musicController        != settings.musicController
-        let oMP = values.overridenMusicProvider != settings.overridenMusicProvider
-        let mPS = values.musicPlayerStyle       != settings.musicPlayerStyle
+        let sM   = values.showMusicProvider             != settings.showMusicProvider
+        let mC   = values.musicController               != settings.musicController
+        let oMP  = values.overridenMusicProvider        != settings.overridenMusicProvider
+        let mPS  = values.musicPlayerStyle              != settings.musicPlayerStyle
+        let eAFA = values.enableAlbumFlippingAnimation  != settings.enableAlbumFlippingAnimation
         
-        if sM || mC || oMP || mPS {
+        if sM || mC || oMP || mPS || eAFA {
             didChange = true
         }
     }
@@ -160,6 +170,20 @@ struct MusicPlayerSettings: View {
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .stroke(.white.opacity(0.05), lineWidth: 1)
             )
+    }
+    
+    // MARK: - Album Flipping
+    private var albumFlipping: some View {
+        HStack {
+            Text("Enable Album Flipping Animation")
+                .font(.body)
+            
+            Spacer()
+            
+            Toggle("", isOn: $values.enableAlbumFlippingAnimation)
+                .labelsHidden()
+                .toggleStyle(.switch)
+        }
     }
 
     // MARK: - Music Provider
