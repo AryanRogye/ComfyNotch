@@ -20,16 +20,22 @@ struct NativeStyleMusicWidget: View {
     private let iconHeight: CGFloat = 15
     private let iconPadding: CGFloat = 30
     private var cardPadding: CGFloat = 8
-    private let flipDuration: Double = 0.3
     
+    private let flipDuration: Double = 0.3
     @State private var cachedArtwork: NSImage?
     @State private var flipRotation: Double = 0
+    
+    private var showingBack: Bool {
+        let angle = abs(flipRotation.truncatingRemainder(dividingBy: 360))
+        return angle > 90 && angle < 270
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             if isVisible {
                 // 3 Sections Top Middle Bottom
                 HStack(alignment: .center) {
+                    
                     VStack(alignment: .leading) {
                         renderAlbumCover()
                     }
@@ -67,10 +73,6 @@ struct NativeStyleMusicWidget: View {
             isVisible = true
             givenSpace = UIManager.shared.expandedWidgetStore.determineWidthAndHeight()
         }
-        .onChange(of: model.nowPlayingInfo.artworkImage) { _, newArtwork in
-            print("Calleddddddddd")
-            handleArtworkFlip(newArtwork: newArtwork)           // Standard smooth flip
-        }
     }
     
     // MARK: - Album Cover with Flip Animation
@@ -81,46 +83,25 @@ struct NativeStyleMusicWidget: View {
                 ZStack {
                     // Front side (old/cached image) - visible at 0°
                     if let cachedArtwork = cachedArtwork {
-                        Image(nsImage: cachedArtwork)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: albumSize, height: albumSize)
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                            )
-                            .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
-                            .opacity(abs(flipRotation.truncatingRemainder(dividingBy: 360)) > 90 && abs(flipRotation.truncatingRemainder(dividingBy: 360)) < 270 ? 0 : 1)
-                    } else {
+                        renderImage(for: cachedArtwork)
+                            .opacity(showingBack ? 0 : 1)
+                    }
+                    else {
                         placeholderAlbumCover
-                            .opacity(abs(flipRotation.truncatingRemainder(dividingBy: 360)) > 90 && abs(flipRotation.truncatingRemainder(dividingBy: 360)) < 270 ? 0 : 1)
+                            .opacity(showingBack ? 0 : 1)
                     }
                     
                     // Back side (new image) - visible at 180°
                     if let artwork = model.nowPlayingInfo.artworkImage {
-                        Image(nsImage: artwork)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: albumSize, height: albumSize)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                            )
-                            .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
-                            .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0)) // Flip the back side
-                            .opacity(abs(flipRotation.truncatingRemainder(dividingBy: 360)) > 90 && abs(flipRotation.truncatingRemainder(dividingBy: 360)) < 270 ? 1 : 0)
+                        renderImage(for: artwork)
+                            .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                            .opacity(showingBack ? 1 : 0)
                     }
                 }
                 .rotation3DEffect(
                     .degrees(flipRotation),
                     axis: (x: 0, y: 1, z: 0)
                 )
-                
-                if settings.showMusicProvider {
-                    // renderProviderIcon
-                }
             }
             .onChange(of: model.nowPlayingInfo.artworkImage) { _, newArtwork in
                 handleArtworkFlip(newArtwork: newArtwork)
@@ -132,14 +113,29 @@ struct NativeStyleMusicWidget: View {
         }
     }
     
+    private func renderImage(for nsImage: NSImage) -> some View {
+        return Image(nsImage: nsImage)
+            .resizable()
+            .aspectRatio(contentMode: .fill)
+            .frame(width: albumSize, height: albumSize)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .overlay(
+                RoundedRectangle(cornerRadius: 6)
+                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
+    }
+    
     // MARK: - Handle 180° Flip with Two-Sided Card
     private func handleArtworkFlip(newArtwork: NSImage?) {
         // Only flip if artwork actually changed
         guard cachedArtwork != newArtwork else { return }
         
         // Start the 180° flip (0° to 180°)
-        withAnimation(.easeInOut(duration: flipDuration)) {
-            flipRotation = 180
+        if settings.enableAlbumFlippingAnimation {
+            withAnimation(.easeInOut(duration: flipDuration)) {
+                flipRotation = 180
+            }
         }
         
         // After flip completes, reset for next flip and update cache
@@ -227,7 +223,7 @@ struct NativeStyleMusicWidget: View {
             VStack(alignment: .leading) {
                 // Song title with better typography
                 Text(model.nowPlayingInfo.trackName)
-                    .font(.system(size: 13, weight: .semibold, design: .default)) // try 20-22 for desktop
+                    .font(.system(size: 13, weight: .semibold, design: .default))
                     .foregroundColor(.white)
                     .minimumScaleFactor(0.8)
                     .lineLimit(1)
@@ -246,64 +242,60 @@ struct NativeStyleMusicWidget: View {
     @ViewBuilder
     func renderCurrentSongPosition() -> some View {
         if isVisible {
-            HStack(spacing: 4) {
+            HStack(alignment: .center, spacing: 4) {
                 Text(formatDuration(model.nowPlayingInfo.positionSeconds))
                     .font(.system(size: 8, weight: .medium, design: .default))
                     .foregroundColor(.white.opacity(0.7))
                 
                 VStack(spacing: 6) {
                     // Progress bar
-                    GeometryReader { geometry in
-                        let effectivePosition = model.isDragging ? model.manualDragPosition : model.nowPlayingInfo.positionSeconds
-                        ZStack(alignment: .leading) {
-                            // Background track
-                            Rectangle()
-                                .fill(Color.gray.opacity(0.3))
-                                .frame(height: 6)
-                                .cornerRadius(2)
-                            
-                            // Progress bar
-                            Rectangle()
-                                .fill(Color(nsColor: model.nowPlayingInfo.dominantColor))
-                                .frame(width: max(CGFloat(effectivePosition / max(model.nowPlayingInfo.durationSeconds,1)) * geometry.size.width, 0), height: 4)
-                                .cornerRadius(2)
-                                .shadow(color: Color(nsColor: model.nowPlayingInfo.dominantColor).opacity(0.5), radius: 4, x: 0, y: 2)
-                            
-                            // Thumb
-//                            Circle()
-//                                .fill(Color(nsColor: model.nowPlayingInfo.dominantColor))
-//                                .frame(width: 12, height: 12)
-//                                .offset(x: max(CGFloat(effectivePosition / max(model.nowPlayingInfo.durationSeconds, 1)) * geometry.size.width - 6, -6))
-                            
+                    ZStack {
+                        GeometryReader { geometry in
+                            let effectivePosition = model.isDragging ? model.manualDragPosition : model.nowPlayingInfo.positionSeconds
+                            ZStack(alignment: .leading) {
+                                // Background track
+                                Rectangle()
+                                    .fill(Color.gray.opacity(0.3))
+                                    .frame(height: 6)
+                                    .cornerRadius(2)
+                                
+                                // Progress bar
+                                Rectangle()
+                                    .fill(Color(nsColor: model.nowPlayingInfo.dominantColor))
+                                    .frame(width: max(CGFloat(effectivePosition / max(model.nowPlayingInfo.durationSeconds,1)) * geometry.size.width, 0), height: 4)
+                                    .cornerRadius(2)
+                                    .shadow(color: Color(nsColor: model.nowPlayingInfo.dominantColor).opacity(0.5), radius: 4, x: 0, y: 2)
+                            }
+                            .gesture(
+                                DragGesture(minimumDistance: 0)
+                                    .onChanged { value in
+                                        // Set the dragging flag to true
+                                        model.isDragging = true
+                                        let percentage = min(max(0, value.location.x / geometry.size.width), 1)
+                                        model.manualDragPosition = Double(percentage) * model.nowPlayingInfo.durationSeconds
+                                    }
+                                    .onEnded { value in
+                                        let percentage = min(max(0, value.location.x / geometry.size.width), 1)
+                                        
+                                        // Convert % ➜ absolute seconds
+                                        let newTimeInSeconds = percentage * model.nowPlayingInfo.durationSeconds
+                                        
+                                        // 1. Seek the real player
+                                        AudioManager.shared.playAtTime(to: newTimeInSeconds)
+                                        
+                                        // 2. Keep the thumb where the user left it (UI won’t flash back)
+                                        model.manualDragPosition = newTimeInSeconds
+                                        
+                                        /// This is delayed because someone like me plays spotify on my tv
+                                        /// the device is seperate from the controller so updates for spotify
+                                        /// take some time to propagate.
+                                        checkPositionUpdate(targetPosition: newTimeInSeconds, attempts: 0)
+                                    }
+                            )
                         }
-                        .gesture(
-                            DragGesture(minimumDistance: 0)
-                                .onChanged { value in
-                                    // Set the dragging flag to true
-                                    model.isDragging = true
-                                    let percentage = min(max(0, value.location.x / geometry.size.width), 1)
-                                    model.manualDragPosition = Double(percentage) * model.nowPlayingInfo.durationSeconds
-                                }
-                                .onEnded { value in
-                                    let percentage = min(max(0, value.location.x / geometry.size.width), 1)
-                                    
-                                    // Convert % ➜ absolute seconds
-                                    let newTimeInSeconds = percentage * model.nowPlayingInfo.durationSeconds
-                                    
-                                    // 1. Seek the real player
-                                    AudioManager.shared.playAtTime(to: newTimeInSeconds)
-                                    
-                                    // 2. Keep the thumb where the user left it (UI won’t flash back)
-                                    model.manualDragPosition = newTimeInSeconds
-                                    
-                                    /// This is delayed because someone like me plays spotify on my tv
-                                    /// the device is seperate from the controller so updates for spotify
-                                    /// take some time to propagate.
-                                    checkPositionUpdate(targetPosition: newTimeInSeconds, attempts: 0)
-                                }
-                        )
                     }
-                    .frame(height: 12)
+                    .frame(height: 6)
+                    .frame(maxHeight: .infinity, alignment: .center)
                 }
                 .padding(.horizontal, 8)
                 
@@ -315,6 +307,7 @@ struct NativeStyleMusicWidget: View {
             EmptyView()
         }
     }    // Helper function to format seconds as "MM:SS"
+    
     
     private func formatDuration(_ seconds: Double) -> String {
         let minutes = Int(seconds) / 60

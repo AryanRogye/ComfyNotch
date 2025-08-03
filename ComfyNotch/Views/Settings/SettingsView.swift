@@ -18,14 +18,14 @@ struct SettingsView: View {
     init() {}
     
     enum Tab: String, CaseIterable, Identifiable, Equatable {
-        case widgetSettings = "WidgetSettings"
         case general = "General"
         case notch = "Notch"
+        case widgetSettings = "Widget Settings"
         case animations = "Animations"
         case display = "Display"
         case license = "License"
         case updates = "Updates"
-        
+
         var id: String { rawValue }
         var label: String { rawValue }
         // MARK: - Icons
@@ -277,14 +277,18 @@ struct SettingsView: View {
         /// TODO: REDO
         List(selection: $localTabSelection) {
             // Section for general tabs
-            ForEach(SettingsView.Tab.allCases.filter { $0 != .widgetSettings && $0 != .updates && $0 != .license }, id: \.self) { tab in
+            ForEach(SettingsView.Tab.allCases.filter {
+                $0 != .updates && $0 != .license
+            }, id: \.self) { tab in
                 tabItem(tab)
                     .tag(tab)
             }
             
             // Section for "updates"
             Section("ComfyNotch") {
-                ForEach(SettingsView.Tab.allCases.filter { $0 == .updates || $0 == .license }, id: \.self) { tab in
+                ForEach(SettingsView.Tab.allCases.filter {
+                    $0 == .updates || $0 == .license
+                }, id: \.self) { tab in
                     tabItem(tab)
                         .tag(tab)
                 }
@@ -295,13 +299,19 @@ struct SettingsView: View {
     
     // MARK: - Helpers
     private func tabItem(_ tab: SettingsView.Tab) -> some View {
-        Label {
+        HStack(spacing: 0) {
+            image(for: tab)
+            
             Text(tab.label)
-                .font(.body)
+                .font(.system(
+                    size: 11,
+                    weight: .regular,
+                    design: .default
+                ))
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
                 .foregroundColor(.primary)
                 .padding(.leading, 6)
-        } icon: {
-            image(for: tab)
         }
         .padding(.vertical, 2)
         .contentShape(Rectangle()) // makes the whole row clickable

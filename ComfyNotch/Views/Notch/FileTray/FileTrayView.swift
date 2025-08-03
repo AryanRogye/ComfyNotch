@@ -116,7 +116,7 @@ struct FileTrayView: View {
                                 do {
                                     try FileManager.default.removeItem(at: url)
                                 } catch {
-                                    debugLog("There was an error deleting the file \(error.localizedDescription)")
+                                    debugLog("There was an error deleting the file \(error.localizedDescription)", from: .fileTray)
                                 }
                             }
                             // call your delete function here

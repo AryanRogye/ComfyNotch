@@ -30,9 +30,6 @@ struct PopInPresenter_NowPlaying: View {
     @State private var containerWidth: CGFloat = 0
     @State private var animate = false
     
-    private var nowPlayingScrollSpeed: Int {
-        settingsModel.nowPlayingScrollSpeed
-    }
     
     var body: some View {
         VStack(spacing: 0) {

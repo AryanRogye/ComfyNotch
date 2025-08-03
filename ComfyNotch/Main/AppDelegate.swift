@@ -69,9 +69,6 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         /// Begin The Clipboard Manger
         ClipboardManager.shared.start()
         
-        /// Start the hover handler
-        PanelAnimator.shared.startAnimationListeners()
-        
         hudManager.start()
         
         // Set up the ui by loading the widgets from settings onto it

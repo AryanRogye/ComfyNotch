@@ -197,7 +197,6 @@ struct MetalBackground: NSViewRepresentable {
         }
         
         private func drawBlankFrame() {
-//            debugLog("Drew A Blank Frame")
             guard let drawable = targetView.currentDrawable,
                   let descriptor = targetView.currentRenderPassDescriptor else { return }
             

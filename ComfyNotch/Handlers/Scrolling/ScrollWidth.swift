@@ -14,7 +14,7 @@ extension ScrollHandler {
         
         if UIManager.shared.panelState == .closed {
             let newWidth: CGFloat = self.getNotchWidth()
-            debugLog("Using New Width: \(newWidth)")
+            debugLog("Using New Width: \(newWidth)", from: .scroll)
             
             /// first hide the items inside it
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -40,6 +40,8 @@ extension ScrollHandler {
                     ctx.duration = 0.25
                     ctx.timingFunction = CAMediaTimingFunction(name:.linear)
                     panel.animator().setFrame(reducedFrame, display: true)
+                } completionHandler: {
+                    UIManager.shared.logPanelFrame(reason: "Reduced Width, New Frame")
                 }
             }
         }
@@ -68,6 +70,8 @@ extension ScrollHandler {
                     ctx.duration = 0.25
                     ctx.timingFunction = CAMediaTimingFunction(name:.linear)
                     panel.animator().setFrame(expandedFrame, display: true)
+                } completionHandler: {
+                    UIManager.shared.logPanelFrame(reason: "Expanded Width, New Frame")
                 }
             }
             

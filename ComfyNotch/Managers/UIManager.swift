@@ -126,14 +126,18 @@ class UIManager: ObservableObject {
         
         compactWidgetStore.loadWidgets()
         
+        self.logPanelFrame(reason: "Initialized Panel")
+    }
+    
+    public func logPanelFrame(reason: String) {
         debugLog("""
-        📐 Initialized Panel Frame With:
+        📐 \(reason):
            ⤷ MinX : \(smallPanel.frame.minX)
            ⤷ MinY : \(smallPanel.frame.minY)
            ⤷ MaxX : \(smallPanel.frame.maxX)
            ⤷ MaxY : \(smallPanel.frame.maxY)
            ⤷ Width  x Height : \(smallPanel.frame.width) x \(smallPanel.frame.height)
-        """, from: "UIManager")
+        """, from: .ui)
     }
     
     // MARK: - Layout Management
@@ -168,14 +172,14 @@ class UIManager: ObservableObject {
     }
     
     // MARK: - Utility Methods
-    private func displayCurrentBigPanelWidgets(with title: String = "Current Big Panel Widgets") {
-        debugLog("=====================================================")
-        debugLog("\(title)")
-        debugLog("=====================================================")
+    public func displayCurrentBigPanelWidgets(with title: String = "Current Big Panel Widgets") {
+        debugLog("=====================================================", from: .ui)
+        debugLog("\(title)", from: .ui)
+        debugLog("=====================================================", from: .ui)
         for widget in expandedWidgetStore.widgets {
-            debugLog("Name: \(widget.widget.name), Visible: \(widget.isVisible)")
+            debugLog("Name: \(widget.widget.name), Visible: \(widget.isVisible)", from: .ui)
         }
-        debugLog("=====================================================")
+        debugLog("=====================================================", from: .ui)
     }
     
     /**

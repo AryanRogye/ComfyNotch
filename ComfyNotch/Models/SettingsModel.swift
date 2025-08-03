@@ -37,7 +37,6 @@ class SettingsModel: ObservableObject {
     /// ----------- Notch Settings -----------
     @Published var showDividerBetweenWidgets: Bool = false
     @Published var hoverTargetMode: HoverTarget = .none
-    @Published var nowPlayingScrollSpeed: Int = 40
     @Published var enableNotchHUD: Bool = false
     
     /// Controlling the width of the notch, My Refular Used to be 700 but changed to 450
@@ -85,11 +84,12 @@ class SettingsModel: ObservableObject {
     
     // MARK: - Music Setting Values
     /// ---------- Music Player Settings ----------
-    @Published var musicPlayerStyle : MusicPlayerWidgetStyle = .native
+    @Published var musicPlayerStyle : MusicPlayerWidgetStyle = .comfy
     @Published var showMusicProvider: Bool = true
     @Published var musicController: MusicController = .mediaRemote
     @Published var overridenMusicProvider: MusicProvider = .none
-    
+    @Published var enableAlbumFlippingAnimation: Bool = true
+
     // MARK: - Camera Setting Values
     /// ---------- Camera Settings ----------
     @Published var isCameraFlipped: Bool = false
@@ -154,6 +154,10 @@ class SettingsModel: ObservableObject {
         self.defaults = userDefaults
         loadSettings()
         
+        #if DEBUG
+        handleLaunchArgs()
+        #endif
+        
         $isSettingsWindowOpen
             .receive(on: RunLoop.main)
             .sink { isOpen in
@@ -168,6 +172,23 @@ class SettingsModel: ObservableObject {
             }
             .store(in: &cancellables)
     }
+    
+#if DEBUG
+    private func handleLaunchArgs() {
+        let args = ProcessInfo.processInfo.arguments
+        
+        if let index = args.firstIndex(of: "--uitest-selectedTab"),
+           args.count > index + 1 {
+            
+            let tabValue = args[index + 1]
+            switch tabValue {
+            case "widgetSettings"   : self.selectedTab = .widgetSettings
+            case "general"          : self.selectedTab = .general
+            default                 : break
+            }
+        }
+    }
+#endif
     
     // MARK: - Updates
     
@@ -254,11 +275,6 @@ class SettingsModel: ObservableObject {
             self.hoverTargetMode = .none /// default to none
         }
         
-        if let nowPlayingScrollSpeed = defaults.object(forKey: "nowPlayingScrollSpeed") as? Int {
-            self.nowPlayingScrollSpeed = nowPlayingScrollSpeed
-        } else {
-            self.nowPlayingScrollSpeed = 40
-        }
         if let enableNotchHUD = defaults.object(forKey: "enableNotchHUD") as? Bool {
             self.enableNotchHUD = enableNotchHUD
         } else {
@@ -337,6 +353,18 @@ class SettingsModel: ObservableObject {
             self.overridenMusicProvider = .none
         }
         
+        if let musicPlayerStyleRawValue = defaults.string(forKey: "musicPlayerStyle"),
+           let musicPlayerStyle = MusicPlayerWidgetStyle(rawValue: musicPlayerStyleRawValue) {
+            self.musicPlayerStyle = musicPlayerStyle
+        } else {
+            self.musicPlayerStyle = .comfy
+        }
+        if let enableAlbumFlippingAnimation = defaults.object(forKey: "enableAlbumFlippingAnimation") as? Bool {
+            self.enableAlbumFlippingAnimation = enableAlbumFlippingAnimation
+        } else {
+            self.enableAlbumFlippingAnimation = true
+        }
+
         /// ----------------------- Event Widget Settings -----------------------
         if let eventWidgetScrollUpThreshold = defaults.object(forKey: "eventWidgetScrollUpThreshold") as? CGFloat {
             self.eventWidgetScrollUpThreshold = eventWidgetScrollUpThreshold
@@ -435,7 +463,7 @@ class SettingsModel: ObservableObject {
     /// the application is running
     func updateSelectedWidgets(with widgetName: String, isSelected: Bool) {
         
-        debugLog("Updating selected widgets with: \(widgetName), isSelected: \(isSelected)")
+        debugLog("Updating selected widgets with: \(widgetName), isSelected: \(isSelected)", from: .settings)
         
         var limit = 2
         // LIMIT 3 Widgets Only
@@ -460,9 +488,9 @@ class SettingsModel: ObservableObject {
             if selectedWidgets.contains(widgetName) {
                 selectedWidgets.removeAll { $0 == widgetName }
                 UIManager.shared.expandedWidgetStore.removeWidget(named: widgetName)
-                debugLog("Removed widget: \(widgetName)")
+                debugLog("Removed widget: \(widgetName)", from: .settings)
             } else {
-                debugLog("Widget \(widgetName) not found in selected widgets")
+                debugLog("Widget \(widgetName) not found in selected widgets", from: .settings)
                 exit(0)
             }
         }
@@ -474,13 +502,15 @@ class SettingsModel: ObservableObject {
                 selectedWidgets.append(widgetName)
                 if let widget = WidgetRegistry.shared.getWidget(named: widgetName) {
                     UIManager.shared.addWidgetToBigPanel(widget)
-                    debugLog("Added widget: \(widgetName)")
+                    debugLog("Added widget: \(widgetName)", from: .settings)
                 }
             }
         }
         
         saveSettings()
-        debugLog("NEW Saved Settings: \(selectedWidgets)")
+        debugLog("NEW Saved Settings: \(selectedWidgets)", from: .settings)
+        
+        UIManager.shared.displayCurrentBigPanelWidgets(with: "Updated Widgets")
         
         /// Refresh UI
         refreshUI()
@@ -502,7 +532,7 @@ class SettingsModel: ObservableObject {
     }
     
     func removeAndAddBackCurrentWidgets() {
-        debugLog("🔄 Rebuilding widgets in the panel based on the updated order.")
+        debugLog("🔄 Rebuilding widgets in the panel based on the updated order.", from: .settings)
         
         // Clear all currently displayed widgets
         UIManager.shared.expandedWidgetStore.clearWidgets()
@@ -512,7 +542,7 @@ class SettingsModel: ObservableObject {
             if let widget = WidgetRegistry.shared.getWidget(named: widgetName) {
                 UIManager.shared.addWidgetToBigPanel(widget)
             } else {
-                debugLog("⚠️ Widget \(widgetName) not found in WidgetRegistry.")
+                debugLog("⚠️ Widget \(widgetName) not found in WidgetRegistry.", from: .settings)
             }
         }
         
@@ -549,17 +579,7 @@ extension SettingsModel {
         defaults.set(showDividerBetweenWidgets, forKey: "showDividerBetweenWidgets")
         
         
-        if nowPlayingScrollSpeed > 0 {
-            defaults.set(nowPlayingScrollSpeed, forKey: "nowPlayingScrollSpeed")
-        } else {
-            defaults.set(40, forKey: "nowPlayingScrollSpeed")
-        }
         defaults.set(notchScrollThreshold, forKey: "notchScrollThreshold")
-        
-        /// ----------------------- Music Player Settings -----------------------
-        defaults.set(showMusicProvider, forKey: "showMusicProvider")
-        defaults.set(musicController.rawValue, forKey: "musicController")
-        defaults.set(overridenMusicProvider.rawValue, forKey: "overridenMusicProvider")
         
         /// ----------------------- Display Settings -----------------------
         if let screen = selectedScreen {
@@ -667,39 +687,39 @@ extension SettingsModel {
             let fm = FileManager.default
             
             guard let oldFolder = oldFolder else {
-                debugLog("ℹ️ No old folder to migrate from")
+                debugLog("ℹ️ No old folder to migrate from", from: .settings)
                 return
             }
             
             guard newFolder.standardized != oldFolder.standardized else {
-                debugLog("ℹ️ New and old folders are the same, skipping migration")
+                debugLog("ℹ️ New and old folders are the same, skipping migration", from: .settings)
                 return
             }
             
             guard newFolder != oldFolder else {
-                debugLog("ℹ️ New and old folders are the same, skipping migration")
+                debugLog("ℹ️ New and old folders are the same, skipping migration", from: .settings)
                 return
             }
             
             // Check if old folder exists
             var isDir: ObjCBool = false
             guard fm.fileExists(atPath: oldFolder.path, isDirectory: &isDir), isDir.boolValue else {
-                debugLog("ℹ️ Old folder doesn't exist or isn't a directory: \(oldFolder.path)")
+                debugLog("ℹ️ Old folder doesn't exist or isn't a directory: \(oldFolder.path)", from: .settings)
                 return
             }
             
             do {
                 let items = try fm.contentsOfDirectory(at: oldFolder, includingPropertiesForKeys: nil)
-                debugLog("📁 Found \(items.count) items to migrate from \(oldFolder.path)")
+                debugLog("📁 Found \(items.count) items to migrate from \(oldFolder.path)", from: .settings)
                 
                 for file in items {
                     let dest = newFolder.appendingPathComponent(file.lastPathComponent)
                     
                     if !fm.fileExists(atPath: dest.path) {
                         try fm.copyItem(at: file, to: dest)
-                        debugLog("✅ Migrated: \(file.lastPathComponent)")
+                        debugLog("✅ Migrated: \(file.lastPathComponent)", from: .settings)
                     } else {
-                        debugLog("⏭️ Skipped existing file: \(file.lastPathComponent)")
+                        debugLog("⏭️ Skipped existing file: \(file.lastPathComponent)", from: .settings)
                     }
                 }
             } catch {
@@ -831,5 +851,23 @@ extension SettingsModel {
         }
         // Always persist the (possibly unchanged) current value
         defaults.set(eventWidgetScrollUpThreshold, forKey: "eventWidgetScrollUpThreshold")
+    }
+    
+    // MARK: - Music Widget Section
+    public func saveMusicWidgetValues(values: MusicPlayerSettingsValues) {
+        self.showMusicProvider = values.showMusicProvider
+        self.musicController = values.musicController
+        self.overridenMusicProvider = values.overridenMusicProvider
+        self.enableAlbumFlippingAnimation = values.enableAlbumFlippingAnimation
+        
+        withAnimation(.timingCurve(0.4, 0, 0.2, 1, duration: 0.25)) {
+            self.musicPlayerStyle = values.musicPlayerStyle
+        }
+        
+        defaults.set(showMusicProvider, forKey: "showMusicProvider")
+        defaults.set(musicController.rawValue, forKey: "musicController")
+        defaults.set(overridenMusicProvider.rawValue, forKey: "overridenMusicProvider")
+        defaults.set(musicPlayerStyle.rawValue, forKey: "musicPlayerStyle")
+        defaults.set(enableAlbumFlippingAnimation, forKey: "enableAlbumFlippingAnimation")
     }
 }

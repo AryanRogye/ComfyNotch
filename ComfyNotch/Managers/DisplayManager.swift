@@ -41,7 +41,7 @@ final class DisplayManager: NSObject, ObservableObject {
                ⤷ Visible Frame : \(screen.visibleFrame)
                ⤷ Width x Height: \(screen.frame.width) x \(screen.frame.height)
                ⤷ Origin        : (\(screen.frame.origin.x), \(screen.frame.origin.y))
-            """, from: "DisplayManager")
+            """, from: .display)
         } else {
             debugLog("⚠️ No screen selected — selectedScreen is nil")
         }
