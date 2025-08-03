@@ -23,11 +23,11 @@ jobs:
       - name: Clean DerivedData (just in case)
         run: rm -rf ~/Library/Developer/Xcode/DerivedData
 
-      - name: Run Only Logic Tests
+      - name: Run Logic Tests Only
         run: |
           xcodebuild test \
-          -scheme ComfyNotch \
+          -scheme ComfyNotchCI_Tests \
           -project ComfyNotch.xcodeproj \
           -destination 'platform=macOS' \
-          -only-testing:ComfyNotchTests \
+          -skip-testing:ComfyNotchUITests \
           -enableCodeCoverage YES
