@@ -23,9 +23,11 @@ struct MusicPlayerSettings: View {
     var body: some View {
         VStack {
             pickMusicPlayerStyles
-                .padding(.horizontal)
-                .padding(.top, 8)
+                .padding([.horizontal, .top])
             
+            Divider()
+                .padding(.vertical, 8)
+
             showMusicProvider
                 .padding(.horizontal)
 

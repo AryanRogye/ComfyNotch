@@ -11,8 +11,6 @@ import SwiftUI
 enum HoverTarget: String, Codable, CaseIterable, Identifiable {
     case none
     case album
-    case panel
-    
     var id: String { rawValue }
 }
 
@@ -21,7 +19,6 @@ extension HoverTarget {
         switch self {
         case .none: return "None"
         case .album: return "Album Image Only"
-        case .panel: return "Whole Panel"
         }
     }
 }
