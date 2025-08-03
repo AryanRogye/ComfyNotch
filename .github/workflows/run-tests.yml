@@ -30,4 +30,4 @@ jobs:
           -project ComfyNotch.xcodeproj \
           -destination 'platform=macOS' \
           -skip-testing:ComfyNotchUITests \
-          -enableCodeCoverage YES
+          -enableCodeCoverage YES | xcpretty
