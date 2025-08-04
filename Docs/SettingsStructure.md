@@ -21,7 +21,6 @@
   - Fallback Notch Height
   - Hover Activation Area
     - Enable Music Controls On Hover
-  - Hover Control Mode
   - Enable HUD (Volume/Brightness)
   - One Finger Action
   - Two Finger Action
