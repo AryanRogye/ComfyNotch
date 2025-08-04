@@ -102,6 +102,8 @@ _Notch Width Change_
 - [ ] **Pomodoro Timer**: Add a Pomodoro timer to help users manage their time effectively.
 - [ ] **Better Shortcut Management**: Implement a better shortcut management system to allow users to customize their shortcuts easily.
 - [ ] Easily add your own widgets.
+- [ ] **Connectivity** allow output of playback to change/show change of playback
+
 ---
 
 ## 📦 Build From Source
