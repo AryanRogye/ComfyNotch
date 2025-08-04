@@ -10,6 +10,7 @@ import SwiftUI
 struct ClosedNotchValues {
     var notchMinWidth: Int = 290
     var hoverTargetMode : HoverTarget = .none
+    var enableButtonsOnHover: Bool = false
     var fallbackHeight: Int = 0
     var hudEnabled: Bool = false
     var oneFingerAction: TouchAction = .none
@@ -30,7 +31,6 @@ struct ClosedNotchGeneralSettings: View {
     
     var body: some View {
         VStack {
-            
             notchShapeClosed
                 .padding([.horizontal, .top])
 
@@ -52,6 +52,14 @@ struct ClosedNotchGeneralSettings: View {
             hoverSettings
                 .padding(.vertical, 4)
             
+            if v.hoverTargetMode == .album {
+                Divider()
+                    .padding(.vertical, 4)
+                
+                buttonsOnHoverToggle
+                    .padding(.vertical, 4)
+            }
+            
             Divider()
                 .padding(.vertical, 4)
             
@@ -72,13 +80,15 @@ struct ClosedNotchGeneralSettings: View {
             v.oneFingerAction = settings.oneFingerAction
             v.twoFingerAction = settings.twoFingerAction
             v.notchMinWidth = Int(settings.notchMinWidth)
+            v.enableButtonsOnHover = settings.enableButtonsOnHover
         }
-        .onChange(of: v.hoverTargetMode)  { checkDidChange() }
-        .onChange(of: v.fallbackHeight)   { checkDidChange() }
-        .onChange(of: v.hudEnabled)       { checkDidChange() }
-        .onChange(of: v.oneFingerAction)  { checkDidChange() }
-        .onChange(of: v.twoFingerAction)  { checkDidChange() }
-        .onChange(of: v.notchMinWidth)    { checkDidChange() }
+        .onChange(of: v.hoverTargetMode)        { checkDidChange() }
+        .onChange(of: v.fallbackHeight)         { checkDidChange() }
+        .onChange(of: v.hudEnabled)             { checkDidChange() }
+        .onChange(of: v.oneFingerAction)        { checkDidChange() }
+        .onChange(of: v.twoFingerAction)        { checkDidChange() }
+        .onChange(of: v.notchMinWidth)          { checkDidChange() }
+        .onChange(of: v.enableButtonsOnHover)   { checkDidChange() }
     }
     
     private func checkDidChange() {
@@ -89,6 +99,7 @@ struct ClosedNotchGeneralSettings: View {
         || v.oneFingerAction != settings.oneFingerAction
         || v.twoFingerAction != settings.twoFingerAction
         || v.notchMinWidth   != Int(settings.notchMinWidth)
+        || v.enableButtonsOnHover != settings.enableButtonsOnHover
     }
     
     // MARK: - Notch Shape Closed
@@ -181,6 +192,26 @@ struct ClosedNotchGeneralSettings: View {
         .padding([.horizontal])
     }
     
+    // MARK: - buttonsOnHoverToggle
+    private var buttonsOnHoverToggle: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("Enable Music Controls On Hover")
+                    .font(.system(size: 13, weight: .medium))
+                    .minimumScaleFactor(0.5)
+                    .lineLimit(1)
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                Toggle("", isOn: $v.enableButtonsOnHover)
+                    .labelsHidden()
+                    .toggleStyle(.switch)
+            }
+        }
+        .padding(.horizontal)
+    }
+
     // MARK: - HUD Settings
     private var hudSettings: some View {
         VStack(alignment: .leading) {

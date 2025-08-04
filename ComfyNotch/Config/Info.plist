@@ -27,7 +27,9 @@
     <key>SUEnableInstallerLauncherService</key>
     <true/>
 
+    <!-- Sparkle Stuff <-->
     <key>SUFeedURL</key>
+    <!-- This is what its looking for updates in github <-->
     <string>https://aryanrogye.github.io/ComfyNotch/appcast.xml</string>
 
     <key>SUPublicEDKey</key>

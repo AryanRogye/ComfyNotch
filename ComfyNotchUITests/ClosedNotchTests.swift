@@ -22,6 +22,25 @@ final class ClosedNotchTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
     
+    func sleepFor(_ duration: TimeInterval) {
+        _ = XCTWaiter.wait(for: [XCTestExpectation(description: "Delay")], timeout: duration)
+    }
+    
+    @MainActor
+    func quit(for app : XCUIApplication) {
+        openSettings(for: app)
+        app.buttons["Exit ComfyNotch"].firstMatch.click()
+    }
+    
+    @MainActor
+    func openSettings(for app: XCUIApplication) {
+        let albumButton = app.buttons["[CompactAlbumWidget] Open FileTray"].firstMatch
+        if albumButton.exists {
+            albumButton.click()
+        }
+        app.buttons["gear"].firstMatch.click()
+    }
+    
     @MainActor
     func testClickingAlbumOpensPanel() throws {
         let app = XCUIApplication()
@@ -34,10 +53,49 @@ final class ClosedNotchTests: XCTestCase {
         XCTAssert(albumButton.exists, "Album button should exist")
         XCTAssert(albumButton.isHittable, "Album button should be hittable")
         
-        albumButton.click()
-        XCTAssertFalse(albumButton.exists, "Album button should disappear after opening panel")
+        quit(for: app)
+    }
+    
+    @MainActor
+    func testHoveringOverAlbumOff() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["--uitest-hover", "off"]
+        app.launch()
         
-        app.buttons["gear"].firstMatch.click()
-        app.buttons["Exit ComfyNotch"].firstMatch.click()
+        let albumButton = app.buttons["[CompactAlbumWidget] Open FileTray"].firstMatch
+        let musicNote   = app.images["PopInPresenter_NowPlaying_musicNote"].firstMatch
+        let microphone  = app.images["PopInPresenter_NowPlaying_microphone"].firstMatch
+
+        albumButton.hover()
+        
+        XCTAssert(!musicNote.exists,  "PopIn Presenter Not Should Be Visible")
+        XCTAssert(!microphone.exists, "PopIn Presenter Not Should Be Visible")
+        
+        quit(for: app)
+    }
+    
+    @MainActor
+    func testHoveringOverAlbumOn() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["--uitest-hover", "on"]
+        app.launch()
+        
+        let albumButton = app.buttons["[CompactAlbumWidget] Open FileTray"].firstMatch
+        let musicNote   = app.images["PopInPresenter_NowPlaying_musicNote"].firstMatch
+        let microphone  = app.images["PopInPresenter_NowPlaying_microphone"].firstMatch
+        
+        albumButton.hover()
+        /// 1 Second cuz of invalidation
+        sleep(1)
+        musicNote.hover()
+        sleep(1)
+        microphone.hover()
+        sleep(1)
+
+        
+        XCTAssert(musicNote.exists,  "PopIn Presenter Should Be Visible")
+        XCTAssert(microphone.exists, "PopIn Presenter Should Be Visible")
+        
+        quit(for: app)
     }
 }

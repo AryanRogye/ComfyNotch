@@ -36,6 +36,7 @@ final class SettingsModelTests: XCTestCase {
         XCTAssertTrue(settings.enableCameraOverlay)
         XCTAssertTrue(!settings.enableClipboardListener)
         XCTAssertFalse(settings.enableMessagesNotifications)
+        XCTAssertEqual(settings.enableButtonsOnHover, false)
     }
     
     /// Function to test saving Notch Values
@@ -59,6 +60,7 @@ final class SettingsModelTests: XCTestCase {
         var values = ClosedNotchValues(
             notchMinWidth       : 270,
             hoverTargetMode     : .album,
+            enableButtonsOnHover: true,
             fallbackHeight      : 35,
             hudEnabled          : true,
             oneFingerAction     : .openSettings,
@@ -70,6 +72,7 @@ final class SettingsModelTests: XCTestCase {
         
         XCTAssertEqual(settings.notchMinWidth, settings.MIN_NOTCH_MIN_WIDTH)
         XCTAssertEqual(settings.hoverTargetMode, .album)
+        XCTAssertEqual(settings.enableButtonsOnHover, true)
         XCTAssertEqual(settings.notchMinFallbackHeight, 35)
         XCTAssertEqual(settings.enableNotchHUD, true)
         XCTAssertEqual(settings.oneFingerAction.rawValue, TouchAction.openSettings.rawValue)
@@ -78,6 +81,7 @@ final class SettingsModelTests: XCTestCase {
         values = ClosedNotchValues(
             notchMinWidth       : Int(settings.MAX_NOTCH_MIN_WIDTH + 2.0),
             hoverTargetMode     : .album,
+            enableButtonsOnHover: false,
             fallbackHeight      : 35,
             hudEnabled          : true,
             oneFingerAction     : .openSettings,
@@ -87,11 +91,13 @@ final class SettingsModelTests: XCTestCase {
         settings.saveClosedNotchValues(values: values)
         
         XCTAssertEqual(settings.notchMinWidth, settings.MAX_NOTCH_MIN_WIDTH)
-        
+        XCTAssertEqual(settings.enableButtonsOnHover, false)
+
         
         values = ClosedNotchValues(
             notchMinWidth       : 295,
             hoverTargetMode     : .album,
+            enableButtonsOnHover: true,
             fallbackHeight      : 35,
             hudEnabled          : true,
             oneFingerAction     : .openSettings,
@@ -100,6 +106,7 @@ final class SettingsModelTests: XCTestCase {
         
         settings.saveClosedNotchValues(values: values)
         XCTAssertEqual(settings.notchMinWidth, 295)
+        XCTAssertEqual(settings.enableButtonsOnHover, true)
     }
     
     // MARK: - Test Save OpenNotchContentDimensions

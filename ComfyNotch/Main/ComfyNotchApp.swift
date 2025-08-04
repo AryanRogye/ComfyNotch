@@ -31,6 +31,11 @@ struct ComfyNotchApp: App {
     }
 }
 
+#if DEBUG
+let VIEW_DEBUG_SPACING = false
+#endif
+
+
 enum LogSource: String {
     case panels         = "|PanelStore|"
     case display        = "|DisplayManager|"
@@ -39,6 +44,7 @@ enum LogSource: String {
     case aSController   = "|AppleScriptController|"
     case scroll         = "|ScrollManager|"
     case scrollMajor    = "|ScrollManager |MAJOR|"
+    case hover          = "|HoverHandler|"
     
     /// Most Likely These Will Be Always Active
     case settings       = "|Settings|"
