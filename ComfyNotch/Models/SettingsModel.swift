@@ -194,8 +194,21 @@ class SettingsModel: ObservableObject {
             
             let value = args[index + 1]
             switch value {
-            case "on"  : self.hoverTargetMode = .album
+            case "on"  :
+                self.hoverTargetMode = .album
+                self.enableButtonsOnHover = true
             case "off" : self.hoverTargetMode = .none
+            default: break
+            }
+        }
+        
+        if let index = args.firstIndex(of: "--2Finger"),
+           args.count > index + 1 {
+            
+            let value = args[index + 1]
+            switch value {
+            case "openSettings":  self.twoFingerAction = .openSettings
+            case "openFileTray" : self.twoFingerAction = .openFileTray
             default: break
             }
         }

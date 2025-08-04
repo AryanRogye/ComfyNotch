@@ -7,19 +7,6 @@
 
 import SwiftUI
 
-struct NotchLoadingDot: View {
-    var body: some View {
-        Circle()
-            .fill(Color.accentColor)
-            .frame(width: 6, height: 6)
-            .scaleEffect(1.1)
-            .animation(
-                Animation.easeInOut(duration: 0.6).repeatForever(autoreverses: true),
-                value: UUID() // force the animation
-            )
-    }
-}
-
 struct PopInPresenter_NowPlaying: View {
     
     @ObservedObject var settingsModel: SettingsModel = .shared
@@ -31,43 +18,112 @@ struct PopInPresenter_NowPlaying: View {
     @State private var animate = false
     
     
+    @State private var isHoveringInternals : Bool = false
+    
+    private var showControls: Bool {
+        settingsModel.enableButtonsOnHover &&
+        notchStateManager.hoverHandler.scaleHoverOverLeftItems &&
+        isHoveringInternals
+    }
+    
     var body: some View {
-        VStack(spacing: 0) {
-            Spacer()
-            HStack(alignment: .bottom) {
-                Image(systemName: "music.note")
-                    .resizable()
-                    .frame(width: 10, height: 14)
-                    .foregroundStyle(.primary.opacity(0.6))
-                    .accessibilityIdentifier("PopInPresenter_NowPlaying_musicNote")
-                
-                Text(musicModel.nowPlayingInfo.trackName)
-                    .font(.subheadline.weight(.semibold))
-                    .minimumScaleFactor(0.5)
-                    .lineLimit(1)
-                    .foregroundStyle(.primary.opacity(0.7))
-
-                Image(systemName: "music.microphone")
-                    .resizable()
-                    .frame(width: 10, height: 14)
-                    .foregroundStyle(.primary.opacity(0.6))
-                    .accessibilityIdentifier("PopInPresenter_NowPlaying_microphone")
-                
-                Text(musicModel.nowPlayingInfo.artistName)
-                    .font(.subheadline.weight(.semibold))
-                    .minimumScaleFactor(0.5)
-                    .lineLimit(1)
-                    .foregroundStyle(.primary.opacity(0.7))
+        ZStack {
+            VStack(spacing: 0) {
+                Spacer()
+                content
+                    .padding(.vertical, 4)
             }
-            .padding(.vertical, 4)
+            
+            if showControls {
+                playbackControls
+                    .frame(maxWidth: .infinity)
+                    .transition(.opacity)
+            }
         }
-        .frame(maxHeight: 35)
+        .frame(maxWidth: .infinity, maxHeight: 35)
         .clipped()
         .padding(.horizontal, 20)
         .background(Color.black.opacity(0.8))
         .cornerRadius(10)
         .onHover { hovering in
-            notchStateManager.hoverHandler.isHoveringOverPopin = hovering && settingsModel.enableButtonsOnHover
+            notchStateManager.hoverHandler.isHoveringOverPopin =
+            hovering && settingsModel.enableButtonsOnHover
         }
+        .onHover { hovering in
+            isHoveringInternals = hovering
+        }
+    }
+    
+    private var content: some View {
+        HStack(alignment: .bottom, spacing: 6) {
+            Image(systemName: "music.note")
+                .resizable()
+                .frame(width: 10, height: 14)
+                .foregroundStyle(.primary.opacity(0.6))
+                .accessibilityIdentifier("PopInPresenter_NowPlaying_musicNote")
+            
+            Text(musicModel.nowPlayingInfo.trackName)
+                .font(.subheadline.weight(.semibold))
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
+                .foregroundStyle(.primary.opacity(0.7))
+            
+            Image(systemName: "music.microphone")
+                .resizable()
+                .frame(width: 10, height: 14)
+                .foregroundStyle(.primary.opacity(0.6))
+                .accessibilityIdentifier("PopInPresenter_NowPlaying_microphone")
+            
+            Text(musicModel.nowPlayingInfo.artistName)
+                .font(.subheadline.weight(.semibold))
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
+                .foregroundStyle(.primary.opacity(0.7))
+        }
+    }
+    
+    private var playbackControls: some View {
+        HStack(spacing: 0) {
+            Button(action: {
+                AudioManager.shared.playPreviousTrack()
+            }) {
+                ZStack {
+                    Color.clear // keep layout space, but invisible
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .fill(Color.white.opacity(0.08))
+                        .frame(width: 28, height: 28)
+                        .overlay(
+                            Image(systemName: "backward.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 12, height: 12)
+                                .foregroundColor(.primary)
+                        )
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .buttonStyle(.plain)
+            
+            Button(action: {
+                AudioManager.shared.playNextTrack()
+            }) {
+                ZStack {
+                    Color.clear
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .fill(Color.white.opacity(0.08))
+                        .frame(width: 28, height: 28)
+                        .overlay(
+                            Image(systemName: "forward.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 12, height: 12)
+                                .foregroundColor(.primary)
+                        )
+                }
+                .frame(maxWidth: .infinity, alignment: .trailing)
+            }
+            .buttonStyle(.plain)
+        }
+        .contentShape(Rectangle()) // ensures full half-side is clickable
     }
 }

@@ -42,7 +42,19 @@ struct TopNotchView: View {
 //                }
 //            }
             
+            #if DEBUG
             Spacer()
+                .frame(maxHeight: VIEW_DEBUG_SPACING
+                       ? .infinity
+                       : 0
+                )
+                .border(.red, width: VIEW_DEBUG_SPACING
+                        ? 0.4
+                        : 0
+                )
+            #else
+            Spacer()
+            #endif
             
             //MARK: - Right Widgets
             HStack {

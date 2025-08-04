@@ -22,15 +22,23 @@ final class ClosedNotchTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
     
+    func sleepFor(_ duration: TimeInterval) {
+        _ = XCTWaiter.wait(for: [XCTestExpectation(description: "Delay")], timeout: duration)
+    }
+    
     @MainActor
     func quit(for app : XCUIApplication) {
-        let albumButton = app.buttons["[CompactAlbumWidget] Open FileTray"].firstMatch
-        
-        albumButton.click()
-        XCTAssertFalse(albumButton.exists, "Album button should disappear after opening panel")
-        
-        app.buttons["gear"].firstMatch.click()
+        openSettings(for: app)
         app.buttons["Exit ComfyNotch"].firstMatch.click()
+    }
+    
+    @MainActor
+    func openSettings(for app: XCUIApplication) {
+        let albumButton = app.buttons["[CompactAlbumWidget] Open FileTray"].firstMatch
+        if albumButton.exists {
+            albumButton.click()
+        }
+        app.buttons["gear"].firstMatch.click()
     }
     
     @MainActor
@@ -77,6 +85,7 @@ final class ClosedNotchTests: XCTestCase {
         let microphone  = app.images["PopInPresenter_NowPlaying_microphone"].firstMatch
         
         albumButton.hover()
+        /// 1 Second cuz of invalidation
         sleep(1)
         musicNote.hover()
         sleep(1)

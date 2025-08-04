@@ -66,6 +66,10 @@ final class HoverHandler: ObservableObject {
                 debugLog("Returned Cuz of Hovering on PopIn", from: .hover)
                 return
             }
+            if self.isHoveringOverLeft {
+                debugLog("[WARNING] Returned Cuz of Hovering on Panel", from: .hover)
+                return
+            }
             
             DispatchQueue.main.async {
                 target.currentPanelState = .home

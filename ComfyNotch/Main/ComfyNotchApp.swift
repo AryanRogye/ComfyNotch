@@ -31,6 +31,11 @@ struct ComfyNotchApp: App {
     }
 }
 
+#if DEBUG
+let VIEW_DEBUG_SPACING = false
+#endif
+
+
 enum LogSource: String {
     case panels         = "|PanelStore|"
     case display        = "|DisplayManager|"
