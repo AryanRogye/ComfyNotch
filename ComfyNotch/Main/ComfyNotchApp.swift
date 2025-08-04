@@ -39,6 +39,7 @@ enum LogSource: String {
     case aSController   = "|AppleScriptController|"
     case scroll         = "|ScrollManager|"
     case scrollMajor    = "|ScrollManager |MAJOR|"
+    case hover          = "|HoverHandler|"
     
     /// Most Likely These Will Be Always Active
     case settings       = "|Settings|"

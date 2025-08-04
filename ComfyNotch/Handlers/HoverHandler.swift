@@ -25,10 +25,11 @@ extension HoverTarget {
 
 final class HoverHandler: ObservableObject {
     
-    @Published var isHoveringOverNotch : Bool = false
     @Published var isHoveringOverPlayPause: Bool = false
     @Published var isHoveringOverLeft: Bool = false
     @Published var scaleHoverOverLeftItems: Bool = false
+    
+    @Published var isHoveringOverPopin: Bool = false
     
     let uiManager = UIManager.shared
     
@@ -73,15 +74,42 @@ final class HoverHandler: ObservableObject {
     /// schedules the hover to reset after a short delay and validates the mouse position
     private func scheduleHoverReset() {
         hoverResetTimer?.invalidate()
-        hoverResetTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false) { [weak self] _ in
+        hoverResetTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { [weak self] _ in
             guard let self = self else { return }
             self.validateMousePosition()
+        }
+    }
+    
+    private func scheduleHoverResetWithDelay(target: NotchStateManager) {
+        hoverResetTimer?.invalidate()
+        hoverResetTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { [weak self] _ in
+            guard let self = self else { return }
+            
+            if UIManager.shared.panelState != .closed { return }
+            if self.isHoveringOverPopin {
+                debugLog("Returned Cuz of Hovering on PopIn", from: .hover)
+                return
+            }
+            
+            DispatchQueue.main.async {
+                target.currentPanelState = .home
+                target.currentPopInPresentationState = .none
+            }
+            self.scaleHoverOverLeftItems = false
+            ScrollHandler.shared.peekClose()
         }
     }
     
     /// This is set inside the Main/ComfyNotchView <- this is important that this is set if hovering should work on the
     /// album
     public func bindHoveringOverLeft(for target: NotchStateManager) {
+        $isHoveringOverPopin
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                scheduleHoverResetWithDelay(target: target)
+            }
+            .store(in: &cancellables)
+        
         $isHoveringOverLeft
             .sink { [weak self] hovering in
                 guard let self = self else { return }
@@ -127,22 +155,14 @@ final class HoverHandler: ObservableObject {
                     
                 } else {
                     if UIManager.shared.panelState != .closed { return }
+                    if self.isHoveringOverPopin { return }
+                    
                     // Always allow closing, even if panel is open
                     hoverTimer?.invalidate()
                     hoverTimer = nil
                     hoverResetTimer?.invalidate()
                     
-                    DispatchQueue.main.async {
-                        target.currentPanelState = .home
-                    }
-                    self.scaleHoverOverLeftItems = false
-                    
-                    DispatchQueue.main.async {
-                        target.currentPopInPresentationState = .none
-                    }
-                    ScrollHandler.shared.peekClose()
-                    
-                    self.scheduleHoverReset()
+                    self.scheduleHoverResetWithDelay(target: target)
                 }
             }
             .store(in: &cancellables)
