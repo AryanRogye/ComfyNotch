@@ -197,7 +197,9 @@ class SettingsModel: ObservableObject {
             case "on"  :
                 self.hoverTargetMode = .album
                 self.enableButtonsOnHover = true
-            case "off" : self.hoverTargetMode = .none
+            case "off" :
+                self.hoverTargetMode = .none
+                self.enableButtonsOnHover = false
             default: break
             }
         }

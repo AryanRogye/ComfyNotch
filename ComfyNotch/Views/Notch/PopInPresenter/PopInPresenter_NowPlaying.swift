@@ -54,6 +54,7 @@ struct PopInPresenter_NowPlaying: View {
         }
     }
     
+    // MARK: - Content
     private var content: some View {
         HStack(alignment: .bottom, spacing: 6) {
             Image(systemName: "music.note")
@@ -82,13 +83,15 @@ struct PopInPresenter_NowPlaying: View {
         }
     }
     
+    // MARK: - Playback Controls
     private var playbackControls: some View {
         HStack(spacing: 0) {
-            Button(action: {
-                AudioManager.shared.playPreviousTrack()
-            }) {
+            // Left half - Previous track
+            Button(action: AudioManager.shared.playPreviousTrack) {
                 ZStack {
-                    Color.clear // keep layout space, but invisible
+                    Color.clear
+                    
+                    // Visual indicator (only show the icon)
                     RoundedRectangle(cornerRadius: 6, style: .continuous)
                         .fill(Color.white.opacity(0.08))
                         .frame(width: 28, height: 28)
@@ -100,15 +103,16 @@ struct PopInPresenter_NowPlaying: View {
                                 .foregroundColor(.primary)
                         )
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
             .buttonStyle(.plain)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .contentShape(Rectangle()) // Make entire left half clickable
             
-            Button(action: {
-                AudioManager.shared.playNextTrack()
-            }) {
+            // Right half - Next track
+            Button(action:AudioManager.shared.playNextTrack) {
                 ZStack {
                     Color.clear
+                    // Visual indicator (only show the icon)
                     RoundedRectangle(cornerRadius: 6, style: .continuous)
                         .fill(Color.white.opacity(0.08))
                         .frame(width: 28, height: 28)
@@ -120,10 +124,10 @@ struct PopInPresenter_NowPlaying: View {
                                 .foregroundColor(.primary)
                         )
                 }
-                .frame(maxWidth: .infinity, alignment: .trailing)
             }
             .buttonStyle(.plain)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .contentShape(Rectangle()) // Make entire right half clickable
         }
-        .contentShape(Rectangle()) // ensures full half-side is clickable
     }
 }
