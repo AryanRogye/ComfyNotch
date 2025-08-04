@@ -19,6 +19,8 @@ struct PopInPresenter_NowPlaying: View {
     
     
     @State private var isHoveringInternals : Bool = false
+    @State private var isHoveringOverLeft = false
+    @State private var isHoveringOverRight = false
     
     private var showControls: Bool {
         settingsModel.enableButtonsOnHover &&
@@ -52,6 +54,8 @@ struct PopInPresenter_NowPlaying: View {
         .onHover { hovering in
             isHoveringInternals = hovering
         }
+        .animation(.easeInOut(duration: 0.15), value: isHoveringOverLeft)
+        .animation(.easeInOut(duration: 0.15), value: isHoveringOverRight)
     }
     
     // MARK: - Content
@@ -60,74 +64,87 @@ struct PopInPresenter_NowPlaying: View {
             Image(systemName: "music.note")
                 .resizable()
                 .frame(width: 10, height: 14)
-                .foregroundStyle(.primary.opacity(0.6))
+                .foregroundStyle(.primary.opacity(isHoveringOverLeft ? 0.1 : 0.6))
                 .accessibilityIdentifier("PopInPresenter_NowPlaying_musicNote")
             
             Text(musicModel.nowPlayingInfo.trackName)
                 .font(.subheadline.weight(.semibold))
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
-                .foregroundStyle(.primary.opacity(0.7))
-            
+                .foregroundStyle(.primary.opacity(isHoveringOverLeft ? 0.1 : 0.7))
+
             Image(systemName: "music.microphone")
                 .resizable()
                 .frame(width: 10, height: 14)
-                .foregroundStyle(.primary.opacity(0.6))
+                .foregroundStyle(.primary.opacity(isHoveringOverRight ? 0.1 : 0.6))
                 .accessibilityIdentifier("PopInPresenter_NowPlaying_microphone")
             
             Text(musicModel.nowPlayingInfo.artistName)
                 .font(.subheadline.weight(.semibold))
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
-                .foregroundStyle(.primary.opacity(0.7))
+                .foregroundStyle(.primary.opacity(isHoveringOverRight ? 0.1 : 0.7))
         }
     }
     
+
     // MARK: - Playback Controls
     private var playbackControls: some View {
         HStack(spacing: 0) {
-            // Left half - Previous track
+            // Left half - Previous
             Button(action: AudioManager.shared.playPreviousTrack) {
                 ZStack {
-                    Color.clear
+                    // Full half tap area
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color.white.opacity(
+                            isHoveringOverLeft
+                                ? 0.15
+                                : 0.1
+                            )
+                        )
+                        .contentShape(Rectangle())
                     
-                    // Visual indicator (only show the icon)
-                    RoundedRectangle(cornerRadius: 6, style: .continuous)
-                        .fill(Color.white.opacity(0.08))
-                        .frame(width: 28, height: 28)
-                        .overlay(
-                            Image(systemName: "backward.fill")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 12, height: 12)
-                                .foregroundColor(.primary)
-                        )
+                    // Visual icon
+                    Image(systemName: "backward.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 12, height: 12)
+                        .foregroundColor(.primary)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .buttonStyle(.plain)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .contentShape(Rectangle()) // Make entire left half clickable
+            .scaleEffect(isHoveringOverLeft ? 1.0 : 0.9)
+            .onHover { hovering in
+                isHoveringOverLeft = hovering
+            }
             
-            // Right half - Next track
-            Button(action:AudioManager.shared.playNextTrack) {
+            // Right half - Next
+            Button(action: AudioManager.shared.playNextTrack) {
                 ZStack {
-                    Color.clear
-                    // Visual indicator (only show the icon)
-                    RoundedRectangle(cornerRadius: 6, style: .continuous)
-                        .fill(Color.white.opacity(0.08))
-                        .frame(width: 28, height: 28)
-                        .overlay(
-                            Image(systemName: "forward.fill")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 12, height: 12)
-                                .foregroundColor(.primary)
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color.white.opacity(
+                            isHoveringOverRight
+                                ? 0.15
+                                : 0.1
+                            )
                         )
+                        .contentShape(Rectangle())
+                    
+                    Image(systemName: "forward.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 12, height: 12)
+                        .foregroundColor(.primary)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .buttonStyle(.plain)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .contentShape(Rectangle()) // Make entire right half clickable
+            .scaleEffect(isHoveringOverRight ? 1.0 : 0.9)
+            .onHover { hovering in
+                isHoveringOverRight = hovering
+            }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
