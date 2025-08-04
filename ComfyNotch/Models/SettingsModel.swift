@@ -37,6 +37,7 @@ class SettingsModel: ObservableObject {
     /// ----------- Notch Settings -----------
     @Published var showDividerBetweenWidgets: Bool = false
     @Published var hoverTargetMode: HoverTarget = .none
+    @Published var enableButtonsOnHover: Bool = false
     @Published var enableNotchHUD: Bool = false
     
     /// Controlling the width of the notch, My Refular Used to be 700 but changed to 450
@@ -187,6 +188,17 @@ class SettingsModel: ObservableObject {
             default                 : break
             }
         }
+        
+        if let index = args.firstIndex(of: "--uitest-hover"),
+           args.count > index + 1 {
+            
+            let value = args[index + 1]
+            switch value {
+            case "on"  : self.hoverTargetMode = .album
+            case "off" : self.hoverTargetMode = .none
+            default: break
+            }
+        }
     }
 #endif
     
@@ -268,13 +280,18 @@ class SettingsModel: ObservableObject {
             self.showDividerBetweenWidgets = showDividerBetweenWidgets
         }
         
-        /// ----------------------- Notch Scroll Settings -----------------------
+        /// ----------------------- Hover Settings -----------------------------------
         if let hoverTarget = defaults.object(forKey: "hoverTargetMode") as? String {
             self.hoverTargetMode = HoverTarget(rawValue: hoverTarget) ?? .album
         } else {
             self.hoverTargetMode = .none /// default to none
         }
-        
+        if let enableButtonsOnHover = defaults.object(forKey: "enableButtonsOnHover") as? Bool {
+            self.enableButtonsOnHover = enableButtonsOnHover
+        } else {
+            self.enableButtonsOnHover = false
+        }
+
         if let enableNotchHUD = defaults.object(forKey: "enableNotchHUD") as? Bool {
             self.enableNotchHUD = enableNotchHUD
         } else {
@@ -596,6 +613,7 @@ extension SettingsModel {
         
         self.notchMinWidth = CGFloat(values.notchMinWidth)
         self.hoverTargetMode = values.hoverTargetMode
+        self.enableButtonsOnHover = values.enableButtonsOnHover
         self.notchMinFallbackHeight = CGFloat(values.fallbackHeight)
         self.enableNotchHUD = values.hudEnabled
         self.oneFingerAction = values.oneFingerAction
@@ -613,12 +631,11 @@ extension SettingsModel {
         
         defaults.set(notchMinWidth, forKey: "notchMinWidth")
         defaults.set(hoverTargetMode.rawValue, forKey: "hoverTargetMode")
+        defaults.set(enableButtonsOnHover, forKey: "enableButtonsOnHover")
         defaults.set(notchMinFallbackHeight, forKey: "notchMinFallbackHeight")
         defaults.set(enableNotchHUD, forKey: "enableNotchHUD")
         defaults.set(oneFingerAction.rawValue, forKey: "oneFingerAction")
         defaults.set(twoFingerAction.rawValue, forKey: "twoFingerAction")
-        
-        print("Closed Notch Values Saved")
     }
     
     // MARK: - Open Notch Dimensions

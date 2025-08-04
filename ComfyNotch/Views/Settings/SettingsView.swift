@@ -261,7 +261,7 @@ struct SettingsView: View {
             }
         }
         .transaction { $0.animation = nil }
-        .frame(minWidth: 735, idealWidth: 735, maxWidth: 735, minHeight: 600, maxHeight: 600)
+        .frame(minWidth: 770, idealWidth: 770, maxWidth: 770, minHeight: 600, maxHeight: 600)
         .onChange(of: localTabSelection) { _, newValue in
             settings.selectedTab = newValue
         }

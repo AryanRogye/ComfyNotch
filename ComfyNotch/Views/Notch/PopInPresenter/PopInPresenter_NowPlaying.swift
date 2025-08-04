@@ -39,6 +39,7 @@ struct PopInPresenter_NowPlaying: View {
                     .resizable()
                     .frame(width: 10, height: 14)
                     .foregroundStyle(.primary.opacity(0.6))
+                    .accessibilityIdentifier("PopInPresenter_NowPlaying_musicNote")
                 
                 Text(musicModel.nowPlayingInfo.trackName)
                     .font(.subheadline.weight(.semibold))
@@ -50,6 +51,7 @@ struct PopInPresenter_NowPlaying: View {
                     .resizable()
                     .frame(width: 10, height: 14)
                     .foregroundStyle(.primary.opacity(0.6))
+                    .accessibilityIdentifier("PopInPresenter_NowPlaying_microphone")
                 
                 Text(musicModel.nowPlayingInfo.artistName)
                     .font(.subheadline.weight(.semibold))
