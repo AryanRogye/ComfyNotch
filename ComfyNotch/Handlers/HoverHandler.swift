@@ -27,62 +27,38 @@ final class HoverHandler: ObservableObject {
     
     @Published var isHoveringOverPlayPause: Bool = false
     @Published var isHoveringOverLeft: Bool = false
-    @Published var scaleHoverOverLeftItems: Bool = false
-    
     @Published var isHoveringOverPopin: Bool = false
+    
+    /// Tells other views that we can now scale
+    @Published var scaleHoverOverLeftItems: Bool = false
     
     let uiManager = UIManager.shared
     
+    /// Used when hovering, around 0.2 seconds after is the hover triggered
     private var hoverTimer: Timer?
+    /// Used by the cancel or the "schedule" this will stop the hover
     private var hoverResetTimer: Timer?
-    private var globalMouseMonitor: Any?
-    
+    private var invalidateTime: CGFloat {
+        settings.enableButtonsOnHover ? 1.0 : 0.3
+    }
+
     private var cancellables = Set<AnyCancellable>()
+    private let settings = SettingsModel.shared
     
     
     init() {
-        startGlobalMouseTracking()
+        debugLog("Initialize Invalidate Time: \(invalidateTime)", from: .hover)
     }
     
     deinit {
-        if let monitor = globalMouseMonitor {
-            NSEvent.removeMonitor(monitor)
-        }
         hoverTimer?.invalidate()
         hoverResetTimer?.invalidate()
     }
     
-    private func startGlobalMouseTracking() {
-        globalMouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.mouseMoved]) { [weak self] event in
-            self?.validateMousePosition()
-        }
-    }
-    
-    private func validateMousePosition() {
-        let mouseLocation = NSEvent.mouseLocation
-        let panel = uiManager.smallPanel
-        
-        guard let panelFrame = panel?.frame else { return }
-        
-        // Check if mouse is actually within the panel bounds
-        if !panelFrame.contains(mouseLocation) && isHoveringOverLeft {
-            print("Mouse detected outside panel bounds, resetting hover state")
-            isHoveringOverLeft = false
-        }
-    }
-    
-    /// schedules the hover to reset after a short delay and validates the mouse position
-    private func scheduleHoverReset() {
-        hoverResetTimer?.invalidate()
-        hoverResetTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { [weak self] _ in
-            guard let self = self else { return }
-            self.validateMousePosition()
-        }
-    }
-    
     private func scheduleHoverResetWithDelay(target: NotchStateManager) {
         hoverResetTimer?.invalidate()
-        hoverResetTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { [weak self] _ in
+        debugLog("Scheduling Hover Reset With Delay With: \(invalidateTime)", from: .hover)
+        hoverResetTimer = Timer.scheduledTimer(withTimeInterval: invalidateTime, repeats: false) { [weak self] _ in
             guard let self = self else { return }
             
             if UIManager.shared.panelState != .closed { return }
@@ -103,9 +79,12 @@ final class HoverHandler: ObservableObject {
     /// This is set inside the Main/ComfyNotchView <- this is important that this is set if hovering should work on the
     /// album
     public func bindHoveringOverLeft(for target: NotchStateManager) {
+        /// This works ONLY if the enableButtonsOnHover is true, on a change we will call this, inside we also
+        /// validate this with a if self.isHoveringOverPopin or else it returns, so thats why on change we always call it
         $isHoveringOverPopin
             .sink { [weak self] _ in
                 guard let self = self else { return }
+                if !settings.enableButtonsOnHover { return }
                 scheduleHoverResetWithDelay(target: target)
             }
             .store(in: &cancellables)
@@ -114,7 +93,7 @@ final class HoverHandler: ObservableObject {
             .sink { [weak self] hovering in
                 guard let self = self else { return }
                 /// This is set inside the settings model, the user can pick between the album or the whole panel
-                if SettingsModel.shared.hoverTargetMode != .album { return }
+                if settings.hoverTargetMode != .album { return }
                 /// if is hovering over the left side
                 if hovering {
                     /// We do not wanto to do any hover logic if the panel is already open or any other state which is not closed
@@ -126,7 +105,6 @@ final class HoverHandler: ObservableObject {
                     self.hoverTimer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false) { [weak self] _ in
                         guard let self = self else { return }
                         
-                        self.validateMousePosition()
                         if !self.isHoveringOverLeft { return }
                         
                         /// This will trigger once the panel is opened, 0.25 is a good spot, but i found that

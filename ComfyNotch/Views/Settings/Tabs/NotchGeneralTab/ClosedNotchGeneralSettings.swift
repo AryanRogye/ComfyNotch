@@ -80,6 +80,7 @@ struct ClosedNotchGeneralSettings: View {
             v.oneFingerAction = settings.oneFingerAction
             v.twoFingerAction = settings.twoFingerAction
             v.notchMinWidth = Int(settings.notchMinWidth)
+            v.enableButtonsOnHover = settings.enableButtonsOnHover
         }
         .onChange(of: v.hoverTargetMode)        { checkDidChange() }
         .onChange(of: v.fallbackHeight)         { checkDidChange() }

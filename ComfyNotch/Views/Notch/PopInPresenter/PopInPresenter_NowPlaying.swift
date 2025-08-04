@@ -67,7 +67,7 @@ struct PopInPresenter_NowPlaying: View {
         .background(Color.black.opacity(0.8))
         .cornerRadius(10)
         .onHover { hovering in
-            notchStateManager.hoverHandler.isHoveringOverPopin = hovering
+            notchStateManager.hoverHandler.isHoveringOverPopin = hovering && settingsModel.enableButtonsOnHover
         }
     }
 }
