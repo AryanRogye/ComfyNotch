@@ -21,6 +21,7 @@ struct FileTrayView: View {
     @EnvironmentObject var fileDropManager : FileDropManager
     
     @ObservedObject var notchStateManager = NotchStateManager.shared
+    @ObservedObject var uiManager = UIManager.shared
     @ObservedObject var settings = SettingsModel.shared
     
     @StateObject private var viewModel: FileTrayViewModel = FileTrayViewModel()
@@ -30,7 +31,7 @@ struct FileTrayView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if notchStateManager.isExpanded && !fileDropManager.shouldAutoShowTray
+            if uiManager.panelState == .open && !fileDropManager.shouldAutoShowTray
             {
                 Group {
                     if showDeleteFileAlert {
@@ -49,8 +50,8 @@ struct FileTrayView: View {
         .environmentObject(viewModel)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .animation(
-            .easeInOut(duration: notchStateManager.isExpanded ? 2 : 0.1),
-            value: notchStateManager.isExpanded
+            .easeInOut(duration: uiManager.panelState == .open ? 2 : 0.1),
+            value: uiManager.panelState == .open
         )
     }
     

@@ -48,7 +48,7 @@ class DisplayHandler {
         DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
             debugLog("Screen Changed, Re-Aligning Notch...", from: .display)
             //            self.restartApp()
-            ScrollHandler.shared.re_align_notch()
+//            ScrollHandler.shared.re_align_notch()
         }
     }
     

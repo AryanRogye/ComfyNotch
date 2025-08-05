@@ -15,7 +15,6 @@ extension ScrollHandler {
         
         DispatchQueue.main.async {
             
-            NotchStateManager.shared.isExpanded = open
             NotchStateManager.shared.bottomSectionHeight = open
             ? (height - self.minPanelHeight)
             : 0
@@ -82,7 +81,6 @@ extension ScrollHandler {
         DispatchQueue.main.async {
             NotchStateManager.shared.currentPanelState = .home
             self.isOpeningFull = true
-            NotchStateManager.shared.isExpanded = false
             NotchStateManager.shared.bottomSectionHeight = 0
         }
         

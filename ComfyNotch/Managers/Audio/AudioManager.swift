@@ -167,7 +167,7 @@ class AudioManager: ObservableObject {
                                                        configuration: NSWorkspace.OpenConfiguration(),
                                                        completionHandler: nil)
                     UIManager.shared.applyOpeningLayout()
-                    ScrollHandler.shared.closeFull()
+                    ScrollManager.shared.closeFull()
                     return
                 } else {
                     debugLog("Spotify App Couldnt Be Opened", from: .musicError)
@@ -179,7 +179,7 @@ class AudioManager: ObservableObject {
                                                        configuration: NSWorkspace.OpenConfiguration(),
                                                        completionHandler: nil)
                     UIManager.shared.applyOpeningLayout()
-                    ScrollHandler.shared.closeFull()
+                    ScrollManager.shared.closeFull()
                     return
                 } else {
                     debugLog("Music App Couldnt Be Opened", from: .musicError)

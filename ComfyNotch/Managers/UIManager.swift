@@ -76,22 +76,15 @@ class UIManager: ObservableObject {
      */
     func setupSmallPanel() {
         guard let screen = DisplayManager.shared.selectedScreen else { return }
-        let screenFrame = screen.frame
         let notchHeight = getNotchHeight()
         
-        let panelRect = NSRect(
-            x: (screenFrame.width - startPanelWidth) / 2,
-            y: screenFrame.height - notchHeight - startPanelYOffset,
-            width: startPanelWidth,
-            height: notchHeight
-        )
-        
         smallPanel = FocusablePanel(
-            contentRect: panelRect,
+            contentRect: .zero,
             styleMask: [.borderless, .nonactivatingPanel, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
+        smallPanel.setFrame(screen.frame, display: true)
         /// Allow content to draw outside panel bounds
         smallPanel.contentView?.wantsLayer = true
         
@@ -108,22 +101,18 @@ class UIManager: ObservableObject {
         smallPanel.isOpaque = false
         smallPanel.hasShadow = false
         
-        
-        let contentView = ComfyNotchView()
-            .environmentObject(compactWidgetStore)
-            .environmentObject(expandedWidgetStore)
-        
-        
-        let hostingView = NSHostingView(rootView: contentView)
-        hostingView.frame = panelRect
+        let view: NSView = NSHostingView(
+            rootView: ComfyNotchView()
+                .environmentObject(compactWidgetStore)
+                .environmentObject(expandedWidgetStore)
+        )
         
         /// Allow hosting view to overflow
-        hostingView.wantsLayer = true
-        hostingView.layer?.masksToBounds = false
+        view.wantsLayer = true
+        view.layer?.masksToBounds = false
         
-        smallPanel.contentView = hostingView
+        smallPanel.contentView = view
         smallPanel.makeKeyAndOrderFront(nil)
-        
         
         compactWidgetStore.loadWidgets()
         

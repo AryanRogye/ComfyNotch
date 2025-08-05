@@ -60,7 +60,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         UIManager.shared.start()
         
         // Proximity Handler for the Big Panel
-        self.panelProximityHandler = PanelProximityHandler()
+//        self.panelProximityHandler = PanelProximityHandler()
         
         /// Begin The Clipboard Manger
         ClipboardManager.shared.start()
@@ -73,10 +73,10 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         // Any Screen errors that may happen, is handled in here
         DisplayHandler.shared.start()
         
-        /// Start the Scroll handler later on
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            ScrollHandler.shared.re_align_notch()
-        }
+//        /// Start the Scroll handler later on
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+//            ScrollHandler.shared.re_align_notch()
+//        }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             UIManager.shared.applyCompactWidgetLayout()

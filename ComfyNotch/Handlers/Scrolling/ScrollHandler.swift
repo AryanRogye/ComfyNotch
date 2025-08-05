@@ -2,8 +2,6 @@ import AppKit
 import Combine
 
 class ScrollHandler : ObservableObject {
-    static let shared = ScrollHandler()
-    
     internal let settings: SettingsModel = .shared
     
     // MARK: – Configuration
@@ -27,7 +25,7 @@ class ScrollHandler : ObservableObject {
     @Published var isHovering = false
     @Published var finishedHoveringIn: Bool = false
     
-    private init() {}
+    init() {}
     
     // MARK: - Open Full Panel
     /// This animation makes sure that it just "expands"

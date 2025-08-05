@@ -87,14 +87,14 @@ final class NotchClickManager: ObservableObject {
     // MARK: - Action Handlers
     
     private func openFileTray() {
-        ScrollHandler.shared.openFull()
+        ScrollManager.shared.openFull()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
             NotchStateManager.shared.currentPanelState = .file_tray
         }
     }
     
     private func openUtils() {
-        ScrollHandler.shared.openFull()
+        ScrollManager.shared.openFull()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
             NotchStateManager.shared.currentPanelState = .utils
         }

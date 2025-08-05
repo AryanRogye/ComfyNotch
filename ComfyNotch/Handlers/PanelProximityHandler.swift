@@ -17,6 +17,7 @@ class PanelProximityHandler {
     deinit { checkTimer?.invalidate() }
     
     private func startPolling() {
+        return
         checkTimer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { [weak self] _ in
             self?.evaluateProximity()
         }
@@ -51,7 +52,7 @@ class PanelProximityHandler {
             withAnimation(.easeInOut(duration: 0.1)) {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     UIManager.shared.applyOpeningLayout()
-                    ScrollHandler.shared.closeFull()
+                    ScrollManager.shared.closeFull()
                 }
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -60,7 +61,6 @@ class PanelProximityHandler {
                 }
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    NotchStateManager.shared.isExpanded = false
                     NotchStateManager.shared.bottomSectionHeight = 0
                 }
             }
