@@ -6,42 +6,59 @@
 //
 
 import AppKit
+import Cocoa
 
 final class MediaKeyInterceptor {
-    private var eventMonitor: Any?
+    private var eventTap: CFMachPort?
     
     func start() {
-        startMonitors()
+        startEventTap()
     }
     
-    // MARK: - Start Monitoring Sessions
+    func stop() {
+        if let tap = eventTap {
+            CGEvent.tapEnable(tap: tap, enable: false)
+            eventTap = nil
+        }
+    }
     
-    /// this really only triggeres for the volume, this is cuz the brightness does a check on itself not a key
-    private func startMonitors() {
-        debugLog("✅ Started Monitor", from: .volume)
+    private func startEventTap() {
         UIManager.shared.compactWidgetStore.setVolumeWidgets(icon: VolumeIcon(), number: VolumeNumber())
-        VolumeManager.shared.hasStopped = false
+        let mask = CGEventMask(1 << 14)
         
-        eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: .systemDefined) { event in
-            guard event.subtype.rawValue == 8 else { return }
+        
+        let callback: CGEventTapCallBack = { _, _, event, _ in
+            guard let nsEvent = NSEvent(cgEvent: event) else { return Unmanaged.passRetained(event) }
             
-            let keyCode = ((event.data1 & 0xFFFF0000) >> 16)
-            let keyFlags = (event.data1 & 0x0000FFFF)
+            guard nsEvent.subtype.rawValue == 8 else { return Unmanaged.passRetained(event) }
+            
+            let keyCode = ((nsEvent.data1 & 0xFFFF0000) >> 16)
+            let keyFlags = (nsEvent.data1 & 0x0000FFFF)
             let keyState = ((keyFlags & 0xFF00) >> 8) == 0xA
             
-            guard keyState else { return }
-            
-            print("sending")
+            guard keyState else { return Unmanaged.passRetained(event) }
             VolumeManager.shared.handleMediaKeyCode(keyCode)
+            
+            return Unmanaged.passRetained(event)
         }
-    }
-    
-    // MARK: - Stop Monitoring Sessions
-    func stop() {
-        if let monitor = eventMonitor {
-            NSEvent.removeMonitor(monitor)
-            eventMonitor = nil
+        
+        guard let tap = CGEvent.tapCreate(
+            tap: .cgSessionEventTap,
+            place: .headInsertEventTap,
+            options: .defaultTap,
+            eventsOfInterest: mask,
+            callback: callback,
+            userInfo: nil
+        ) else {
+            print("❌ Failed to create CGEventTap.")
+            return
         }
-        VolumeManager.shared.hasStopped = true
+        
+        eventTap = tap
+        let runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0)
+        CFRunLoopAddSource(CFRunLoopGetMain(), runLoopSource, .commonModes)
+        CGEvent.tapEnable(tap: tap, enable: true)
+        
+        print("✅ CGEventTap started")
     }
 }

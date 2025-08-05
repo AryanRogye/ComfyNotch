@@ -14,30 +14,26 @@ final class VolumeManager: ObservableObject {
     @Published var currentVolume: Float = 0
     
     private var osdSuppressionTimer: Timer?
-    var hasStopped = false
     
     init() {}
     
     // MARK: - Key Code Handling
     func handleMediaKeyCode(_ keyCode: Int) {
-        if hasStopped {
-            debugLog("Skipping media key event as app has stopped", from: .volume)
-            return
-        }
         switch Int32(keyCode) {
             
         case
             NX_KEYTYPE_SOUND_DOWN,              /// VOLUME DOWN
-            NX_KEYTYPE_SOUND_UP,                /// VOLUME UP
-            NX_KEYTYPE_MUTE,                    /// MUTE
-            NX_KEYTYPE_BRIGHTNESS_DOWN,         /// BRIGHTNESS DOWN
-            NX_KEYTYPE_BRIGHTNESS_UP,           /// BRIGHTNESS UP
-            NX_KEYTYPE_ILLUMINATION_DOWN,       /// KEYBOARD_BRIGHTNESS_DOWN
-            NX_KEYTYPE_ILLUMINATION_UP:         /// KEYBOARD BRIGHTNESS UP
-            /// Trigger Notch Notch For Info
-            debugLog("Triggering Notch In Volume Manager: \(self.currentVolume)", from: .volume)
+            NX_KEYTYPE_SOUND_UP:                /// VOLUME UP
             refreshVolumeAsync()
             UIManager.shared.applyVolumeLayout()
+        case
+            NX_KEYTYPE_MUTE:                    /// MUTE
+            self.currentVolume = 0
+            UIManager.shared.applyVolumeLayout()
+            //            NX_KEYTYPE_BRIGHTNESS_DOWN,         /// BRIGHTNESS DOWN
+            //            NX_KEYTYPE_BRIGHTNESS_UP,           /// BRIGHTNESS UP
+            //            NX_KEYTYPE_ILLUMINATION_DOWN,       /// KEYBOARD_BRIGHTNESS_DOWN
+            //            NX_KEYTYPE_ILLUMINATION_UP:         /// KEYBOARD BRIGHTNESS UP
         default:
             print("Unrecognized media key: \(keyCode)")
         }

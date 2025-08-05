@@ -232,7 +232,6 @@ class CompactWidgetsStore: PanelManager, ObservableObject {
             self.showWidget(named: "QuickAccessWidget")
         case .volume:
             /// handle volume
-            print("SHOWING VOLUME")
             self.hideWidget(named: "AlbumWidget")
             self.hideWidget(named: "MovingDotsWidget")
             self.hideWidget(named: "MovingBars")
