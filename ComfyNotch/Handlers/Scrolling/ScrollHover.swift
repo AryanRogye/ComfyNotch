@@ -71,7 +71,7 @@ extension ScrollHandler {
     }
     
     private func hoverOut(panel: NSPanel) {
-        guard let screen = NSScreen.main,
+        guard let screen = DisplayManager.shared.selectedScreen,
               let view = panel.contentView else { return }
         
         // Cancel any existing hover-in animations

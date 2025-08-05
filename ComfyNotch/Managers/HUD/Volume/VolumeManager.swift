@@ -17,39 +17,68 @@ final class MediaKeyInterceptor {
     private var eventMonitor: Any?
     private var fnKeyMonitor: Any?
     
-    func isAccessibilityEnabled() -> Bool {
-        return AXIsProcessTrusted()
-    }
+    var isAccessibilityEnabled = false
     
-    func requestAccessibility() {
+    func openAccessibilitySettings() {
         let options: NSDictionary = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as String: true]
         AXIsProcessTrustedWithOptions(options)
+        
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
+            NSWorkspace.shared.open(url)
+        }
     }
     
-    func requestAccessibilityIfNeeded() {
-        if !AXIsProcessTrusted() && !UserDefaults.standard.bool(forKey: "didRequestAccessibility") {
-            let options: NSDictionary = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as String: true]
-            AXIsProcessTrustedWithOptions(options)
-            UserDefaults.standard.set(true, forKey: "didRequestAccessibility")
+    func requestAccessibility(completion: @escaping (Bool) -> Void) {
+        let options: NSDictionary = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as String: true]
+        
+        // Trigger the prompt
+        _ = AXIsProcessTrustedWithOptions(options)
+        
+        // Poll up to 10 seconds until access is granted
+        var tries = 0
+        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
+            let granted = AXIsProcessTrusted()
+            tries += 1
+            
+            if granted || tries > 10 {
+                timer.invalidate()
+                completion(granted)
+            }
         }
     }
     
     func start() {
         
-        requestAccessibilityIfNeeded()
-        guard AXIsProcessTrusted() else { return }
+        isAccessibilityEnabled = AXIsProcessTrusted()
+        if isAccessibilityEnabled {
+            debugLog("MediaKeyInterceptor started", from: .volume)
+            startMonitors()
+        }
         
-        print("MediaKeyInterceptor started")
-
+        requestAccessibility { granted in
+            DispatchQueue.main.async {
+                self.isAccessibilityEnabled = granted
+                if granted {
+                    debugLog("MediaKeyInterceptor started", from: .volume)
+                    self.startMonitors()
+                } else {
+                    debugLog("Stopped Volume Managed Cuz Accessibility not enabled", from: .volume)
+                }
+            }
+        }
+    }
+    
+    private func startMonitors() {
         eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: .systemDefined) { event in
             guard event.subtype.rawValue == 8 else { return }
-
+            
             let keyCode = ((event.data1 & 0xFFFF0000) >> 16)
             let keyFlags = (event.data1 & 0x0000FFFF)
             let keyState = ((keyFlags & 0xFF00) >> 8) == 0xA
-
+            
             guard keyState else { return }
-
+            
+            print("Pressed Key State: \(keyState)")
             VolumeManager.shared.handleMediaKeyCode(keyCode)
         }
         
@@ -57,17 +86,17 @@ final class MediaKeyInterceptor {
             if event.keyCode == 122, event.modifierFlags.contains(.function) {
                 // fn + F1
                 print("✅ fn + F1 pressed")
-//                BrightnessManager.shared.setBrightness(
-//                    max(0, BrightnessManager.shared.getBrightness()! - 0.1)
-//                )
-//                PanelAnimationState.shared.currentPopInPresentationState = .brightness
+                //                BrightnessManager.shared.setBrightness(
+                //                    max(0, BrightnessManager.shared.getBrightness()! - 0.1)
+                //                )
+                //                PanelAnimationState.shared.currentPopInPresentationState = .brightness
             } else if event.keyCode == 120, event.modifierFlags.contains(.function) {
                 // fn + F2
                 print("✅ fn + F2 pressed")
-//                BrightnessManager.shared.setBrightness(
-//                    min(1, BrightnessManager.shared.getBrightness()! + 0.1)
-//                )
-//                PanelAnimationState.shared.currentPopInPresentationState = .brightness
+                //                BrightnessManager.shared.setBrightness(
+                //                    min(1, BrightnessManager.shared.getBrightness()! + 0.1)
+                //                )
+                //                PanelAnimationState.shared.currentPopInPresentationState = .brightness
             }
         }
     }
@@ -159,7 +188,9 @@ final class VolumeManager: ObservableObject {
             checkVolumeAppleScript()
             return
         }
-        self.currentVolume = volume
+        DispatchQueue.main.async {
+            self.currentVolume = volume
+        }
     }
     
     public func stop() {

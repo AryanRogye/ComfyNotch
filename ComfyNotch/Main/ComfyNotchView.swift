@@ -203,7 +203,14 @@ struct ComfyNotchView: View {
             .onDisappear {
                 notchClickManager.stopMonitoring()
             }
+            .shadow(radius: isHoveringOverNotch ? 5 : 0)
+            .onHover { hovering in
+                withAnimation(.easeInOut) {
+                    isHoveringOverNotch = hovering && uiManager.panelState == .closed
+                }
+            }
     }
+    @State private var isHoveringOverNotch = false
     
     // MARK: - NOTCH
     private var notch: some View {

@@ -36,7 +36,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             NSKeyedUnarchiver.setClass(NSAttributedString.self, forClassName: "NSFrozenAttributedString")
         }()
         /// Wanna Request Access To Acessibility
-        MediaKeyInterceptor.shared.requestAccessibilityIfNeeded()
+        MediaKeyInterceptor.shared.requestAccessibility { _ in }
         MessagesManager.shared.start()
         
         DispatchQueue.main.async {

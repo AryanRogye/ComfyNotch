@@ -97,6 +97,7 @@ class UIManager: ObservableObject {
         
         smallPanel.registerForDraggedTypes([.fileURL])
         smallPanel.title = "ComfyNotch"
+        smallPanel.acceptsMouseMovedEvents = true
         
         let overlayRaw = CGWindowLevelForKey(.overlayWindow)
         smallPanel.level = NSWindow.Level(rawValue: Int(overlayRaw))

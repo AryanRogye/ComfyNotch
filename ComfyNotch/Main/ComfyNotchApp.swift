@@ -52,6 +52,7 @@ enum LogSource: String {
     case musicError     = "|MusicError|"
     /// All Widget Logic
     case widget         = "|Widget|"
+    case volume         = "|Volume|"
 }
 
 func debugLog(_ message: @autoclosure () -> Any, from: LogSource? = nil) {

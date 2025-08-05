@@ -233,7 +233,7 @@ struct ClosedNotchGeneralSettings: View {
                     .font(.footnote)
                     .foregroundColor(.secondary)
                 
-                Button(action: MediaKeyInterceptor.shared.requestAccessibility) {
+                Button(action: {MediaKeyInterceptor.shared.openAccessibilitySettings() }) {
                     HStack(spacing: 4) {
                         Image(systemName: "lock.shield")
                         Text("Request Accessibility Permissions")
