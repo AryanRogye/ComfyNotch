@@ -84,7 +84,9 @@ final class ClosedNotchTests: XCTestCase {
         let musicNote   = app.images["PopInPresenter_NowPlaying_musicNote"].firstMatch
         let microphone  = app.images["PopInPresenter_NowPlaying_microphone"].firstMatch
         
+        sleep(5)
         albumButton.hover()
+        
         /// 1 Second cuz of invalidation
         sleep(1)
         musicNote.hover()
