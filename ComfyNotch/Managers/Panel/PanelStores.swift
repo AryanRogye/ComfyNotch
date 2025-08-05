@@ -151,7 +151,6 @@ class CompactWidgetsStore: PanelManager, ObservableObject {
         /// Defining The Music Layout
         static let music: ([() -> Widget], [() -> Widget]) = (
             [{ CompactAlbumWidget() }],
-            //            [{ MovingDotsView() }]
             [{ FancyMovingBars() }]
         )
         
@@ -211,9 +210,18 @@ class CompactWidgetsStore: PanelManager, ObservableObject {
             self.hideWidget(named: "MovingDotsWidget")
             self.hideWidget(named: "MovingBars")
             self.hideWidget(named: "Settings")
+            self.hideWidget(named: "Volume Icon")
+            self.hideWidget(named: "Volume Number")
+            self.hideWidget(named: "Brightness Icon")
+            self.hideWidget(named: "Brightness Number")
         case .music:
             self.hideWidget(named: "Settings")
             self.hideWidget(named: "QuickAccessWidget")
+            self.hideWidget(named: "Volume Icon")
+            self.hideWidget(named: "Volume Number")
+            self.hideWidget(named: "Brightness Icon")
+            self.hideWidget(named: "Brightness Number")
+
             self.showWidget(named: "AlbumWidget")
             self.showWidget(named: "MovingDotsWidget")
             self.showWidget(named: "MovingBars")
@@ -221,13 +229,59 @@ class CompactWidgetsStore: PanelManager, ObservableObject {
             self.hideWidget(named: "AlbumWidget")
             self.hideWidget(named: "MovingDotsWidget")
             self.hideWidget(named: "MovingBars")
-            
+            self.hideWidget(named: "Volume Icon")
+            self.hideWidget(named: "Volume Number")
+            self.hideWidget(named: "Brightness Icon")
+            self.hideWidget(named: "Brightness Number")
+
             self.showWidget(named: "Settings")
             self.showWidget(named: "QuickAccessWidget")
+        case .volume:
+            /// handle volume
+            self.hideWidget(named: "AlbumWidget")
+            self.hideWidget(named: "MovingDotsWidget")
+            self.hideWidget(named: "MovingBars")
+            self.hideWidget(named: "QuickAccessWidget")
+            self.hideWidget(named: "Settings")
+            self.hideWidget(named: "Brightness Icon")
+            self.hideWidget(named: "Brightness Number")
+
+            self.showWidget(named: "Volume Icon")
+            self.showWidget(named: "Volume Number")
+        case .brightness:
+            self.hideWidget(named: "AlbumWidget")
+            self.hideWidget(named: "MovingDotsWidget")
+            self.hideWidget(named: "MovingBars")
+            self.hideWidget(named: "QuickAccessWidget")
+            self.hideWidget(named: "Settings")
+            self.hideWidget(named: "Volume Icon")
+            self.hideWidget(named: "Volume Number")
+            
+            self.showWidget(named: "Brightness Icon")
+            self.showWidget(named: "Brightness Number")
         }
     }
     
+    public func setVolumeWidgets(icon: VolumeIcon, number: VolumeNumber) {
+        addWidget(icon)
+        addWidget(number)
+    }
     
+    public func setBrightnessWidgets(icon: BrightnessIcon, number: BrightnessNumber) {
+        addWidget(icon)
+        addWidget(number)
+    }
+    
+    public func removeVolumeWidgets() {
+        removeWidget(named: "Volume Icon")
+        removeWidget(named: "Volume Number")
+    }
+    
+    public func removeBrightnessWidgets() {
+        removeWidget(named: "Brightness Icon")
+        removeWidget(named: "Brightness Number")
+    }
+
     /**
      * Adds a new widget to the appropriate hidden array based on its alignment.
      * If no alignment is specified, the widget defaults to left alignment.

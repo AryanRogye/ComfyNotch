@@ -46,12 +46,28 @@ enum LogSource: String {
     case scrollMajor    = "|ScrollManager |MAJOR|"
     case hover          = "|HoverHandler|"
     
+    case mKIntercept    = "|MediaKeyIntercept|"
+    case brightness     = "|Brightness|"
+    case volume         = "|Volume|"
+
     /// Most Likely These Will Be Always Active
     case settings       = "|Settings|"
     case fileTray       = "|FileTray|"
     case musicError     = "|MusicError|"
     /// All Widget Logic
     case widget         = "|Widget|"
+}
+
+@objc public class DebugLogger: NSObject {
+    @objc public static func log(_ message: String, from source: String? = nil) {
+#if DEBUG
+        if let source = source {
+            print("\(source): \(message)")
+        } else {
+            print(message)
+        }
+#endif
+    }
 }
 
 func debugLog(_ message: @autoclosure () -> Any, from: LogSource? = nil) {
@@ -62,14 +78,15 @@ func debugLog(_ message: @autoclosure () -> Any, from: LogSource? = nil) {
         .ui,
         .mrmController,
         .aSController,
-        .scrollMajor
+        .scrollMajor,
+        .hover
     ]
     
     if let from = from {
         if silencedSources.contains(from) {
             return
         }
-        print("\(from): \(String(describing: message()))")
+        print("\(from.rawValue): \(String(describing: message()))")
         return
     }
     print(message())

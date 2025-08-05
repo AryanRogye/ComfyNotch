@@ -29,6 +29,9 @@ final class MusicPlayerUITests: XCTestCase {
         
         app.activate()
         
+        let albumWidgetButton = app.buttons["[CompactAlbumWidget] Open FileTray"].firstMatch
+        XCTAssert(albumWidgetButton.waitForExistence(timeout: 5), "Album Widget Should Exist")
+        
         app.buttons["[CompactAlbumWidget] Open FileTray"].firstMatch.click()
         app.buttons["gear"].firstMatch.click()
         

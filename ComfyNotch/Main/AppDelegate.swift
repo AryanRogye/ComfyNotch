@@ -12,7 +12,6 @@ import AppKit
  * - panelProximityHandler: Manages proximity-based interactions for the big panel
  */
 public class AppDelegate: NSObject, NSApplicationDelegate {
-    private let hudManager = HUDManager()
     private var panelProximityHandler: PanelProximityHandler?
     /**
      * Called when the application finishes launching.
@@ -36,7 +35,6 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             NSKeyedUnarchiver.setClass(NSAttributedString.self, forClassName: "NSFrozenAttributedString")
         }()
         /// Wanna Request Access To Acessibility
-        MediaKeyInterceptor.shared.requestAccessibilityIfNeeded()
         MessagesManager.shared.start()
         
         DispatchQueue.main.async {
@@ -45,9 +43,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     public func applicationWillTerminate(_ notification: Notification) {
-        MediaKeyInterceptor.shared.stop()
-        VolumeManager.shared.stop()
-        BrightnessWatcher.shared.stop()
+        SettingsModel.shared.hudManager.stop()
         ClipboardManager.shared.stop()
         DisplayManager.shared.stop()
         MessagesManager.shared.stop()
@@ -69,7 +65,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         /// Begin The Clipboard Manger
         ClipboardManager.shared.start()
         
-        hudManager.start()
+        SettingsModel.shared.hudManager.start()
         
         // Set up the ui by loading the widgets from settings onto it
         self.loadWidgetsFromSettings()
