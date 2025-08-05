@@ -24,9 +24,10 @@ typedef int (*SetBrightnessFn)(CGDirectDisplayID, float);
 }
 
 - (void)start {
+    [DebugLogger log:@"✅ Started" from:@"|BrightnessManager|"];
     self.displayServicesHandle = dlopen(NULL, RTLD_LAZY);
     if (!self.displayServicesHandle) {
-        NSLog(@"❌ Failed to dlopen.");
+        [DebugLogger log:@"❌ Failed to dlopen." from:@"|BrightnessManager|"];
         return;
     }
     
@@ -34,7 +35,7 @@ typedef int (*SetBrightnessFn)(CGDirectDisplayID, float);
     self.setBrightnessFn = (SetBrightnessFn)dlsym(self.displayServicesHandle, "DisplayServicesSetBrightness");
     
     if (!self.getBrightnessFn || !self.setBrightnessFn) {
-        NSLog(@"❌ Brightness functions could not be loaded.");
+        [DebugLogger log:@"❌ Brightness functions could not be loaded." from:@"|BrightnessManager|"];
         return;
     }
     
@@ -56,7 +57,6 @@ typedef int (*SetBrightnessFn)(CGDirectDisplayID, float);
         case NX_KEYTYPE_BRIGHTNESS_UP:
         case NX_KEYTYPE_ILLUMINATION_DOWN:
         case NX_KEYTYPE_ILLUMINATION_UP: {
-            NSLog(@"🔆 Brightness key pressed: %d", keyCode);
             
             [self updateCurrentBrightness];
             
@@ -81,7 +81,7 @@ typedef int (*SetBrightnessFn)(CGDirectDisplayID, float);
     if (self.getBrightnessFn) {
         int result = self.getBrightnessFn(CGMainDisplayID(), &level);
         if (result != 0) {
-            NSLog(@"❌ Failed to get brightness (code %d)", result);
+            [DebugLogger log:@"❌ Failed to get brightness (code %d)" from:@"|BrightnessManager|"];
         }
     }
     return level;
@@ -91,7 +91,7 @@ typedef int (*SetBrightnessFn)(CGDirectDisplayID, float);
     if (self.setBrightnessFn) {
         int result = self.setBrightnessFn(CGMainDisplayID(), level);
         if (result != 0) {
-            NSLog(@"❌ Failed to set brightness (code %d)", result);
+            [DebugLogger log:@"❌ Failed to set brightness (code %d)" from:@"|BrightnessManager|"];
         }
     }
 }

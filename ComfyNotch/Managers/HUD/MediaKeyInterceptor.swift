@@ -18,10 +18,9 @@ final class MediaKeyInterceptor {
     private static weak var activeInterceptor: MediaKeyInterceptor?
 
     func start() {
-        
         /// Make Sure no other instance is active but this one
         guard MediaKeyInterceptor.activeInterceptor == nil else {
-            print("⚠️ Another MediaKeyInterceptor is already running.")
+            debugLog("⚠️ Another MediaKeyInterceptor is already running.", from: .mKIntercept)
             return
         }
         
@@ -88,7 +87,7 @@ final class MediaKeyInterceptor {
             callback: callback,
             userInfo: nil
         ) else {
-            print("❌ Failed to create CGEventTap.")
+            debugLog("❌ Failed to create CGEventTap.", from: .mKIntercept)
             return
         }
         
@@ -97,7 +96,7 @@ final class MediaKeyInterceptor {
         CFRunLoopAddSource(CFRunLoopGetMain(), runLoopSource, .commonModes)
         CGEvent.tapEnable(tap: tap, enable: true)
         
-        print("✅ CGEventTap started")
+        debugLog("✅ CGEventTap started", from: .mKIntercept)
     }
     
     // Instance method to handle the media key

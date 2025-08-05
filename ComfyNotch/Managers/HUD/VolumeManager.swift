@@ -29,18 +29,15 @@ final class VolumeManager: ObservableObject {
             NX_KEYTYPE_MUTE:                    /// MUTE
             self.currentVolume = 0
             UIManager.shared.applyVolumeLayout()
-            //            NX_KEYTYPE_BRIGHTNESS_DOWN,         /// BRIGHTNESS DOWN
-            //            NX_KEYTYPE_BRIGHTNESS_UP,           /// BRIGHTNESS UP
-            //            NX_KEYTYPE_ILLUMINATION_DOWN,       /// KEYBOARD_BRIGHTNESS_DOWN
-            //            NX_KEYTYPE_ILLUMINATION_UP:         /// KEYBOARD BRIGHTNESS UP
         default:
-            print("Unrecognized media key: \(keyCode)")
+            debugLog("Unrecognized media key: \(keyCode)", from: .volume)
         }
     }
 
     
     // MARK: - Start/Stop
     public func start() {
+        debugLog("✅ Started", from: .volume)
         DispatchQueue.global(qos: .utility).async {
             /// On Start Hide OSDUIHelper
             self.hideOSDUIHelper()
@@ -95,14 +92,14 @@ final class VolumeManager: ObservableObject {
         )
         
         guard status == noErr else {
-            print("Failed to get default output device: \(status)")
+            debugLog("Failed to get default output device: \(status)", from: .volume)
             checkVolumeAppleScript()
             return
         }
         
         // Check if the device supports volume control
         guard hasVolumeControl(deviceID: defaultOutputDeviceID) else {
-            print("Device doesn't support volume control")
+            debugLog("Device doesn't support volume control", from: .volume)
             checkVolumeAppleScript()
             return
         }
@@ -126,7 +123,7 @@ final class VolumeManager: ObservableObject {
         )
         
         guard status2 == noErr else {
-            print("Failed to get volume: \(status2)")
+            debugLog("Failed to get volume: \(status2)", from: .volume)
             checkVolumeAppleScript()
             return
         }
@@ -192,9 +189,9 @@ final class VolumeManager: ObservableObject {
             script.arguments = ["-e", "set volume output volume (output volume of (get volume settings))"]
             try script.run()
             
-            print("✅ OSDUIHelper restart triggered")
+            debugLog("✅ OSDUIHelper restart triggered", from: .volume)
         } catch {
-            print("❌ Failed to restart OSDUIHelper: \(error)")
+            debugLog("❌ Failed to restart OSDUIHelper: \(error)", from: .volume)
         }
     }
     
