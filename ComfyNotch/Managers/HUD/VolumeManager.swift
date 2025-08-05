@@ -30,7 +30,7 @@ final class VolumeManager: ObservableObject {
             self.currentVolume = 0
             UIManager.shared.applyVolumeLayout()
         default:
-            debugLog("Unrecognized media key: \(keyCode)", from: .volume)
+            break
         }
     }
 
