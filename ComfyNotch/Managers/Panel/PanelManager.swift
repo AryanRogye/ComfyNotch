@@ -22,6 +22,7 @@ enum LayoutGroup: String {
     ///           Left  - CompactAlbumWidget
     ///           Right - MovingDotsView
     case music = "Music"
+    case volume = "Volume"
     /// This is used when the panel is open,
     /// Defined in this will ALWAYS BE:
     ///           Left  - SettingsButtonWidget

@@ -7,6 +7,8 @@ import SwiftUI
 class SettingsModel: ObservableObject {
     static let shared = SettingsModel(userDefaults: .standard)
     
+    let hudManager = HUDManager()
+
     @Published var selectedTab: SettingsView.Tab = .general
     @Published var selectedNotchTab: Int = 0
     
@@ -651,6 +653,13 @@ extension SettingsModel {
         defaults.set(enableNotchHUD, forKey: "enableNotchHUD")
         defaults.set(oneFingerAction.rawValue, forKey: "oneFingerAction")
         defaults.set(twoFingerAction.rawValue, forKey: "twoFingerAction")
+        
+        if self.enableNotchHUD {
+            hudManager.start()
+        } else {
+            hudManager.stop()
+        }
+        
     }
     
     // MARK: - Open Notch Dimensions

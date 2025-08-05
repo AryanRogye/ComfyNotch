@@ -151,7 +151,6 @@ class CompactWidgetsStore: PanelManager, ObservableObject {
         /// Defining The Music Layout
         static let music: ([() -> Widget], [() -> Widget]) = (
             [{ CompactAlbumWidget() }],
-            //            [{ MovingDotsView() }]
             [{ FancyMovingBars() }]
         )
         
@@ -211,9 +210,14 @@ class CompactWidgetsStore: PanelManager, ObservableObject {
             self.hideWidget(named: "MovingDotsWidget")
             self.hideWidget(named: "MovingBars")
             self.hideWidget(named: "Settings")
+            self.hideWidget(named: "Volume Icon")
+            self.hideWidget(named: "Volume Number")
         case .music:
             self.hideWidget(named: "Settings")
             self.hideWidget(named: "QuickAccessWidget")
+            self.hideWidget(named: "Volume Icon")
+            self.hideWidget(named: "Volume Number")
+
             self.showWidget(named: "AlbumWidget")
             self.showWidget(named: "MovingDotsWidget")
             self.showWidget(named: "MovingBars")
@@ -221,12 +225,29 @@ class CompactWidgetsStore: PanelManager, ObservableObject {
             self.hideWidget(named: "AlbumWidget")
             self.hideWidget(named: "MovingDotsWidget")
             self.hideWidget(named: "MovingBars")
-            
+            self.hideWidget(named: "Volume Icon")
+            self.hideWidget(named: "Volume Number")
+
             self.showWidget(named: "Settings")
             self.showWidget(named: "QuickAccessWidget")
+        case .volume:
+            /// handle volume
+            print("SHOWING VOLUME")
+            self.hideWidget(named: "AlbumWidget")
+            self.hideWidget(named: "MovingDotsWidget")
+            self.hideWidget(named: "MovingBars")
+            self.hideWidget(named: "QuickAccessWidget")
+            self.hideWidget(named: "Settings")
+            
+            self.showWidget(named: "Volume Icon")
+            self.showWidget(named: "Volume Number")
         }
     }
     
+    public func setVolumeWidgets(icon: VolumeIcon, number: VolumeNumber) {
+        addWidget(icon)
+        addWidget(number)
+    }
     
     /**
      * Adds a new widget to the appropriate hidden array based on its alignment.

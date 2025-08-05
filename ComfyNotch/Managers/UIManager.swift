@@ -172,6 +172,43 @@ class UIManager: ObservableObject {
         }
     }
     
+    private var volumeTimer: Timer?
+    private var isShowingVolume: Bool = false
+    
+    private func startVolumeTimer() {
+        volumeTimer?.invalidate()
+        volumeTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { [weak self] _ in
+            guard let self = self else { return }
+            self.isShowingVolume = false
+
+            if self.panelState == .closed {
+                self.applyOpeningLayout()
+                self.applyCompactWidgetLayout()
+            }
+        }
+    }
+    
+    public func applyVolumeLayout() {
+        guard self.panelState == .closed else { return }
+        guard !isShowingVolume else {
+            startVolumeTimer()
+            return
+        }
+        
+        self.applyOpeningLayout()
+        self.isShowingVolume = true
+        DispatchQueue.main.async {
+            withAnimation(Anim.spring) {
+                self.compactWidgetStore.applyLayout(for: .volume)
+                self.expandedWidgetStore.applyLayout(for: .volume)
+            }
+        }
+        
+        startVolumeTimer()
+    }
+    
+    
+    
     // MARK: - Utility Methods
     public func displayCurrentBigPanelWidgets(with title: String = "Current Big Panel Widgets") {
         debugLog("=====================================================", from: .ui)
