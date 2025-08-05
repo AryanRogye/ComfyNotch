@@ -1,36 +1,16 @@
 #import "BrightnessManager.h"
+#import "ComfyNotch-Swift.h"
 #import <dlfcn.h>
 #import <ApplicationServices/ApplicationServices.h>
 
 typedef int (*GetBrightnessFn)(CGDirectDisplayID, float *);
 typedef int (*SetBrightnessFn)(CGDirectDisplayID, float);
-typedef int (*RegisterFn)(CGDirectDisplayID, CGDirectDisplayID, CFNotificationCallback);
-typedef int (*UnregisterFn)(CGDirectDisplayID, CGDirectDisplayID);
 
 @interface BrightnessManager ()
 @property (nonatomic) GetBrightnessFn getBrightnessFn;
 @property (nonatomic) SetBrightnessFn setBrightnessFn;
-@property (nonatomic) RegisterFn registerFn;
-@property (nonatomic) UnregisterFn unregisterFn;
 @property (nonatomic) void *displayServicesHandle;
-@property (nonatomic) BOOL isListening;
 @end
-
-// C-level brightness change callback
-static void BrightnessCallback(CFNotificationCenterRef center,
-                               void *observer,
-                               CFNotificationName name,
-                               const void *object,
-                               CFDictionaryRef userInfo) {
-    BrightnessManager *manager = [BrightnessManager sharedInstance];
-    if ([NSThread isMainThread]) {
-        [manager updateCurrentBrightness];
-    } else {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [manager updateCurrentBrightness];
-        });
-    }
-}
 
 @implementation BrightnessManager
 
@@ -44,8 +24,6 @@ static void BrightnessCallback(CFNotificationCenterRef center,
 }
 
 - (void)start {
-    if (self.isListening) return;
-    
     self.displayServicesHandle = dlopen(NULL, RTLD_LAZY);
     if (!self.displayServicesHandle) {
         NSLog(@"❌ Failed to dlopen.");
@@ -54,45 +32,47 @@ static void BrightnessCallback(CFNotificationCenterRef center,
     
     self.getBrightnessFn = (GetBrightnessFn)dlsym(self.displayServicesHandle, "DisplayServicesGetBrightness");
     self.setBrightnessFn = (SetBrightnessFn)dlsym(self.displayServicesHandle, "DisplayServicesSetBrightness");
-    self.registerFn      = (RegisterFn)dlsym(self.displayServicesHandle, "DisplayServicesRegisterForBrightnessChangeNotifications");
-    self.unregisterFn    = (UnregisterFn)dlsym(self.displayServicesHandle, "DisplayServicesUnregisterForBrightnessChangeNotifications");
     
-    if (!self.getBrightnessFn || !self.setBrightnessFn || !self.registerFn || !self.unregisterFn) {
-        NSLog(@"❌ One or more DisplayServices symbols could not be loaded.");
+    if (!self.getBrightnessFn || !self.setBrightnessFn) {
+        NSLog(@"❌ Brightness functions could not be loaded.");
         return;
-    }
-    
-    int result = self.registerFn(CGMainDisplayID(), CGMainDisplayID(), BrightnessCallback);
-    if (result != 0) {
-        NSLog(@"❌ Failed to register for brightness changes (code %d)", result);
-    } else {
-        NSLog(@"✅ Registered for brightness notifications");
-        self.isListening = YES;
     }
     
     [self updateCurrentBrightness];
 }
 
 - (void)stop {
-    if (!self.isListening || !self.unregisterFn) return;
-    
-    int result = self.unregisterFn(CGMainDisplayID(), CGMainDisplayID());
-    if (result != 0) {
-        NSLog(@"⚠️ Failed to unregister (code %d)", result);
-    } else {
-        NSLog(@"✅ Unregistered from brightness notifications");
-        self.isListening = NO;
-    }
-    
     self.getBrightnessFn = NULL;
     self.setBrightnessFn = NULL;
-    self.registerFn = NULL;
-    self.unregisterFn = NULL;
     
     if (self.displayServicesHandle) {
-        // Not strictly required, but if you want to clean up:
-        // dlclose(self.displayServicesHandle);
         self.displayServicesHandle = NULL;
+    }
+}
+
+- (void)handleMediaKeyCode:(int)keyCode {
+    switch (keyCode) {
+        case NX_KEYTYPE_BRIGHTNESS_DOWN:
+        case NX_KEYTYPE_BRIGHTNESS_UP:
+        case NX_KEYTYPE_ILLUMINATION_DOWN:
+        case NX_KEYTYPE_ILLUMINATION_UP: {
+            NSLog(@"🔆 Brightness key pressed: %d", keyCode);
+            
+            [self updateCurrentBrightness];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"TriggerBrightnessHUD"
+                                                                    object:nil
+                                                                  userInfo:nil];
+            });
+            
+            [[UIManagerBridge shared] triggerBrightnessLayout];
+            [[UIManagerBridge shared] setBrightness:[self getCurrentBrightnessLevel]];
+            
+            break;
+        }
+        default:
+            break;
     }
 }
 

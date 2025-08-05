@@ -1,33 +1,34 @@
 //
-//  VolumeNumber.swift
+//  BrightnessNumber.swift
 //  ComfyNotch
 //
-//  Created by Aryan Rogye on 8/4/25.
+//  Created by Aryan Rogye on 8/5/25.
 //
 
 import SwiftUI
+import Combine
 
-struct VolumeNumber: View, Widget {
+struct BrightnessNumber: View, Widget {
     
-    var name: String = "Volume Number"
+    var name: String = "Brightness Number"
     var alignment: WidgetAlignment? = .left
     var swiftUIView: AnyView {
         AnyView(self)
     }
     
-    @ObservedObject var volumeManager: VolumeManager
+    @ObservedObject var uiManagerBridge = UIManagerBridge.shared
     
-    @State private var displayedVolume: Float = 0
+    @State private var displayBrightness: Float = 0
     @State private var animationTimer: Timer?
     
     var body: some View {
-        Text("\(Int(displayedVolume * 100))%")
+        Text("\(Int(displayBrightness * 100))%")
             .font(.system(size: 12, weight: .regular, design: .default))
             .padding([.top, .leading], 4)
             .onAppear {
-                displayedVolume = volumeManager.currentVolume
+                displayBrightness = uiManagerBridge.brightness
             }
-            .onChange(of: volumeManager.currentVolume) { _, newValue in
+            .onChange(of: uiManagerBridge.brightness) { _, newValue in
                 animateVolumeChange(to: newValue)
             }
     }
@@ -36,7 +37,7 @@ struct VolumeNumber: View, Widget {
         // Cancel any existing animation
         animationTimer?.invalidate()
         
-        let startValue = displayedVolume
+        let startValue = displayBrightness
         let difference = targetValue - startValue
         let duration: TimeInterval = 0.1 // Total animation duration
         let frameRate: TimeInterval = 1.0 / 60.0 // 60 FPS
@@ -51,10 +52,10 @@ struct VolumeNumber: View, Widget {
             // Use easing function for smoother animation
             let easedProgress = easeOut(progress)
             
-            displayedVolume = startValue + difference * easedProgress
+            displayBrightness = startValue + difference * easedProgress
             
             if currentFrame >= totalFrames {
-                displayedVolume = targetValue // Ensure we end exactly at target
+                displayBrightness = targetValue // Ensure we end exactly at target
                 timer.invalidate()
                 animationTimer = nil
             }

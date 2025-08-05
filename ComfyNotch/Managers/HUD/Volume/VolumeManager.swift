@@ -9,7 +9,6 @@ import AppKit
 import AVFoundation
 
 final class VolumeManager: ObservableObject {
-    static let shared = VolumeManager()
     
     @Published var currentVolume: Float = 0
     

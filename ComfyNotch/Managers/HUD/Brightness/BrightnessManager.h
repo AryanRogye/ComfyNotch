@@ -18,6 +18,7 @@
 
 - (void)start;
 - (void)stop;
+- (void)handleMediaKeyCode:(int)keyCode;
 - (void)setBrightness:(float)level;
 - (float)getCurrentBrightnessLevel;
 - (void)updateCurrentBrightness;

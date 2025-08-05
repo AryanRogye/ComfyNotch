@@ -172,7 +172,10 @@ class UIManager: ObservableObject {
         }
     }
     
+    private var brightnessTimer: Timer?
     private var volumeTimer: Timer?
+    
+    private var isShowingBrightness: Bool = false
     private var isShowingVolume: Bool = false
     
     private func startVolumeTimer() {
@@ -188,15 +191,35 @@ class UIManager: ObservableObject {
         }
     }
     
+    private func startBrightnessTimer() {
+        brightnessTimer?.invalidate()
+        brightnessTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { [weak self] _ in
+            guard let self = self else { return }
+            self.isShowingBrightness = false
+            
+            if self.panelState == .closed {
+                self.applyOpeningLayout()
+                self.applyCompactWidgetLayout()
+            }
+        }
+    }
+    
     public func applyVolumeLayout() {
         guard self.panelState == .closed else { return }
-        guard !isShowingVolume else {
+        
+        if isShowingBrightness {
+            brightnessTimer?.invalidate()
+            isShowingBrightness = false
+        }
+        
+        if isShowingVolume {
             startVolumeTimer()
             return
         }
         
-        self.applyOpeningLayout()
         self.isShowingVolume = true
+        self.applyOpeningLayout()
+        
         DispatchQueue.main.async {
             withAnimation(Anim.spring) {
                 self.compactWidgetStore.applyLayout(for: .volume)
@@ -207,6 +230,31 @@ class UIManager: ObservableObject {
         startVolumeTimer()
     }
     
+    public func applyBrightnessLayout() {
+        guard self.panelState == .closed else { return }
+        
+        if isShowingVolume {
+            volumeTimer?.invalidate()
+            isShowingVolume = false
+        }
+        
+        if isShowingBrightness {
+            startBrightnessTimer()
+            return
+        }
+        
+        self.isShowingBrightness = true
+        self.applyOpeningLayout()
+        
+        DispatchQueue.main.async {
+            withAnimation(Anim.spring) {
+                self.compactWidgetStore.applyLayout(for: .brightness)
+                self.expandedWidgetStore.applyLayout(for: .brightness)
+            }
+        }
+        
+        startBrightnessTimer()
+    }
     
     
     // MARK: - Utility Methods
@@ -243,5 +291,20 @@ class UIManager: ObservableObject {
         
         /// Make sure fallback height is greater than 0 or go to the fallback 40
         return fallbackHeight > 0 ? fallbackHeight : 40
+    }
+}
+
+@objc class UIManagerBridge: NSObject, ObservableObject {
+    @objc static let shared = UIManagerBridge()
+    @Published var brightness: Float = 0
+    
+    @objc func triggerBrightnessLayout() {
+        UIManager.shared.applyBrightnessLayout()
+    }
+    
+    @objc func setBrightness(_ brightness: Float) {
+        DispatchQueue.main.async {
+            self.brightness = brightness
+        }
     }
 }

@@ -7,12 +7,39 @@
 
 import AppKit
 import Cocoa
+import SwiftUI
 
 final class MediaKeyInterceptor {
-    private var eventTap: CFMachPort?
     
+    private var eventTap: CFMachPort?
+    private let volumeManager = VolumeManager()
+    
+    // Static registry for the active interceptor
+    private static weak var activeInterceptor: MediaKeyInterceptor?
+
     func start() {
+        
+        /// Make Sure no other instance is active but this one
+        guard MediaKeyInterceptor.activeInterceptor == nil else {
+            print("⚠️ Another MediaKeyInterceptor is already running.")
+            return
+        }
+        
+        // Register this instance as the active one
+        MediaKeyInterceptor.activeInterceptor = self
+        
         startEventTap()
+        
+        /// Assign UI the Views
+        let volumeNumber = VolumeNumber(volumeManager: volumeManager)
+        
+        UIManager.shared.compactWidgetStore.setVolumeWidgets(icon: VolumeIcon(), number: volumeNumber)
+        UIManager.shared.compactWidgetStore.setBrightnessWidgets(icon: BrightnessIcon(), number: BrightnessNumber())
+        
+        /// Start Volume Manager
+        volumeManager.start()
+        /// Start the Brightness Manager
+        BrightnessManager.sharedInstance().start()
     }
     
     func stop() {
@@ -20,16 +47,25 @@ final class MediaKeyInterceptor {
             CGEvent.tapEnable(tap: tap, enable: false)
             eventTap = nil
         }
+        
+        // Unregister when stopping
+        if MediaKeyInterceptor.activeInterceptor === self {
+            MediaKeyInterceptor.activeInterceptor = nil
+        }
+        
+        UIManager.shared.compactWidgetStore.removeVolumeWidgets()
+        UIManager.shared.compactWidgetStore.removeBrightnessWidgets()
+
+        volumeManager.stop()
+        BrightnessManager.sharedInstance().stop()
     }
     
     private func startEventTap() {
-        UIManager.shared.compactWidgetStore.setVolumeWidgets(icon: VolumeIcon(), number: VolumeNumber())
         let mask = CGEventMask(1 << 14)
         
-        
+        // Static callback function - no captures
         let callback: CGEventTapCallBack = { _, _, event, _ in
             guard let nsEvent = NSEvent(cgEvent: event) else { return Unmanaged.passRetained(event) }
-            
             guard nsEvent.subtype.rawValue == 8 else { return Unmanaged.passRetained(event) }
             
             let keyCode = ((nsEvent.data1 & 0xFFFF0000) >> 16)
@@ -37,7 +73,9 @@ final class MediaKeyInterceptor {
             let keyState = ((keyFlags & 0xFF00) >> 8) == 0xA
             
             guard keyState else { return Unmanaged.passRetained(event) }
-            VolumeManager.shared.handleMediaKeyCode(keyCode)
+            
+            // Dispatch to the active interceptor
+            MediaKeyInterceptor.activeInterceptor?.handleMediaKey(keyCode: keyCode)
             
             return Unmanaged.passRetained(event)
         }
@@ -60,5 +98,11 @@ final class MediaKeyInterceptor {
         CGEvent.tapEnable(tap: tap, enable: true)
         
         print("✅ CGEventTap started")
+    }
+    
+    // Instance method to handle the media key
+    private func handleMediaKey(keyCode: Int) {
+        volumeManager.handleMediaKeyCode(keyCode)
+        BrightnessManager.sharedInstance().handleMediaKeyCode(Int32(keyCode))
     }
 }

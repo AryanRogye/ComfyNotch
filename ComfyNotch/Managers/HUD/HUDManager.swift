@@ -38,16 +38,10 @@ final class HUDManager {
     private func realStart() {
         /// Start The Media Key Interceptor
         mediaKeyInterceptor.start()
-        /// Start Volume Manager
-        VolumeManager.shared.start()
-        /// Start the Brightness Manager
-        BrightnessWatcher.shared.start()
     }
     
     public func stop() {
         mediaKeyInterceptor.stop()
-        VolumeManager.shared.stop()
-        BrightnessWatcher.shared.stop()
     }
     
     func openAccessibilitySettings() {
