@@ -48,7 +48,6 @@ struct FileTrayView: View {
             }
         }
         .environmentObject(viewModel)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .animation(
             .easeInOut(duration: uiManager.panelState == .open ? 2 : 0.1),
             value: uiManager.panelState == .open

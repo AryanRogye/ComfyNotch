@@ -20,11 +20,15 @@ class ScrollManager: ObservableObject {
     let scrollHandler = ScrollHandler()
     
     @Published var notchSize: (width: CGFloat, height: CGFloat) = (.zero, .zero)
+    @Published var notchRadius: (topRadius: CGFloat, bottomRadius: CGFloat) = (8, 13)
     
     let uiManager = UIManager.shared
     var scrollController = ScrollController.new
     
     private var cancellables = Set<AnyCancellable>()
+    
+    let settings = SettingsModel.shared
+    
     
     init() {
         notchSize = (width: getNotchWidth(), height: getNotchHeight())
@@ -73,7 +77,7 @@ class ScrollManager: ObservableObject {
         case .old: break
         }
     }
-
+    
     public func peekClose() {
         switch scrollController {
         case .new: closeFull()
@@ -91,9 +95,15 @@ class ScrollManager: ObservableObject {
         isPeekingOpen = true
         defer { isPeekingOpen = false }
         
+        let targetWidth = self.getNotchWidth() + 70
+        let targetHeight = self.getNotchHeight() + height
+        
+        guard self.notchSize.width != targetWidth else { return }
+        guard self.notchSize.height != targetHeight else { return }
+        
         withAnimation(.spring(response: 0.4, dampingFraction: 0.75, blendDuration: 0.1)) {
-            self.notchSize.width = self.getNotchWidth() + 70
-            self.notchSize.height = self.notchSize.height + height
+            self.notchSize.width = targetWidth
+            self.notchSize.height = targetHeight
         }
     }
     
@@ -105,8 +115,9 @@ class ScrollManager: ObservableObject {
         
         uiManager.applyOpeningLayout()
         withAnimation(.spring(response: 0.4, dampingFraction: 0.75, blendDuration: 0.1)) {
-            notchSize.width     = 300
+            notchSize.width     = settings.notchMaxWidth
             notchSize.height    = self.getMaxPanelHeight()
+            self.notchRadius.bottomRadius = 15
         }
         uiManager.applyExpandedWidgetLayout()
         uiManager.panelState = .open
@@ -117,11 +128,12 @@ class ScrollManager: ObservableObject {
         if isClosingFull { return }
         isClosingFull = true
         defer { isClosingFull = false }
-
+        
         uiManager.applyOpeningLayout()
         withAnimation(.easeInOut(duration: 0.25)) {
             self.notchSize.width = self.getNotchWidth()
             self.notchSize.height = self.getNotchHeight()
+            self.notchRadius.bottomRadius = 13
         }
         uiManager.panelState = .closed
         
@@ -138,9 +150,12 @@ class ScrollManager: ObservableObject {
         isExpandingWidth = true
         defer { isExpandingWidth = false }
         
+        let targetWidth = self.getNotchWidth() + 70
+        guard self.notchSize.width != targetWidth else { return }
+        
         uiManager.applyOpeningLayout()
         withAnimation(.easeInOut(duration: 0.25)) {
-            self.notchSize.width = self.getNotchWidth() + 70
+            self.notchSize.width = targetWidth
         }
         uiManager.applyCompactWidgetLayout()
     }
