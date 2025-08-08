@@ -40,8 +40,19 @@ class ComfyNotchViewModel: ObservableObject {
     let notchStateManager = NotchStateManager.shared
     var fileDropManager :FileDropManager? = nil
     
+    
+    @Published var isHoveringOverNotch: Bool = false
+    
     public func assignFileDropManager(fileDropManager: FileDropManager) {
         self.fileDropManager = fileDropManager
+    }
+    
+    public func handleHover(_ hovering: Bool) {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.75, blendDuration: 0.1)) {
+            self.isHoveringOverNotch = hovering
+            && uiManager.panelState == .closed
+            && !AudioManager.shared.nowPlayingInfo.isPlaying
+        }
     }
     
     public func handleScrollDown(translation: CGFloat, phase: NSEvent.Phase) {
@@ -59,6 +70,7 @@ class ComfyNotchViewModel: ObservableObject {
         switch phase {
         case .ended:
             if translation > threshold {
+                self.isHoveringOverNotch = false
                 scrollManager.closeFull()
             }
         default: break
@@ -116,15 +128,19 @@ struct ComfyNotchView: View {
     var body: some View {
         VStack {
             ZStack(alignment: .top) {
+                
                 // BACKGROUND LAYER – Hover Detection Only
                 Color.clear
                     .frame(
                         width: scrollManager.notchSize.width + 300,
                         height: scrollManager.notchSize.height + 300
                     )
-                    .border(.red, width: 1)
+#if DEBUG
+                    .border(.red, width: VIEW_DEBUG_SPACING ? 1 : 0)
+#endif
                     .contentShape(Rectangle())
                     .onHover { isHovering = $0 }
+                
                 
                 // FOREGROUND LAYER – Actual UI
                 HStack(alignment: .top) {
@@ -312,15 +328,15 @@ struct ComfyNotchView: View {
                 bottomRadius: scrollManager.notchRadius.bottomRadius
             )
         )
-//        // MARK: - Hover OFF Detection
-//        .overlay(alignment: .top) {
-//            Color.white(.opacity(0.001))
-//                .padding(300)
-//                .border(.red, width: 1)
-//                .onHover { inside in
-//                    isHovering = inside
-//                }
-//        }
+        .scaleEffect(
+            x: viewModel.isHoveringOverNotch ? 1.08 : 1.0,
+            y: viewModel.isHoveringOverNotch ? 1.05 : 1.0,
+            anchor: .top
+        )
+        .shadow(radius: viewModel.isHoveringOverNotch ? 8 : 0)
+        .animation(.spring(response: 0.4, dampingFraction: 0.75, blendDuration: 0.1), value: viewModel.isHoveringOverNotch)
+        
+        // MARK: - Hover Off Detection
         .onChange(of: isHovering) { _, isHovering in
             if uiManager.panelState == .open && !isHovering && !isOpeningNotchWithButton {
                 scrollManager.closeFull()
@@ -354,6 +370,9 @@ struct ComfyNotchView: View {
                 viewModel.handleDrop()
             }
         }
+        .onHover {
+            viewModel.handleHover($0)
+        }
     }
     
     @State private var isHovering: Bool = false
@@ -366,6 +385,7 @@ struct ComfyNotchView: View {
         if notchStateManager.currentPanelState == .home {
             HomeNotchView()
                 .environmentObject(bigWidgetStore)
+                .frame(width: scrollManager.notchSize.width, height: scrollManager.notchSize.height - scrollManager.getNotchHeight())
                 .padding(.horizontal, 8)
         }
         

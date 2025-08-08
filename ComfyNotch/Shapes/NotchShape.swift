@@ -22,7 +22,7 @@ struct ComfyNotchShape: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
         
-        // Start at top-left corner
+        // MARK: - Top Left Corner
         path.move(to: CGPoint(x: rect.minX, y: rect.minY))
         
         // Top-left rounded corner (inward curve)
@@ -34,22 +34,18 @@ struct ComfyNotchShape: Shape {
         // Left vertical line down to bottom notch area
         path.addLine(to: CGPoint(x: rect.minX + topRadius, y: rect.maxY - bottomRadius * 1.5))
         
-        // Bottom-left notch - more organic curve with wider extension
-        // First control point creates the initial outward bulge
-        path.addCurve(
+        // MARK: - Bottom Left Notch
+        path.addQuadCurve(
             to: CGPoint(x: rect.minX + topRadius + bottomRadius * 2.2, y: rect.maxY),
-            control1: CGPoint(x: rect.minX + topRadius, y: rect.maxY - bottomRadius * 0.3),
-            control2: CGPoint(x: rect.minX + topRadius + bottomRadius * 0.8, y: rect.maxY)
+            control: CGPoint(x: rect.minX + topRadius, y: rect.maxY)
         )
-        
         // Bottom horizontal line (shorter to account for wider curves)
         path.addLine(to: CGPoint(x: rect.maxX - topRadius - bottomRadius * 2.2, y: rect.maxY))
         
         // Bottom-right notch - matching organic curve
-        path.addCurve(
+        path.addQuadCurve(
             to: CGPoint(x: rect.maxX - topRadius, y: rect.maxY - bottomRadius * 1.5),
-            control1: CGPoint(x: rect.maxX - topRadius - bottomRadius * 0.8, y: rect.maxY),
-            control2: CGPoint(x: rect.maxX - topRadius, y: rect.maxY - bottomRadius * 0.3)
+            control: CGPoint(x: rect.maxX - topRadius, y: rect.maxY)
         )
         
         // Right vertical line up to top corner area

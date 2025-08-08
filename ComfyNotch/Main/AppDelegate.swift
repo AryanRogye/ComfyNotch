@@ -74,9 +74,9 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         DisplayHandler.shared.start()
         
 //        /// Start the Scroll handler later on
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-//            ScrollHandler.shared.re_align_notch()
-//        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            ScrollManager.shared.re_align_notch()
+        }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             UIManager.shared.applyCompactWidgetLayout()
