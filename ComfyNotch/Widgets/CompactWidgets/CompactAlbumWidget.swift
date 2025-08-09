@@ -17,7 +17,7 @@ struct CompactAlbumWidget: View, Widget {
     
     @ObservedObject var model: MusicPlayerWidgetModel = .shared
     @ObservedObject var notchStateManager: NotchStateManager = .shared
-    var scrollManager = ScrollHandler.shared
+    @ObservedObject var scrollManager = ScrollManager.shared
     
     private var animationStiffness: CGFloat = 300
     private var animationDamping: CGFloat = 15
@@ -98,7 +98,7 @@ struct CompactAlbumWidget: View, Widget {
     }
     
     func widgetSize() -> WidgetSizeConfig {
-        let height = UIManager.shared.getNotchHeight()
+        let height = ScrollManager.shared.getNotchHeight()
         let w = height * 0.65
         let h = height * 0.65
         

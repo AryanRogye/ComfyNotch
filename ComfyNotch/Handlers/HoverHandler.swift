@@ -76,7 +76,7 @@ final class HoverHandler: ObservableObject {
                 target.currentPopInPresentationState = .none
             }
             self.scaleHoverOverLeftItems = false
-            ScrollHandler.shared.peekClose()
+            ScrollManager.shared.peekClose()
         }
     }
     
@@ -117,7 +117,7 @@ final class HoverHandler: ObservableObject {
                             withAnimation(.easeOut(duration: 0.2)) {
                                 /// Check again
                                 if !self.isHoveringOverLeft {
-                                    ScrollHandler.shared.peekClose()
+                                    ScrollManager.shared.peekClose()
                                     return
                                 }
                                 if UIManager.shared.panelState != .open {
@@ -129,7 +129,7 @@ final class HoverHandler: ObservableObject {
                         NSHapticFeedbackManager.defaultPerformer.perform(.generic, performanceTime: .now)
 
                         /// Let the notch peek open just a tiny bit, 35
-                        ScrollHandler.shared.peekOpen(withHeight: 35)
+                        ScrollManager.shared.peekOpen(withHeight: 35)
                         /// this will let the items on the left and right scale a tiny bit
                         self.scaleHoverOverLeftItems = true
                     }
