@@ -73,8 +73,8 @@ enum LogSource: String {
 func debugLog(_ message: @autoclosure () -> Any, from: LogSource? = nil) {
 #if DEBUG
     let silencedSources: Set<LogSource> = [
-        .panels,
-//        .display,
+//        .panels,
+        .display,
         .ui,
         .mrmController,
         .aSController,

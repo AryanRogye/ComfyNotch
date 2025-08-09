@@ -27,23 +27,23 @@ class PanelProximityHandler {
         guard let panel = panel else { return }
         
         let mouse = NSEvent.mouseLocation
-//        let frame = panel.frame
+        //        let frame = panel.frame
         let dx = mouse.x - panel.frame.midX
         let dy = mouse.y - panel.frame.midY
         let dist = sqrt(dx * dx + dy * dy)
         
-//        // MARK: Hover logic (fires only on state change)
-//        if frame.contains(mouse) {
-//            if !isHovering {
-//                isHovering = true
-//                ScrollHandler.shared.hover(true)
-//            }
-//        } else {
-//            if isHovering {
-//                isHovering = false
-//                ScrollHandler.shared.hover(false)
-//            }
-//        }
+        //        // MARK: Hover logic (fires only on state change)
+        //        if frame.contains(mouse) {
+        //            if !isHovering {
+        //                isHovering = true
+        //                ScrollHandler.shared.hover(true)
+        //            }
+        //        } else {
+        //            if isHovering {
+        //                isHovering = false
+        //                ScrollHandler.shared.hover(false)
+        //            }
+        //        }
         
         // MARK: Auto-close if panel is open and cursor far away
         if UIManager.shared.panelState == .open, dist > 300, !SettingsModel.shared.isSettingsWindowOpen {

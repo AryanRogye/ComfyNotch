@@ -30,7 +30,7 @@ class ScrollHandler : ObservableObject {
     // MARK: - Open Full Panel
     /// This animation makes sure that it just "expands"
     
-    func re_align_notch() {
+    public func re_align_notch() {
         guard let panel = UIManager.shared.smallPanel else { return }
         guard UIManager.shared.panelState == .closed else { return }
         

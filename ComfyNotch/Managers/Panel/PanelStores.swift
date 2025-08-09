@@ -249,6 +249,7 @@ class CompactWidgetsStore: PanelManager, ObservableObject {
             self.showWidget(named: "Volume Icon")
             self.showWidget(named: "Volume Number")
         case .brightness:
+            print("Showing Brightness")
             self.hideWidget(named: "AlbumWidget")
             self.hideWidget(named: "MovingDotsWidget")
             self.hideWidget(named: "MovingBars")
@@ -263,21 +264,25 @@ class CompactWidgetsStore: PanelManager, ObservableObject {
     }
     
     public func setVolumeWidgets(icon: VolumeIcon, number: VolumeNumber) {
+        debugLog("Assigned Volume Widgets", from: .panels)
         addWidget(icon)
         addWidget(number)
     }
     
     public func setBrightnessWidgets(icon: BrightnessIcon, number: BrightnessNumber) {
+        debugLog("Assigned Brightness Widgets", from: .panels)
         addWidget(icon)
         addWidget(number)
     }
     
     public func removeVolumeWidgets() {
+        debugLog("Removed Volume Widgets", from: .panels)
         removeWidget(named: "Volume Icon")
         removeWidget(named: "Volume Number")
     }
     
     public func removeBrightnessWidgets() {
+        debugLog("Removed Brightness Widgets", from: .panels)
         removeWidget(named: "Brightness Icon")
         removeWidget(named: "Brightness Number")
     }

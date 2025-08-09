@@ -28,7 +28,7 @@ class ScrollManager: ObservableObject {
     let uiManager = UIManager.shared
     var scrollController = ScrollController.new
     
-    private var cancellables = Set<AnyCancellable>()
+    private var artWatcher: AnyCancellable?
     
     let settings = SettingsModel.shared
     
@@ -39,25 +39,38 @@ class ScrollManager: ObservableObject {
     
     init() {
         notchSize = (width: getNotchWidth(), height: getNotchHeight())
-        
-        AudioManager.shared.nowPlayingInfo.$artworkImage
-            .sink { [weak self] image in
+        startArtWatch()
+    }
+    
+    public func startArtWatch() {
+        guard artWatcher == nil else { return }
+
+        artWatcher = AudioManager.shared.nowPlayingInfo.$artworkImage
+            .map { $0 != nil }
+            .removeDuplicates()
+            .debounce(for: .milliseconds(250), scheduler: RunLoop.main) // tame flaps
+            .receive(on: RunLoop.main)
+            .sink { [weak self] hasArt in
                 guard let self = self else { return }
-                if self.isOpeningFull || self.isClosingFull { return }
+                guard !self.isOpeningFull, !self.isClosingFull else { return }
+                guard self.uiManager.panelState == .closed else { return }
                 
-                if image != nil {
-                    if self.uiManager.panelState == .closed {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                            self.expandWidth()
-                        }
+                if hasArt {
+                    // you had a 0.4s delay—keep it if you want the animation timing
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                        self.uiManager.applyOpeningLayout()
+                        self.expandWidth()
+                        self.uiManager.applyCompactWidgetLayout()
                     }
                 } else {
-                    if self.uiManager.panelState == .closed {
-                        self.closeFull()
-                    }
+                    self.closeFull()
                 }
             }
-            .store(in: &cancellables)
+    }
+    
+    public func stopArtWatch() {
+        artWatcher?.cancel()
+        artWatcher = nil
     }
     
     public func getMaxPanelHeight() -> CGFloat {
@@ -65,21 +78,22 @@ class ScrollManager: ObservableObject {
     }
     
     public func openFull() {
+        stopArtWatch()
         switch scrollController {
         case .new: openFullNew()
         case .old: break
         }
     }
     
-    public func closeFull() {
+    public func closeFull(calledBy: String = "") {
         switch scrollController {
         case .new: closeFullNew()
         case .old: break
         }
+        startArtWatch()
     }
     
     public func peekOpen(withHeight: CGFloat = 50) {
-        print("Called Peek Open")
         switch scrollController {
         case .new: peekOpenNew(height: withHeight)
         case .old: break
@@ -87,16 +101,8 @@ class ScrollManager: ObservableObject {
     }
     
     public func peekClose() {
-        print("Called Peek Close")
         switch scrollController {
         case .new: closeFull()
-        case .old: break
-        }
-    }
-    
-    public func re_align_notch() {
-        switch scrollController {
-        case .new: re_align_notch_new()
         case .old: break
         }
     }
@@ -111,7 +117,7 @@ extension ScrollManager {
            let topRightSpace: CGFloat = screen.auxiliaryTopRightArea?.width {
             
             let width = (screen.frame.width - topLeftSpace - topRightSpace) + 16
-            print("Using \(width)")
+            print("Notch Width: \(width)")
             return width
         }
         
@@ -172,6 +178,7 @@ extension ScrollManager {
         }
         uiManager.applyExpandedWidgetLayout()
         uiManager.panelState = .open
+        
     }
     
     /*
@@ -195,14 +202,15 @@ extension ScrollManager {
         }
         uiManager.panelState = .closed
         
-        if AudioManager.shared.nowPlayingInfo.isPlaying {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                self.expandWidth()
-            }
+        
+        if AudioManager.shared.nowPlayingInfo.artworkImage != nil {
+            self.uiManager.applyOpeningLayout()
+            self.expandWidth()
+            self.uiManager.applyCompactWidgetLayout()
         }
     }
     
-    private func expandWidth() {
+    public func expandWidth() {
         
         if isExpandingWidth { return }
         isExpandingWidth = true
@@ -211,37 +219,8 @@ extension ScrollManager {
         let targetWidth = self.getNotchWidth() + 70
         guard self.notchSize.width != targetWidth else { return }
         
-        uiManager.applyOpeningLayout()
         withAnimation(.easeInOut(duration: 0.25)) {
             self.notchSize.width = targetWidth
-        }
-        uiManager.applyCompactWidgetLayout()
-    }
-    
-    private func re_align_notch_new() {
-        guard let panel = uiManager.smallPanel else { return }
-        guard uiManager.panelState == .closed else { return }
-        
-        let screen = DisplayManager.shared.selectedScreen!
-        let id = screen.displayID
-        
-        /// we want to look for the screen with the ID cuz the frame is not logging
-        /// that its different, I had the resolution 1800x1169 and changed to 1512x982
-        /// but the frame was still logging 1800x1169
-        
-        guard let screen = NSScreen.screens.first(where: {
-            $0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID == id
-        }) else {
-            debugLog("❌ Could not find screen with displayID \(String(describing: id))", from: .scroll)
-            return
-        }
-        
-        DispatchQueue.main.async {
-            DisplayManager.shared.selectedScreen = screen
-        }
-        
-        if !panel.frame.equalTo(screen.frame) {
-            panel.setFrame(screen.frame, display: true)
         }
     }
 }

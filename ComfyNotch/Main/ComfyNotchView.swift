@@ -60,6 +60,9 @@ class ComfyNotchViewModel: ObservableObject {
         let threshold : CGFloat = notchStateManager.currentPanelState == .popInPresentation ? 420 : 250
         
         if translation > threshold {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.75, blendDuration: 0.1)) {
+                self.isHoveringOverNotch = false
+            }
             scrollManager.openFull()
         }
     }

@@ -41,6 +41,7 @@ class UIManager: ObservableObject {
     let compactWidgetStore = CompactWidgetsStore()
     let expandedWidgetStore = ExpandedWidgetsStore()
     
+    var spaceManager : ComfyNotchSpaceManager?
     
     // MARK: - Main Panel Components
     var smallPanel: NSPanel!
@@ -52,6 +53,10 @@ class UIManager: ObservableObject {
     
     // TODO: look into this if it is really needed
     var startPanelYOffset: CGFloat = 0
+    
+    public func assignSpaceManager(_ spaceManager: ComfyNotchSpaceManager) {
+        self.spaceManager = spaceManager
+    }
     
     /**
      * Initializes the UI manager and sets up initial dimensions.
@@ -66,7 +71,9 @@ class UIManager: ObservableObject {
      * Sets up both small and big panels with their initial configurations.
      */
     func start() {
+        guard spaceManager != nil else { return }
         setupSmallPanel()
+        spaceManager?.putPanelInSpace(smallPanel)
     }
     
     // MARK: - Construction
@@ -176,6 +183,7 @@ class UIManager: ObservableObject {
             if self.panelState == .closed {
                 self.applyOpeningLayout()
                 self.applyCompactWidgetLayout()
+                ScrollManager.shared.closeFull()
             }
         }
     }
@@ -189,6 +197,7 @@ class UIManager: ObservableObject {
             if self.panelState == .closed {
                 self.applyOpeningLayout()
                 self.applyCompactWidgetLayout()
+                ScrollManager.shared.closeFull()
             }
         }
     }
@@ -211,6 +220,7 @@ class UIManager: ObservableObject {
         
         DispatchQueue.main.async {
             withAnimation(Anim.spring) {
+                ScrollManager.shared.expandWidth()
                 self.compactWidgetStore.applyLayout(for: .volume)
                 self.expandedWidgetStore.applyLayout(for: .volume)
             }
@@ -237,6 +247,7 @@ class UIManager: ObservableObject {
         
         DispatchQueue.main.async {
             withAnimation(Anim.spring) {
+                ScrollManager.shared.expandWidth()
                 self.compactWidgetStore.applyLayout(for: .brightness)
                 self.expandedWidgetStore.applyLayout(for: .brightness)
             }
@@ -280,6 +291,40 @@ class UIManager: ObservableObject {
         
         /// Make sure fallback height is greater than 0 or go to the fallback 40
         return fallbackHeight > 0 ? fallbackHeight : 40
+    }
+    
+    func re_align_notch() {
+        guard let panel = self.smallPanel else { return }
+        guard panelState == .closed else { return }
+        guard spaceManager != nil else { return }
+        
+        let screen = DisplayManager.shared.selectedScreen!
+        let id = screen.displayID
+        
+        /// we want to look for the screen with the ID cuz the frame is not logging
+        /// that its different, I had the resolution 1800x1169 and changed to 1512x982
+        /// but the frame was still logging 1800x1169
+        
+        guard let screen = NSScreen.screens.first(where: {
+            $0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID == id
+        }) else {
+            debugLog("❌ Could not find screen with displayID \(String(describing: id))", from: .scroll)
+            return
+        }
+        
+        DispatchQueue.main.async {
+            DisplayManager.shared.selectedScreen = screen
+        }
+        
+        if !panel.frame.equalTo(screen.frame) {
+            panel.setFrame(screen.frame, display: true)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                guard let self = self else { return }
+                ScrollManager.shared.closeFull()
+                self.spaceManager?.resetSpace(attaching: panel)
+            }
+        }
     }
 }
 

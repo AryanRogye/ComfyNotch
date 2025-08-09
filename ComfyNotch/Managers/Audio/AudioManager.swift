@@ -16,10 +16,10 @@ import AppKit
 class AudioManager: ObservableObject {
     /// Singleton instance for global access
     static let shared = AudioManager()
-
+    
     /// Published info about the currently playing media
     @Published var nowPlayingInfo: NowPlayingInfo = NowPlayingInfo()
-
+    
     /// Controller for AppleScript-based music control (fallback)
     lazy var appleScriptMusicController: AppleScriptMusicController = {
         AppleScriptMusicController(nowPlayingInfo: self.nowPlayingInfo)
@@ -30,7 +30,7 @@ class AudioManager: ObservableObject {
     }()
     
     private var settings: SettingsModel = .shared
-
+    
     private var timer: Timer?
     /// Optional callback invoked when nowPlayingInfo is updated
     var onNowPlayingInfoUpdated: (() -> Void)?
@@ -44,7 +44,7 @@ class AudioManager: ObservableObject {
     private init() {
         startMediaTimer()
     }
-
+    
     /**
      * Fetches and updates the current playing media information.
      * Tries MediaRemote (Spotify/Apple Music) first, falls back to AppleScript if needed.
@@ -83,7 +83,7 @@ class AudioManager: ObservableObject {
             }
         }
     }
-
+    
     /**
      * Starts a timer to periodically refresh media information (every second).
      * Timer runs in the common run loop mode.
@@ -95,7 +95,7 @@ class AudioManager: ObservableObject {
         }
         RunLoop.main.add(timer!, forMode: .common)
     }
-
+    
     /**
      * Stops the periodic media info update timer.
      */
@@ -103,9 +103,9 @@ class AudioManager: ObservableObject {
         timer?.invalidate()
         timer = nil
     }
-
+    
     // MARK: - Playback Controls
-
+    
     /**
      * Skips to the previous track in the current provider.
      * Checks which provider is active before sending the command.
@@ -118,7 +118,7 @@ class AudioManager: ObservableObject {
             appleScriptMusicController.playPreviousTrack()
         }
     }
-
+    
     /**
      * Skips to the next track in the current provider.
      */
@@ -129,7 +129,7 @@ class AudioManager: ObservableObject {
             appleScriptMusicController.playNextTrack()
         }
     }
-
+    
     /**
      * Toggles play/pause state for the current provider.
      */
@@ -140,7 +140,7 @@ class AudioManager: ObservableObject {
             appleScriptMusicController.togglePlayPause()
         }
     }
-
+    
     /**
      * Seeks to a specific time (in seconds) in the current track.
      * @param time The position (in seconds) to seek to.
@@ -152,7 +152,7 @@ class AudioManager: ObservableObject {
             appleScriptMusicController.playAtTime(to: time)
         }
     }
-
+    
     /**
      * Opens the currently active music provider (Spotify or Music app).
      * If neither is active, does nothing.

@@ -13,6 +13,8 @@ import AppKit
  */
 public class AppDelegate: NSObject, NSApplicationDelegate {
     private var panelProximityHandler: PanelProximityHandler?
+    private var comfyNotchSpaceManager: ComfyNotchSpaceManager?
+    
     /**
      * Called when the application finishes launching.
      * Initializes core components and sets up the UI infrastructure.
@@ -34,7 +36,11 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             NSKeyedUnarchiver.setClass(NSAttributedString.self, forClassName: "NSConcreteAttributedString")
             NSKeyedUnarchiver.setClass(NSAttributedString.self, forClassName: "NSFrozenAttributedString")
         }()
-        /// Wanna Request Access To Acessibility
+        self.comfyNotchSpaceManager = ComfyNotchSpaceManager()
+        guard self.comfyNotchSpaceManager != nil else { return }
+        
+        UIManager.shared.assignSpaceManager(self.comfyNotchSpaceManager!)
+        
         MessagesManager.shared.start()
         
         DispatchQueue.main.async {
@@ -56,11 +62,9 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     private func launchComfyNotch() {
         /// Start A Display Manager, this will be used by the ui manager
         DisplayManager.shared.start()
+        
         /// Start the panels
         UIManager.shared.start()
-        
-        // Proximity Handler for the Big Panel
-//        self.panelProximityHandler = PanelProximityHandler()
         
         /// Begin The Clipboard Manger
         ClipboardManager.shared.start()
@@ -73,9 +77,8 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         // Any Screen errors that may happen, is handled in here
         DisplayHandler.shared.start()
         
-//        /// Start the Scroll handler later on
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            ScrollManager.shared.re_align_notch()
+            UIManager.shared.re_align_notch()
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
