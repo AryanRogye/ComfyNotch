@@ -123,7 +123,6 @@ struct CurrentWidgetsDisplayView: View {
             /// Notch Shape
             VStack(spacing: 0) {
                 HStack {
-                    /// TODO: ADD Fake Top Notch View
                 }
                 .frame(maxWidth: .infinity, maxHeight: 38)
                 //                .border(Color.white, width: 1)

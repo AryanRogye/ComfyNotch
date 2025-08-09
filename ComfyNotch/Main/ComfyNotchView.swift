@@ -341,7 +341,8 @@ struct ComfyNotchView: View {
         
         // MARK: - Hover Off Detection
         .onChange(of: isHovering) { _, isHovering in
-            if uiManager.panelState == .open && !isHovering && !isOpeningNotchWithButton {
+            if uiManager.panelState == .open && !isHovering {
+                // TODO: A bit buggy, needs to be fixed,
                 scrollManager.closeFull()
             }
         }
@@ -352,16 +353,6 @@ struct ComfyNotchView: View {
         }
         .panGesture(direction: .up) { translation, phase in
             viewModel.handleScrollUp(translation: translation, phase: phase)
-        }
-        
-        .contextMenu {
-            Button("Open Notch") {
-                isOpeningNotchWithButton = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    ScrollManager.shared.openFull()
-                    isOpeningNotchWithButton = false
-                }
-            }
         }
         // MARK: - Drop Logic
         .onDrop(of: [UTType.fileURL.identifier, UTType.image.identifier], isTargeted: $fileDropManager.isDroppingFiles) { providers in
@@ -376,10 +367,14 @@ struct ComfyNotchView: View {
         .onHover {
             viewModel.handleHover($0)
         }
+        .onTapGesture {
+            if uiManager.panelState == .closed {
+                viewModel.handleScrollDown(translation: 251, phase: .ended)
+            }
+        }
     }
     
     @State private var isHovering: Bool = false
-    @State private var isOpeningNotchWithButton: Bool = false
     
     /// The expanded view was switched from a switch statement to
     /// if conditionals because I saw CPU lower a TON with it

@@ -28,9 +28,11 @@ struct FileTrayView: View {
     
     @State var showDeleteFileAlert: Bool = false
     @State var currentDeleteFileURL: URL?
-
+    
+    @State private var givenSpace: GivenWidgetSpace = GivenWidgetSpace(w: 0, h: 0)
+    
     var body: some View {
-        VStack(spacing: 0) {
+        HStack(spacing: 0) {
             if uiManager.panelState == .open && !fileDropManager.shouldAutoShowTray
             {
                 Group {
@@ -52,6 +54,10 @@ struct FileTrayView: View {
             .easeInOut(duration: uiManager.panelState == .open ? 2 : 0.1),
             value: uiManager.panelState == .open
         )
+        .frame(width: givenSpace.w, height: givenSpace.h)
+        .onAppear {
+            givenSpace = uiManager.expandedWidgetStore.determineWidthAndHeightForOneWidget()
+        }
     }
     
     private var fileTray: some View {

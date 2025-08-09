@@ -54,7 +54,7 @@ class UIManager: ObservableObject {
     // TODO: look into this if it is really needed
     var startPanelYOffset: CGFloat = 0
     
-    public func assignSpaceManager(_ spaceManager: ComfyNotchSpaceManager) {
+    public func assignSpaceManager(_ spaceManager: ComfyNotchSpaceManager?) {
         self.spaceManager = spaceManager
     }
     
@@ -67,17 +67,23 @@ class UIManager: ObservableObject {
         AudioManager.shared.getNowPlayingInfo() { _ in }
     }
     
-    /**
-     * Sets up both small and big panels with their initial configurations.
+    /*
+     * Sets up small panel with their initial configurations.
+     * And Assigns to the Higher Level Space Manager.
      */
     func start() {
-        guard spaceManager != nil else { return }
         setupSmallPanel()
-        spaceManager?.putPanelInSpace(smallPanel)
+        
+        if let spaceManager = spaceManager {
+            spaceManager.putPanelInSpace(smallPanel)
+        } else {
+            /// Debug Log is too important to hide
+            debugLog("No Space Manager Assigned")
+        }
     }
     
     // MARK: - Construction
-    /**
+    /*
      * Configures the small panel that sits in the notch area.
      * Initializes default widgets and sets up panel properties.
      */
@@ -125,18 +131,6 @@ class UIManager: ObservableObject {
         
         self.logPanelFrame(reason: "Initialized Panel")
     }
-    
-    public func logPanelFrame(reason: String) {
-        debugLog("""
-        📐 \(reason):
-           ⤷ MinX : \(smallPanel.frame.minX)
-           ⤷ MinY : \(smallPanel.frame.minY)
-           ⤷ MaxX : \(smallPanel.frame.maxX)
-           ⤷ MaxY : \(smallPanel.frame.maxY)
-           ⤷ Width  x Height : \(smallPanel.frame.width) x \(smallPanel.frame.height)
-        """, from: .ui)
-    }
-    
     // MARK: - Layout Management
     
     /// Function to wipe EVERYTHING off the screen
@@ -179,7 +173,7 @@ class UIManager: ObservableObject {
         volumeTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { [weak self] _ in
             guard let self = self else { return }
             self.isShowingVolume = false
-
+            
             if self.panelState == .closed {
                 self.applyOpeningLayout()
                 self.applyCompactWidgetLayout()
@@ -268,6 +262,18 @@ class UIManager: ObservableObject {
         debugLog("=====================================================", from: .ui)
     }
     
+    
+    public func logPanelFrame(reason: String) {
+        debugLog("""
+        📐 \(reason):
+           ⤷ MinX : \(smallPanel.frame.minX)
+           ⤷ MinY : \(smallPanel.frame.minY)
+           ⤷ MaxX : \(smallPanel.frame.maxX)
+           ⤷ MaxY : \(smallPanel.frame.maxY)
+           ⤷ Width  x Height : \(smallPanel.frame.width) x \(smallPanel.frame.height)
+        """, from: .ui)
+    }
+
     /**
      * Utility methods for widget management and panel dimensions.
      */
@@ -296,7 +302,6 @@ class UIManager: ObservableObject {
     func re_align_notch() {
         guard let panel = self.smallPanel else { return }
         guard panelState == .closed else { return }
-        guard spaceManager != nil else { return }
         
         let screen = DisplayManager.shared.selectedScreen!
         let id = screen.displayID
@@ -322,7 +327,6 @@ class UIManager: ObservableObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
                 guard let self = self else { return }
                 ScrollManager.shared.closeFull()
-                self.spaceManager?.resetSpace(attaching: panel)
             }
         }
     }

@@ -157,7 +157,6 @@ struct ClosedNotchGeneralSettings: View {
                 in: settings.notchHeightMin...settings.notchHeightMax,
                 label: "Notch Height Fallback"
             )
-            /// TODO: 0 Point is too far to the leftit -m
             
             Text("""
                 Use this value as the notch height when `safeAreaInsets` are unavailable—for example, on Intel Macs without a built‑in notch. It ensures consistent layout by providing a fallback height in points.

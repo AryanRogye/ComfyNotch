@@ -51,6 +51,15 @@ class ExpandedWidgetsStore: PanelManager, ObservableObject {
         
     }
     
+    public func determineWidthAndHeightForOneWidget() -> GivenWidgetSpace {
+        let fullWidth = SettingsModel.shared.notchMaxWidth
+        let numberOfWidgets = 1
+        
+        let w = fullWidth / CGFloat(numberOfWidgets) - 30
+        let h = (ScrollManager.shared.getMaxPanelHeight() - ScrollManager.shared.getNotchHeight()) - 10
+        
+        return (w: w, h: h)
+    }
     public func determineWidthAndHeight() -> GivenWidgetSpace {
         /// Settings Model Has the Full Width
         let fullWidth = SettingsModel.shared.notchMaxWidth
@@ -59,7 +68,7 @@ class ExpandedWidgetsStore: PanelManager, ObservableObject {
         /// Now In This we can determine the width because it will be fullWidth / numberOfWidgets
         /// 10 Padding
         let w = fullWidth / CGFloat(numberOfWidgets) - 30
-        let h = ScrollManager.shared.getMaxPanelHeight() - 20
+        let h = (ScrollManager.shared.getMaxPanelHeight() - ScrollManager.shared.getNotchHeight()) - 10
         
         return (w: w, h: h)
     }

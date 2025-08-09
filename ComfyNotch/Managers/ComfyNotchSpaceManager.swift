@@ -89,10 +89,21 @@ class ComfyNotchSpaceManager {
     
     func resetSpace(attaching panel: NSPanel) {
         DispatchQueue.main.async {
-            self.cgs.destroy(self.space)
-            self.space = self.cgs.newSpace(level: Int32.max)
-            if panel.windowNumber == 0 { panel.orderFrontRegardless() }
-            self.cgs.add(panel, to: self.space)
+            // Remove panel from old space first
+            if panel.windowNumber != 0 {
+                self.cgs.remove(panel, from: self.space)
+            }
+            
+            // Small delay to let the removal complete
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                self.cgs.destroy(self.space)
+                self.space = self.cgs.newSpace(level: Int32.max)
+                
+                if panel.windowNumber == 0 {
+                    panel.orderFrontRegardless()
+                }
+                self.cgs.add(panel, to: self.space)
+            }
         }
     }
 }

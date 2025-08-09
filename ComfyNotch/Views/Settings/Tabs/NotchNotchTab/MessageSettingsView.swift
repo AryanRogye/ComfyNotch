@@ -94,7 +94,6 @@ public struct MessageSettingsView: View {
                 Divider().padding(.bottom, 8)
 
                 VStack {
-                    /// TODO:  show that this is for getting the "last amount" of users
                     ComfySlider(
                         value: $v.messagesHandleLimit,
                         in: 10...100,

@@ -98,7 +98,7 @@ struct CompactAlbumWidget: View, Widget {
     }
     
     func widgetSize() -> WidgetSizeConfig {
-        let height = UIManager.shared.getNotchHeight()
+        let height = ScrollManager.shared.getNotchHeight()
         let w = height * 0.65
         let h = height * 0.65
         

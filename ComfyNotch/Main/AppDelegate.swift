@@ -36,10 +36,10 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             NSKeyedUnarchiver.setClass(NSAttributedString.self, forClassName: "NSConcreteAttributedString")
             NSKeyedUnarchiver.setClass(NSAttributedString.self, forClassName: "NSFrozenAttributedString")
         }()
-        self.comfyNotchSpaceManager = ComfyNotchSpaceManager()
-        guard self.comfyNotchSpaceManager != nil else { return }
         
-        UIManager.shared.assignSpaceManager(self.comfyNotchSpaceManager!)
+        self.comfyNotchSpaceManager = ComfyNotchSpaceManager()
+        
+        UIManager.shared.assignSpaceManager(self.comfyNotchSpaceManager)
         
         MessagesManager.shared.start()
         

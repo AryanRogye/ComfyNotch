@@ -5,7 +5,7 @@ class ScrollHandler : ObservableObject {
     internal let settings: SettingsModel = .shared
     
     // MARK: – Configuration
-    var minPanelHeight: CGFloat = UIManager.shared.getNotchHeight()
+    lazy var minPanelHeight: CGFloat = self.getNotchHeight()
     var maxPanelHeight: CGFloat = 110
     
     var minPanelWidth: CGFloat {
@@ -52,7 +52,7 @@ class ScrollHandler : ObservableObject {
             DisplayManager.shared.selectedScreen = screen
         }
         
-        minPanelHeight = UIManager.shared.getNotchHeight()
+        minPanelHeight = self.getNotchHeight()
         
         /// DEBUG LOG, this is DEBUG DEBUG working
         debugLog("Screen Frame: \(screen.frame)", from: .scrollMajor)
@@ -108,5 +108,22 @@ class ScrollHandler : ObservableObject {
             ctx.allowsImplicitAnimation = true
             animations()
         }, completionHandler: completion)
+    }
+    
+    func getNotchHeight() -> CGFloat {
+        if let screen = DisplayManager.shared.selectedScreen {
+            let safeAreaInsets = screen.safeAreaInsets
+            let calculatedHeight = safeAreaInsets.top
+            
+            /// Only return calculated height if it is greater than 0
+            if calculatedHeight > 0 {
+                return calculatedHeight
+            }
+        }
+        
+        /// If no screen is selected or height is 0, return fallback height
+        let fallbackHeight = SettingsModel.shared.notchMinFallbackHeight
+        /// Make sure fallback height is greater than 0 or go to the fallback 40
+        return fallbackHeight > 0 ? fallbackHeight : 40
     }
 }

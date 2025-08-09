@@ -138,7 +138,7 @@ extension ScrollManager {
         }
         
         /// If no screen is selected or height is 0, return fallback height
-        let fallbackHeight = 38.0
+        let fallbackHeight = SettingsModel.shared.notchMinFallbackHeight
         /// Make sure fallback height is greater than 0 or go to the fallback 40
         return fallbackHeight > 0 ? fallbackHeight : 40
     }
