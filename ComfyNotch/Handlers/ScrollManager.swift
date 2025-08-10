@@ -170,13 +170,11 @@ extension ScrollManager {
         isOpeningFull = true
         defer { isOpeningFull = false }
         
-        uiManager.applyOpeningLayout()
         withAnimation(.spring(response: 0.4, dampingFraction: 0.75, blendDuration: 0.1)) {
             notchSize.width     = settings.notchMaxWidth
             notchSize.height    = self.getMaxPanelHeight()
             self.notchRadius.bottomRadius = 15
         }
-        uiManager.applyExpandedWidgetLayout()
         uiManager.panelState = .open
         
     }
@@ -194,17 +192,18 @@ extension ScrollManager {
         isClosingFull = true
         defer { isClosingFull = false }
         
-        uiManager.applyOpeningLayout()
         withAnimation(.easeInOut(duration: 0.25)) {
-            self.notchSize.width = self.getNotchWidth()
+            if AudioManager.shared.nowPlayingInfo.artworkImage != nil {
+                self.notchSize.width = self.getNotchWidth() + 70
+            } else {
+                self.notchSize.width = self.getNotchWidth()
+            }
             self.notchSize.height = self.getNotchHeight()
             self.notchRadius.bottomRadius = DEFAULT_BOTTOM_RADIUS
         }
         uiManager.panelState = .closed
         
-        
         if AudioManager.shared.nowPlayingInfo.artworkImage != nil {
-            self.uiManager.applyOpeningLayout()
             self.expandWidth()
             self.uiManager.applyCompactWidgetLayout()
         }

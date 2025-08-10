@@ -33,7 +33,7 @@ struct ComfyNotchApp: App {
 
 #if DEBUG
 let VIEW_DEBUG_SPACING = false
-let VIEW_MUSIC_SPACING = true
+let VIEW_MUSIC_SPACING = false
 #endif
 
 
@@ -74,6 +74,7 @@ enum LogSource: String {
 func debugLog(_ message: @autoclosure () -> Any, from: LogSource? = nil) {
 #if DEBUG
     let silencedSources: Set<LogSource> = [
+        .panels,
         .display,
         .ui,
         .mrmController,

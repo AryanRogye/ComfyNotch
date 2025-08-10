@@ -40,8 +40,6 @@ struct CompactAlbumWidget: View, Widget {
                 if let artwork = model.nowPlayingInfo.artworkImage {
                     Image(nsImage: artwork)
                         .resizable()
-                        .scaledToFit()
-                        .scaleEffect(scale)
                         .frame(width: sizeConfig.width, height: sizeConfig.height)
                         .minimumScaleFactor(0.5)
                         .lineLimit(1)
@@ -68,8 +66,17 @@ struct CompactAlbumWidget: View, Widget {
             value: notchStateManager.hoverHandler.scaleHoverOverLeftItems
         )
         .onAppear { sizeConfig = widgetSize() }
-        .onChange(of: notchStateManager.hoverHandler.scaleHoverOverLeftItems) {
-            sizeConfig = widgetSize()
+        .onChange(of: notchStateManager.hoverHandler.scaleHoverOverLeftItems) { _, value in
+            if value {
+                let size = widgetSize()
+                withAnimation(.interpolatingSpring(stiffness: 180, damping: 20)) {
+                    sizeConfig = .init(width: size.width * 1.1, height: size.height * 1.1)
+                }
+            } else {
+                withAnimation(.interpolatingSpring(stiffness: 180, damping: 20)) {
+                    sizeConfig = widgetSize()
+                }
+            }
         }
         .onChange(of: notchStateManager.hoverHandler.scaleHoverOverLeftItems) { _, value in
             withAnimation(.interpolatingSpring(stiffness: 180, damping: 20)) {

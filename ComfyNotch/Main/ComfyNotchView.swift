@@ -63,7 +63,13 @@ class ComfyNotchViewModel: ObservableObject {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.75, blendDuration: 0.1)) {
                 self.isHoveringOverNotch = false
             }
+            uiManager.applyOpeningLayout()
             scrollManager.openFull()
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                guard let self = self else { return }
+                self.uiManager.applyExpandedWidgetLayout()
+            }
         }
     }
     
@@ -74,6 +80,7 @@ class ComfyNotchViewModel: ObservableObject {
         case .ended:
             if translation > threshold {
                 self.isHoveringOverNotch = false
+                uiManager.applyOpeningLayout()
                 scrollManager.closeFull()
             }
         default: break
