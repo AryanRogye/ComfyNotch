@@ -280,8 +280,6 @@ struct ComfyNotchView: View {
                 TopNotchView()
                     .environmentObject(widgetStore)
                 
-                Spacer()
-                
                 // MARK: - Bottom Widgets
                 if uiManager.panelState == .open || notchStateManager.currentPanelState == .popInPresentation {
                     expandedView
@@ -290,7 +288,7 @@ struct ComfyNotchView: View {
             }
         }
         // MARK: - WIDTH AND HEIGHT
-        .frame(width: scrollManager.notchSize.width, height: scrollManager.notchSize.height)
+        .frame(width: scrollManager.notchSize.width, height: scrollManager.notchSize.height, alignment: .top)
         /*
          * NOTE: This is used to make sure that if the PopInPresenter is showing when we open
          * the notch, it will switch to the home state.

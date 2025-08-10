@@ -60,11 +60,22 @@ final class MediaKeyInterceptor {
     }
     
     private func startEventTap() {
-        let mask = CGEventMask(1 << 14)
-        
+        let mask = CGEventMask(1 << 14) // 14 = systemDefined
+
         // Static callback function - no captures
-        let callback: CGEventTapCallBack = { _, _, event, _ in
-            guard let nsEvent = NSEvent(cgEvent: event) else { return Unmanaged.passRetained(event) }
+        let callback: CGEventTapCallBack = { _, type, event, _ in
+            
+            if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
+                return Unmanaged.passUnretained(event)
+            }
+            guard type.rawValue == 14 else { // only systemDefined events
+                return Unmanaged.passUnretained(event)
+            }
+            
+            guard let nsEvent = NSEvent(cgEvent: event) else {
+                NSLog("⚠️ NSEvent creation failed — passing event through")
+                return Unmanaged.passRetained(event)
+            }
             guard nsEvent.subtype.rawValue == 8 else { return Unmanaged.passRetained(event) }
             
             let keyCode = ((nsEvent.data1 & 0xFFFF0000) >> 16)
