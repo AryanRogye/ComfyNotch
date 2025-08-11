@@ -22,7 +22,7 @@ struct VolumeNumber: View, Widget {
     
     var body: some View {
         Text("\(Int(displayedVolume * 100))%")
-            .font(.system(size: 12, weight: .regular, design: .default))
+            .font(.system(size: 11, weight: .regular, design: .default))
             .padding([.top, .leading], 4)
             .onAppear {
                 displayedVolume = volumeManager.currentVolume

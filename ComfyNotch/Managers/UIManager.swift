@@ -41,6 +41,7 @@ class UIManager: ObservableObject {
     let compactWidgetStore = CompactWidgetsStore()
     let expandedWidgetStore = ExpandedWidgetsStore()
     
+    var spaceManager : ComfyNotchSpaceManager?
     
     // MARK: - Main Panel Components
     var smallPanel: NSPanel!
@@ -53,6 +54,10 @@ class UIManager: ObservableObject {
     // TODO: look into this if it is really needed
     var startPanelYOffset: CGFloat = 0
     
+    public func assignSpaceManager(_ spaceManager: ComfyNotchSpaceManager?) {
+        self.spaceManager = spaceManager
+    }
+    
     /**
      * Initializes the UI manager and sets up initial dimensions.
      * Configures panel height based on notch size and initializes audio components.
@@ -62,36 +67,37 @@ class UIManager: ObservableObject {
         AudioManager.shared.getNowPlayingInfo() { _ in }
     }
     
-    /**
-     * Sets up both small and big panels with their initial configurations.
+    /*
+     * Sets up small panel with their initial configurations.
+     * And Assigns to the Higher Level Space Manager.
      */
     func start() {
         setupSmallPanel()
+        
+        if let spaceManager = spaceManager {
+            spaceManager.putPanelInSpace(smallPanel)
+        } else {
+            /// Debug Log is too important to hide
+            debugLog("No Space Manager Assigned")
+        }
     }
     
     // MARK: - Construction
-    /**
+    /*
      * Configures the small panel that sits in the notch area.
      * Initializes default widgets and sets up panel properties.
      */
     func setupSmallPanel() {
         guard let screen = DisplayManager.shared.selectedScreen else { return }
-        let screenFrame = screen.frame
         let notchHeight = getNotchHeight()
         
-        let panelRect = NSRect(
-            x: (screenFrame.width - startPanelWidth) / 2,
-            y: screenFrame.height - notchHeight - startPanelYOffset,
-            width: startPanelWidth,
-            height: notchHeight
-        )
-        
         smallPanel = FocusablePanel(
-            contentRect: panelRect,
+            contentRect: .zero,
             styleMask: [.borderless, .nonactivatingPanel, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
+        smallPanel.setFrame(screen.frame, display: true)
         /// Allow content to draw outside panel bounds
         smallPanel.contentView?.wantsLayer = true
         
@@ -108,39 +114,23 @@ class UIManager: ObservableObject {
         smallPanel.isOpaque = false
         smallPanel.hasShadow = false
         
-        
-        let contentView = ComfyNotchView()
-            .environmentObject(compactWidgetStore)
-            .environmentObject(expandedWidgetStore)
-        
-        
-        let hostingView = NSHostingView(rootView: contentView)
-        hostingView.frame = panelRect
+        let view: NSView = NSHostingView(
+            rootView: ComfyNotchView()
+                .environmentObject(compactWidgetStore)
+                .environmentObject(expandedWidgetStore)
+        )
         
         /// Allow hosting view to overflow
-        hostingView.wantsLayer = true
-        hostingView.layer?.masksToBounds = false
+        view.wantsLayer = true
+        view.layer?.masksToBounds = false
         
-        smallPanel.contentView = hostingView
+        smallPanel.contentView = view
         smallPanel.makeKeyAndOrderFront(nil)
-        
         
         compactWidgetStore.loadWidgets()
         
         self.logPanelFrame(reason: "Initialized Panel")
     }
-    
-    public func logPanelFrame(reason: String) {
-        debugLog("""
-        📐 \(reason):
-           ⤷ MinX : \(smallPanel.frame.minX)
-           ⤷ MinY : \(smallPanel.frame.minY)
-           ⤷ MaxX : \(smallPanel.frame.maxX)
-           ⤷ MaxY : \(smallPanel.frame.maxY)
-           ⤷ Width  x Height : \(smallPanel.frame.width) x \(smallPanel.frame.height)
-        """, from: .ui)
-    }
-    
     // MARK: - Layout Management
     
     /// Function to wipe EVERYTHING off the screen
@@ -183,10 +173,11 @@ class UIManager: ObservableObject {
         volumeTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { [weak self] _ in
             guard let self = self else { return }
             self.isShowingVolume = false
-
+            
             if self.panelState == .closed {
                 self.applyOpeningLayout()
                 self.applyCompactWidgetLayout()
+                ScrollManager.shared.closeFull()
             }
         }
     }
@@ -200,6 +191,7 @@ class UIManager: ObservableObject {
             if self.panelState == .closed {
                 self.applyOpeningLayout()
                 self.applyCompactWidgetLayout()
+                ScrollManager.shared.closeFull()
             }
         }
     }
@@ -222,6 +214,7 @@ class UIManager: ObservableObject {
         
         DispatchQueue.main.async {
             withAnimation(Anim.spring) {
+                ScrollManager.shared.expandWidth()
                 self.compactWidgetStore.applyLayout(for: .volume)
                 self.expandedWidgetStore.applyLayout(for: .volume)
             }
@@ -248,6 +241,7 @@ class UIManager: ObservableObject {
         
         DispatchQueue.main.async {
             withAnimation(Anim.spring) {
+                ScrollManager.shared.expandWidth()
                 self.compactWidgetStore.applyLayout(for: .brightness)
                 self.expandedWidgetStore.applyLayout(for: .brightness)
             }
@@ -268,6 +262,18 @@ class UIManager: ObservableObject {
         debugLog("=====================================================", from: .ui)
     }
     
+    
+    public func logPanelFrame(reason: String) {
+        debugLog("""
+        📐 \(reason):
+           ⤷ MinX : \(smallPanel.frame.minX)
+           ⤷ MinY : \(smallPanel.frame.minY)
+           ⤷ MaxX : \(smallPanel.frame.maxX)
+           ⤷ MaxY : \(smallPanel.frame.maxY)
+           ⤷ Width  x Height : \(smallPanel.frame.width) x \(smallPanel.frame.height)
+        """, from: .ui)
+    }
+
     /**
      * Utility methods for widget management and panel dimensions.
      */
@@ -291,6 +297,38 @@ class UIManager: ObservableObject {
         
         /// Make sure fallback height is greater than 0 or go to the fallback 40
         return fallbackHeight > 0 ? fallbackHeight : 40
+    }
+    
+    func re_align_notch() {
+        guard let panel = self.smallPanel else { return }
+        guard panelState == .closed else { return }
+        
+        let screen = DisplayManager.shared.selectedScreen!
+        let id = screen.displayID
+        
+        /// we want to look for the screen with the ID cuz the frame is not logging
+        /// that its different, I had the resolution 1800x1169 and changed to 1512x982
+        /// but the frame was still logging 1800x1169
+        
+        guard let screen = NSScreen.screens.first(where: {
+            $0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID == id
+        }) else {
+            debugLog("❌ Could not find screen with displayID \(String(describing: id))", from: .scroll)
+            return
+        }
+        
+        DispatchQueue.main.async {
+            DisplayManager.shared.selectedScreen = screen
+        }
+        
+        if !panel.frame.equalTo(screen.frame) {
+            panel.setFrame(screen.frame, display: true)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                guard let self = self else { return }
+                ScrollManager.shared.closeFull()
+            }
+        }
     }
 }
 

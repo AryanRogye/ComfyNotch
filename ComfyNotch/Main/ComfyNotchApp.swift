@@ -33,6 +33,7 @@ struct ComfyNotchApp: App {
 
 #if DEBUG
 let VIEW_DEBUG_SPACING = false
+let VIEW_MUSIC_SPACING = false
 #endif
 
 

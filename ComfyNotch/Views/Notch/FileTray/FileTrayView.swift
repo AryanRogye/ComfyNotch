@@ -21,16 +21,19 @@ struct FileTrayView: View {
     @EnvironmentObject var fileDropManager : FileDropManager
     
     @ObservedObject var notchStateManager = NotchStateManager.shared
+    @ObservedObject var uiManager = UIManager.shared
     @ObservedObject var settings = SettingsModel.shared
     
     @StateObject private var viewModel: FileTrayViewModel = FileTrayViewModel()
     
     @State var showDeleteFileAlert: Bool = false
     @State var currentDeleteFileURL: URL?
-
+    
+    @State private var givenSpace: GivenWidgetSpace = GivenWidgetSpace(w: 0, h: 0)
+    
     var body: some View {
-        VStack(spacing: 0) {
-            if notchStateManager.isExpanded && !fileDropManager.shouldAutoShowTray
+        HStack(spacing: 0) {
+            if uiManager.panelState == .open && !fileDropManager.shouldAutoShowTray
             {
                 Group {
                     if showDeleteFileAlert {
@@ -47,11 +50,14 @@ struct FileTrayView: View {
             }
         }
         .environmentObject(viewModel)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .animation(
-            .easeInOut(duration: notchStateManager.isExpanded ? 2 : 0.1),
-            value: notchStateManager.isExpanded
+            .easeInOut(duration: uiManager.panelState == .open ? 2 : 0.1),
+            value: uiManager.panelState == .open
         )
+        .frame(width: givenSpace.w, height: givenSpace.h)
+        .onAppear {
+            givenSpace = uiManager.expandedWidgetStore.determineWidthAndHeightForOneWidget()
+        }
     }
     
     private var fileTray: some View {

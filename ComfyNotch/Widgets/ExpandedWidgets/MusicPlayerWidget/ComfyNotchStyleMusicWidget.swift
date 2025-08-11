@@ -45,8 +45,8 @@ struct ComfyNotchStyleMusicWidget: View {
             if isVisible {
                 // MARK: - Album View
                 renderAlbumCover()
-                    .padding(.bottom)
                     .frame(alignment: .leading)
+                    .padding(.top, 8)
                 
                 // MARK: - Song Information and Controls
                 VStack(alignment: .leading, spacing: 0) {
@@ -65,6 +65,9 @@ struct ComfyNotchStyleMusicWidget: View {
         }
         // MARK: - Card Styling
         .frame(maxWidth: givenSpace.w, maxHeight: givenSpace.h)
+        #if DEBUG
+        .border(.red, width: VIEW_MUSIC_SPACING ? 1 : 0)
+        #endif
         .onAppear {
             isVisible = true
             givenSpace = UIManager.shared.expandedWidgetStore.determineWidthAndHeight()

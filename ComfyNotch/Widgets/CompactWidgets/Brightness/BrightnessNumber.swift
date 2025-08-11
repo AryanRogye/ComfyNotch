@@ -23,7 +23,7 @@ struct BrightnessNumber: View, Widget {
     
     var body: some View {
         Text("\(Int(displayBrightness * 100))%")
-            .font(.system(size: 12, weight: .regular, design: .default))
+            .font(.system(size: 11, weight: .regular, design: .default))
             .padding([.top, .leading], 4)
             .onAppear {
                 displayBrightness = uiManagerBridge.brightness
