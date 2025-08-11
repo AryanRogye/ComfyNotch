@@ -101,7 +101,7 @@ struct SelectScreenView: View {
                     let isCommitted = screensEqual(screen, displayManager.selectedScreen)
                     let isStaged   = screensEqual(screen, newScreen) && !isCommitted
                     
-                    screenView(key: key, image: image, screen: screen!)
+                    screenView(key: key, image: image, screen: screen)
                         .padding()
                         .background(
                             RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -128,7 +128,7 @@ struct SelectScreenView: View {
         }
     }
     
-    private func screenView(key: CGDirectDisplayID, image: NSImage, screen: NSScreen) -> some View {
+    private func screenView(key: CGDirectDisplayID, image: NSImage, screen: NSScreen?) -> some View {
         VStack {
             Text(displayManager.displayName(for: key))
                 .font(.subheadline)

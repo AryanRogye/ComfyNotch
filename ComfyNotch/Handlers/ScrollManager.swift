@@ -117,12 +117,10 @@ extension ScrollManager {
            let topRightSpace: CGFloat = screen.auxiliaryTopRightArea?.width {
             
             let width = (screen.frame.width - topLeftSpace - topRightSpace) + 16
-            print("Notch Width: \(width)")
             return width
         }
         
         // Fallback
-        print("USING FALLBACK")
         return 200
     }
     

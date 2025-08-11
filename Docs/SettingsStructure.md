@@ -78,7 +78,8 @@
 
 ## Display
 - **Select Screen (Display Picker)**
-  - Info: “ComfyNotch works best with a screen that has a physical notch. A relaunch may be required to fully apply changes after switching displays.”
+  - Pick a screen to show the notch on
+  - Info: “ComfyNotch works best with a screen that has a physical notch.”
 
 ## ComfyNotch
 - **License**

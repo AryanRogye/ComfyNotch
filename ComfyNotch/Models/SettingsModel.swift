@@ -79,7 +79,7 @@ class SettingsModel: ObservableObject {
     }
     
     @Published var quickAccessWidgetDistanceFromLeft: CGFloat = 18
-    @Published var quickAccessWidgetDistanceFromTop: CGFloat = 4
+    @Published var quickAccessWidgetDistanceFromTop: CGFloat = 0
     @Published var settingsWidgetDistanceFromRight: CGFloat = 18
     @Published var oneFingerAction: TouchAction = .none
     @Published var twoFingerAction: TouchAction = .none
@@ -337,7 +337,7 @@ class SettingsModel: ObservableObject {
         if let quickAccessWidgetDistanceFromTop = defaults.object(forKey: "quickAccessWidgetDistanceFromTop") as? CGFloat {
             self.quickAccessWidgetDistanceFromTop = quickAccessWidgetDistanceFromTop
         } else {
-            self.quickAccessWidgetDistanceFromTop = 4
+            self.quickAccessWidgetDistanceFromTop = 0
         }
         
         if let settingsWidgetDistanceFromRight = defaults.object(forKey: "settingsWidgetDistanceFromRight") as? CGFloat {

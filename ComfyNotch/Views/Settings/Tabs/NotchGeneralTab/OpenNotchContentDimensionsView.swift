@@ -153,7 +153,7 @@ struct OpenNotchContentDimensionsView: View {
             
             ComfySlider(
                 value: $v.topSpacing,
-                in: 0...100,
+                in: 0...Int(ScrollManager.shared.getNotchHeight()),
                 label: "Top Spacing"
             )
             .padding(.horizontal)

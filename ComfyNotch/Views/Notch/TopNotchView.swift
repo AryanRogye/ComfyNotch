@@ -12,10 +12,10 @@ struct TopNotchView: View {
     private let paddingWidth: CGFloat = 20
     
     private var leadingPadding: CGFloat {
-        return 11
+        return uiManager.panelState == .closed ? 11 : 0
     }
     private var trailingPadding: CGFloat {
-        return 11
+        return uiManager.panelState == .closed ? 11 : 0
     }
     
     var body: some View {

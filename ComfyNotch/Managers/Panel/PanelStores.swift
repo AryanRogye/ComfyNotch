@@ -258,7 +258,6 @@ class CompactWidgetsStore: PanelManager, ObservableObject {
             self.showWidget(named: "Volume Icon")
             self.showWidget(named: "Volume Number")
         case .brightness:
-            print("Showing Brightness")
             self.hideWidget(named: "AlbumWidget")
             self.hideWidget(named: "MovingDotsWidget")
             self.hideWidget(named: "MovingBars")

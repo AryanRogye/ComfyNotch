@@ -81,7 +81,10 @@ class ComfyNotchViewModel: ObservableObject {
             if translation > threshold {
                 self.isHoveringOverNotch = false
                 uiManager.applyOpeningLayout()
-                scrollManager.closeFull()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) { [weak self] in
+                    guard let self = self else { return }
+                    self.scrollManager.closeFull()
+                }
             }
         default: break
         }
@@ -348,7 +351,7 @@ struct ComfyNotchView: View {
         .onChange(of: isHovering) { _, isHovering in
             if uiManager.panelState == .open && !isHovering {
                 // TODO: A bit buggy, needs to be fixed,
-                viewModel.handleScrollUp(translation: 51, phase: .ended)
+//                viewModel.handleScrollUp(translation: 51, phase: .ended)
             }
         }
         

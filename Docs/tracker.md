@@ -3,11 +3,13 @@
 <details>
   <summary> View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/2ea1cbb"><code>2ea1cbb</code></a> </summary>
 
-  - Added back re_align_notch into new implimentation of the notch 
+  - Added back re_align_notch into new Implementation of the notch 
   - Added back HUD Live Activities into the notch
   - Added a Space Manager 
 
 </details>
+
+---
 
 #### August 9th 2025
 
@@ -24,6 +26,7 @@
 
 </details>
 
+---
 
 #### August 10th 2025
 <details>
@@ -48,7 +51,7 @@
 </details>
 
 <details>
-    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/"><code></code></a></summary>
+    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/973a4e8"><code>973a4e8</code></a></summary>
 
   - Fixed display settings, to now where if I change the selected display, you have to click save to apply the changes
     - Changes are now updated right away, no more weird warning about having to restart the app for changes to take effect
@@ -69,6 +72,24 @@
 
 </details>
 
+---
+
+#### August 11th 2025
+
+<details>
+    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/"><code></code></a></summary>
+
+  - Cleaned up print statements
+  - had a crash happen in the display settings, so I made sure im not force unwrapping anything
+  - Made sure that the notch when closing will not show anything while closing, there was a weird timing issue
+  - Changed the quickAccessWidgetDistanceFromTop from 4 to 0
+  - Made sure that the Open Notch Content Dimension values are legit
+    - This means that the spacing when open for the TopNotchView is now 0, so the full control is left up the the setting
+    - Made sure that the setting for the quickAccessWidgetDistanceFromTop max is the maxNotchHeight
+
+</details>
+
+---
 
 #### References
-  - ["Sick Ass Header Implimentation"](https://github.com/NUIKit/CGSInternal/blob/master/CGSSpace.h)
+  - ["Sick Ass Header Implementation"](https://github.com/NUIKit/CGSInternal/blob/master/CGSSpace.h)
