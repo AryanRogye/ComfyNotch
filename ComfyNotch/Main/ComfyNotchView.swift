@@ -121,20 +121,19 @@ struct ComfyNotchView: View {
     
     @StateObject private var fileDropManager = FileDropManager()
     @StateObject private var qrCodeManager = QRCodeManager()
-    @StateObject private var notchClickManager = NotchClickManager()
-    
+    @StateObject private var viewModel = ComfyNotchViewModel()
+
     @ObservedObject private var notchStateManager = NotchStateManager.shared
     @ObservedObject private var uiManager      = UIManager.shared
     @ObservedObject private var settings       = SettingsModel.shared
-    
+    @ObservedObject var scrollManager = ScrollManager.shared
+
     @State private var didTriggerLeftSwipe = false
     @State private var didTriggerRightSwipe = false
     
-    @ObservedObject var scrollManager = ScrollManager.shared
-    @State var viewModel = ComfyNotchViewModel()
+    private let notchClickManager = NotchClickManager()
     
-    init() {
-    }
+    init() {}
     
     let restrictedStates: Set<NotchViewState> = [.file_tray, .utils, .popInPresentation, .messages]
     
@@ -167,7 +166,6 @@ struct ComfyNotchView: View {
         .onAppear {
             qrCodeManager.assignFileDropManager(fileDropManager)
             notchClickManager.setOpenWindow(openWindow)
-            notchClickManager.startMonitoring()
             viewModel.assignFileDropManager(fileDropManager: fileDropManager)
         }
     }
@@ -378,6 +376,13 @@ struct ComfyNotchView: View {
         .onTapGesture {
             if uiManager.panelState == .closed {
                 viewModel.handleScrollDown(translation: 251, phase: .ended)
+            }
+        }
+        .contextMenu {
+            ForEach(TouchAction.allCases, id: \.self) { action in
+                Button(action.displayName) {
+                    notchClickManager.handleFingerAction(for: action)
+                }
             }
         }
     }

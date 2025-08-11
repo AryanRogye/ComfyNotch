@@ -22,8 +22,6 @@
   - Hover Activation Area
     - Enable Music Controls On Hover
   - Enable HUD (Volume/Brightness)
-  - One Finger Action
-  - Two Finger Action
 
 ## Notch
 ### TabView: Notch Screen Options

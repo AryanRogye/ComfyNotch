@@ -13,8 +13,6 @@ struct ClosedNotchValues {
     var enableButtonsOnHover: Bool = false
     var fallbackHeight: Int = 0
     var hudEnabled: Bool = false
-    var oneFingerAction: TouchAction = .none
-    var twoFingerAction: TouchAction = .none
 }
 
 struct ClosedNotchGeneralSettings: View {
@@ -68,25 +66,18 @@ struct ClosedNotchGeneralSettings: View {
             
             Divider()
                 .padding(.vertical, 4)
-            
-            touchSettings
-                .padding(.vertical, 4)
                 .padding(.bottom)
         }
         .onAppear {
             v.hoverTargetMode = settings.hoverTargetMode
             v.fallbackHeight = Int(settings.notchMinFallbackHeight)
             v.hudEnabled = settings.enableNotchHUD
-            v.oneFingerAction = settings.oneFingerAction
-            v.twoFingerAction = settings.twoFingerAction
             v.notchMinWidth = Int(settings.notchMinWidth)
             v.enableButtonsOnHover = settings.enableButtonsOnHover
         }
         .onChange(of: v.hoverTargetMode)        { checkDidChange() }
         .onChange(of: v.fallbackHeight)         { checkDidChange() }
         .onChange(of: v.hudEnabled)             { checkDidChange() }
-        .onChange(of: v.oneFingerAction)        { checkDidChange() }
-        .onChange(of: v.twoFingerAction)        { checkDidChange() }
         .onChange(of: v.notchMinWidth)          { checkDidChange() }
         .onChange(of: v.enableButtonsOnHover)   { checkDidChange() }
     }
@@ -96,8 +87,6 @@ struct ClosedNotchGeneralSettings: View {
         v.hoverTargetMode != settings.hoverTargetMode
         || v.fallbackHeight  != Int(settings.notchMinFallbackHeight)
         || v.hudEnabled      != settings.enableNotchHUD
-        || v.oneFingerAction != settings.oneFingerAction
-        || v.twoFingerAction != settings.twoFingerAction
         || v.notchMinWidth   != Int(settings.notchMinWidth)
         || v.enableButtonsOnHover != settings.enableButtonsOnHover
     }
@@ -245,32 +234,5 @@ struct ClosedNotchGeneralSettings: View {
             }
         }
         .padding(.horizontal)
-    }
-    
-    
-    
-    
-    
-    // MARK: - Touch Settings
-    private var touchSettings: some View {
-        VStack(alignment: .leading) {
-            HStack {
-                Picker("One Finger Action", selection: $v.oneFingerAction) {
-                    ForEach(TouchAction.allCases, id: \.self) { action in
-                        Text(action.displayName)
-                            .tag(action)
-                    }
-                }
-                
-                Picker("Two Finger Action", selection: $v.twoFingerAction) {
-                    ForEach(TouchAction.allCases, id: \.self) { action in
-                        Text(action.displayName)
-                            .tag(action)
-                    }
-                }
-            }
-            
-        }
-        .padding([.horizontal])
     }
 }

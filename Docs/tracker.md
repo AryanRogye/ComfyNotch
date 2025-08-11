@@ -77,7 +77,7 @@
 #### August 11th 2025
 
 <details>
-    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/"><code></code></a></summary>
+    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/142a8f3"><code>142a8f3</code></a></summary>
 
   - Cleaned up print statements
   - had a crash happen in the display settings, so I made sure im not force unwrapping anything
@@ -86,6 +86,14 @@
   - Made sure that the Open Notch Content Dimension values are legit
     - This means that the spacing when open for the TopNotchView is now 0, so the full control is left up the the setting
     - Made sure that the setting for the quickAccessWidgetDistanceFromTop max is the maxNotchHeight
+
+</details>
+
+<details>
+    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/"><code></code></a></summary>
+    
+  - Completely got rid of the touch settings, and replaced it for a context menu, so right click can be used for lots of other things
+    - Belive cuz of this i broke UI Tests, so gonna have to fix that
 
 </details>
 

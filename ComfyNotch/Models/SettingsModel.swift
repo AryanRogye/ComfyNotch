@@ -81,8 +81,6 @@ class SettingsModel: ObservableObject {
     @Published var quickAccessWidgetDistanceFromLeft: CGFloat = 18
     @Published var quickAccessWidgetDistanceFromTop: CGFloat = 0
     @Published var settingsWidgetDistanceFromRight: CGFloat = 18
-    @Published var oneFingerAction: TouchAction = .none
-    @Published var twoFingerAction: TouchAction = .none
     @Published var notchScrollThreshold: CGFloat = 50
     
     // MARK: - Music Setting Values
@@ -205,17 +203,17 @@ class SettingsModel: ObservableObject {
             default: break
             }
         }
-        
-        if let index = args.firstIndex(of: "--2Finger"),
-           args.count > index + 1 {
-            
-            let value = args[index + 1]
-            switch value {
-            case "openSettings":  self.twoFingerAction = .openSettings
-            case "openFileTray" : self.twoFingerAction = .openFileTray
-            default: break
-            }
-        }
+        // TODO: THIS IS FOR UI TESTS, FIX THIS
+//        if let index = args.firstIndex(of: "--2Finger"),
+//           args.count > index + 1 {
+//            
+//            let value = args[index + 1]
+//            switch value {
+//            case "openSettings":  self.twoFingerAction = .openSettings
+//            case "openFileTray" : self.twoFingerAction = .openFileTray
+//            default: break
+//            }
+//        }
     }
 #endif
     
@@ -344,20 +342,6 @@ class SettingsModel: ObservableObject {
             self.settingsWidgetDistanceFromRight = settingsWidgetDistanceFromRight
         } else {
             self.settingsWidgetDistanceFromRight = 18
-        }
-        
-        if let oneFingerActionRawValue = defaults.string(forKey: "oneFingerAction"),
-           let oneFingerAction = TouchAction(rawValue: oneFingerActionRawValue) {
-            self.oneFingerAction = oneFingerAction
-        } else {
-            self.oneFingerAction = .none
-        }
-        
-        if let twoFingerActionRawValue = defaults.string(forKey: "twoFingerAction"),
-           let twoFingerAction = TouchAction(rawValue: twoFingerActionRawValue) {
-            self.twoFingerAction = twoFingerAction
-        } else {
-            self.twoFingerAction = .none
         }
         
         if let notchScrollThreshold = defaults.object(forKey: "notchScrollThreshold") as? CGFloat {
@@ -634,8 +618,6 @@ extension SettingsModel {
         self.enableButtonsOnHover = values.enableButtonsOnHover
         self.notchMinFallbackHeight = CGFloat(values.fallbackHeight)
         self.enableNotchHUD = values.hudEnabled
-        self.oneFingerAction = values.oneFingerAction
-        self.twoFingerAction = values.twoFingerAction
         
         /// Constraints
         if self.notchMinFallbackHeight <= 0 { self.notchMinFallbackHeight = 40 }
@@ -652,8 +634,6 @@ extension SettingsModel {
         defaults.set(enableButtonsOnHover, forKey: "enableButtonsOnHover")
         defaults.set(notchMinFallbackHeight, forKey: "notchMinFallbackHeight")
         defaults.set(enableNotchHUD, forKey: "enableNotchHUD")
-        defaults.set(oneFingerAction.rawValue, forKey: "oneFingerAction")
-        defaults.set(twoFingerAction.rawValue, forKey: "twoFingerAction")
         
         if self.enableNotchHUD {
             hudManager.start()
@@ -854,7 +834,6 @@ extension SettingsModel {
             }
         }
     }
-    
     
     // MARK: - Utils Settings
     /// Function to save the Utils Settings
