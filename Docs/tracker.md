@@ -38,13 +38,34 @@
 </details>
 
 <details>
-    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/"><code>coming soon</code></a></summary>
+    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/3d4320e"><code>3d4320e</code></a></summary>
 
   - Fixing mini Issues with the scroll manager
     - when hovering and oepning shows unnecessary fadeaway aniations
     - when closing would close then readjust the notch if music was playing, but now we flow into it
     - Thinking about new logic for the whole animation, where I wouldnt have to think much about it
 
+</details>
+
+<details>
+    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/"><code></code></a></summary>
+
+  - Fixed display settings, to now where if I change the selected display, you have to click save to apply the changes
+    - Changes are now updated right away, no more weird warning about having to restart the app for changes to take effect
+  - Because of fixing the display settings, I found out that when calculating the height of the notch, i could also take into account the menu bar item heights:
+    ```swift
+        func getMenuBarHeight(for screen: NSScreen? = NSScreen.main) -> CGFloat {
+            guard let screen = screen else { return 0 }
+            
+            let screenFrame = screen.frame
+            let visibleFrame = screen.visibleFrame
+                
+            // The difference between the full screen height and the visible height
+            // is the menu bar height (plus maybe the dock if it's on top).
+            return screenFrame.height - visibleFrame.height
+        }
+    ```
+  - Fixed weird off hover issue with the notch
 
 </details>
 

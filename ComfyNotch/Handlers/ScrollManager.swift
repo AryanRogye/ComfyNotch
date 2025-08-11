@@ -126,6 +126,17 @@ extension ScrollManager {
         return 200
     }
     
+    func getMenuBarHeight(for screen: NSScreen? = NSScreen.main) -> CGFloat {
+        guard let screen = screen else { return 0 }
+        
+        let screenFrame = screen.frame
+        let visibleFrame = screen.visibleFrame
+        
+        // The difference between the full screen height and the visible height
+        // is the menu bar height (plus maybe the dock if it's on top).
+        return screenFrame.height - visibleFrame.height
+    }
+    
     func getNotchHeight() -> CGFloat {
         if let screen = DisplayManager.shared.selectedScreen {
             let safeAreaInsets = screen.safeAreaInsets
@@ -138,7 +149,7 @@ extension ScrollManager {
         }
         
         /// If no screen is selected or height is 0, return fallback height
-        let fallbackHeight = SettingsModel.shared.notchMinFallbackHeight
+        let fallbackHeight = getMenuBarHeight()
         /// Make sure fallback height is greater than 0 or go to the fallback 40
         return fallbackHeight > 0 ? fallbackHeight : 40
     }
@@ -205,7 +216,11 @@ extension ScrollManager {
         
         if AudioManager.shared.nowPlayingInfo.artworkImage != nil {
             self.expandWidth()
-            self.uiManager.applyCompactWidgetLayout()
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                guard let self = self else { return }
+                self.uiManager.applyCompactWidgetLayout()
+            }
         }
     }
     

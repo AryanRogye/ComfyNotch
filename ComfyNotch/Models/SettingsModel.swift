@@ -487,6 +487,7 @@ class SettingsModel: ObservableObject {
         if let displayID = screen.displayID {
             defaults.set(displayID, forKey: "selectedScreenID")
         }
+        UIManager.shared.re_align_notch()
     }
     
     // MARK: - Widget Update Logic

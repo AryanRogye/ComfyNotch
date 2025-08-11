@@ -348,7 +348,7 @@ struct ComfyNotchView: View {
         .onChange(of: isHovering) { _, isHovering in
             if uiManager.panelState == .open && !isHovering {
                 // TODO: A bit buggy, needs to be fixed,
-                scrollManager.closeFull()
+                viewModel.handleScrollUp(translation: 51, phase: .ended)
             }
         }
         
