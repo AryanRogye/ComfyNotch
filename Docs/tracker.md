@@ -108,7 +108,7 @@
 </details
 
 <details>
-    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/"><code></code></a></summary>
+    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/d3c3d28"><code>d3c3d28</code></a></summary>
 
   - Removed lots of unused code
   - Renamed Hover Album Target from "Album Image Only" to "Album Image"
