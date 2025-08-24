@@ -22,9 +22,14 @@ enum TouchAction: String, CaseIterable, Codable {
     }
 }
 
-final class NotchClickManager {
+@MainActor
+final class NotchClickManager: ObservableObject {
     private let settings: SettingsModel = .shared
-    private var openWindow: OpenWindowAction?
+    private var settingsCoordinator: SettingsCoordinator
+    
+    init(settingsCoordinator: SettingsCoordinator) {
+        self.settingsCoordinator = settingsCoordinator
+    }
     
     public func handleFingerAction(for finger: TouchAction) {
         switch finger {
@@ -57,9 +62,7 @@ final class NotchClickManager {
     
     // MARK: - Open Settings
     private func openSettings() {
-        NSApp.activate(ignoringOtherApps: true)
-        openWindow?(id: "SettingsView")
-        settings.isSettingsWindowOpen = true
+        settingsCoordinator.showSettings()
     }
     
     // MARK: - Close Notch
@@ -70,9 +73,5 @@ final class NotchClickManager {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             ScrollManager.shared.closeFull()
         }
-    }
-    
-    func setOpenWindow(_ action: OpenWindowAction?) {
-        self.openWindow = action
     }
 }

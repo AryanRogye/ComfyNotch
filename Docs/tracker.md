@@ -101,9 +101,26 @@
 
 #### August 24th 2025
 <details>
-    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/"><code></code></a></summary>
+    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/f674691"><code>f674691</code></a></summary>
 
   - Added back a new HoverView, that is much more reliable and more accurate
+
+</details
+
+<details>
+    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/"><code></code></a></summary>
+
+  - Removed lots of unused code
+  - Renamed Hover Album Target from "Album Image Only" to "Album Image"
+  - Cleaned alot of AppDelegate replaced with AppCoordinator that handles all the logic
+  - Added New Window Coordinator to handle all the window logic
+    - This made sure that we can get rid of WindowGroup {} in the main App file and have more control over the windows
+    - Fixed bug in QR Code For Filetray where it wasnt catching SettingsModel at runtime
+  - SettingsCoordinator to handle the settings window logic, this uses the WindowCoordinator
+  - Made sure everything flows through the SettingsCoordinator to open the settings window
+  - Main File is much cleaner now, added new destroyViewWindow function to close the window of the assigned view
+  - New Debug File, just moved things over from the main app file
+  - Moved Files around to make more sense
 
 </details
 

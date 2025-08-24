@@ -42,6 +42,7 @@ class UIManager: ObservableObject {
     let expandedWidgetStore = ExpandedWidgetsStore()
     
     var spaceManager : ComfyNotchSpaceManager?
+    var settingsCoordinator: SettingsCoordinator?
     
     // MARK: - Main Panel Components
     var smallPanel: NSPanel!
@@ -56,6 +57,10 @@ class UIManager: ObservableObject {
     
     public func assignSpaceManager(_ spaceManager: ComfyNotchSpaceManager?) {
         self.spaceManager = spaceManager
+    }
+    
+    public func assignSettingsCoordinator(_ settingsCoordinator: SettingsCoordinator) {
+        self.settingsCoordinator = settingsCoordinator
     }
     
     /**
@@ -89,7 +94,7 @@ class UIManager: ObservableObject {
      */
     func setupSmallPanel() {
         guard let screen = DisplayManager.shared.selectedScreen else { return }
-        let notchHeight = getNotchHeight()
+        guard let settingsCoordinator = settingsCoordinator else { return }
         
         smallPanel = FocusablePanel(
             contentRect: .zero,
@@ -118,6 +123,7 @@ class UIManager: ObservableObject {
             rootView: ComfyNotchView()
                 .environmentObject(compactWidgetStore)
                 .environmentObject(expandedWidgetStore)
+                .environmentObject(settingsCoordinator)
         )
         
         /// Allow hosting view to overflow

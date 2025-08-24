@@ -18,7 +18,7 @@ extension HoverTarget {
     var displayName: String {
         switch self {
         case .none: return "None"
-        case .album: return "Album Image Only"
+        case .album: return "Album Image"
         }
     }
 }

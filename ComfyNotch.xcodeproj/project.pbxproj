@@ -78,11 +78,6 @@
 			path = Widgets;
 			sourceTree = "<group>";
 		};
-		9B1319DB2DF10A5600657438 /* Shapes */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Shapes;
-			sourceTree = "<group>";
-		};
 		9B131A022DF10A5600657438 /* Views */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Views;
@@ -118,9 +113,14 @@
 			path = ComfyNotchTests;
 			sourceTree = "<group>";
 		};
-		9B5027962E107EC1001EBE77 /* Main */ = {
+		9B5027962E107EC1001EBE77 /* App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Main;
+			path = App;
+			sourceTree = "<group>";
+		};
+		9B6AAE162E5AE237008B1CB5 /* Coordinators */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Coordinators;
 			sourceTree = "<group>";
 		};
 		9B8BF2CA2E3F3B4200766BE9 /* ComfyNotchUITests */ = {
@@ -163,14 +163,14 @@
 		9B1319622DF10A5200657438 /* ComfyNotch */ = {
 			isa = PBXGroup;
 			children = (
-				9B5027962E107EC1001EBE77 /* Main */,
+				9B6AAE162E5AE237008B1CB5 /* Coordinators */,
+				9B5027962E107EC1001EBE77 /* App */,
 				9B13195E2DF10A5200657438 /* Assets */,
 				9B131A612DF10A5600657438 /* Config */,
 				9B131A782DF10A5600657438 /* Extensions */,
 				9B131A692DF10A5600657438 /* Handlers */,
 				9B131A452DF10A5600657438 /* Managers */,
 				9B131A832DF10A5600657438 /* Models */,
-				9B1319DB2DF10A5600657438 /* Shapes */,
 				9B131A022DF10A5600657438 /* Views */,
 				9B1319CC2DF10A5600657438 /* Widgets */,
 				9B13195F2DF10A5200657438 /* Assets.xcassets */,
@@ -264,13 +264,13 @@
 			);
 			fileSystemSynchronizedGroups = (
 				9B1319CC2DF10A5600657438 /* Widgets */,
-				9B1319DB2DF10A5600657438 /* Shapes */,
 				9B131A022DF10A5600657438 /* Views */,
 				9B131A452DF10A5600657438 /* Managers */,
 				9B131A692DF10A5600657438 /* Handlers */,
 				9B131A782DF10A5600657438 /* Extensions */,
 				9B131A832DF10A5600657438 /* Models */,
-				9B5027962E107EC1001EBE77 /* Main */,
+				9B5027962E107EC1001EBE77 /* App */,
+				9B6AAE162E5AE237008B1CB5 /* Coordinators */,
 			);
 			name = ComfyNotch;
 			packageProductDependencies = (

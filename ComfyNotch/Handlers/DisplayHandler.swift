@@ -50,20 +50,4 @@ class DisplayHandler {
             UIManager.shared.re_align_notch()
         }
     }
-    
-    /// Unused will not use for a while
-    public func restartApp() {
-        let task = Process()
-        task.executableURL = URL(fileURLWithPath: "/usr/bin/open")
-        task.arguments = ["-n", Bundle.main.bundlePath]
-
-        do {
-            try task.run()  // Launch the new instance of the app
-            task.waitUntilExit()  // Ensures the new instance starts before killing the old one
-        } catch {
-            debugLog("Failed to launch a new instance: \(error)", from: .display)
-        }
-
-        exit(0)  // Terminate the current instance
-    }
 }

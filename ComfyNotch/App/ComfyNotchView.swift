@@ -115,7 +115,8 @@ class ComfyNotchViewModel: ObservableObject {
 }
 
 struct ComfyNotchView: View {
-    @Environment(\.openWindow) var openWindow
+    
+    @EnvironmentObject var settingsCoordinator: SettingsCoordinator
     @EnvironmentObject var widgetStore: CompactWidgetsStore
     @EnvironmentObject var bigWidgetStore: ExpandedWidgetsStore
     
@@ -131,7 +132,8 @@ struct ComfyNotchView: View {
     @State private var didTriggerLeftSwipe = false
     @State private var didTriggerRightSwipe = false
     
-    private let notchClickManager = NotchClickManager()
+    @State private var notchClickManager : NotchClickManager? = nil
+    @State private var hasAppearedOnce: Bool = false
     
     init() {}
     
@@ -139,38 +141,31 @@ struct ComfyNotchView: View {
     
     var body: some View {
         VStack {
-            ZStack(alignment: .top) {
-                
-                // BACKGROUND LAYER – Hover Detection Only
-//                Color.clear
-//                    .frame(
-//                        width: scrollManager.notchSize.width + 300,
-//                        height: scrollManager.notchSize.height + 300
-//                    )
-//#if DEBUG
-//                    .border(.red, width: VIEW_DEBUG_SPACING ? 1 : 0)
-//#endif
-//                    .contentShape(Rectangle())
-//                    .onHover { isHovering = $0 }
-                
-                HoverView(isHovering: $isHovering)
-                    .frame(width: 300, height: 300)
-                
-                
-                // FOREGROUND LAYER – Actual UI
-                HStack(alignment: .top) {
-                    Spacer()
-                    notch
-                    Spacer()
+            if hasAppearedOnce {
+                ZStack(alignment: .top) {
+                    
+                    HoverView(isHovering: $isHovering)
+                        .frame(width: 300, height: 300)
+                    
+                    // FOREGROUND LAYER – Actual UI
+                    HStack(alignment: .top) {
+                        Spacer()
+                        notch
+                        Spacer()
+                    }
                 }
+                Spacer()
             }
-            Spacer()
         }
         .onAppear {
             qrCodeManager.assignFileDropManager(fileDropManager)
-            notchClickManager.setOpenWindow(openWindow)
             viewModel.assignFileDropManager(fileDropManager: fileDropManager)
+            notchClickManager = NotchClickManager(settingsCoordinator: settingsCoordinator)
         }
+        .onAppear {
+            hasAppearedOnce = true
+        }
+        .animation(.easeInOut, value: hasAppearedOnce)
     }
     
     // MARK: - Main Body
@@ -384,7 +379,7 @@ struct ComfyNotchView: View {
         .contextMenu {
             ForEach(TouchAction.allCases, id: \.self) { action in
                 Button(action.displayName) {
-                    notchClickManager.handleFingerAction(for: action)
+                    self.notchClickManager?.handleFingerAction(for: action)
                 }
             }
         }
