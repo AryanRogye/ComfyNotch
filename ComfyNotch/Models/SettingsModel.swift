@@ -73,6 +73,9 @@ class SettingsModel: ObservableObject {
     let notchHeightMin : Int = 35
     let notchHeightMax : Int = 50
     
+    @Published var proximityWidth: CGFloat = 300
+    @Published var proximityHeight: CGFloat = 300
+    
     /// Function to reset the min fallback height to the default value
     public func resetNotchMinFallbackHeight() {
         notchMinFallbackHeight = 40
@@ -348,6 +351,18 @@ class SettingsModel: ObservableObject {
             self.notchScrollThreshold = notchScrollThreshold
         } else {
             self.notchScrollThreshold = 50 // Default threshold
+        }
+        
+        if let proximityWidth = defaults.object(forKey: "proximityWidth") as? CGFloat {
+            self.proximityWidth = proximityWidth
+        } else {
+            proximityWidth = 300
+        }
+        
+        if let proximityHeight = defaults.object(forKey: "proximityHeight") as? CGFloat {
+            self.proximityHeight = proximityHeight
+        } else {
+            proximityHeight = 300
         }
         
         /// ----------------------- Music Player Settings -----------------------
@@ -890,5 +905,14 @@ extension SettingsModel {
         defaults.set(overridenMusicProvider.rawValue, forKey: "overridenMusicProvider")
         defaults.set(musicPlayerStyle.rawValue, forKey: "musicPlayerStyle")
         defaults.set(enableAlbumFlippingAnimation, forKey: "enableAlbumFlippingAnimation")
+    }
+    
+    // MARK: - Proximity Settings
+    public func saveProximitySettingsValues(values: ProximitySettingsValues) {
+        self.proximityWidth = CGFloat(values.proximityWidth)
+        self.proximityHeight = CGFloat(values.proximityHeight)
+        
+        defaults.set(proximityWidth, forKey: "proximityWidth")
+        defaults.set(proximityHeight, forKey: "proximityHeight")
     }
 }

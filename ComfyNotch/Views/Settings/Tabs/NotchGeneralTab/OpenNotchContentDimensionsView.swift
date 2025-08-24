@@ -49,7 +49,10 @@ struct OpenNotchContentDimensionsView: View {
             
             Divider()
                 .padding(.vertical, 8)
+            
             dimensionSettings
+                .padding(.bottom)
+
         }
         .onAppear {
             v.leftSpacing = Int(settings.quickAccessWidgetDistanceFromLeft)
@@ -166,7 +169,7 @@ struct OpenNotchContentDimensionsView: View {
                 in: Int(settings.MIN_NOTCH_MAX_WIDTH)...Int(settings.MAX_NOTCH_MAX_WIDTH),
                 label: "Notch Max Width (While Open)"
             )
-            .padding([.horizontal, .bottom])
+            .padding([.horizontal])
         }
     }
 }

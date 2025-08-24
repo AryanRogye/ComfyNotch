@@ -25,6 +25,9 @@ class NotchStateManager: ObservableObject {
     
     @Published var isLoadingPopInPresenter = false
     
+    /// Used to show red box around the proximity
+    @Published var shouldVisualizeProximity : Bool = false
+    
     let hoverHandler = HoverHandler()
     
     init() {
@@ -145,7 +148,7 @@ struct ComfyNotchView: View {
                 ZStack(alignment: .top) {
                     
                     HoverView(isHovering: $isHovering)
-                        .frame(width: 300, height: 300)
+                        .frame(width: settings.proximityWidth, height: settings.proximityHeight)
                     
                     // FOREGROUND LAYER – Actual UI
                     HStack(alignment: .top) {
@@ -168,11 +171,7 @@ struct ComfyNotchView: View {
         .animation(.easeInOut, value: hasAppearedOnce)
     }
     
-    // MARK: - Main Body
-    //    var body: some View {
-    //        notch
-    //        /// MODIFIERS
-    //        // MARK: - Swiping Left and Right
+    // MARK: - Swiping Left and Right
     //            .panGesture(direction: .right) { translation, phase in
     //                guard uiManager.panelState == .closed else { return }
     //
@@ -267,16 +266,6 @@ struct ComfyNotchView: View {
     //                    }
     //                }
     //            }
-    //            .onDisappear {
-    //                notchClickManager.stopMonitoring()
-    //            }
-    //            .shadow(radius: isHoveringOverNotch ? 5 : 0)
-    //            .onHover { hovering in
-    //                withAnimation(.easeInOut) {
-    //                    isHoveringOverNotch = hovering && uiManager.panelState == .closed
-    //                }
-    //            }
-    //    }
     
     // MARK: - NOTCH
     private var notch: some View {
@@ -345,8 +334,8 @@ struct ComfyNotchView: View {
         
         // MARK: - Hover Off Detection
         .onChange(of: isHovering) { _, isHovering in
+            /// Add Back Settings Window as well
             if uiManager.panelState == .open && !isHovering {
-                // TODO: A bit buggy, needs to be fixed,
                 viewModel.handleScrollUp(translation: 51, phase: .ended)
             }
         }

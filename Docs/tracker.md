@@ -124,6 +124,15 @@
 
 </details
 
+<details>
+    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/"><code></code></a></summary>
+
+  - Fixed a werid bug in the settings page background where it was rounded on the edges
+  - New Proximity Width and Height Settings
+    - This is nice cuz now we can visualize how the proximity area looks like
+
+</details>
+
 ---
 
 #### References

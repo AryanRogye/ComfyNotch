@@ -7,11 +7,15 @@
 
 import SwiftUI
 import AppKit
+import Combine
 
 struct HoverView: NSViewRepresentable {
     
     @Binding var isHovering: Bool
     
+    init(isHovering: Binding<Bool>) {
+        _isHovering = isHovering
+    }
     func makeNSView(context: Context) -> TrackingView {
         let view = TrackingView()
         view.onHoverChange = { hovering in
@@ -20,16 +24,7 @@ struct HoverView: NSViewRepresentable {
         return view
     }
     
-    func updateNSView(_ nsView: TrackingView, context: Context) {
-#if DEBUG
-        if VIEW_DEBUG_SPACING {
-            nsView.layer?.borderColor = NSColor.red.cgColor
-            nsView.layer?.borderWidth = 1
-        } else {
-            nsView.layer?.borderColor = nil
-        }
-#endif
-    }
+    func updateNSView(_ nsView: TrackingView, context: Context) {}
 }
 
 class TrackingView: NSView {
@@ -37,10 +32,82 @@ class TrackingView: NSView {
     var onHoverChange: ((Bool) -> Void)?
     var globalTracker: GlobalTracker?
     
+    private var cancellables: Set<AnyCancellable> = []
+    
     override init(frame: NSRect) {
         super.init(frame: frame)
+        
         wantsLayer = true
+        if layer == nil { layer = CALayer() } // ensure backing layer
+        
         globalTracker = GlobalTracker(view: self)
+        
+        NotchStateManager.shared.$shouldVisualizeProximity
+            .receive(on: RunLoop.main)
+            .sink { [weak self] on in
+                guard let self = self else { return }
+                guard layer != nil else { return }
+                
+                self.animate("opacity",         to: on ? 1 : 0)
+                self.animate("backgroundColor", to: (on ? NSColor.systemRed.withAlphaComponent(0.08) : .clear).cgColor)
+                self.animate("borderColor",     to: (on ? NSColor.systemRed : .clear).cgColor)
+                self.animate("borderWidth",     to: on ? 1 : 0)
+                self.animate("shadowColor",     to: on ? NSColor.red.cgColor : .clear)
+                self.animate("shadowOpacity",   to: on ? 0.4 : 0.0)
+                self.animate("shadowRadius",    to: on ? 6 : 0)
+                self.animate("cornerRadius",    to: on ? 8 : 0)
+                
+            }
+            .store(in: &cancellables)
+        
+    }
+    
+    private func animate(_ key: String, to value: Any, duration: CFTimeInterval = 0.25) {
+        guard let layer else { return }
+        let from = layer.presentation()?.value(forKeyPath: key) ?? layer.value(forKeyPath: key)
+        
+        // Decide direction if numeric (for nicer curves)
+        let isIncreasing: Bool = {
+            switch (from, value) {
+            case let (f as NSNumber, t as NSNumber): return t.doubleValue > f.doubleValue
+            default: return true
+            }
+        }()
+        
+        let anim: CAPropertyAnimation
+        
+        if key == "opacity" {
+            // Springy but tasteful for appear/disappear
+            let spring = CASpringAnimation(keyPath: key)
+            spring.fromValue = from
+            spring.toValue   = value
+            spring.damping = isIncreasing ? 16 : 18      // tiny bounce on appear, none on disappear
+            spring.initialVelocity = isIncreasing ? 3 : 0
+            spring.stiffness = 140
+            spring.mass = 1
+            spring.duration = spring.settlingDuration
+            anim = spring
+        } else {
+            let basic = CABasicAnimation(keyPath: key)
+            basic.fromValue = from
+            basic.toValue   = value
+            basic.duration  = duration
+            
+            // Overshoot on increase, clean ease on decrease
+            if isIncreasing {
+                // easeOutBack-ish
+                basic.timingFunction = CAMediaTimingFunction(controlPoints: 0.34, 1.56, 0.64, 1.0)
+            } else {
+                basic.timingFunction = CAMediaTimingFunction(name: .easeIn)
+            }
+            anim = basic
+        }
+        
+        anim.fillMode = .forwards
+        anim.isRemovedOnCompletion = true
+        
+        layer.add(anim, forKey: key)
+        layer.setValue(value, forKeyPath: key) // commit final state
     }
     
     override func viewDidMoveToWindow() {

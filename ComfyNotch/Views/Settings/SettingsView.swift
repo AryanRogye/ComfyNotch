@@ -312,7 +312,6 @@ struct VisualEffectView: NSViewRepresentable {
         view.blendingMode = blendingMode
         view.state = .active
         view.wantsLayer = true
-        view.layer?.cornerRadius = 12
         view.layer?.masksToBounds = true
         return view
     }
