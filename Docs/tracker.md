@@ -105,7 +105,7 @@
 
   - Added back a new HoverView, that is much more reliable and more accurate
 
-</details
+</details>
 
 <details>
     <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/d3c3d28"><code>d3c3d28</code></a></summary>
@@ -122,10 +122,10 @@
   - New Debug File, just moved things over from the main app file
   - Moved Files around to make more sense
 
-</details
+</details>
 
 <details>
-    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/"><code></code></a></summary>
+    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/97e13dc"><code>97e13dc</code></a></summary>
 
   - Fixed a werid bug in the settings page background where it was rounded on the edges
   - New Proximity Width and Height Settings
