@@ -78,11 +78,6 @@
 			path = Widgets;
 			sourceTree = "<group>";
 		};
-		9B1319DB2DF10A5600657438 /* Shapes */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Shapes;
-			sourceTree = "<group>";
-		};
 		9B131A022DF10A5600657438 /* Views */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Views;
@@ -118,9 +113,14 @@
 			path = ComfyNotchTests;
 			sourceTree = "<group>";
 		};
-		9B5027962E107EC1001EBE77 /* Main */ = {
+		9B5027962E107EC1001EBE77 /* App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Main;
+			path = App;
+			sourceTree = "<group>";
+		};
+		9B6AAE162E5AE237008B1CB5 /* Coordinators */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Coordinators;
 			sourceTree = "<group>";
 		};
 		9B8BF2CA2E3F3B4200766BE9 /* ComfyNotchUITests */ = {
@@ -163,14 +163,14 @@
 		9B1319622DF10A5200657438 /* ComfyNotch */ = {
 			isa = PBXGroup;
 			children = (
-				9B5027962E107EC1001EBE77 /* Main */,
+				9B6AAE162E5AE237008B1CB5 /* Coordinators */,
+				9B5027962E107EC1001EBE77 /* App */,
 				9B13195E2DF10A5200657438 /* Assets */,
 				9B131A612DF10A5600657438 /* Config */,
 				9B131A782DF10A5600657438 /* Extensions */,
 				9B131A692DF10A5600657438 /* Handlers */,
 				9B131A452DF10A5600657438 /* Managers */,
 				9B131A832DF10A5600657438 /* Models */,
-				9B1319DB2DF10A5600657438 /* Shapes */,
 				9B131A022DF10A5600657438 /* Views */,
 				9B1319CC2DF10A5600657438 /* Widgets */,
 				9B13195F2DF10A5200657438 /* Assets.xcassets */,
@@ -264,13 +264,13 @@
 			);
 			fileSystemSynchronizedGroups = (
 				9B1319CC2DF10A5600657438 /* Widgets */,
-				9B1319DB2DF10A5600657438 /* Shapes */,
 				9B131A022DF10A5600657438 /* Views */,
 				9B131A452DF10A5600657438 /* Managers */,
 				9B131A692DF10A5600657438 /* Handlers */,
 				9B131A782DF10A5600657438 /* Extensions */,
 				9B131A832DF10A5600657438 /* Models */,
-				9B5027962E107EC1001EBE77 /* Main */,
+				9B5027962E107EC1001EBE77 /* App */,
+				9B6AAE162E5AE237008B1CB5 /* Coordinators */,
 			);
 			name = ComfyNotch;
 			packageProductDependencies = (
@@ -291,7 +291,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1640;
-				LastUpgradeCheck = 1620;
+				LastUpgradeCheck = 1640;
 				TargetAttributes = {
 					9B3F1EE32E2724E400B5F68B = {
 						CreatedOnToolsVersion = 16.2;
@@ -406,7 +406,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = B9P888266K;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
@@ -425,7 +425,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = B9P888266K;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
@@ -443,7 +443,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = B9P888266K;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
@@ -461,7 +461,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = B9P888266K;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
@@ -507,7 +507,9 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = B9P888266K;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -570,7 +572,9 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = B9P888266K;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -605,7 +609,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 43;
-				DEVELOPMENT_TEAM = B9P888266K;
+				DEAD_CODE_STRIPPING = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				FRAMEWORK_SEARCH_PATHS = /System/Library/Frameworks;
@@ -650,7 +654,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 43;
-				DEVELOPMENT_TEAM = B9P888266K;
+				DEAD_CODE_STRIPPING = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				FRAMEWORK_SEARCH_PATHS = /System/Library/Frameworks;

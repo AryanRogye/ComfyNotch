@@ -11,19 +11,43 @@ struct NotchGeneralTab: View {
     
     @EnvironmentObject private var settings : SettingsModel
     
-    @State private var openSettingsChanged          : Bool = false
+    @State private var openSettingsChanged      : Bool = false
     @State private var closedSettingsChanged    : Bool = false
+    @State private var proximitySettingsChanged : Bool = false
     
     
-    @State private var closedNotchValues
-    : ClosedNotchValues = ClosedNotchValues()
-    @State private var openSettingsDimensionValues
-    : OpenNotchContentDimensionsValues = OpenNotchContentDimensionsValues()
+    @State private var proximityValues             : ProximitySettingsValues = ProximitySettingsValues()
+    @State private var closedNotchValues           : ClosedNotchValues = ClosedNotchValues()
+    @State private var openSettingsDimensionValues : OpenNotchContentDimensionsValues = OpenNotchContentDimensionsValues()
     
     var body: some View {
         ComfyScrollView {
+            proximitySettings
             openNotchContentDimensionSettings
             closedNotchSettings
+        }
+    }
+    
+    // MARK: - Proximity Settings
+    private var proximitySettings: some View {
+        ComfySettingsContainer {
+            ProximitySettings(
+                values: $proximityValues,
+                didChange: $proximitySettingsChanged
+            )
+        } header: {
+            HStack {
+                Text("Proximity Settings")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary)
+                Spacer()
+                ComfyButton(title: "Save", $proximitySettingsChanged) {
+                    // TODO: Impliment
+                    settings.saveProximitySettingsValues(values: proximityValues)
+                    proximitySettingsChanged = false
+                }
+            }
         }
     }
     

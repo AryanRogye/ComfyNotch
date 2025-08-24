@@ -12,35 +12,19 @@ struct TopNotchView: View {
     private let paddingWidth: CGFloat = 20
     
     private var leadingPadding: CGFloat {
-        return 11
+        return uiManager.panelState == .closed ? 11 : 0
     }
-    
     private var trailingPadding: CGFloat {
-        return 11
+        return uiManager.panelState == .closed ? 11 : 0
     }
     
     var body: some View {
         HStack(spacing: 0) {
             //MARK: - Left Widgets
             HStack {
-//                if uiManager.panelState == .closed && musicModel.nowPlayingInfo.isPlaying {
                     leftWidgets
-//                } else if uiManager.panelState == .open {
-//                    leftWidgets
-//                }
             }
             .padding(.leading, leadingPadding)
-//            .onReceive(musicModel.nowPlayingInfo.$isPlaying) { isPlaying in
-//                if uiManager.panelState == .closed && isPlaying {
-//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-//                        ScrollHandler.shared.expandWidth()
-//                    }
-//                } else if uiManager.panelState == .closed && !isPlaying {
-//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-//                        ScrollHandler.shared.reduceWidth()
-//                    }
-//                }
-//            }
             
             #if DEBUG
             Spacer()
@@ -58,15 +42,12 @@ struct TopNotchView: View {
             
             //MARK: - Right Widgets
             HStack {
-//                if uiManager.panelState == .closed && musicModel.nowPlayingInfo.isPlaying {
                     rightWidgets
-//                } else if uiManager.panelState == .open {
-//                    rightWidgets
-//                }
             }
             .padding(.trailing, trailingPadding)
         }
-        .frame(maxWidth: .infinity, maxHeight: UIManager.shared.getNotchHeight(), alignment: .top)
+        /// Width Changes but height remains the same
+        .frame(width: ScrollManager.shared.notchSize.width ,height: ScrollManager.shared.getNotchHeight())
     }
     
     // MARK: - Left Widget
@@ -77,18 +58,6 @@ struct TopNotchView: View {
         .onHover { hover in
             notchStateManager.hoverHandler.isHoveringOverLeft =
             hover &&
-            
-//            (
-//                (
-//                    !ScrollHandler.shared.isHovering &&
-//                    !ScrollHandler.shared.finishedHoveringIn
-//                ) ||
-//                (
-//                    ScrollHandler.shared.isHovering &&
-//                    ScrollHandler.shared.finishedHoveringIn
-//                )
-//            ) &&
-            
             MusicPlayerWidgetModel.shared.nowPlayingInfo.isPlaying &&
             settings.hoverTargetMode == .album &&
             notchStateManager.bottomSectionHeight == 0
@@ -114,8 +83,8 @@ struct TopNotchView: View {
         .onHover { hover in
             if notchStateManager.bottomSectionHeight == 0 {
                 withAnimation(.easeInOut(duration: 0.15)) {
-                    notchStateManager.hoverHandler.isHoveringOverPlayPause = hover
-                    isHovering = hover
+                    notchStateManager.hoverHandler.isHoveringOverPlayPause = hover && uiManager.panelState == .closed
+                    isHovering = hover && uiManager.panelState == .closed
                 }
             } else {
                 notchStateManager.hoverHandler.isHoveringOverPlayPause = false
