@@ -142,16 +142,19 @@ struct ComfyNotchView: View {
             ZStack(alignment: .top) {
                 
                 // BACKGROUND LAYER – Hover Detection Only
-                Color.clear
-                    .frame(
-                        width: scrollManager.notchSize.width + 300,
-                        height: scrollManager.notchSize.height + 300
-                    )
-#if DEBUG
-                    .border(.red, width: VIEW_DEBUG_SPACING ? 1 : 0)
-#endif
-                    .contentShape(Rectangle())
-                    .onHover { isHovering = $0 }
+//                Color.clear
+//                    .frame(
+//                        width: scrollManager.notchSize.width + 300,
+//                        height: scrollManager.notchSize.height + 300
+//                    )
+//#if DEBUG
+//                    .border(.red, width: VIEW_DEBUG_SPACING ? 1 : 0)
+//#endif
+//                    .contentShape(Rectangle())
+//                    .onHover { isHovering = $0 }
+                
+                HoverView(isHovering: $isHovering)
+                    .frame(width: 300, height: 300)
                 
                 
                 // FOREGROUND LAYER – Actual UI
@@ -349,7 +352,7 @@ struct ComfyNotchView: View {
         .onChange(of: isHovering) { _, isHovering in
             if uiManager.panelState == .open && !isHovering {
                 // TODO: A bit buggy, needs to be fixed,
-//                viewModel.handleScrollUp(translation: 51, phase: .ended)
+                viewModel.handleScrollUp(translation: 51, phase: .ended)
             }
         }
         
@@ -428,38 +431,4 @@ struct ComfyNotchView: View {
             duration: panelState == .open ? 2 : 0.5
         )
     }
-}
-
-
-/// Preview in Xcode 26 works for ComfyNotch
-#Preview {
-    let widgetStore = CompactWidgetsStore()
-    let bigWidgetStore = ExpandedWidgetsStore()
-    
-    let settings = SettingsButtonWidget()
-    let dots = MovingDotsView()
-    let quick = QuickAccessWidget()
-    let com = CompactAlbumWidget()
-    
-    let musicPlayer = MusicPlayerWidget()
-    
-    widgetStore.addWidget(settings)
-    widgetStore.addWidget(dots)
-    widgetStore.addWidget(quick)
-    widgetStore.addWidget(com)
-    
-    
-    bigWidgetStore.addWidget(musicPlayer)
-    
-    NotchStateManager.shared.currentPanelState = .file_tray
-    
-    UIManager.shared.panelState = .open
-    
-    return ZStack {
-        Color.gray.opacity(0.2) // Just to visualize the frame
-        ComfyNotchView()
-            .environmentObject(widgetStore)
-            .environmentObject(bigWidgetStore)
-    }
-    .frame(width: 270, height: 180)
 }

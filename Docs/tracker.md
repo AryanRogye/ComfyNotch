@@ -90,12 +90,22 @@
 </details>
 
 <details>
-    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/"><code></code></a></summary>
+    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/da3acd4"><code>da3acd4</code></a></summary>
     
   - Completely got rid of the touch settings, and replaced it for a context menu, so right click can be used for lots of other things
     - Belive cuz of this i broke UI Tests, so gonna have to fix that
 
 </details>
+
+---
+
+#### August 24th 2025
+<details>
+    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/"><code></code></a></summary>
+
+  - Added back a new HoverView, that is much more reliable and more accurate
+
+</details
 
 ---
 
