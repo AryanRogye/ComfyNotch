@@ -9,8 +9,8 @@ import SwiftUI
 
 struct WindowAccessor: NSViewRepresentable {
     func makeNSView(context: Context) -> NSView {
+        /// The NSView Destroys itself
         let v = WindowAccessorView()
-        
         return v
     }
     
@@ -22,6 +22,7 @@ class WindowAccessorView: NSView {
     override func viewDidMoveToWindow() {
         guard !didClose else { return }
         didClose = true
+        /// Close it
         window?.performClose(nil)
     }
 }

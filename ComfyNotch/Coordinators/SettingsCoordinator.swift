@@ -26,16 +26,36 @@ class SettingsCoordinator: ObservableObject {
                 title: "Settings",
                 content: view,
                 size: NSSize(width: 800, height: 500),
-                onOpen: {
-                    NSApp.activate(ignoringOtherApps: true)
+                onOpen: { [weak self] in
                     SettingsModel.shared.isSettingsWindowOpen = true
-                    print("Settings Window Opened")
+                    self?.activateWithRetry()
                 },
                 onClose: {
                     SettingsModel.shared.isSettingsWindowOpen = false
                     NSApp.activate(ignoringOtherApps: false)
-                    print("Settings Window Closed")
                 })
+        }
+    }
+    
+    private func bringAppFront() {
+        NSRunningApplication.current.activate(options: [.activateAllWindows])
+        NSApp.activate(ignoringOtherApps: true) // harmless double-tap; one of these usually “sticks”
+    }
+    
+    private func activateWithRetry(_ tries: Int = 6) {
+        guard tries > 0 else { return }
+        print("Try: \(tries)")
+        
+        // If we're already active *and* have a key window, stop retrying.
+        if NSApp.isActive, NSApp.keyWindow != nil {
+            return
+        }
+        
+        bringAppFront()
+        
+        // Try again shortly — gives Spaces/full-screen a moment to switch.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) { [weak self] in
+            self?.activateWithRetry(tries - 1)
         }
     }
 }

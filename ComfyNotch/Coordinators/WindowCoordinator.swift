@@ -54,7 +54,10 @@ class WindowCoordinator {
         onClose: (() -> Void)? = nil
     ) {
         if let window = windows[id] {
+            // Re-activate app and bring the existing window up
+            NSRunningApplication.current.activate(options: [.activateAllWindows])
             window.makeKeyAndOrderFront(nil)
+            window.makeFirstResponder(window.contentView)
             return
         }
         
@@ -84,6 +87,7 @@ class WindowCoordinator {
         
         window.center()
         window.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
         
         windows[id] = window
         if let action = onClose {

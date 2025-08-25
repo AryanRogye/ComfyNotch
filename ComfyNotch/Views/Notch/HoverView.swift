@@ -54,9 +54,11 @@ class TrackingView: NSView {
                 self.animate("borderWidth",     to: on ? 1 : 0)
                 self.animate("shadowColor",     to: on ? NSColor.red.cgColor : .clear)
                 self.animate("shadowOpacity",   to: on ? 0.4 : 0.0)
+                self.animate("shadowOffset", to: on ? CGSize(width: 0, height: 3) : .zero)
                 self.animate("shadowRadius",    to: on ? 6 : 0)
                 self.animate("cornerRadius",    to: on ? 8 : 0)
-                
+                self.animate("transform.rotation", to: on ? 0.01 : 0)
+                self.animate("lineDashPhase", to: on ? 10 : 0)
             }
             .store(in: &cancellables)
         
@@ -154,11 +156,15 @@ class GlobalTracker {
             let inside = screenRect.contains(screenLocation)
             
             if inside != self.isInside {
-                
                 self.isInside = inside
                 if Thread.isMainThread { completion(inside) }
                 else { DispatchQueue.main.async { completion(inside) } }
                 
+                DispatchQueue.main.async {
+                    if NotchStateManager.shared.shouldVisualizeProximity {
+                        
+                    }
+                }
             }
         }
         

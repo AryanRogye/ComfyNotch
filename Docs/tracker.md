@@ -135,5 +135,14 @@
 
 ---
 
+#### August 25th 2025
+<details>
+    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/d3c3d28"><code>d3c3d28</code></a></summary>
+
+  - Fixing weird bug where the settings page wouldnt be focused when opened
+    - Now we have a number of tries we can have the window be focused
+  - Removed unused code
+</details>
+
 #### References
   - ["Sick Ass Header Implementation"](https://github.com/NUIKit/CGSInternal/blob/master/CGSSpace.h)

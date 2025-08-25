@@ -128,12 +128,6 @@ struct SettingsView: View {
         ZStack {
             settingsView
         }
-        .onAppear {
-            /// Make Sure That the Window is Above runs after 0.2 seconds
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                NSApp.activate(ignoringOtherApps: true)
-            }
-        }
         .onDisappear {
             settings.refreshUI()
         }
