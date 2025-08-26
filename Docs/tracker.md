@@ -172,7 +172,7 @@
 </details>
 
 <details>
-    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/"><code></code></a></summary>
+    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/e2b3215"><code>e2b3215</code></a></summary>
 
   - Fixing Tests
 
