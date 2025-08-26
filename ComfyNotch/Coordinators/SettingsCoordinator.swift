@@ -20,21 +20,20 @@ class SettingsCoordinator: ObservableObject {
         
         let view = SettingsView()
         
-        if !SettingsModel.shared.isSettingsWindowOpen {
-            windowCoordinator.showWindow(
-                id: "settings",
-                title: "Settings",
-                content: view,
-                size: NSSize(width: 800, height: 500),
-                onOpen: { [weak self] in
-                    SettingsModel.shared.isSettingsWindowOpen = true
-                    self?.activateWithRetry()
-                },
-                onClose: {
-                    SettingsModel.shared.isSettingsWindowOpen = false
-                    NSApp.activate(ignoringOtherApps: false)
-                })
-        }
+        windowCoordinator.showWindow(
+            id: "settings",
+            title: "Settings",
+            content: view,
+            size: NSSize(width: 800, height: 500),
+            onOpen: { [weak self] in
+                SettingsModel.shared.isSettingsWindowOpen = true
+                print("Settings Window Open at the place where we open it: \(SettingsModel.shared.isSettingsWindowOpen)")
+                self?.activateWithRetry()
+            },
+            onClose: {
+                SettingsModel.shared.isSettingsWindowOpen = false
+                NSApp.activate(ignoringOtherApps: false)
+            })
     }
     
     private func bringAppFront() {

@@ -85,18 +85,18 @@ class WindowCoordinator {
         window.delegate = delegate
         delegates[id] = delegate
         
-        window.center()
-        window.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
-        
-        windows[id] = window
         if let action = onClose {
             onCloseAction[id] = action
         }
         if let action = onOpen {
             onOpenAction[id] = action
-            /// Init of Delegate will call this
         }
+        
+        window.center()
+        window.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+        
+        windows[id] = window
     }
     
     func closeWindow(id: String) {

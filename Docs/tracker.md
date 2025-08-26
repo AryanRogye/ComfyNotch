@@ -163,6 +163,14 @@
 
 </details>
 
+<details>
+    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/"><code></code></a></summary>
+
+  - Fixed bug in WindowCoordinator where if we opened the settings window the first time, it wouldnt trigger the onOpen
+  - Cleaning up ScrollUp - I thought threads were started and never stopped, but turns out Xcode is just tweaking, `Apple Fix Xcode`
+
+</details>
+
 ---
 
 #### References

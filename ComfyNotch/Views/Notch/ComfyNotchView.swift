@@ -84,10 +84,7 @@ class ComfyNotchViewModel: ObservableObject {
             if translation > threshold {
                 self.isHoveringOverNotch = false
                 uiManager.applyOpeningLayout()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) { [weak self] in
-                    guard let self = self else { return }
-                    self.scrollManager.closeFull()
-                }
+                self.scrollManager.closeFull()
             }
         default: break
         }
@@ -338,6 +335,8 @@ struct ComfyNotchView: View {
         .onChange(of: isHovering) { _, isHovering in
             /// Add Back Settings Window as well, this means checking if the settingswindow is open or not
             if uiManager.panelState == .open && !isHovering {
+                if settings.isSettingsWindowOpen { return }
+                print("Settings is Open: \(settings.isSettingsWindowOpen)")
                 viewModel.handleScrollUp(translation: 51, phase: .ended)
             }
         }
@@ -409,7 +408,11 @@ struct ComfyNotchView: View {
         }
     }
     
+    @State private var lastBlurPanelState: PanelState?
     private func handleBlurringBackground(_ panelState: PanelState) {
+        guard lastBlurPanelState != panelState else { return }
+        lastBlurPanelState = panelState
+        
         MetalAnimationState.shared.animateBlurProgress(
             /// if open then blur to 1, if its closed then blur to 0
             to: panelState == .open ? 1.0 : 0.0,
