@@ -157,9 +157,10 @@
 </details>
 
 <details>
-    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/"><code></code></a></summary>
+    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/6c23857"><code>6c23857</code></a></summary>
 
   - License Tab wouldnt let us scroll all the way to the bottom, so I fixed that
+
 </details>
 
 ---
