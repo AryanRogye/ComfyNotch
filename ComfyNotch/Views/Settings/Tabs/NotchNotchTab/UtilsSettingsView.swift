@@ -32,13 +32,13 @@ public struct UtilsSettingsView: View {
         VStack {
             enableUtilsOption
                 .padding(.horizontal)
-                .padding(.top, 8)
+                .padding(.vertical, 8)
             
-            Divider().padding(.vertical, 8)
+            Divider().groupBoxStyle()
             
             enableClipboardListener
                 .padding(.horizontal)
-                .padding(.bottom, 8)
+                .padding(.vertical, 8)
         }
     }
     

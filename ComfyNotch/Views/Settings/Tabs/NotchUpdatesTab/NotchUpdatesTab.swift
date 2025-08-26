@@ -35,16 +35,17 @@ struct NotchUpdatesTab: View {
                 releaseNotes
                 Spacer()
             }
-            .padding([.horizontal, .top])
+            .padding(.horizontal)
+            .padding(.vertical, 8)
             
-            
-            Divider().padding(.vertical, 8)
+            Divider().groupBoxStyle()
             
             HStack {
                 checkForUpdates
                 Spacer()
             }
-            .padding([.horizontal, .bottom])
+            .padding(.horizontal)
+            .padding(.vertical, 8)
         }
     }
     
@@ -57,9 +58,10 @@ struct NotchUpdatesTab: View {
                 Spacer()
                 appVersion
             }
-            .padding([.horizontal, .top])
+            .padding(.horizontal)
+            .padding(.vertical, 8)
             
-            Divider().padding(.vertical, 8)
+            Divider().groupBoxStyle()
             
             HStack {
                 Text("Build:")
@@ -68,7 +70,8 @@ struct NotchUpdatesTab: View {
                 Spacer()
                 appBuild
             }
-            .padding([.horizontal, .bottom])
+            .padding(.horizontal)
+            .padding(.vertical, 8)
         }
     }
     

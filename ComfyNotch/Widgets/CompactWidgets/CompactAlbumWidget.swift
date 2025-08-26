@@ -17,7 +17,7 @@ struct CompactAlbumWidget: View, Widget {
     
     @ObservedObject var model: MusicPlayerWidgetModel = .shared
     @ObservedObject var notchStateManager: NotchStateManager = .shared
-    var scrollManager = ScrollHandler.shared
+    @ObservedObject var scrollManager = ScrollManager.shared
     
     private var animationStiffness: CGFloat = 300
     private var animationDamping: CGFloat = 15
@@ -40,8 +40,6 @@ struct CompactAlbumWidget: View, Widget {
                 if let artwork = model.nowPlayingInfo.artworkImage {
                     Image(nsImage: artwork)
                         .resizable()
-                        .scaledToFit()
-                        .scaleEffect(scale)
                         .frame(width: sizeConfig.width, height: sizeConfig.height)
                         .minimumScaleFactor(0.5)
                         .lineLimit(1)
@@ -68,8 +66,17 @@ struct CompactAlbumWidget: View, Widget {
             value: notchStateManager.hoverHandler.scaleHoverOverLeftItems
         )
         .onAppear { sizeConfig = widgetSize() }
-        .onChange(of: notchStateManager.hoverHandler.scaleHoverOverLeftItems) {
-            sizeConfig = widgetSize()
+        .onChange(of: notchStateManager.hoverHandler.scaleHoverOverLeftItems) { _, value in
+            if value {
+                let size = widgetSize()
+                withAnimation(.interpolatingSpring(stiffness: 180, damping: 20)) {
+                    sizeConfig = .init(width: size.width * 1.1, height: size.height * 1.1)
+                }
+            } else {
+                withAnimation(.interpolatingSpring(stiffness: 180, damping: 20)) {
+                    sizeConfig = widgetSize()
+                }
+            }
         }
         .onChange(of: notchStateManager.hoverHandler.scaleHoverOverLeftItems) { _, value in
             withAnimation(.interpolatingSpring(stiffness: 180, damping: 20)) {
@@ -98,7 +105,7 @@ struct CompactAlbumWidget: View, Widget {
     }
     
     func widgetSize() -> WidgetSizeConfig {
-        let height = UIManager.shared.getNotchHeight()
+        let height = ScrollManager.shared.getNotchHeight()
         let w = height * 0.65
         let h = height * 0.65
         

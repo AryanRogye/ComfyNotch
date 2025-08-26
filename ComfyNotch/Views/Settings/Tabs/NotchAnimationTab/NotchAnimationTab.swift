@@ -33,11 +33,17 @@ struct NotchAnimationTab : View {
                 didChange: $metalSettingsChanged
             )
         } header: {
-            Text("Metal (GPU Rendering) Settings")
-                .font(.headline)
-                .fontWeight(.semibold)
-                .foregroundColor(.primary)
-            
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Metal (GPU Rendering) Settings")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary)
+                Label("Uses additional system resources", systemImage: "info.circle")
+                    .font(.system(size: 9))
+                    .foregroundColor(.secondary)
+                    .labelStyle(.titleAndIcon)
+            }
+
             Spacer()
             
 
