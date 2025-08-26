@@ -148,12 +148,18 @@
 
 #### August 26th 2025
 <details>
-    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/"><code></code></a></summary>
+    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/ebbe428"><code>ebbe428</code></a></summary>
 
   - Moves Files around to make more sense
   - Fixed weird Metal Animations description, now is more clear and not in a awkward place
   - Reworked full Settings Container and Settings Sections, now is using more apple native things
 
+</details>
+
+<details>
+    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/"><code></code></a></summary>
+
+  - License Tab wouldnt let us scroll all the way to the bottom, so I fixed that
 </details>
 
 ---

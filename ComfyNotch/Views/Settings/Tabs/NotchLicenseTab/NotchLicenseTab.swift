@@ -13,15 +13,13 @@ struct NotchLicenseTab: View {
     var body: some View {
         ComfyScrollView {
             ComfySettingsContainer {
-                ScrollView {
-                    Text(licenseText)
-                        .font(.system(.body, design: .monospaced))
-                        .padding()
-                        .textSelection(.enabled)
-                }
-                .onAppear { loadLicense() }
-                .padding(.bottom)
+                Text(licenseText)
+                    .font(.system(.body, design: .monospaced))
+                    .padding()
+                    .textSelection(.enabled)
             }
+            .onAppear { loadLicense() }
+            .padding(.bottom, 32)
         }
     }
     
