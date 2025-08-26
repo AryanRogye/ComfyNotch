@@ -43,16 +43,15 @@ struct OpenNotchContentDimensionsView: View {
     }
     
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             notchShapeOpen
-                .padding([.horizontal, .top])
-            
-            Divider()
+                .padding(.horizontal)
                 .padding(.vertical, 8)
+
+            Divider().groupBoxStyle()
             
             dimensionSettings
-                .padding(.bottom)
-
+                .padding(.vertical, 8)
         }
         .onAppear {
             v.leftSpacing = Int(settings.quickAccessWidgetDistanceFromLeft)
@@ -140,9 +139,9 @@ struct OpenNotchContentDimensionsView: View {
                 label: "Left Spacing"
             )
             .padding(.horizontal)
-            
-            Divider()
-                .padding(.vertical, 8)
+            .padding(.vertical, 8)
+
+            Divider().groupBoxStyle()
 
             ComfySlider(
                 value: $v.rightSpacing,
@@ -150,26 +149,27 @@ struct OpenNotchContentDimensionsView: View {
                 label: "Right Spacing"
             )
             .padding(.horizontal)
+            .padding(.vertical, 8)
 
-            Divider()
-                .padding(.vertical, 8)
-            
+            Divider().groupBoxStyle()
+
             ComfySlider(
                 value: $v.topSpacing,
                 in: 0...Int(ScrollManager.shared.getNotchHeight()),
                 label: "Top Spacing"
             )
             .padding(.horizontal)
+            .padding(.vertical, 8)
 
-            Divider()
-                .padding(.vertical, 8)
+            Divider().groupBoxStyle()
             
             ComfySlider(
                 value: $v.notchMaxWidth,
                 in: Int(settings.MIN_NOTCH_MAX_WIDTH)...Int(settings.MAX_NOTCH_MAX_WIDTH),
                 label: "Notch Max Width (While Open)"
             )
-            .padding([.horizontal])
+            .padding(.horizontal)
+            .padding(.vertical, 8)
         }
     }
 }

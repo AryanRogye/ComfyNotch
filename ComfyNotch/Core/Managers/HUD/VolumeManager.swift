@@ -133,14 +133,15 @@ final class VolumeManager: ObservableObject {
         }
     }
     
-    // MARK: - Get System Audio (Easy Way)
     private func checkVolumeAppleScript() {
         let script = "output volume of (get volume settings)"
         var error: NSDictionary?
         if let scriptObject = NSAppleScript(source: script) {
             if let output = scriptObject.executeAndReturnError(&error).stringValue {
                 if let vol = Float(output) {
-                    self.currentVolume = vol / 100.0
+                    DispatchQueue.main.async {
+                        self.currentVolume = vol / 100.0
+                    }
                 }
             }
         } else {

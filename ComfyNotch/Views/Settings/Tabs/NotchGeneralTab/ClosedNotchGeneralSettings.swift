@@ -30,43 +30,40 @@ struct ClosedNotchGeneralSettings: View {
     var body: some View {
         VStack {
             notchShapeClosed
-                .padding([.horizontal, .top])
+                .padding(.horizontal)
+                .padding(.vertical, 8)
 
-            Divider()
-                .padding([.vertical, .top], 4)
+            Divider().groupBoxStyle()
             
             panelMinWidthSettings
-                .padding(.vertical, 4)
+                .padding(.horizontal)
+                .padding(.vertical, 8)
             
-            Divider()
-                .padding(.vertical, 4)
-            
+            Divider().groupBoxStyle()
+
             fallbackHeightSettings
-                .padding(.vertical, 4)
-            
-            Divider()
-                .padding(.vertical, 4)
-            
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+
+            Divider().groupBoxStyle()
+
             hoverSettings
-                .padding(.vertical, 4)
-            
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+
             if v.hoverTargetMode == .album {
-                Divider()
-                    .padding(.vertical, 4)
-                
+                Divider().groupBoxStyle()
+
                 buttonsOnHoverToggle
-                    .padding(.vertical, 4)
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
             }
             
-            Divider()
-                .padding(.vertical, 4)
-            
+            Divider().groupBoxStyle()
+
             hudSettings
-                .padding(.vertical, 4)
-            
-            Divider()
-                .padding(.vertical, 4)
-                .padding(.bottom)
+                .padding(.vertical, 8)
+                .padding(.bottom, 12)
         }
         .onAppear {
             v.hoverTargetMode = settings.hoverTargetMode
@@ -135,7 +132,6 @@ struct ClosedNotchGeneralSettings: View {
                 label: "Notch Width When Closed"
             )
         }
-        .padding(.horizontal)
     }
     
     // MARK: - Fallback Height Settings
@@ -155,7 +151,6 @@ struct ClosedNotchGeneralSettings: View {
             .frame(alignment: .center)
             .padding(.top, 2)
         }
-        .padding(.horizontal)
     }
     
     // MARK: - Hover Settings
@@ -177,7 +172,6 @@ struct ClosedNotchGeneralSettings: View {
                 .labelsHidden()
             }
         }
-        .padding([.horizontal])
     }
     
     // MARK: - buttonsOnHoverToggle
@@ -197,7 +191,6 @@ struct ClosedNotchGeneralSettings: View {
                     .toggleStyle(.switch)
             }
         }
-        .padding(.horizontal)
     }
 
     // MARK: - HUD Settings

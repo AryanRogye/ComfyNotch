@@ -24,33 +24,35 @@ struct MusicPlayerSettings: View {
     var body: some View {
         VStack {
             pickMusicPlayerStyles
-                .padding([.horizontal, .top])
-            
-            Divider()
+                .padding(.horizontal)
                 .padding(.vertical, 8)
+            
+            Divider().groupBoxStyle()
             
             albumFlipping
                 .padding(.horizontal)
-            
-            Divider()
                 .padding(.vertical, 8)
+            
+            Divider().groupBoxStyle()
 
             showMusicProvider
                 .padding(.horizontal)
-
-            Divider()
                 .padding(.vertical, 8)
+
+            Divider().groupBoxStyle()
 
            musicControllerPicker
                 .padding(.horizontal)
-                .padding(.vertical, 4)
+                .padding(.top, 8)
                 .padding(.bottom, values.musicController == .spotify_music ? 8 : 0)
 
             if values.musicController == .mediaRemote {
-                Divider()
-                    .padding(.vertical, 8)
+                
+                Divider().groupBoxStyle()
+                
                 musicProviderPicker
-                    .padding([.horizontal, .bottom])
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
             }
         }
         .onAppear {

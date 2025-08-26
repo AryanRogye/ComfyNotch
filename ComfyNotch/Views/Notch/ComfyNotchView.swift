@@ -171,6 +171,8 @@ struct ComfyNotchView: View {
         .animation(.easeInOut, value: hasAppearedOnce)
     }
     
+    // TODO: Need to fully add back old logic into new, right now its super sketchy, but its alot of days
+    // of work, might think about doing it soon
     // MARK: - Swiping Left and Right
     //            .panGesture(direction: .right) { translation, phase in
     //                guard uiManager.panelState == .closed else { return }
@@ -334,7 +336,7 @@ struct ComfyNotchView: View {
         
         // MARK: - Hover Off Detection
         .onChange(of: isHovering) { _, isHovering in
-            /// Add Back Settings Window as well
+            /// Add Back Settings Window as well, this means checking if the settingswindow is open or not
             if uiManager.panelState == .open && !isHovering {
                 viewModel.handleScrollUp(translation: 51, phase: .ended)
             }

@@ -24,12 +24,14 @@ struct EventWidgetSettings: View {
     var body: some View {
         VStack {
             thresholdPicker
-                .padding(.top, 8)
                 .padding(.horizontal)
-            Divider().padding(.vertical, 8)
+                .padding(.vertical, 8)
+            
+            Divider().groupBoxStyle()
             
             calendarTypePicker
-                .padding([.horizontal, .bottom])
+                .padding(.horizontal)
+                .padding(.vertical, 8)
         }
         .onChange(of: values.eventWidgetScrollUpThreshold) {
             didValuesChange()

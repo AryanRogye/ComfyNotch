@@ -67,31 +67,35 @@ public struct MessageSettingsView: View {
     private var messagesSettings: some View {
         /// One Side Messages Controls
         VStack {
-            /// Toggle for Messages Notifications
-            Toggle("Enable Messages Notch View",isOn: $v.enableMessagesNotifications)
-                .toggleStyle(.switch)
-                .padding([.horizontal, .top])
             
             
-            /// Suggestion
-            Button(action: {
-                /// Open Notifications Settings
-                NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.notifications?Messages")!)
-            }) {
-                HStack(spacing: 4) {
-                    Image(systemName: "bell.slash.fill")
-                    Text("We recommend disabling notifications for the Messages app.")
+            VStack {
+                /// Toggle for Messages Notifications
+                Toggle("Enable Messages Notch View",isOn: $v.enableMessagesNotifications)
+                    .toggleStyle(.switch)
+                    .padding(.vertical, 4)
+                
+                /// Suggestion
+                Button(action: {
+                    /// Open Notifications Settings
+                    NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.notifications?Messages")!)
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "bell.slash.fill")
+                        Text("We recommend disabling notifications for the Messages app.")
+                    }
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
                 }
-                .font(.footnote)
-                .foregroundColor(.secondary)
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
+            .padding(.horizontal)
             .padding(.vertical, 8)
             
 
             if v.enableMessagesNotifications {
                 
-                Divider().padding(.bottom, 8)
+                Divider().groupBoxStyle()
 
                 VStack {
                     ComfySlider(
@@ -101,8 +105,9 @@ public struct MessageSettingsView: View {
                         label: "Most Recent User Limit"
                     )
                     .padding(.horizontal)
+                    .padding(.vertical, 8)
 
-                    Divider().padding(.vertical, 8)
+                    Divider().groupBoxStyle()
                     
                     /// Actual last message content
                     ComfySlider(
@@ -111,7 +116,8 @@ public struct MessageSettingsView: View {
                         step: 1,
                         label: "Control Message Limit"
                     )
-                    .padding([.horizontal, .bottom])
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
                 }
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }

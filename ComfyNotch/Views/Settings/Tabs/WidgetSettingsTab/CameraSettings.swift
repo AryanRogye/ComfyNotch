@@ -15,24 +15,28 @@ struct CameraSettings: View {
     var body: some View {
         VStack {
             flipCamera
-                .padding(.top, 8)
                 .padding(.horizontal)
+                .padding(.vertical, 8)
 
-            Divider().padding(.vertical, 8)
+            Divider().groupBoxStyle()
             
             cameraQuality
                 .padding(.horizontal)
+                .padding(.vertical, 8)
 
-            Divider().padding(.vertical, 8)
+            Divider().groupBoxStyle()
 
             cameraOverlay
                 .padding(.horizontal)
-                .padding(.bottom, 8)
+                .padding(.vertical, 8)
 
             if settings.enableCameraOverlay {
-                Divider().padding(.bottom, 8)
+                
+                Divider().groupBoxStyle()
+                
                 overlayTimer
-                    .padding([.horizontal, .bottom])
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
             }
         }
     }

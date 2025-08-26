@@ -28,7 +28,6 @@ struct NotchLicenseTab: View {
     private func loadLicense() {
         if let url = Bundle.main.url(forResource: "LICENSE", withExtension: nil) {
             licenseText = (try? String(contentsOf: url)) ?? "Could not load license."
-            print("[LicenseText]", licenseText)
         } else {
             licenseText = "License file not found."
         }

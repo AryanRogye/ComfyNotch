@@ -54,10 +54,9 @@ struct ProximitySettings: View {
                 label: "Proximity Width"
             )
             .padding(.horizontal)
-            .padding(.top, 8)
+            .padding(.vertical, 8)
             
-            Divider()
-                .padding(.vertical, 8)
+            Divider().groupBoxStyle()
             
             ComfySlider(
                 value: $values.proximityHeight,
@@ -65,19 +64,23 @@ struct ProximitySettings: View {
                 label: "Proximity Height"
             )
             .padding(.horizontal)
+            .padding(.vertical, 8)
+
+            Divider().groupBoxStyle()
             
-            Divider()
-                .padding(.vertical, 8)
-            
-            Toggle("Visualize Proximity", isOn: $notchStateManager.shouldVisualizeProximity)
-                .toggleStyle(.switch)
-                .padding(.horizontal)
-                .padding(.bottom, 8)
-            /// Always turn off on close
-                .onDisappear {
-                    notchStateManager.shouldVisualizeProximity = false
-                }
+            HStack(alignment: .center) {
+                Text("Visualize Proximity")
+                Spacer()
+                Toggle("Visualize Proximity", isOn: $notchStateManager.shouldVisualizeProximity)
+                    .labelsHidden()
+                    .toggleStyle(.switch)
+                /// Always turn off on close
+                    .onDisappear {
+                        notchStateManager.shouldVisualizeProximity = false
+                    }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
         }
     }
-
 }

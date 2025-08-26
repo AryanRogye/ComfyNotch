@@ -15,11 +15,7 @@ struct CurrentWidgetsDisplayView: View {
         VStack {
             notchShapeOpen
             
-            Divider()
-                .padding(.top, 8)
-            
             dragWidgetsHere
-                .padding([.bottom])
         }
     }
     
@@ -39,10 +35,9 @@ struct CurrentWidgetsDisplayView: View {
                 Spacer()
             }
             .padding([.horizontal])
-            .padding(.top, 8)
+            .padding(.vertical, 8)
             
-            Divider()
-                .padding(.vertical, 8)
+            Divider().groupBoxStyle()
             
             GeometryReader { geo in
                 let count = max(settings.selectedWidgets.count, 1)
@@ -65,7 +60,8 @@ struct CurrentWidgetsDisplayView: View {
             )
             .animation(.interactiveSpring(response: 0.3, dampingFraction: 0.75, blendDuration: 0.3), value: settings.selectedWidgets)
             .padding(.horizontal)
-            
+            .padding(.vertical, 8)
+
         }
     }
     

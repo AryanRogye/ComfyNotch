@@ -144,5 +144,19 @@
   - Removed unused code
 </details>
 
+---
+
+#### August 26th 2025
+<details>
+    <summary>View Changes | <a href="https://github.com/aryanrogye/ComfyNotch/commit/"><code></code></a></summary>
+
+  - Moves Files around to make more sense
+  - Fixed weird Metal Animations description, now is more clear and not in a awkward place
+  - Reworked full Settings Container and Settings Sections, now is using more apple native things
+
+</details>
+
+---
+
 #### References
   - ["Sick Ass Header Implementation"](https://github.com/NUIKit/CGSInternal/blob/master/CGSSpace.h)

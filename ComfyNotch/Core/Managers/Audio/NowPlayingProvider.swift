@@ -141,4 +141,5 @@ extension NowPlayingProvider {
         }
         
         return NSColor(red: adjustedRed, green: adjustedGreen, blue: adjustedBlue, alpha: alpha)
-    }}
+    }
+}
