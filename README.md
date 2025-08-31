@@ -111,7 +111,7 @@ _Notch Width Change_
 
 ### 💻 **Clone and Build**
 ```bash
-git clone https://github.com/YourUsername/ComfyNotch.git
+git clone https://github.com/AryanRogye/ComfyNotch.git
 cd ComfyNotch
 open ComfyNotch.xcodeproj
 ```
