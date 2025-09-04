@@ -88,14 +88,10 @@ struct CompactAlbumWidget: View, Widget {
     
     private func panelButton<Label: View>(@ViewBuilder label: () -> Label) -> some View {
         Button(action: {
-            withAnimation(Anim.spring) {
-                UIManager.shared.applyOpeningLayout()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    scrollManager.openFull()
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    notchStateManager.currentPanelState = .home
-                }
+            NotchStateManager.shared.hoverHandler.usedButtonToOpen = true
+            NotchStateManager.shared.handleScrollDown(translation: 20, phase: NSEvent.Phase(rawValue: 0), force: true)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                NotchStateManager.shared.hoverHandler.usedButtonToOpen = false
             }
         }) {
             label()

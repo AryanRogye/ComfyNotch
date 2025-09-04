@@ -46,9 +46,10 @@ class NotchStateManager: ObservableObject {
         }
     }
     
-    public func handleScrollDown(translation: CGFloat, phase: NSEvent.Phase) {
+    public func handleScrollDown(translation: CGFloat, phase: NSEvent.Phase, force: Bool = false) {
         guard uiManager.panelState == .closed else { return }
-        let threshold : CGFloat = self.currentPanelState == .popInPresentation ? 420 : 250
+        var threshold : CGFloat = self.currentPanelState == .popInPresentation ? 420 : 250
+        if force { threshold = 0 }
         
         if translation > threshold {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.75, blendDuration: 0.1)) {
@@ -64,9 +65,10 @@ class NotchStateManager: ObservableObject {
         }
     }
     
-    public func handleScrollUp(translation: CGFloat, phase: NSEvent.Phase) {
+    public func handleScrollUp(translation: CGFloat, phase: NSEvent.Phase, force: Bool = false) {
         guard uiManager.panelState == .open else { return }
-        let threshold: CGFloat = 50
+        var threshold: CGFloat = 50
+        if force { threshold = 0 }
         switch phase {
         case .ended:
             if translation > threshold {

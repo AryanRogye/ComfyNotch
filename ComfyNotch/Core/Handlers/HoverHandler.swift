@@ -31,6 +31,7 @@ final class HoverHandler: ObservableObject {
     
     /// Tells other views that we can now scale
     @Published var scaleHoverOverLeftItems: Bool = false
+    @Published var usedButtonToOpen = false
     
     let uiManager = UIManager.shared
     
@@ -117,8 +118,11 @@ final class HoverHandler: ObservableObject {
                             withAnimation(.easeOut(duration: 0.2)) {
                                 /// Check again
                                 if !self.isHoveringOverLeft {
-                                    ScrollManager.shared.peekClose()
-                                    return
+                                    if !self.usedButtonToOpen {
+                                        print("Detected Weird Panel Behavior, Closing And Returning")
+                                        ScrollManager.shared.peekClose()
+                                        return
+                                    }
                                 }
                                 if UIManager.shared.panelState != .open {
                                     target.currentPopInPresentationState = .nowPlaying
