@@ -99,7 +99,6 @@ final class VolumeManager: ObservableObject {
         
         // Check if the device supports volume control
         guard hasVolumeControl(deviceID: defaultOutputDeviceID) else {
-            debugLog("Device doesn't support volume control", from: .volume)
             checkVolumeAppleScript()
             return
         }

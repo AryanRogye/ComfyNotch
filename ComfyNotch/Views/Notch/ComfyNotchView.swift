@@ -27,27 +27,15 @@ class NotchStateManager: ObservableObject {
     
     /// Used to show red box around the proximity
     @Published var shouldVisualizeProximity : Bool = false
+    @Published var isHoveringOverNotch: Bool = false
+
+    let uiManager = UIManager.shared
+    let scrollManager = ScrollManager.shared
     
     let hoverHandler = HoverHandler()
     
     init() {
         hoverHandler.bindHoveringOverLeft(for: self)
-    }
-}
-
-@MainActor
-class ComfyNotchViewModel: ObservableObject {
-    
-    let uiManager = UIManager.shared
-    let scrollManager = ScrollManager.shared
-    let notchStateManager = NotchStateManager.shared
-    var fileDropManager :FileDropManager? = nil
-    
-    
-    @Published var isHoveringOverNotch: Bool = false
-    
-    public func assignFileDropManager(fileDropManager: FileDropManager) {
-        self.fileDropManager = fileDropManager
     }
     
     public func handleHover(_ hovering: Bool) {
@@ -60,7 +48,7 @@ class ComfyNotchViewModel: ObservableObject {
     
     public func handleScrollDown(translation: CGFloat, phase: NSEvent.Phase) {
         guard uiManager.panelState == .closed else { return }
-        let threshold : CGFloat = notchStateManager.currentPanelState == .popInPresentation ? 420 : 250
+        let threshold : CGFloat = self.currentPanelState == .popInPresentation ? 420 : 250
         
         if translation > threshold {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.75, blendDuration: 0.1)) {
@@ -88,6 +76,18 @@ class ComfyNotchViewModel: ObservableObject {
             }
         default: break
         }
+    }
+}
+
+@MainActor
+class ComfyNotchViewModel: ObservableObject {
+    
+    let uiManager = UIManager.shared
+    let notchStateManager = NotchStateManager.shared
+    var fileDropManager :FileDropManager? = nil
+    
+    public func assignFileDropManager(fileDropManager: FileDropManager) {
+        self.fileDropManager = fileDropManager
     }
     
     public func handleDrop() {
@@ -324,12 +324,12 @@ struct ComfyNotchView: View {
             )
         )
         .scaleEffect(
-            x: viewModel.isHoveringOverNotch ? 1.08 : 1.0,
-            y: viewModel.isHoveringOverNotch ? 1.05 : 1.0,
+            x: notchStateManager.isHoveringOverNotch ? 1.08 : 1.0,
+            y: notchStateManager.isHoveringOverNotch ? 1.05 : 1.0,
             anchor: .top
         )
-        .shadow(radius: viewModel.isHoveringOverNotch ? 8 : 0)
-        .animation(.spring(response: 0.4, dampingFraction: 0.75, blendDuration: 0.1), value: viewModel.isHoveringOverNotch)
+        .shadow(radius: notchStateManager.isHoveringOverNotch ? 8 : 0)
+        .animation(.spring(response: 0.4, dampingFraction: 0.75, blendDuration: 0.1), value: notchStateManager.isHoveringOverNotch)
         
         // MARK: - Hover Off Detection
         .onChange(of: isHovering) { _, isHovering in
@@ -337,16 +337,16 @@ struct ComfyNotchView: View {
             if uiManager.panelState == .open && !isHovering {
                 if settings.isSettingsWindowOpen { return }
                 print("Settings is Open: \(settings.isSettingsWindowOpen)")
-                viewModel.handleScrollUp(translation: 51, phase: .ended)
+                notchStateManager.handleScrollUp(translation: 51, phase: .ended)
             }
         }
         
         // MARK: - Scrolling Logic
         .panGesture(direction: .down) { translation, phase in
-            viewModel.handleScrollDown(translation: translation, phase: phase)
+            notchStateManager.handleScrollDown(translation: translation, phase: phase)
         }
         .panGesture(direction: .up) { translation, phase in
-            viewModel.handleScrollUp(translation: translation, phase: phase)
+            notchStateManager.handleScrollUp(translation: translation, phase: phase)
         }
         // MARK: - Drop Logic
         .onDrop(of: [UTType.fileURL.identifier, UTType.image.identifier], isTargeted: $fileDropManager.isDroppingFiles) { providers in
@@ -359,11 +359,11 @@ struct ComfyNotchView: View {
             }
         }
         .onHover {
-            viewModel.handleHover($0)
+            notchStateManager.handleHover($0)
         }
         .onTapGesture {
             if uiManager.panelState == .closed {
-                viewModel.handleScrollDown(translation: 251, phase: .ended)
+                notchStateManager.handleScrollDown(translation: 251, phase: .ended)
             }
         }
         .contextMenu {
