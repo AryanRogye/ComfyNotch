@@ -85,13 +85,14 @@ class ScrollManager: ObservableObject {
         }
     }
     
-    public func closeFull(calledBy: String = "") {
-        switch scrollController {
-        case .new: closeFullNew()
-        case .old: break
-        }
-        startArtWatch()
-    }
+//    public func closeFull(calledBy: String = "") {
+//        closeFullNew()
+//        switch scrollController {
+//        case .new: closeFullNew()
+//        case .old: break
+//        }
+//        startArtWatch()
+//    }
     
     public func peekOpen(withHeight: CGFloat = 50) {
         switch scrollController {
@@ -195,8 +196,8 @@ extension ScrollManager {
      *       For Example we may want to expand the width of the panel if music is playing etc.
      *       Main point being we have a way to figure out what to do once the notch closes
      */
-    private func closeFullNew() {
-        
+    public func closeFull(calledBy: String = "") {
+
         if isClosingFull { return }
         isClosingFull = true
         defer { isClosingFull = false }

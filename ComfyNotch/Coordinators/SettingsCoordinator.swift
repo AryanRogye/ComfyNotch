@@ -27,7 +27,6 @@ class SettingsCoordinator: ObservableObject {
             size: NSSize(width: 800, height: 500),
             onOpen: { [weak self] in
                 SettingsModel.shared.isSettingsWindowOpen = true
-                print("Settings Window Open at the place where we open it: \(SettingsModel.shared.isSettingsWindowOpen)")
                 self?.activateWithRetry()
             },
             onClose: {
@@ -43,7 +42,6 @@ class SettingsCoordinator: ObservableObject {
     
     private func activateWithRetry(_ tries: Int = 6) {
         guard tries > 0 else { return }
-        print("Try: \(tries)")
         
         // If we're already active *and* have a key window, stop retrying.
         if NSApp.isActive, NSApp.keyWindow != nil {
