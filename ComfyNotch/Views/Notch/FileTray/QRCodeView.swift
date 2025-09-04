@@ -9,12 +9,13 @@ import SwiftUI
 
 struct QRCodeView: View {
     
-    @Environment(\.openWindow) var openWindow
-    @EnvironmentObject var settings: SettingsModel
+    
+    @EnvironmentObject var settingsCoordinator: SettingsCoordinator
     @EnvironmentObject var qrCodeManager: QRCodeManager
     
     @Binding var hasStartedQRScanning: Bool
     @Binding var hoverErrorStatus: QRCodeManager.QRCodeManagerError
+    @ObservedObject var settings = SettingsModel.shared
     
     var body: some View {
         VStack {
@@ -66,9 +67,7 @@ struct QRCodeView: View {
     
     
     private func openSettings() {
-        NSApp.activate(ignoringOtherApps: true)
-        openWindow(id: "SettingsView")
-        settings.isSettingsWindowOpen = true
+        settingsCoordinator.showSettings()
         settings.selectedTab = .notch
         /// 3 means filetray section
         settings.selectedNotchTab = 3

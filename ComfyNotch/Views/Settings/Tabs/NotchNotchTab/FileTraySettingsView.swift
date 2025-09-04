@@ -34,8 +34,10 @@ public struct FileTraySettingsView: View {
     public var body: some View {
         VStack {
             saveToFolder()
-            
-            Divider().padding(.vertical, 8)
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+
+            Divider().groupBoxStyle()
             
             allowToOpenOnLocalhost
         }
@@ -66,6 +68,7 @@ public struct FileTraySettingsView: View {
         VStack {
             toggleableAllow
                 .padding(.horizontal)
+                .padding(.vertical, 8)
             
             Text("""
                 This allows you to drag in a file and get a QR code to scan with your phone. 
@@ -77,22 +80,20 @@ public struct FileTraySettingsView: View {
             .foregroundColor(.secondary)
             .multilineTextAlignment(.leading)
             .lineLimit(nil)
-            .textSelection(.enabled) // optional
+            .textSelection(.enabled)
             .layoutPriority(1)
             .padding(.horizontal)
-            .padding(.bottom, 8)
+            .padding(.vertical, 8)
             
             if v.fileTrayAllowOpenOnLocalhost {
                 
-                Divider().padding(.bottom, 8)
+                Divider().groupBoxStyle()
                 
-                VStack() {
-                    portPicker
-                        .padding(.vertical, 4)
-                    Divider().padding(.vertical, 8)
-                    localHostPin
-                        .padding(.bottom)
-                }
+                portPicker.padding(.vertical, 8)
+                
+                Divider().groupBoxStyle()
+                
+                localHostPin.padding(.vertical, 8)
             }
         }
         .frame(maxWidth: .infinity)
@@ -182,7 +183,6 @@ public struct FileTraySettingsView: View {
                 pickFolder()
             }
         }
-        .padding([.horizontal, .top])
     }
     
     func pickFolder() {

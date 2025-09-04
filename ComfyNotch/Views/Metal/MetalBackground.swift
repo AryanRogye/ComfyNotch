@@ -250,8 +250,10 @@ struct MetalBackground: NSViewRepresentable {
             let library = device.makeDefaultLibrary()!
             
             let pipelineDescriptor = MTLRenderPipelineDescriptor()
+            
             pipelineDescriptor.vertexFunction = library.makeFunction(name: "vertexPassthrough")
             pipelineDescriptor.fragmentFunction = library.makeFunction(name: animationName)
+            
             pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
             
             do {

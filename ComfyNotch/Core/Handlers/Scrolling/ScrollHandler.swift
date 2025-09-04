@@ -1,0 +1,129 @@
+import AppKit
+import Combine
+
+class ScrollHandler : ObservableObject {
+    internal let settings: SettingsModel = .shared
+    
+    // MARK: – Configuration
+    lazy var minPanelHeight: CGFloat = self.getNotchHeight()
+    var maxPanelHeight: CGFloat = 110
+    
+    var minPanelWidth: CGFloat {
+        settings.notchMinWidth
+    }
+    
+    var maxPanelWidth: CGFloat {
+        settings.notchMaxWidth
+    }
+    
+    internal let maxPullDistance = 110
+    
+    // MARK: - Flags
+    internal var isOpeningFull = false
+    internal var isPeeking = false
+    internal var isAnimatingPeek = false
+    @Published var isHovering = false
+    @Published var finishedHoveringIn: Bool = false
+    
+    init() {}
+    
+    // MARK: - Open Full Panel
+    /// This animation makes sure that it just "expands"
+    
+    public func re_align_notch() {
+        guard let panel = UIManager.shared.smallPanel else { return }
+        guard UIManager.shared.panelState == .closed else { return }
+        
+        let screen = DisplayManager.shared.selectedScreen!
+        let id = screen.displayID
+        
+        /// we want to look for the screen with the ID cuz the frame is not logging
+        /// that its different, I had the resolution 1800x1169 and changed to 1512x982
+        /// but the frame was still logging 1800x1169
+        
+        guard let screen = NSScreen.screens.first(where: {
+            $0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID == id
+        }) else {
+            debugLog("❌ Could not find screen with displayID \(String(describing: id))", from: .scroll)
+            return
+        }
+        
+        DispatchQueue.main.async {
+            DisplayManager.shared.selectedScreen = screen
+        }
+        
+        minPanelHeight = self.getNotchHeight()
+        
+        /// DEBUG LOG, this is DEBUG DEBUG working
+        debugLog("Screen Frame: \(screen.frame)", from: .scrollMajor)
+        debugLog("Screen Visible Frame: \(screen.visibleFrame)", from: .scrollMajor)
+        debugLog("Panel Screen Origin: \(panel.screen?.frame.origin ?? .zero)", from: .scrollMajor)
+        
+        let startYOffset = UIManager.shared.startPanelYOffset
+        
+        let finalWidth = minPanelWidth
+        let centerX = (screen.frame.width - finalWidth) / 2
+        let y = screen.frame.height - minPanelHeight - startYOffset
+        let desiredFrame = NSRect(x: centerX, y: y, width: finalWidth, height: minPanelHeight)
+        
+        // Optional: Tolerance for micro pixel diff
+        if !panel.frame.equalTo(desiredFrame) {
+            panel.setFrame(desiredFrame, display: true)
+        }
+        
+//        print("Set Values")
+//        print("Min Height: \(minPanelHeight)")
+//        print("Min Width: \(minPanelWidth)")
+//        print("Panel Frame: \(panel.frame)")
+//        print("Desired Frame: \(desiredFrame)")
+    }
+    
+    // MARK: – Helpers
+    func getNotchWidth() -> CGFloat {
+        guard let screen = DisplayManager.shared.selectedScreen else { return 180 } // Default to 180 if it fails
+        
+        let screenWidth = screen.frame.width
+        
+        // Rough estimates based on Apple specs
+        if screenWidth >= 3456 { // 16-inch MacBook Pro
+            return 180
+        } else if screenWidth >= 3024 { // 14-inch MacBook Pro
+            return 160
+        } else if screenWidth >= 2880 { // 15-inch MacBook Air
+            return 170
+        }
+        
+        // Default if we can't determine it
+        return 230
+    }
+    
+    // TODO: PLS PLS PLS LOOK AT THIS TO USE
+    func animate(_ duration: TimeInterval,
+                 timing: CAMediaTimingFunction,
+                 animations: @escaping () -> Void,
+                 completion: @escaping () -> Void = {}) {
+        NSAnimationContext.runAnimationGroup({ ctx in
+            ctx.duration = duration
+            ctx.timingFunction = timing
+            ctx.allowsImplicitAnimation = true
+            animations()
+        }, completionHandler: completion)
+    }
+    
+    func getNotchHeight() -> CGFloat {
+        if let screen = DisplayManager.shared.selectedScreen {
+            let safeAreaInsets = screen.safeAreaInsets
+            let calculatedHeight = safeAreaInsets.top
+            
+            /// Only return calculated height if it is greater than 0
+            if calculatedHeight > 0 {
+                return calculatedHeight
+            }
+        }
+        
+        /// If no screen is selected or height is 0, return fallback height
+        let fallbackHeight = SettingsModel.shared.notchMinFallbackHeight
+        /// Make sure fallback height is greater than 0 or go to the fallback 40
+        return fallbackHeight > 0 ? fallbackHeight : 40
+    }
+}

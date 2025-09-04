@@ -45,8 +45,8 @@ struct ComfyNotchStyleMusicWidget: View {
             if isVisible {
                 // MARK: - Album View
                 renderAlbumCover()
-                    .padding(.bottom)
                     .frame(alignment: .leading)
+                    .padding(.top, 8)
                 
                 // MARK: - Song Information and Controls
                 VStack(alignment: .leading, spacing: 0) {
@@ -65,6 +65,9 @@ struct ComfyNotchStyleMusicWidget: View {
         }
         // MARK: - Card Styling
         .frame(maxWidth: givenSpace.w, maxHeight: givenSpace.h)
+        #if DEBUG
+        .border(.red, width: VIEW_MUSIC_SPACING ? 1 : 0)
+        #endif
         .onAppear {
             isVisible = true
             givenSpace = UIManager.shared.expandedWidgetStore.determineWidthAndHeight()
@@ -173,7 +176,7 @@ struct ComfyNotchStyleMusicWidget: View {
                                 // Progress bar
                                 Rectangle()
                                     .fill(Color(nsColor: model.nowPlayingInfo.dominantColor))
-                                    .frame(width: max(CGFloat(effectivePosition / max(model.nowPlayingInfo.durationSeconds,1)) * geometry.size.width, 0), height: 4)
+                                    .frame(width: min(max(CGFloat(effectivePosition / max(model.nowPlayingInfo.durationSeconds,1)) * geometry.size.width, 0), geometry.size.width), height: 4)
                                     .cornerRadius(2)
                                     .shadow(color: Color(nsColor: model.nowPlayingInfo.dominantColor).opacity(0.5), radius: 4, x: 0, y: 2)
                             }
@@ -194,7 +197,7 @@ struct ComfyNotchStyleMusicWidget: View {
                                         // 1. Seek the real player
                                         AudioManager.shared.playAtTime(to: newTimeInSeconds)
                                         
-                                        // 2. Keep the thumb where the user left it (UI won’t flash back)
+                                        // 2. Keep the thumb where the user left it (UI won't flash back)
                                         model.manualDragPosition = newTimeInSeconds
                                         
                                         /// This is delayed because someone like me plays spotify on my tv
