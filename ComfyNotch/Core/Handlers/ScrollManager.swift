@@ -124,13 +124,22 @@ extension ScrollManager {
         isPeekingClose = true
         defer { isPeekingClose = false }
         
-        print("Called Peek Close")
-        
         let targetHeight = self.getNotchHeight()
-        guard self.notchSize.height != targetHeight else { return }
         
         withAnimation(.spring(response: 0.4, dampingFraction: 0.75, blendDuration: 0.1)) {
-            self.notchSize.height = targetHeight
+            var s = notchSize           // copy
+            s.height = targetHeight     // mutate
+            notchSize = s               // <- reassign to publish
+            verifyClose()
+        }
+    }
+    
+    internal func verifyClose() {
+        let targetHeight = self.getNotchHeight()
+        if notchSize.height != targetHeight {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.75, blendDuration: 0.1)) {
+                notchSize.height = targetHeight
+            }
         }
     }
     

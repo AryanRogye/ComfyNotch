@@ -122,15 +122,8 @@ class NotchStateManager: ObservableObject {
                 self.isHoveringOverNotch = false
                 uiManager.applyOpeningLayout()
                 self.scrollManager.closeFull()
-                
                 /// Once We Close, we can decide what we wanna do to it
-                if AudioManager.shared.nowPlayingInfo.isPlaying {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-                        guard let self = self else { return }
-                        self.scrollManager.expandWidth()
-                        uiManager.applyCompactWidgetLayout()
-                    }
-                }
+                expandNotchIfNeeded()
             }
         default: break
         }
@@ -142,7 +135,10 @@ class NotchStateManager: ObservableObject {
     
     public func peekClose() {
         ScrollManager.shared.peekClose()
-        
+        expandNotchIfNeeded()
+    }
+    
+    private func expandNotchIfNeeded() {
         if AudioManager.shared.nowPlayingInfo.isPlaying {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
                 guard let self = self else { return }
@@ -150,7 +146,6 @@ class NotchStateManager: ObservableObject {
                 uiManager.applyCompactWidgetLayout()
             }
         }
-        
     }
 }
 
