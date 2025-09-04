@@ -58,7 +58,8 @@ class AppCoordinator {
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            UIManager.shared.applyCompactWidgetLayout()
+            /// This makes sure that we start out blank
+            UIManager.shared.applyOpeningLayout()
         }
     }
     

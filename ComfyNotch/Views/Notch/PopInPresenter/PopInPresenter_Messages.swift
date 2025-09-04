@@ -89,7 +89,7 @@ struct PopInPresenter_Messages: View {
             UIManager.shared.applyOpeningLayout()
             NotchStateManager.shared.currentPanelState = .home
             NotchStateManager.shared.currentPopInPresentationState = .none
-            ScrollManager.shared.peekClose()
+            NotchStateManager.shared.peekClose()
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
             ScrollManager.shared.openFull()

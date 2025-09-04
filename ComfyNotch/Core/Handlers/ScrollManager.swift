@@ -28,49 +28,17 @@ class ScrollManager: ObservableObject {
     let uiManager = UIManager.shared
     var scrollController = ScrollController.new
     
-    private var artWatcher: AnyCancellable?
-    
     let settings = SettingsModel.shared
     
     private var isOpeningFull = false
     private var isClosingFull = false
     private var isExpandingWidth = false
+    
     private var isPeekingOpen = false
+    private var isPeekingClose = false
     
     init() {
         notchSize = (width: getNotchWidth(), height: getNotchHeight())
-        startArtWatch()
-    }
-    
-    public func startArtWatch() {
-        guard artWatcher == nil else { return }
-
-        artWatcher = AudioManager.shared.nowPlayingInfo.$artworkImage
-            .map { $0 != nil }
-            .removeDuplicates()
-            .debounce(for: .milliseconds(250), scheduler: RunLoop.main) // tame flaps
-            .receive(on: RunLoop.main)
-            .sink { [weak self] hasArt in
-                guard let self = self else { return }
-                guard !self.isOpeningFull, !self.isClosingFull else { return }
-                guard self.uiManager.panelState == .closed else { return }
-                
-                if hasArt {
-                    // you had a 0.4s delay—keep it if you want the animation timing
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                        self.uiManager.applyOpeningLayout()
-                        self.expandWidth()
-                        self.uiManager.applyCompactWidgetLayout()
-                    }
-                } else {
-                    self.closeFull()
-                }
-            }
-    }
-    
-    public func stopArtWatch() {
-        artWatcher?.cancel()
-        artWatcher = nil
     }
     
     public func getMaxPanelHeight() -> CGFloat {
@@ -78,32 +46,8 @@ class ScrollManager: ObservableObject {
     }
     
     public func openFull() {
-        stopArtWatch()
         switch scrollController {
         case .new: openFullNew()
-        case .old: break
-        }
-    }
-    
-//    public func closeFull(calledBy: String = "") {
-//        closeFullNew()
-//        switch scrollController {
-//        case .new: closeFullNew()
-//        case .old: break
-//        }
-//        startArtWatch()
-//    }
-    
-    public func peekOpen(withHeight: CGFloat = 50) {
-        switch scrollController {
-        case .new: peekOpenNew(height: withHeight)
-        case .old: break
-        }
-    }
-    
-    public func peekClose() {
-        switch scrollController {
-        case .new: closeFull()
         case .old: break
         }
     }
@@ -157,13 +101,13 @@ extension ScrollManager {
 extension ScrollManager {
     
     /// Function To Peek Open the Notch to the set amount or a default amount of 50
-    private func peekOpenNew(height: CGFloat = 50) {
+    internal func peekOpen(withHeight: CGFloat = 50) {
         if isPeekingOpen { return }
         isPeekingOpen = true
         defer { isPeekingOpen = false }
         
         let targetWidth = self.getNotchWidth() + 70
-        let targetHeight = self.getNotchHeight() + height
+        let targetHeight = self.getNotchHeight() + withHeight
         
         /// Peek Open Relates To The Height, so we need to make sure its not the target height already
         guard self.notchSize.height != targetHeight else { return }
@@ -174,7 +118,26 @@ extension ScrollManager {
         }
     }
     
-    /// Function to open the Notch Fully
+    internal func peekClose() {
+        
+        if isPeekingClose { return }
+        isPeekingClose = true
+        defer { isPeekingClose = false }
+        
+        print("Called Peek Close")
+        
+        let targetHeight = self.getNotchHeight()
+        guard self.notchSize.height != targetHeight else { return }
+        
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.75, blendDuration: 0.1)) {
+            self.notchSize.height = targetHeight
+        }
+    }
+    
+    /*
+     * Function to open the notch fully
+     * Anything after this needs to be handled outside
+     */
     private func openFullNew() {
         if isOpeningFull { return }
         isOpeningFull = true
@@ -186,15 +149,11 @@ extension ScrollManager {
             self.notchRadius.bottomRadius = 15
         }
         uiManager.panelState = .open
-        
     }
     
     /*
      * Function to close the Notch Fully
      * This represents a Closed fully meaning `no side area`,
-     * TODO: Once the notch closes, figure out what to do with the closed state
-     *       For Example we may want to expand the width of the panel if music is playing etc.
-     *       Main point being we have a way to figure out what to do once the notch closes
      */
     public func closeFull(calledBy: String = "") {
 
@@ -203,26 +162,18 @@ extension ScrollManager {
         defer { isClosingFull = false }
         
         withAnimation(.easeInOut(duration: 0.25)) {
-            if AudioManager.shared.nowPlayingInfo.artworkImage != nil {
-                self.notchSize.width = self.getNotchWidth() + 70
-            } else {
-                self.notchSize.width = self.getNotchWidth()
-            }
+            self.notchSize.width = self.getNotchWidth()
             self.notchSize.height = self.getNotchHeight()
             self.notchRadius.bottomRadius = DEFAULT_BOTTOM_RADIUS
         }
         uiManager.panelState = .closed
-        
-        if AudioManager.shared.nowPlayingInfo.artworkImage != nil {
-            self.expandWidth()
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-                guard let self = self else { return }
-                self.uiManager.applyCompactWidgetLayout()
-            }
-        }
     }
     
+    /*
+     * Function will Expand Width 70+ the getNotchWidth() amount
+     * This gives us space to show anything on the left or right side
+     * which is managed by the UIManager
+     */
     public func expandWidth() {
         
         if isExpandingWidth { return }

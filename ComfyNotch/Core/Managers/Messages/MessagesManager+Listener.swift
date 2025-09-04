@@ -99,11 +99,11 @@ extension MessagesManager {
     internal func closeNotch() {
         notchStateManager.currentPopInPresentationState = .none
         notchStateManager.currentPanelState = .home
-        ScrollManager.shared.peekClose()
+        NotchStateManager.shared.peekClose()
     }
     
     private func openNotch() {
-        ScrollManager.shared.peekOpen()
+        NotchStateManager.shared.peekOpen()
     }
     
     private func hasChatDBChanged() -> Bool {

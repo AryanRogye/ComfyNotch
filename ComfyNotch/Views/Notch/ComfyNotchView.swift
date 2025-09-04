@@ -36,6 +36,42 @@ class NotchStateManager: ObservableObject {
     
     init() {
         hoverHandler.bindHoveringOverLeft(for: self)
+        startArtWatch()
+    }
+    
+    private var artWatcher: AnyCancellable?
+    private var isOpeningFull = false
+    private var isClosingFull = false
+    
+    public func startArtWatch() {
+        guard artWatcher == nil else { return }
+        
+        artWatcher = AudioManager.shared.nowPlayingInfo.$artworkImage
+            .map { $0 != nil }
+            .removeDuplicates()
+            .debounce(for: .milliseconds(250), scheduler: RunLoop.main) // tame flaps
+            .receive(on: RunLoop.main)
+            .sink { [weak self] hasArt in
+                guard let self = self else { return }
+                guard !self.isOpeningFull, !self.isClosingFull else { return }
+                guard self.uiManager.panelState == .closed else { return }
+                
+                if hasArt {
+                    // you had a 0.4s delay—keep it if you want the animation timing
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                        self.uiManager.applyOpeningLayout()
+                        ScrollManager.shared.expandWidth()
+                        self.uiManager.applyCompactWidgetLayout()
+                    }
+                } else {
+                    ScrollManager.shared.closeFull()
+                }
+            }
+    }
+    
+    public func stopArtWatch() {
+        artWatcher?.cancel()
+        artWatcher = nil
     }
     
     public func handleHover(_ hovering: Bool) {
@@ -48,14 +84,20 @@ class NotchStateManager: ObservableObject {
     
     public func handleScrollDown(translation: CGFloat, phase: NSEvent.Phase, force: Bool = false) {
         guard uiManager.panelState == .closed else { return }
+        
+        if isOpeningFull { return }
+        isOpeningFull = true
+        defer { isOpeningFull = false }
+        stopArtWatch()
+        
         var threshold : CGFloat = self.currentPanelState == .popInPresentation ? 420 : 250
         if force { threshold = 0 }
         
         if translation > threshold {
+            uiManager.applyOpeningLayout()
             withAnimation(.spring(response: 0.4, dampingFraction: 0.75, blendDuration: 0.1)) {
                 self.isHoveringOverNotch = false
             }
-            uiManager.applyOpeningLayout()
             scrollManager.openFull()
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
@@ -67,6 +109,11 @@ class NotchStateManager: ObservableObject {
     
     public func handleScrollUp(translation: CGFloat, phase: NSEvent.Phase, force: Bool = false) {
         guard uiManager.panelState == .open else { return }
+        
+        if isClosingFull { return }
+        isClosingFull = true
+        defer { isClosingFull = false }
+        
         var threshold: CGFloat = 50
         if force { threshold = 0 }
         switch phase {
@@ -75,9 +122,35 @@ class NotchStateManager: ObservableObject {
                 self.isHoveringOverNotch = false
                 uiManager.applyOpeningLayout()
                 self.scrollManager.closeFull()
+                
+                /// Once We Close, we can decide what we wanna do to it
+                if AudioManager.shared.nowPlayingInfo.isPlaying {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                        guard let self = self else { return }
+                        self.scrollManager.expandWidth()
+                        uiManager.applyCompactWidgetLayout()
+                    }
+                }
             }
         default: break
         }
+    }
+    
+    public func peekOpen(withHeight: CGFloat = 50) {
+        ScrollManager.shared.peekOpen(withHeight: withHeight)
+    }
+    
+    public func peekClose() {
+        ScrollManager.shared.peekClose()
+        
+        if AudioManager.shared.nowPlayingInfo.isPlaying {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                guard let self = self else { return }
+                self.scrollManager.expandWidth()
+                uiManager.applyCompactWidgetLayout()
+            }
+        }
+        
     }
 }
 
