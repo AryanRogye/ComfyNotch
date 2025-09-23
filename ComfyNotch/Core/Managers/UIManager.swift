@@ -331,7 +331,7 @@ class UIManager: ObservableObject {
             panel.setFrame(screen.frame, display: true)
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-                guard let self = self else { return }
+                guard self != nil else { return }
                 ScrollManager.shared.closeFull()
             }
         }
