@@ -22,8 +22,6 @@
   - Hover Activation Area
     - Enable Music Controls On Hover
   - Enable HUD (Volume/Brightness)
-  - One Finger Action
-  - Two Finger Action
 
 ## Notch
 ### TabView: Notch Screen Options
@@ -78,7 +76,8 @@
 
 ## Display
 - **Select Screen (Display Picker)**
-  - Info: “ComfyNotch works best with a screen that has a physical notch. A relaunch may be required to fully apply changes after switching displays.”
+  - Pick a screen to show the notch on
+  - Info: “ComfyNotch works best with a screen that has a physical notch.”
 
 ## ComfyNotch
 - **License**

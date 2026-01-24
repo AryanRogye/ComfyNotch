@@ -39,9 +39,10 @@ struct QuickAccessStyleSettings: View {
                     .foregroundColor(.primary)
                 Spacer()
             }
-            .padding([.top,.horizontal])
+            .padding(.horizontal)
+            .padding(.vertical, 8)
             
-            Divider().padding(.vertical, 8)
+            Divider().groupBoxStyle()
             
             HStack {
                 /// Option 1
@@ -59,6 +60,7 @@ struct QuickAccessStyleSettings: View {
                 }
             }
             .padding(.horizontal)
+            .padding(.top, 8)
             .frame(maxWidth: .infinity, alignment: .center)
         }
     }

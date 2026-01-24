@@ -113,7 +113,7 @@ struct UserTray: View {
         notchStateManager.currentPanelState = .home
         UIManager.shared.applyOpeningLayout()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            ScrollHandler.shared.closeFull()
+            ScrollManager.shared.closeFull()
         }
     }
 }

@@ -103,9 +103,22 @@ struct CameraWidget: View, Widget {
                     .fill(Color.white.opacity(0.001))
                 
                 VStack(spacing: 8) {
-                    Image(systemName: "web.camera")
-                        .foregroundStyle(.gray)
-                        .font(.system(size: givenSpace.w / 9))
+                    
+                    /*
+                     * Some Weird Warnings saying:
+                     * No symbol named 'web.camera' found in system symbol set
+                     * But it still shows up fine, so leaving it here
+                     */
+                    
+                    if #available(macOS 15.0, *) {
+                        Image(systemName: "web.camera")
+                            .foregroundStyle(.gray)
+                            .font(.system(size: givenSpace.w / 9))
+                    } else {
+                        Image(systemName: "video")
+                            .foregroundStyle(.gray)
+                            .font(.system(size: givenSpace.w / 9))
+                    }
                     Text("Mirror")
                         .font(.caption2)
                         .foregroundColor(.gray)

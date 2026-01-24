@@ -39,34 +39,33 @@ struct MetalAnimations: View {
     var body: some View {
         VStack {
             /// Warning about experimental
-            warningAboutMetal
-                .padding([.horizontal, .top])
-            
-            Divider()
-                .padding(.vertical, 8)
+//            warningAboutMetal
+//                .padding(.horizontal)
+//                .padding(.vertical, 8)
+//            
+//            Divider().groupBoxStyle()
             
             /// Turn on and off metal animations
             enableMetalToggle
                 .padding(.horizontal)
-                .padding(.bottom, 8)
-            
+                .padding(.vertical, 8)
+
             
             /// if metal animations is enabled
             if v.enableMetalAnimation {
                 
-                Divider()
-                    .padding(.bottom, 8)
-                
+                Divider().groupBoxStyle()
+
                 notchBackgroundShader
                     .padding(.horizontal)
-                
-                Divider()
                     .padding(.vertical, 8)
+                
+                Divider().groupBoxStyle()
 
                 fpsToggle
                     .padding(.horizontal)
-                    .padding(.bottom)
-                
+                    .padding(.vertical, 8)
+
             }
             
         }
@@ -105,8 +104,15 @@ struct MetalAnimations: View {
     }
     
     private var enableMetalToggle: some View {
-        Toggle("Enable Metal Animations/Shaders",isOn: $v.enableMetalAnimation)
-            .toggleStyle(.switch)
+        HStack(alignment: .center) {
+            Text("Enable Metal Animations/Shaders")
+            
+            Spacer()
+            
+            Toggle("Enable Metal Animations/Shaders",isOn: $v.enableMetalAnimation)
+                .toggleStyle(.switch)
+                .labelsHidden()
+        }
     }
     
     private var notchBackgroundShader: some View {

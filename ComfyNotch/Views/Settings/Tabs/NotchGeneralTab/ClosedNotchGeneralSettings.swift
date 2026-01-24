@@ -13,8 +13,6 @@ struct ClosedNotchValues {
     var enableButtonsOnHover: Bool = false
     var fallbackHeight: Int = 0
     var hudEnabled: Bool = false
-    var oneFingerAction: TouchAction = .none
-    var twoFingerAction: TouchAction = .none
 }
 
 struct ClosedNotchGeneralSettings: View {
@@ -32,61 +30,51 @@ struct ClosedNotchGeneralSettings: View {
     var body: some View {
         VStack {
             notchShapeClosed
-                .padding([.horizontal, .top])
+                .padding(.horizontal)
+                .padding(.vertical, 8)
 
-            Divider()
-                .padding([.vertical, .top], 4)
+            Divider().groupBoxStyle()
             
             panelMinWidthSettings
-                .padding(.vertical, 4)
+                .padding(.horizontal)
+                .padding(.vertical, 8)
             
-            Divider()
-                .padding(.vertical, 4)
-            
+            Divider().groupBoxStyle()
+
             fallbackHeightSettings
-                .padding(.vertical, 4)
-            
-            Divider()
-                .padding(.vertical, 4)
-            
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+
+            Divider().groupBoxStyle()
+
             hoverSettings
-                .padding(.vertical, 4)
-            
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+
             if v.hoverTargetMode == .album {
-                Divider()
-                    .padding(.vertical, 4)
-                
+                Divider().groupBoxStyle()
+
                 buttonsOnHoverToggle
-                    .padding(.vertical, 4)
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
             }
             
-            Divider()
-                .padding(.vertical, 4)
-            
+            Divider().groupBoxStyle()
+
             hudSettings
-                .padding(.vertical, 4)
-            
-            Divider()
-                .padding(.vertical, 4)
-            
-            touchSettings
-                .padding(.vertical, 4)
-                .padding(.bottom)
+                .padding(.vertical, 8)
+                .padding(.bottom, 12)
         }
         .onAppear {
             v.hoverTargetMode = settings.hoverTargetMode
             v.fallbackHeight = Int(settings.notchMinFallbackHeight)
             v.hudEnabled = settings.enableNotchHUD
-            v.oneFingerAction = settings.oneFingerAction
-            v.twoFingerAction = settings.twoFingerAction
             v.notchMinWidth = Int(settings.notchMinWidth)
             v.enableButtonsOnHover = settings.enableButtonsOnHover
         }
         .onChange(of: v.hoverTargetMode)        { checkDidChange() }
         .onChange(of: v.fallbackHeight)         { checkDidChange() }
         .onChange(of: v.hudEnabled)             { checkDidChange() }
-        .onChange(of: v.oneFingerAction)        { checkDidChange() }
-        .onChange(of: v.twoFingerAction)        { checkDidChange() }
         .onChange(of: v.notchMinWidth)          { checkDidChange() }
         .onChange(of: v.enableButtonsOnHover)   { checkDidChange() }
     }
@@ -96,8 +84,6 @@ struct ClosedNotchGeneralSettings: View {
         v.hoverTargetMode != settings.hoverTargetMode
         || v.fallbackHeight  != Int(settings.notchMinFallbackHeight)
         || v.hudEnabled      != settings.enableNotchHUD
-        || v.oneFingerAction != settings.oneFingerAction
-        || v.twoFingerAction != settings.twoFingerAction
         || v.notchMinWidth   != Int(settings.notchMinWidth)
         || v.enableButtonsOnHover != settings.enableButtonsOnHover
     }
@@ -146,7 +132,6 @@ struct ClosedNotchGeneralSettings: View {
                 label: "Notch Width When Closed"
             )
         }
-        .padding(.horizontal)
     }
     
     // MARK: - Fallback Height Settings
@@ -157,7 +142,6 @@ struct ClosedNotchGeneralSettings: View {
                 in: settings.notchHeightMin...settings.notchHeightMax,
                 label: "Notch Height Fallback"
             )
-            /// TODO: 0 Point is too far to the leftit -m
             
             Text("""
                 Use this value as the notch height when `safeAreaInsets` are unavailable—for example, on Intel Macs without a built‑in notch. It ensures consistent layout by providing a fallback height in points.
@@ -167,7 +151,6 @@ struct ClosedNotchGeneralSettings: View {
             .frame(alignment: .center)
             .padding(.top, 2)
         }
-        .padding(.horizontal)
     }
     
     // MARK: - Hover Settings
@@ -189,7 +172,6 @@ struct ClosedNotchGeneralSettings: View {
                 .labelsHidden()
             }
         }
-        .padding([.horizontal])
     }
     
     // MARK: - buttonsOnHoverToggle
@@ -209,7 +191,6 @@ struct ClosedNotchGeneralSettings: View {
                     .toggleStyle(.switch)
             }
         }
-        .padding(.horizontal)
     }
 
     // MARK: - HUD Settings
@@ -246,32 +227,5 @@ struct ClosedNotchGeneralSettings: View {
             }
         }
         .padding(.horizontal)
-    }
-    
-    
-    
-    
-    
-    // MARK: - Touch Settings
-    private var touchSettings: some View {
-        VStack(alignment: .leading) {
-            HStack {
-                Picker("One Finger Action", selection: $v.oneFingerAction) {
-                    ForEach(TouchAction.allCases, id: \.self) { action in
-                        Text(action.displayName)
-                            .tag(action)
-                    }
-                }
-                
-                Picker("Two Finger Action", selection: $v.twoFingerAction) {
-                    ForEach(TouchAction.allCases, id: \.self) { action in
-                        Text(action.displayName)
-                            .tag(action)
-                    }
-                }
-            }
-            
-        }
-        .padding([.horizontal])
     }
 }

@@ -8,13 +8,14 @@ enum UtilsTab: String, CaseIterable {
 struct UtilsView: View {
     @ObservedObject var settings: SettingsModel = .shared
     @ObservedObject var notchStateManager: NotchStateManager = .shared
+    @ObservedObject var uiManager: UIManager = .shared
     @ObservedObject var clipboardManager = ClipboardManager.shared
     
     @State private var expanded: Bool = true
 
     var body: some View {
         VStack(spacing: 0) {
-            if notchStateManager.isExpanded {
+            if uiManager.panelState == .open {
                 HStack {
                     if expanded {
                         ForEach(UtilsTab.allCases, id: \.self) { tab in
@@ -67,8 +68,8 @@ struct UtilsView: View {
         }
         .background(Color.clear)
         .animation(
-            .easeInOut(duration: notchStateManager.isExpanded ? 0.3 : 0.1),
-            value: notchStateManager.isExpanded
+            .easeInOut(duration: uiManager.panelState == .open ? 0.3 : 0.1),
+            value: uiManager.panelState == .open
         )
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {

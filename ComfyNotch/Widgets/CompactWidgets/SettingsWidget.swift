@@ -10,12 +10,11 @@ struct SettingsButtonWidget: View, Widget {
     // allow for function to run in here
     @ObservedObject var musicModel = MusicPlayerWidgetModel.shared
     @ObservedObject var settings = SettingsModel.shared
-    @Environment(\.openWindow) var openWindow
+    @EnvironmentObject var settingsCoordinator: SettingsCoordinator
 
     var body: some View {
         Button(action: {
-            NSApp.activate(ignoringOtherApps: true)
-            openWindow(id: "SettingsView")
+            settingsCoordinator.showSettings()
         }) {
             Image(systemName: "gear")
                 .foregroundColor(Color(nsColor: musicModel.nowPlayingInfo.dominantColor))
