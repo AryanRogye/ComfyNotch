@@ -413,20 +413,6 @@ struct ComfyNotchStyleMusicWidget: View {
         .frame(width: albumSize, height: albumSize)
         .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
     }
-    
-    struct HoverEffectWrapper<Content: View>: View {
-        @State private var isHovering = false
-        let content: () -> Content
-        
-        var body: some View {
-            content()
-                .scaleEffect(isHovering ? 1.05 : 1.0)
-                .animation(.easeInOut(duration: 0.15), value: isHovering)
-                .onHover { hovering in
-                    isHovering = hovering
-                }
-        }
-    }
 }
 
 

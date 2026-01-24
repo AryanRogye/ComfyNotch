@@ -12,8 +12,6 @@ struct HomeNotchView: View {
         HStack(spacing: 0) {
             if uiManager.panelState == .open {
                 /// Big Panel Widgets
-                let lastVisibleIndex = bigWidgetStore.widgets.lastIndex(where: { $0.isVisible })
-                
                 ForEach(bigWidgetStore.widgets.indices, id: \.self) { index in
                     let widgetEntry = bigWidgetStore.widgets[index]
                     if widgetEntry.isVisible {

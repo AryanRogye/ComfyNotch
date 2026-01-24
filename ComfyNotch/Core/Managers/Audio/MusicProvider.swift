@@ -16,5 +16,4 @@ extension MusicProvider {
         case .apple_music : return "Apple Music"
         }
     }
-
 }
